@@ -33,26 +33,27 @@
         android:layout_centerHorizontal="true"/>
 
     <Button
-        android:id="@+id/registerButton"
+        android:id="@+id/LoginButton"
         android:layout_width="199dp"
         android:layout_height="68dp"
         android:layout_below="@id/passwordEditText"
         android:layout_marginTop="20dp"
         android:backgroundTint="@color/border_green"
-        android:text="Register"
+        android:text="Log In"
         android:textColor="@color/white"
         android:textSize="25sp"
         android:layout_centerHorizontal="true"/>
+
     <Button
-        android:id="@+id/toLogin"
-        android:layout_width="199dp"
-        android:layout_height="68dp"
-        android:layout_below="@id/registerButton"
+        android:id="@+id/registerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="88dp"
+        android:layout_below="@id/LoginButton"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:backgroundTint="@color/border_green"
-        android:text=" Go to login"
+        android:text="Go to Register"
         android:textColor="@color/white"
-        android:textSize="25sp"
-        android:layout_centerHorizontal="true"/>
+        android:textSize="25sp" />
 
 </RelativeLayout>
