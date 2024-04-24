@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.text.TextUtils
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import android.util.Log
+
 
 class Register : AppCompatActivity() {
     lateinit var email: EditText
@@ -26,6 +28,7 @@ class Register : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         register.setOnClickListener {
+            Log.d("TAG", "Button clicked") // Add this line
             val txtEmail = email.text.toString()
             val txtPassword = password.text.toString()
 
