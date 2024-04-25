@@ -6,6 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".Register">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="Register Page"
+        ></TextView>
+
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/emailEditText"
         android:layout_width="285dp"
