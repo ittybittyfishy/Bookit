@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 
+
+//testing comment
 class MainActivity : AppCompatActivity() {
     lateinit var register: Button
 
