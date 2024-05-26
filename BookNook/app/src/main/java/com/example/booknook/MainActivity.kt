@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.booknook.fragments.CollectionFragment
 import com.example.booknook.fragments.HomeFragment
+import com.example.booknook.fragments.MoreFragment
 import com.example.booknook.fragments.ProfileFragment
 import com.example.booknook.fragments.SearchFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -20,6 +21,7 @@ class MainActivity : AppCompatActivity() {
     private val profileFragment = ProfileFragment()
     private val collectionFragment = CollectionFragment()
     private val searchFragment = SearchFragment()
+    private val moreFragment = MoreFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +38,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.collections ->  replaceFragment(collectionFragment)
                 R.id.search -> replaceFragment(searchFragment)
                 R.id.profile -> replaceFragment(profileFragment)
+                R.id.more ->  replaceFragment(moreFragment)
                 }
             true
             }
