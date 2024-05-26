@@ -9,6 +9,7 @@ import android.text.TextUtils
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
+import com.example.booknook.fragments.HomeFragment
 import com.google.firebase.firestore.FirebaseFirestore
 
 
@@ -73,7 +74,7 @@ class Login : AppCompatActivity() {
                                 Toast.makeText(this@Login, "Login successful", Toast.LENGTH_SHORT).show()
 
                                 // Create an Intent to start the HomePageActivity
-                                val intent = Intent(this@Login, HomePage::class.java)
+                                val intent = Intent(this@Login, MainActivity::class.java)
                                 // Pass the username as an extra to the intent
                                 intent.putExtra("username", userEmail)
                                 // Start the HomePageActivity

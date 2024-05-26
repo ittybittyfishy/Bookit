@@ -3,24 +3,48 @@ package com.example.booknook
 
 import android.content.Intent
 import android.os.Bundle
+import android.provider.ContactsContract.Profile
+import android.view.MenuItem
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-
+import androidx.fragment.app.Fragment
+import com.example.booknook.fragments.CollectionFragment
+import com.example.booknook.fragments.HomeFragment
+import com.example.booknook.fragments.ProfileFragment
+import com.example.booknook.fragments.SearchFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 //testing comment
 class MainActivity : AppCompatActivity() {
-    lateinit var register: Button
+    private val homeFragment = HomeFragment()
+    private val profileFragment = ProfileFragment()
+    private val collectionFragment = CollectionFragment()
+    private val searchFragment = SearchFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_register) // Set activity_register.xml as the content view
+        setContentView(R.layout.activity_main)
 
-        register = findViewById(R.id.registerButton)
+        val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation)
 
-        register.setOnClickListener {
-            startActivity(Intent(this@MainActivity, Register::class.java))
+        replaceFragment(homeFragment)
+
+        bottomNavigationView.setOnItemSelectedListener{
+            when (it.itemId)
+            {
+                R.id.home -> replaceFragment(homeFragment)
+                R.id.collections ->  replaceFragment(collectionFragment)
+                R.id.search -> replaceFragment(searchFragment)
+                R.id.profile -> replaceFragment(profileFragment)
+                }
+            true
+            }
         }
+
+    private fun replaceFragment(fragment: Fragment)
+    {
+            val transaction = supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.menu_container, fragment)
+            transaction.commit()
     }
 }
-
-
