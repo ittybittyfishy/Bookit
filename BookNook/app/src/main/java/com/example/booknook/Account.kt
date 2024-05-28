@@ -1,6 +1,6 @@
-package com.example.booknook.fragments
+package com.example.booknook
 
-import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,11 +13,9 @@ import com.example.booknook.R
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import java.text.SimpleDateFormat
-import java.util.*
+import androidx.appcompat.app.AppCompatActivity
 
-
-class AccountFragment : Fragment() {
+class Account : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
@@ -26,42 +24,42 @@ class AccountFragment : Fragment() {
     private lateinit var confirmPassword: EditText
     private lateinit var name: EditText
     private lateinit var gender: EditText
-    private lateinit var birthday: EditText
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_account, container, false)
-    }
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_account)
 
-        val savedButton : Button = view.findViewById(R.id.saveButton)
-        newPassword = view.findViewById(R.id.newPassword)
-        confirmPassword = view.findViewById(R.id.confirmedPassword)
-        currentPassword = view.findViewById(R.id.currentPassword)
-        name = view.findViewById(R.id.name_edit)
-        gender = view.findViewById(R.id.genderEdit)
-        birthday = view.findViewById((R.id.birthdayEditText))
+        val savedButton : Button = findViewById(R.id.saveButton)
+        newPassword = findViewById(R.id.newPassword)
+        confirmPassword = findViewById(R.id.confirmedPassword)
+        currentPassword = findViewById(R.id.currentPassword)
+        name = findViewById(R.id.name_edit)
+        gender = findViewById(R.id.genderEdit)
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
+
 
         savedButton.setOnClickListener{
             if (newPassword.text.isNotEmpty() || currentPassword.text.isNotEmpty() || confirmPassword.text.isNotEmpty())
             {
                 changePassword()
             }
-            else if (name.text.isNotEmpty())
+            if (name.text.isNotEmpty())
             {
                 changeName()
             }
-            else if (gender.text.isNotEmpty())
+            if (gender.text.isNotEmpty())
             {
                 changeGender()
             }
+
+            // Create an Intent to start the HomePageActivity
+            val intent = Intent(this@Account, MainActivity::class.java)
+            // Start the HomePageActivity
+            startActivity(intent)
+            // Finish the current activity to prevent the user from navigating back to it
+            finish()
         }
     }
 
@@ -72,18 +70,18 @@ class AccountFragment : Fragment() {
         // Check if new password and confirm password match
         if (newPassword != confirmPassword) {
             // Show an error message or toast indicating passwords don't match
-            Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@Account, "Passwords do not match", Toast.LENGTH_SHORT).show()
             return
         }
         else if (newPassword.length < 6)
         {
-            Toast.makeText(requireContext(), "New password too short", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@Account, "New password too short", Toast.LENGTH_SHORT).show()
             return
         }
 
         else if (currentPassword.text.toString() == newPassword)
         {
-            Toast.makeText(requireContext(), "New password cannot be the same password", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@Account, "New password cannot be the same password", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -105,7 +103,7 @@ class AccountFragment : Fragment() {
                                 {
                                     // Password updated successfully
                                     Toast.makeText(
-                                        requireContext(),
+                                        this@Account,
                                         "Password updated successfully",
                                         Toast.LENGTH_SHORT
                                     ).show()
@@ -114,7 +112,7 @@ class AccountFragment : Fragment() {
                                 {
                                     // Password update failed, show error message
                                     Toast.makeText(
-                                        requireContext(),
+                                        this@Account,
                                         "Password update failed",
                                         Toast.LENGTH_SHORT
                                     ).show()
@@ -125,7 +123,7 @@ class AccountFragment : Fragment() {
                     {
                         // Reauthentication failed, show error message
                         Toast.makeText(
-                            requireContext(),
+                            this@Account,
                             "Reauthentication failed",
                             Toast.LENGTH_SHORT
                         ).show()
@@ -143,13 +141,13 @@ class AccountFragment : Fragment() {
         userId?.let { uid ->
             db.collection("users").document(uid).update("name",newName).addOnSuccessListener {
                 Toast.makeText(
-                    requireContext(),
+                    this@Account,
                     "Name updated successfully",
                     Toast.LENGTH_SHORT
                 ).show()
             }.addOnFailureListener { e ->
                 Toast.makeText(
-                    requireContext(),
+                    this@Account,
                     "Error updating name: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -167,13 +165,13 @@ class AccountFragment : Fragment() {
         userId?.let { uid ->
             db.collection("users").document(uid).update("gender",newGender).addOnSuccessListener {
                 Toast.makeText(
-                    requireContext(),
+                    this@Account,
                     "Gender updated successfully",
                     Toast.LENGTH_SHORT
                 ).show()
             }.addOnFailureListener { e ->
                 Toast.makeText(
-                    requireContext(),
+                    this@Account,
                     "Error updating Gender: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()

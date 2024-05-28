@@ -80,7 +80,11 @@ class Register : AppCompatActivity() {
                         val user = hashMapOf(
                             "email" to userEmail,
                             "username" to txtUser,
-                            "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                            "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
+                            "name" to "",
+                            "birthday" to null,
+                            "gender" to ""
+
                         )
 
                         // Add a new document with a generated ID

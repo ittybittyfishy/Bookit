@@ -6,14 +6,6 @@
     tools:context=".fragments.SettingsFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="67dp"
-        android:background="@color/banner_green"
-        android:gravity="center"
-        android:text="Settings"
-        android:textColor="@color/white"
-        android:textSize="30dp" />
 
     <Button
         android:id="@+id/account_button"

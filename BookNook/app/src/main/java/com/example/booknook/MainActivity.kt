@@ -14,6 +14,7 @@ import com.example.booknook.fragments.SearchFragment
 import com.example.booknook.fragments.SettingsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.view.View
+import android.widget.TextView
 import com.example.booknook.fragments.AchievmentsFragment
 
 //testing comment
@@ -32,26 +33,28 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation)
+        val bannerTextView: TextView = findViewById(R.id.bannerTextView)
 
-        replaceFragment(homeFragment)
+        replaceFragment(homeFragment, "Home")
 
         bottomNavigationView.setOnItemSelectedListener {
             when (it.itemId) {
-                R.id.home -> replaceFragment(homeFragment)
-                R.id.collections -> replaceFragment(collectionFragment)
-                R.id.search -> replaceFragment(searchFragment)
-                R.id.profile -> replaceFragment(profileFragment)
+                R.id.home -> replaceFragment(homeFragment, "Home")
+                R.id.collections -> replaceFragment(collectionFragment, "Collections")
+                R.id.search -> replaceFragment(searchFragment, "Search")
+                R.id.profile -> replaceFragment(profileFragment, "Profile")
                 R.id.more -> showMorePopupMenu(findViewById(R.id.more))
             }
             true
         }
     }
 
-    private fun replaceFragment(fragment: Fragment)
+    private fun replaceFragment(fragment: Fragment, title: String)
     {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.menu_container, fragment)
         transaction.commit()
+        findViewById<TextView>(R.id.bannerTextView).text = title
     }
     private fun showMorePopupMenu(view: View) {
         val popupMenu = PopupMenu(this@MainActivity, view)
@@ -59,10 +62,10 @@ class MainActivity : AppCompatActivity() {
 
         popupMenu.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.friends -> replaceFragment(friendsFragment)
-                R.id.groups -> replaceFragment(groupsFragment)
-                R.id.achievments -> replaceFragment(achievementsFragment)
-                R.id.settings -> replaceFragment(settingsFragment)
+                R.id.friends -> replaceFragment(friendsFragment, "Friends")
+                R.id.groups -> replaceFragment(groupsFragment, "Groups")
+                R.id.achievments -> replaceFragment(achievementsFragment, "Achievements")
+                R.id.settings -> replaceFragment(settingsFragment, "Settings")
             }
             true
         }

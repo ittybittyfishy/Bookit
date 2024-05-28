@@ -11,6 +11,8 @@ import com.example.booknook.Login
 import com.google.firebase.auth.FirebaseAuth
 import android.content.Intent
 import android.widget.Toast
+import com.example.booknook.Account
+import com.example.booknook.Register
 
 class SettingsFragment : Fragment() {
 
@@ -40,14 +42,8 @@ class SettingsFragment : Fragment() {
         // Set listeners
         accountButton.setOnClickListener {
             // Handle account button click
-            val intent = Intent(activity, AccountFragment::class.java)
-            startActivity(intent)
-        }
-
-        notificationButton.setOnClickListener {
-            // Handle notification button click
-            val intent = Intent(activity, NotificationFragment::class.java)
-            startActivity(intent)
+            val intent = Intent(requireContext(), Account::class.java)
+            requireContext().startActivity(intent)
         }
 
         signOutButton.setOnClickListener {
@@ -56,6 +52,7 @@ class SettingsFragment : Fragment() {
             val intent = Intent(activity, Login::class.java)
             startActivity(intent)
             Toast.makeText(requireContext(), "You have been logged out", Toast.LENGTH_SHORT).show()
+            activity?.finish()
         }
     }
 }
