@@ -3,14 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="20dp"
+    android:layout_marginTop="60dp">
 
     <EditText
         android:id="@+id/searchEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter book title"
-        android:padding="8dp" />
+        android:padding="8dp"
+        android:textSize="25sp" />
 
     <Button
         android:id="@+id/searchButton"
@@ -19,7 +21,8 @@
         android:text="Search"
         android:layout_gravity="center"
         android:padding="8dp"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:textSize="18sp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -28,3 +31,5 @@
         android:layout_marginTop="16dp" />
 
 </LinearLayout>
+
+

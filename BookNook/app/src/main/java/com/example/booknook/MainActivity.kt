@@ -11,6 +11,8 @@ import android.widget.TextView
 import com.example.booknook.api.GoogleBooksApi
 import com.example.booknook.BookItem
 
+//this is my personal check to see if my search function push worked
+
 class MainActivity : AppCompatActivity() {
     private val homeFragment = HomeFragment()
     private val profileFragment = ProfileFragment()
