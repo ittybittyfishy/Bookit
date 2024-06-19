@@ -1,23 +1,16 @@
-// MainActivity.kt
 package com.example.booknook
 
 import android.os.Bundle
 import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.booknook.fragments.CollectionFragment
-import com.example.booknook.fragments.FriendsFragment
-import com.example.booknook.fragments.GroupsFragment
-import com.example.booknook.fragments.HomeFragment
-import com.example.booknook.fragments.ProfileFragment
-import com.example.booknook.fragments.SearchFragment
-import com.example.booknook.fragments.SettingsFragment
+import com.example.booknook.fragments.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.view.View
 import android.widget.TextView
-import com.example.booknook.fragments.AchievmentsFragment
+import com.example.booknook.api.GoogleBooksApi
+import com.example.booknook.BookItem
 
-//testing comment
 class MainActivity : AppCompatActivity() {
     private val homeFragment = HomeFragment()
     private val profileFragment = ProfileFragment()
@@ -28,9 +21,13 @@ class MainActivity : AppCompatActivity() {
     private val achievementsFragment = AchievmentsFragment()
     private val settingsFragment = SettingsFragment()
 
+    private lateinit var googleBooksApi: GoogleBooksApi
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        googleBooksApi = GoogleBooksApi(this)
 
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation)
         val bannerTextView: TextView = findViewById(R.id.bannerTextView)
@@ -49,13 +46,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun replaceFragment(fragment: Fragment, title: String)
-    {
+    private fun replaceFragment(fragment: Fragment, title: String) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.menu_container, fragment)
         transaction.commit()
         findViewById<TextView>(R.id.bannerTextView).text = title
     }
+
     private fun showMorePopupMenu(view: View) {
         val popupMenu = PopupMenu(this@MainActivity, view)
         popupMenu.inflate(R.menu.more_menu)
@@ -70,5 +67,9 @@ class MainActivity : AppCompatActivity() {
             true
         }
         popupMenu.show()
+    }
+
+    fun searchBooks(query: String, callback: (List<BookItem>?) -> Unit) {
+        googleBooksApi.searchBooks(query, callback)
     }
 }
