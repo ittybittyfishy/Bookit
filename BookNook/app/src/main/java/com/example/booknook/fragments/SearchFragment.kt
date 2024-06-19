@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.BookAdapter
 import com.example.booknook.MainActivity
 import com.example.booknook.R
-import com.example.booknook.BookItem
+import com.example.booknook.model.BookItem
 
 class SearchFragment : Fragment() {
 
@@ -21,6 +21,10 @@ class SearchFragment : Fragment() {
     private lateinit var searchEditText: EditText
     private lateinit var recyclerView: RecyclerView
     private lateinit var bookAdapter: BookAdapter
+    private var bookList: MutableList<BookItem> = mutableListOf()
+    private var isLoading = false
+    private var currentQuery: String? = null
+    private var startIndex = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,23 +37,55 @@ class SearchFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerView)
 
         recyclerView.layoutManager = LinearLayoutManager(activity)
+        bookAdapter = BookAdapter(bookList)
+        recyclerView.adapter = bookAdapter
 
         searchButton.setOnClickListener {
             val query = searchEditText.text.toString()
             if (query.isNotBlank()) {
-                (activity as MainActivity).searchBooks(query) { books ->
-                    if (books != null) {
-                        bookAdapter = BookAdapter(books)
-                        recyclerView.adapter = bookAdapter
-                    } else {
-                        Toast.makeText(activity, "No books found", Toast.LENGTH_SHORT).show()
-                    }
-                }
+                currentQuery = query
+                bookList.clear()
+                startIndex = 0
+                loadBooks()
             } else {
                 Toast.makeText(activity, "Please enter a search query", Toast.LENGTH_SHORT).show()
             }
         }
 
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val totalItemCount = layoutManager.itemCount
+                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+                if (!isLoading && totalItemCount <= (lastVisibleItem + 2)) {
+                    loadMoreBooks()
+                }
+            }
+        })
+
         return view
+    }
+
+    private fun loadBooks() {
+        currentQuery?.let { query ->
+            isLoading = true
+            (activity as MainActivity).searchBooks(query, startIndex) { books ->
+                isLoading = false
+                if (books != null) {
+                    bookList.addAll(books)
+                    bookAdapter.notifyDataSetChanged()
+                    startIndex += books.size
+                } else {
+                    Toast.makeText(activity, "No books found", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun loadMoreBooks() {
+        if (currentQuery != null) {
+            loadBooks()
+        }
     }
 }
