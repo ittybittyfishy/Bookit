@@ -9,6 +9,8 @@ import android.text.TextUtils
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
+import com.example.booknook.fragments.HomeFragment
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class Login : AppCompatActivity() {
@@ -17,6 +19,7 @@ class Login : AppCompatActivity() {
     lateinit var login: Button
     lateinit var registerButton: Button
     lateinit var auth: FirebaseAuth
+    lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +31,7 @@ class Login : AppCompatActivity() {
         registerButton = findViewById(R.id.registerButton)
 
         auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
 
         registerButton.setOnClickListener {
             Log.d("TAG", "Button clicked") // Add this line
@@ -55,17 +59,31 @@ class Login : AppCompatActivity() {
         auth.signInWithEmailAndPassword( email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(this@Login, "Login successful", Toast.LENGTH_SHORT).show()
-                    // Get the current user's username
-                    val username = auth.currentUser?.email
-                    // Create an Intent to start the HomePageActivity
-                    val intent = Intent(this@Login, HomePage::class.java)
-                    // Pass the username as an extra to the intent
-                    intent.putExtra("username", username)
-                    // Start the HomePageActivity
-                    startActivity(intent)
-                    // Finish the current activity to prevent the user from navigating back to it
-                    finish()
+                    val firebaseUser = auth.currentUser
+                    if (firebaseUser != null)
+                    {
+                        val userId = firebaseUser.uid
+                        db.collection("users").document(userId).get().addOnSuccessListener { document ->
+                            if (document != null)
+                            {
+                                val userEmail = document.getString("email")
+                                Log.d("TAG", "User Email: $userEmail")
+                                val userName = document.getString("username")
+                                Log.d("TAG", "Username: $userName")
+
+                                Toast.makeText(this@Login, "Login successful", Toast.LENGTH_SHORT).show()
+
+                                // Create an Intent to start the HomePageActivity
+                                val intent = Intent(this@Login, MainActivity::class.java)
+                                // Pass the username as an extra to the intent
+                                intent.putExtra("username", userEmail)
+                                // Start the HomePageActivity
+                                startActivity(intent)
+                                // Finish the current activity to prevent the user from navigating back to it
+                                finish()
+                            }
+                        }
+                    }
                 } else {
                     Toast.makeText(this@Login, "Login failed", Toast.LENGTH_SHORT).show()
                 }

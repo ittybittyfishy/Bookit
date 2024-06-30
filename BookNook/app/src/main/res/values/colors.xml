@@ -11,4 +11,5 @@
     <color name="genre_tag_brown">#EAE6D2</color>
     <color name="custom_tag_pink">#EAD2E3</color>
     <color name="border_green">#A8C19F</color>
+    <color name="transparent">#00000000</color>
 </resources>
