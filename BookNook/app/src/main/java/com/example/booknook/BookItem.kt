@@ -1,3 +1,3 @@
-package com.example.booknook.model
+package com.example.booknook
 
 data class BookItem(val volumeInfo: VolumeInfo)

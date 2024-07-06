@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.BookAdapter
 import com.example.booknook.MainActivity
 import com.example.booknook.R
-import com.example.booknook.model.BookItem
+import com.example.booknook.BookItem
 
 class SearchFragment : Fragment() {
 

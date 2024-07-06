@@ -1,3 +1,7 @@
-package com.example.booknook.model
+package com.example.booknook
 
-data class VolumeInfo(val title: String, val authors: List<String>?, val publishedDate: String?)
+class VolumeInfo(
+    val title: String,
+    val authors: List<String>?,
+    val imageLinks: ImageLinks?
+)

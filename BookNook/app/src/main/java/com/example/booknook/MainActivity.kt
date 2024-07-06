@@ -10,8 +10,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import com.example.booknook.model.BookItem
-import com.example.booknook.model.BookResponse
+import com.example.booknook.BookItem
+import com.example.booknook.BookResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

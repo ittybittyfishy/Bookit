@@ -1,12 +1,15 @@
 package com.example.booknook
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.booknook.R
-import com.example.booknook.model.BookItem
+import com.example.booknook.BookItem
 
 class BookAdapter(private val bookList: List<BookItem>) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
 
@@ -19,6 +22,14 @@ class BookAdapter(private val bookList: List<BookItem>) : RecyclerView.Adapter<B
         val book = bookList[position]
         holder.title.text = book.volumeInfo.title
         holder.authors.text = book.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author"
+
+        // Load the book image
+        val imageUrl = book.volumeInfo.imageLinks?.thumbnail
+        Glide.with(holder.itemView.context)
+            .load(imageUrl)
+            .placeholder(R.drawable.placeholder_image) // Ensure the placeholder image exists in res/drawable
+            .error(R.drawable.placeholder_image) // Show placeholder image if loading fails
+            .into(holder.bookImage)
     }
 
     override fun getItemCount(): Int = bookList.size
@@ -26,5 +37,6 @@ class BookAdapter(private val bookList: List<BookItem>) : RecyclerView.Adapter<B
     class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.bookTitle)
         val authors: TextView = itemView.findViewById(R.id.bookAuthors)
+        val bookImage: ImageView = itemView.findViewById(R.id.book_image)
     }
 }
