@@ -23,8 +23,8 @@ class BookAdapter(private val bookList: List<BookItem>) : RecyclerView.Adapter<B
         holder.title.text = book.volumeInfo.title
         holder.authors.text = book.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author"
 
-        // Load the book image
-        val imageUrl = book.volumeInfo.imageLinks?.thumbnail
+        // Use HTTPS for the image URL
+        val imageUrl = book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
         Glide.with(holder.itemView.context)
             .load(imageUrl)
             .placeholder(R.drawable.placeholder_image) // Ensure the placeholder image exists in res/drawable
