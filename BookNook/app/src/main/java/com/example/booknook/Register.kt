@@ -94,7 +94,6 @@ class Register : AppCompatActivity() {
                             "isFirstLogin" to true, // Track if it's the user's first login,
                             "standardCollections" to standardCollections,
                             "customCollections" to emptyMap<String, Any>(), // Initialize custom collections as empty
-                            "bookPreference" to emptyList<String>()
                         )
 
                         // Add a new document with a generated ID
