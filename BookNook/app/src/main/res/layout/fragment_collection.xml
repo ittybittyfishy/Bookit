@@ -14,4 +14,16 @@
         android:layout_gravity="center"
         android:textSize="35dp"/>
 
+    <!-- Tabs to toggle between Overview or My Collections -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/collection_tabs"
+        android:layout_marginTop="70dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 </FrameLayout>

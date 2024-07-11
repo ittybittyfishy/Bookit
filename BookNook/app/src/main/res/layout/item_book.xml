@@ -2,29 +2,44 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="8dp">
 
     <ImageView
         android:id="@+id/book_image"
         android:layout_width="100dp"
         android:layout_height="150dp"
-        android:scaleType="centerCrop"
-        android:layout_gravity="center"/>
+        android:scaleType="centerCrop" />
 
-    <TextView
-        android:id="@+id/bookTitle"
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:paddingTop="8dp"/>
+        android:layout_height="149dp"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingStart="16dp">
 
-    <TextView
-        android:id="@+id/bookAuthors"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textStyle="italic" />
+        <TextView
+            android:id="@+id/bookTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="1dp"
+            android:textColor="@color/banner_green"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/bookAuthors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/bookRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp" />
+
+    </LinearLayout>
 
 </LinearLayout>

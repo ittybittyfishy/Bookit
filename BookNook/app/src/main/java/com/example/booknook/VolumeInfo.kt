@@ -3,5 +3,6 @@ package com.example.booknook
 class VolumeInfo(
     val title: String,
     val authors: List<String>?,
-    val imageLinks: ImageLinks?
+    val imageLinks: ImageLinks?,
+    val rating: String
 )

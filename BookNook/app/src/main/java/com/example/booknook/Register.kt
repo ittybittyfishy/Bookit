@@ -76,6 +76,14 @@ class Register : AppCompatActivity() {
                         val userId = firebaseUser.uid
                         val userEmail = firebaseUser.email
 
+                        // Predefined collections
+                        val standardCollections = hashMapOf(
+                            "Want to Read" to emptyMap<String, Any>(),
+                            "Reading" to emptyMap<String, Any>(),
+                            "Finished" to emptyMap<String, Any>(),
+                            "Dropped" to emptyMap<String, Any>()
+                        )
+
                         // create new user with email and timestamp
                         val user = hashMapOf(
                             "email" to userEmail,
@@ -83,8 +91,9 @@ class Register : AppCompatActivity() {
                             "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
                             "name" to "",
                             "birthday" to null,
-                            "gender" to ""
-
+                            "gender" to "",
+                            "standardCollections" to standardCollections,
+                            "customCollections" to emptyMap<String, Any>() // Initialize custom collections as empty
                         )
 
                         // Add a new document with a generated ID

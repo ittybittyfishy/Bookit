@@ -14,6 +14,8 @@ import com.example.booknook.BookAdapter
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.example.booknook.BookItem
+import android.view.inputmethod.EditorInfo
+import android.view.KeyEvent
 
 class SearchFragment : Fragment() {
 
@@ -41,14 +43,17 @@ class SearchFragment : Fragment() {
         recyclerView.adapter = bookAdapter
 
         searchButton.setOnClickListener {
-            val query = searchEditText.text.toString()
-            if (query.isNotBlank()) {
-                currentQuery = query
-                bookList.clear()
-                startIndex = 0
-                loadBooks()
+            performSearch()
+        }
+
+        searchEditText.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                actionId == EditorInfo.IME_ACTION_DONE ||
+                event?.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
+                performSearch()
+                true
             } else {
-                Toast.makeText(activity, "Please enter a search query", Toast.LENGTH_SHORT).show()
+                false
             }
         }
 
@@ -86,6 +91,18 @@ class SearchFragment : Fragment() {
     private fun loadMoreBooks() {
         if (currentQuery != null) {
             loadBooks()
+        }
+    }
+
+    private fun performSearch() {
+        val query = searchEditText.text.toString()
+        if (query.isNotBlank()) {
+            currentQuery = query
+            bookList.clear()
+            startIndex = 0
+            loadBooks()
+        } else {
+            Toast.makeText(activity, "Please enter a search query", Toast.LENGTH_SHORT).show()
         }
     }
 }
