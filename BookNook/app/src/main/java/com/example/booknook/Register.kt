@@ -76,6 +76,13 @@ class Register : AppCompatActivity() {
                         val userId = firebaseUser.uid
                         val userEmail = firebaseUser.email
 
+                        val standardCollections = hashMapOf(
+                            "Want to Read" to emptyMap<String, Any>(),
+                            "Reading" to emptyMap<String, Any>(),
+                            "Finished" to emptyMap<String, Any>(),
+                            "Dropped" to emptyMap<String, Any>()
+                        )
+
                         // create new user with email and timestamp
                         val user = hashMapOf(
                             "email" to userEmail,
@@ -84,7 +91,10 @@ class Register : AppCompatActivity() {
                             "name" to "",
                             "birthday" to null,
                             "gender" to "",
-                            "isFirstLogin" to true // Track if it's the user's first login
+                            "isFirstLogin" to true, // Track if it's the user's first login,
+                            "standardCollections" to standardCollections,
+                            "customCollections" to emptyMap<String, Any>(), // Initialize custom collections as empty
+                            "bookPreference" to emptyList<String>()
                         )
 
                         // Add a new document with a generated ID
