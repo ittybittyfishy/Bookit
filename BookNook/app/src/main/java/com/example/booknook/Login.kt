@@ -56,16 +56,15 @@ class Login : AppCompatActivity() {
     }
 
     private fun loginUser(email: String, password: String) {
-        auth.signInWithEmailAndPassword( email, password)
+        auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val firebaseUser = auth.currentUser
-                    if (firebaseUser != null)
-                    {
+                    if (firebaseUser != null) {
                         val userId = firebaseUser.uid
                         db.collection("users").document(userId).get().addOnSuccessListener { document ->
-                            if (document != null)
-                            {
+                            if (document != null) {
+                                val isFirstLogin = document.getBoolean("isFirstLogin") ?: true
                                 val userEmail = document.getString("email")
                                 Log.d("TAG", "User Email: $userEmail")
                                 val userName = document.getString("username")
@@ -73,11 +72,11 @@ class Login : AppCompatActivity() {
 
                                 Toast.makeText(this@Login, "Login successful", Toast.LENGTH_SHORT).show()
 
-                                // Create an Intent to start the HomePageActivity
+                                // Create an Intent to start the MainActivity
                                 val intent = Intent(this@Login, MainActivity::class.java)
-                                // Pass the username as an extra to the intent
-                                intent.putExtra("username", userEmail)
-                                // Start the HomePageActivity
+                                // Pass whether it's the user's first login
+                                intent.putExtra("isFirstLogin", isFirstLogin)
+                                // Start the MainActivity
                                 startActivity(intent)
                                 // Finish the current activity to prevent the user from navigating back to it
                                 finish()
@@ -93,5 +92,6 @@ class Login : AppCompatActivity() {
                 Toast.makeText(this@Login, "Login failed: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 }
 

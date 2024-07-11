@@ -83,8 +83,8 @@ class Register : AppCompatActivity() {
                             "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
                             "name" to "",
                             "birthday" to null,
-                            "gender" to ""
-
+                            "gender" to "",
+                            "isFirstLogin" to true // Track if it's the user's first login
                         )
 
                         // Add a new document with a generated ID
@@ -118,5 +118,6 @@ class Register : AppCompatActivity() {
                 Toast.makeText(this@Register, "Registration failed: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 }
 

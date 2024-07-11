@@ -7,7 +7,11 @@
         <item>Female</item>
         <item>Nonbinary</item>
         <item>Other</item>
-
     </string-array>
+
+    <string name="select_genres">Select your favorite genres</string>
+    <string name="genre_fiction">Fiction</string>
+    <string name="genre_nonfiction">Non-fiction</string>
+    <string name="save">Save</string>
 
 </resources>

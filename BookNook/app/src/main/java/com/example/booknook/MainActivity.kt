@@ -27,8 +27,9 @@ class MainActivity : AppCompatActivity() {
     private val groupsFragment = GroupsFragment()
     private val achievementsFragment = AchievmentsFragment()
     private val settingsFragment = SettingsFragment()
+    private val genrePreferenceFragment = GenrePreferenceFragment()
 
-    private val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM" // Replace with your actual API key
+    private val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +38,13 @@ class MainActivity : AppCompatActivity() {
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation)
         val bannerTextView: TextView = findViewById(R.id.bannerTextView)
 
-        replaceFragment(homeFragment, "Home")
+        // Check if it's the user's first login
+        val isFirstLogin = intent.getBooleanExtra("isFirstLogin", false)
+        if (isFirstLogin) {
+            replaceFragment(genrePreferenceFragment, "Select Genres")
+        } else {
+            replaceFragment(homeFragment, "Home")
+        }
 
         bottomNavigationView.setOnItemSelectedListener {
             when (it.itemId) {
@@ -51,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun replaceFragment(fragment: Fragment, title: String) {
+    fun replaceFragment(fragment: Fragment, title: String) {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.menu_container, fragment)
         transaction.commit()
