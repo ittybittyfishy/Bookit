@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.home -> replaceFragment(homeFragment, "Home")
-                R.id.collections -> replaceFragment(collectionFragment, "Collections")
+                R.id.collections -> replaceFragment(collectionFragment, "My Books")
                 R.id.search -> replaceFragment(searchFragment, "Search")
                 R.id.profile -> replaceFragment(profileFragment, "Profile")
                 R.id.more -> showMorePopupMenu(findViewById(R.id.more))
