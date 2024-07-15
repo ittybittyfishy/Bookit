@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private val achievementsFragment = AchievmentsFragment()
     private val settingsFragment = SettingsFragment()
     private val genrePreferenceFragment = GenrePreferenceFragment()
+    private val accountFragment = AccountFragment()
 
     private val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM"
 

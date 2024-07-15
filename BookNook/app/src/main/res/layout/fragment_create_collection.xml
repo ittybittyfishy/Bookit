@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Collection"
+        android:textSize="20dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/star_green"
+        android:textStyle="bold"/>
+    <EditText
+        android:id="@+id/collectionNameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Collection Name"
+        android:background="@drawable/rounded_rectangle"/>
+
+    <EditText
+        android:id="@+id/collectionSummaryEditText"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Collection Summary"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_rectangle"/>
+
+    <Button
+        android:id="@+id/createButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Collection"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center_horizontal"
+        android:backgroundTint="@color/banner_green"/>
+
+</LinearLayout>

@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 import android.content.Intent
 import android.widget.Toast
 import com.example.booknook.Account
+import com.example.booknook.MainActivity
 import com.example.booknook.Register
 
 class SettingsFragment : Fragment() {
@@ -42,9 +43,16 @@ class SettingsFragment : Fragment() {
         // Set listeners
         accountButton.setOnClickListener {
             // Handle account button click
-            val intent = Intent(requireContext(), Account::class.java)
-            requireContext().startActivity(intent)
+            val accountFragment = AccountFragment()
+            (activity as MainActivity).replaceFragment(accountFragment, "Account")
         }
+
+        notificationButton.setOnClickListener {
+            // Handle account button click
+            val notificationFragment = NotificationFragment()
+            (activity as MainActivity).replaceFragment(notificationFragment, "Notifications")
+        }
+
 
         signOutButton.setOnClickListener {
             // Handle sign out button click

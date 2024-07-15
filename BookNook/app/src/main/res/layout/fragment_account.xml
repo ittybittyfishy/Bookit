@@ -8,17 +8,6 @@
 
     <!-- TODO: Update blank fragment layout -->
 
-    <!-- Banner -->
-    <TextView
-        android:id="@+id/bannerTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:gravity="center"
-        android:background="@color/banner_green"
-        android:textColor="@android:color/white"
-        android:textSize="30sp"
-        android:text="Account" />
 
     <!-- Name -->
     <TextView
@@ -29,14 +18,14 @@
         android:textStyle="bold"
         android:textColor="@color/main_text_brown"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="110dp"/>
+        android:layout_marginTop="70dp"/>
 
     <EditText
         android:id="@+id/name_edit"
         android:layout_width="242dp"
         android:layout_height="50dp"
         android:layout_gravity="end"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="60dp"
         android:layout_marginEnd="25dp"
         android:background="@drawable/rounded_rectangle"
         android:gravity="center"
@@ -52,14 +41,14 @@
         android:textStyle="bold"
         android:textColor="@color/main_text_brown"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="170dp"/>
+        android:layout_marginTop="130dp"/>
 
     <EditText
         android:id="@+id/birthdayEditText"
         android:layout_width="242dp"
         android:layout_height="50dp"
         android:layout_gravity="end"
-        android:layout_marginTop="160dp"
+        android:layout_marginTop="120dp"
         android:layout_marginEnd="25dp"
         android:background="@drawable/rounded_rectangle"
         android:gravity="center"
@@ -76,21 +65,21 @@
         android:textStyle="bold"
         android:textColor="@color/main_text_brown"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="230dp"/>
+        android:layout_marginTop="190dp"/>
 
+    <!-- New Passoword -->
     <EditText
         android:id="@+id/genderEdit"
         android:layout_width="242dp"
         android:layout_height="50dp"
         android:layout_gravity="end"
-        android:layout_marginTop="220dp"
+        android:layout_marginTop="180dp"
         android:layout_marginEnd="25dp"
         android:background="@drawable/rounded_rectangle"
+        android:elevation="10dp"
         android:gravity="center"
-        android:hint="Gender"
-        android:elevation="10dp"/>
+        android:hint="Gender" />
 
-    <!-- New Passoword -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -99,7 +88,7 @@
         android:textStyle="bold"
         android:textColor="@color/main_text_brown"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="290dp"/>
+        android:layout_marginTop="250dp"/>
 
 
     <com.google.android.material.textfield.TextInputEditText
@@ -107,7 +96,7 @@
         android:layout_width="285dp"
         android:layout_height="50dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="340dp"
+        android:layout_marginTop="290dp"
         android:background="@drawable/rounded_rectangle"
         android:elevation="5dp"
         android:hint="Current Password"
@@ -120,7 +109,7 @@
         android:layout_width="285dp"
         android:layout_height="53dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="400dp"
+        android:layout_marginTop="350dp"
         android:background="@drawable/rounded_rectangle"
         android:elevation="5dp"
         android:hint="New Password"
@@ -133,7 +122,7 @@
         android:layout_width="285dp"
         android:layout_height="53dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="460dp"
+        android:layout_marginTop="410dp"
         android:background="@drawable/rounded_rectangle"
         android:elevation="5dp"
         android:hint="Confirm New Password"
@@ -147,7 +136,7 @@
         android:layout_width="119dp"
         android:layout_height="60dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="550dp"
+        android:layout_marginTop="470dp"
         android:backgroundTint="@color/banner_green"
         android:text="Save"
         android:textSize="25dp"/>

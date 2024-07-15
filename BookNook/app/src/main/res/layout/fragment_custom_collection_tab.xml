@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.CollectionFragment"
+    tools:context=".fragments.CustomCollectionTab"
     android:background="@color/background_tan">
 
     <!-- TODO: Update blank fragment layout -->
@@ -16,21 +16,28 @@
         android:text="Overview"
         android:textSize="20dp"
         android:background="@color/transparent"
-        android:textColor="@color/star_green"/>
+        android:textColor="@color/main_text_brown"/>
 
     <Button
         android:id="@+id/my_collection_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="My Collection"
-        android:textColor="@color/main_text_brown"
+        android:textColor="@color/star_green"
         android:background="@color/transparent"
         android:textSize="20dp"
         android:layout_marginTop="10dp"
         android:layout_gravity="end"
         android:layout_marginEnd="40dp"/>
 
-
+    <Button
+        android:id="@+id/make_collection_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="110dp"
+        android:background="@drawable/add" />
 
 
 </FrameLayout>
