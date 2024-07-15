@@ -5,18 +5,41 @@
     android:layout_height="match_parent"
     tools:context=".fragments.HomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <!-- FrameLayout for orange rectangle and text -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="60dp">
+
+        <!-- Orange rectangle with rounded corners -->
+        <View
+            android:layout_width="400dp"
+            android:layout_height="50dp"
+            android:background="@drawable/rounded_orange_rectangle"
+            android:layout_gravity="center_horizontal"/>
+
+        <!-- TextView on top of orange rectangle -->
+        <TextView
+            android:id="@+id/loggedInTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Logged in as"
+            android:textSize="20sp"
+            android:padding="12dp"
+            android:gravity="center"
+            android:singleLine="true"
+            android:textColor="@android:color/black"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+
+    <!-- Text in the middle of the screen -->
     <TextView
         android:id="@+id/home_frag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Home"
         android:layout_gravity="center"
-        android:textSize="35dp"/>
-
-    <TextView
-        android:id="@+id/loggedInTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:textSize="35sp"/>
 
 </FrameLayout>

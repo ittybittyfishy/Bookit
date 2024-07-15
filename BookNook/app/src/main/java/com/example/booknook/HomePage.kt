@@ -19,6 +19,7 @@ class HomePage : AppCompatActivity() {
         // Find the TextView in the layout
         val loggedInTextView: TextView = findViewById(R.id.loggedInTextView)
 
+
         // if user is logged in, fetch username from firebase
         userId?.let { uid ->
             db.collection("users").document(uid).get().addOnSuccessListener { document ->
