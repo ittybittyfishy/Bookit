@@ -1,17 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.ProfileFragment">
+    android:orientation="vertical">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:id="@+id/profile_frag"
-        android:layout_width="wrap_content"
+    <!-- Banner Layout -->
+    <RelativeLayout
+        android:id="@+id/bannerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@android:color/darker_gray">
+
+        <!-- Banner Image -->
+        <ImageView
+            android:id="@+id/bannerImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+        <!-- Upload Banner Button -->
+        <Button
+            android:id="@+id/uploadBannerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:text="Upload Banner"
+            android:background="@android:color/holo_blue_light" />
+    </RelativeLayout>
+
+    <!-- Profile Picture Layout -->
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Profile"
-        android:layout_gravity="center"
-        android:textSize="35dp"/>
+        android:layout_below="@id/bannerLayout"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-50dp">
 
-</FrameLayout>
+        <!-- Circular Profile Image -->
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profileImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:src="@android:color/darker_gray"
+            app:civ_border_width="2dp"
+            app:civ_border_color="@android:color/white" />
+
+        <!-- Upload Profile Button -->
+        <Button
+            android:id="@+id/uploadProfileButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="120dp"
+            android:text="Upload Profile"
+            android:background="@android:color/holo_blue_light" />
+    </RelativeLayout>
+
+</RelativeLayout>

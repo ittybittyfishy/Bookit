@@ -49,6 +49,9 @@ dependencies {
     //paging
     "androidx.paging:paging-runtime:3.1.1"
 
+    //profile picture
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
+
     //handling api requests
     implementation ("com.squareup.retrofit2:retrofit:2.11.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.11.0")
