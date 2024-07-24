@@ -1,42 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    tools:context=".fragments.ProfileFragment">
 
-    <!-- Banner Layout -->
-    <RelativeLayout
-        android:id="@+id/bannerLayout"
+    <!-- Banner with dark grey color -->
+    <ImageView
+        android:id="@+id/bannerImage"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:background="@android:color/darker_gray">
+        android:layout_height="160dp"
+        android:background="#A9A9A9"
+        android:layout_gravity="top"
+        android:scaleType="centerCrop" />
 
-        <!-- Banner Image -->
-        <ImageView
-            android:id="@+id/bannerImage"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
-
-        <!-- Upload Banner Button -->
-        <Button
-            android:id="@+id/uploadBannerButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="16dp"
-            android:text="Upload Banner"
-            android:background="@android:color/holo_blue_light" />
-    </RelativeLayout>
-
-    <!-- Profile Picture Layout -->
+    <!-- RelativeLayout to contain the profile picture and button -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/bannerLayout"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="-50dp">
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="60dp">
 
         <!-- Circular Profile Image -->
         <de.hdodenhof.circleimageview.CircleImageView
@@ -45,19 +28,115 @@
             android:layout_height="100dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp"
-            android:src="@android:color/darker_gray"
-            app:civ_border_width="2dp"
-            app:civ_border_color="@android:color/white" />
+            android:src="@android:color/holo_green_dark" />
 
-        <!-- Upload Profile Button -->
+        <!-- Button positioned on the left side of the screen with adjustable horizontal margin -->
         <Button
             android:id="@+id/uploadProfileButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="start|center_vertical"
+            android:layout_marginStart="220dp"
+            android:layout_marginTop="15dp"
+            android:background="#FF5722"
+            android:textSize="1sp"
+            android:text="Edit" />
+
+        <!-- First Rounded Rectangle below the profile picture -->
+        <View
+            android:id="@+id/rectangle1"
+            android:layout_width="55dp"
+            android:layout_height="25dp"
+            android:background="@drawable/rounded_rectangle_1"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="85dp" />
+
+        <!-- Second Rounded Rectangle below the first rectangle -->
+        <View
+            android:id="@+id/rectangle2"
+            android:layout_width="150dp"
+            android:layout_height="30dp"
+            android:background="@drawable/rounded_rectangle_2"
+            android:layout_below="@id/rectangle1"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="0dp" />
+
+        <!-- Third Rounded Rectangle below the second rectangle -->
+        <View
+            android:id="@+id/rectangle3"
+            android:layout_width="150dp"
+            android:layout_height="30dp"
+            android:background="@drawable/rounded_rectangle_3"
+            android:layout_below="@id/rectangle2"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="3dp" />
+
+        <!-- Fourth Rounded Rectangle (EditText) with icon -->
+        <RelativeLayout
+            android:id="@+id/rectangle4_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/rectangle3"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="120dp"
-            android:text="Upload Profile"
-            android:background="@android:color/holo_blue_light" />
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/icon1"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/quote_icon"
+                android:layout_marginEnd="8dp" />
+
+            <EditText
+                android:id="@+id/rectangle4"
+                android:layout_width="300dp"
+                android:layout_height="40dp"
+                android:layout_toEndOf="@id/icon1"
+                android:background="@drawable/rounded_rectangle_2"
+                android:hint="Enter text here"
+                android:padding="10dp" />
+        </RelativeLayout>
+
+        <!-- Fifth Rounded Rectangle (EditText) with icon positioned correctly below rectangle4_container -->
+        <RelativeLayout
+            android:id="@+id/rectangle5_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/rectangle4_container"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/icon2"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/mr_blobby"
+                android:layout_marginEnd="8dp" />
+
+            <EditText
+                android:id="@+id/rectangle5"
+                android:layout_width="300dp"
+                android:layout_height="40dp"
+                android:layout_toEndOf="@id/icon2"
+                android:background="@drawable/rounded_rectangle_2"
+                android:hint="Enter text here"
+                android:padding="10dp" />
+        </RelativeLayout>
+
     </RelativeLayout>
 
-</RelativeLayout>
+
+    <!-- Button to upload profile banner -->
+    <Button
+        android:id="@+id/uploadBannerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|top"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="#9D00FF"
+        android:text="Upload Banner" />
+
+</FrameLayout>
