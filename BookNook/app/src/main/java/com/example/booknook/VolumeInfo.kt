@@ -6,5 +6,6 @@ class VolumeInfo(
     val title: String,
     val authors: List<String>?,
     val imageLinks: ImageLinks?,
-    val rating: String
+    val industryIdentifiers: List<IndustryIdentifier>?
 )
+

@@ -4,12 +4,18 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.ImageView
+import android.widget.*
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.booknook.R
 import com.example.booknook.BookItem
+import android.content.Context
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 
 //a view is a UI element that appears on the screen
 //inflate means to create
@@ -23,6 +29,11 @@ class BookAdapter(private val bookList: List<BookItem>) : RecyclerView.Adapter<B
     //R contains references to resources
     //parent is the viewgroup the view will be attached to
     //parent.context ensures the new view inherits the correct info from parent for consistent interface
+
+    val db = FirebaseFirestore.getInstance()
+
+    // For dropdown menu to sort standard collections
+    private val standardCollections = listOf("Select Collection","Reading", "Finished", "Want to Read", "Dropped")
 
     //creates new views for each item on the list
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
@@ -49,6 +60,37 @@ class BookAdapter(private val bookList: List<BookItem>) : RecyclerView.Adapter<B
             .placeholder(R.drawable.placeholder_image) // Ensure the placeholder image exists in res/drawable
             .error(R.drawable.placeholder_image) // Show placeholder image if loading fails
             .into(holder.bookImage) //tells glide to load image into bookimage
+
+        // Extract ISBN
+        val isbn = book.volumeInfo.industryIdentifiers
+            ?.find { it.type == "ISBN_13" || it.type == "ISBN_10" }
+            ?.identifier ?: "No ISBN"
+
+        // Set up Spinner for book collection selection
+        val adapter = ArrayAdapter(
+            holder.itemView.context,
+            android.R.layout.simple_spinner_item,
+            standardCollections
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        holder.spinnerSelectCollection.adapter = adapter
+
+        // Set the click listener or item selected listener to save the book to the collection
+        holder.spinnerSelectCollection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                if (position != 0) { // Ensure it's not the hint item
+                    val selectedCollection = standardCollections[position]
+                    saveBookToCollection(holder.itemView.context, book, selectedCollection, isbn)
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
     }
 
     //return size of booklist
@@ -60,5 +102,26 @@ class BookAdapter(private val bookList: List<BookItem>) : RecyclerView.Adapter<B
         val title: TextView = itemView.findViewById(R.id.bookTitle) //display title of book
         val authors: TextView = itemView.findViewById(R.id.bookAuthors) //display author
         val bookImage: ImageView = itemView.findViewById(R.id.book_image) //display book cover
+        val spinnerSelectCollection: Spinner = itemView.findViewById(R.id.spinnerSelectCollection)
+    }
+
+    private fun saveBookToCollection(context: Context, book: BookItem, collectionName: String, isbn: String)
+    {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val db = FirebaseFirestore.getInstance()
+
+
+            db.collection("users").document(userId)
+                .update("standardCollections.$collectionName", FieldValue.arrayUnion(isbn))
+                .addOnSuccessListener {
+                    Toast.makeText(context, "Book added to $collectionName collection.", Toast.LENGTH_SHORT ).show()
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(context, "Failed to add book: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+
     }
 }

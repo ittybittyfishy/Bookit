@@ -13,5 +13,6 @@
     <string name="genre_fiction">Fiction</string>
     <string name="genre_nonfiction">Non-fiction</string>
     <string name="save">Save</string>
+    <string name="select_collection_hint">Select a collection</string>
 
 </resources>
