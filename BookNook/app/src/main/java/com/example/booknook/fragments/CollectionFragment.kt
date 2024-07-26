@@ -8,13 +8,21 @@ import android.view.ViewGroup
 import android.widget.Button
 import com.example.booknook.MainActivity
 import com.example.booknook.R
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.booknook.BookItem
+import com.example.booknook.VolumeInfo
+import com.example.booknook.ImageLinks
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
-/**
- * A simple [Fragment] subclass.
- */
+
 class CollectionFragment : Fragment() {
 
     private lateinit var myCollectionButton: Button
+
+    private lateinit var recyclerView: RecyclerView
+    private var isLoading = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

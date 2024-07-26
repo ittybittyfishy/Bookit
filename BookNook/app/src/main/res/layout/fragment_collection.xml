@@ -30,6 +30,22 @@
         android:layout_gravity="end"
         android:layout_marginEnd="40dp"/>
 
+    <Spinner
+        android:id="@+id/sort_by"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/rounded_rectangle"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_marginTop="60dp"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewCollections"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="110dp"/>
+
+
 
 
 

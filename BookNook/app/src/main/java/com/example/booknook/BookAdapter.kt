@@ -85,7 +85,7 @@ class BookAdapter(private val bookList: List<BookItem>) : RecyclerView.Adapter<B
             ) {
                 if (position != 0) { // Ensure it's not the hint item
                     val selectedCollection = standardCollections[position]
-                    saveBookToCollection(holder.itemView.context, book, selectedCollection, isbn)
+                    saveBookToCollection(holder.itemView.context, book.volumeInfo.title, holder.authors.text.toString(), imageUrl, isbn, selectedCollection)
                 }
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -105,15 +105,29 @@ class BookAdapter(private val bookList: List<BookItem>) : RecyclerView.Adapter<B
         val spinnerSelectCollection: Spinner = itemView.findViewById(R.id.spinnerSelectCollection)
     }
 
-    private fun saveBookToCollection(context: Context, book: BookItem, collectionName: String, isbn: String)
+    private fun saveBookToCollection(
+        context: Context,
+        title: String,
+        authors: String,
+        bookImage: String?,
+        isbn: String,
+        collectionName: String
+    )
     {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
             val db = FirebaseFirestore.getInstance()
 
+            // Create the book object
+            val book = hashMapOf(
+                "title" to title,
+                "authors" to authors.split(", "),
+                "isbn" to isbn,
+                "imageLink" to bookImage)
+
 
             db.collection("users").document(userId)
-                .update("standardCollections.$collectionName", FieldValue.arrayUnion(isbn))
+                .update("standardCollections.$collectionName", FieldValue.arrayUnion(book))
                 .addOnSuccessListener {
                     Toast.makeText(context, "Book added to $collectionName collection.", Toast.LENGTH_SHORT ).show()
                 }
@@ -121,7 +135,6 @@ class BookAdapter(private val bookList: List<BookItem>) : RecyclerView.Adapter<B
                     Toast.makeText(context, "Failed to add book: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         }
-
 
     }
 }
