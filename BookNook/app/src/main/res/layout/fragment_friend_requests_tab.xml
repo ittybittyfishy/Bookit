@@ -1,45 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.CollectionFragment"
+    android:orientation="vertical"
+    tools:context=".fragments.FriendsFragment"
     android:background="@color/background_tan">
 
-    <Button
-        android:id="@+id/friends_button"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="20dp"
-        android:text="Friends"
-        android:textSize="20dp"
-        android:background="@color/transparent"
-        android:textColor="@color/main_text_brown"/>
+        android:orientation="horizontal"
+        android:paddingTop="10dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="15dp">
 
-    <Button
-        android:id="@+id/requests_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="130dp"
-        android:background="@color/transparent"
-        android:text="Requests"
-        android:textColor="@color/star_green"
-        android:textSize="20dp" />
+        <Button
+            android:id="@+id/friends_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Friends"
+            android:textSize="18sp"
+            android:background="@color/transparent"
+            android:textColor="@color/main_text_brown" />
 
-    <Button
-        android:id="@+id/blocked_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="15dp"
-        android:background="@color/transparent"
-        android:text="Blocked"
-        android:textColor="@color/main_text_brown"
-        android:textSize="20dp" />
+        <Button
+            android:id="@+id/requests_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="end"
+            android:background="@color/transparent"
+            android:text="Requests"
+            android:textColor="@color/star_green"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/blocked_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
+            android:text="Blocked"
+            android:textColor="@color/main_text_brown"
+            android:textSize="18sp" />
+
+    </LinearLayout>
 
 
-</FrameLayout>
+</LinearLayout>
