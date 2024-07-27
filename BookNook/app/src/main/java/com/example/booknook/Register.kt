@@ -60,9 +60,25 @@ class Register : AppCompatActivity() {
                 Toast.makeText(this@Register, "Passwords do not match", Toast.LENGTH_SHORT).show()
             }
             else {
-                registerUser(txtEmail, txtPassword)
+                checkIfUsernameExists(txtUser) { exists ->
+                    if (exists) {
+                        Toast.makeText(this@Register, "Username already exists", Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        registerUser(txtEmail, txtPassword)
+                    }
+                }
             }
         }
+    }
+
+    private fun checkIfUsernameExists(username: String, callback: (Boolean) -> Unit) {
+        db.collection("users").whereEqualTo("username", username).get()
+            .addOnSuccessListener { documents -> callback(!documents.isEmpty)}
+            .addOnFailureListener { exception ->
+                Toast.makeText(this@Register, "Username check failed: ${exception.message}", Toast.LENGTH_SHORT).show()
+                callback(false)
+            }
     }
 
     private fun registerUser(email: String, password: String) {
