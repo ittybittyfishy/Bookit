@@ -19,6 +19,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.example.booknook.R
 import de.hdodenhof.circleimageview.CircleImageView
+import java.io.IOException
+import android.graphics.BitmapFactory
 
 // Define a Fragment class for the Profile section
 class ProfileFragment : Fragment() {
@@ -103,8 +105,10 @@ class ProfileFragment : Fragment() {
                     // Use ImageDecoder for API 28 and above
                     ImageDecoder.decodeBitmap(ImageDecoder.createSource(requireActivity().contentResolver, uri))
                 } else {
-                    // Fallback to deprecated method for older API levels
-                    MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
+                    // Fallback to method for older API levels
+                    requireActivity().contentResolver.openInputStream(uri)?.use { inputStream ->
+                        BitmapFactory.decodeStream(inputStream)
+                    } ?: throw IOException("Unable to open input stream for URI")
                 }
                 // Set the bitmap to the appropriate ImageView based on the request code
                 when (requestCode) {
