@@ -17,46 +17,57 @@ import com.example.booknook.BookItem
 import android.view.inputmethod.EditorInfo
 import android.view.KeyEvent
 
+// Fragment for searching books
 class SearchFragment : Fragment() {
 
+    // Declare UI elements
     private lateinit var searchButton: Button
     private lateinit var searchEditText: EditText
     private lateinit var recyclerView: RecyclerView
     private lateinit var bookAdapter: BookAdapter
+
+    // List to hold book items and variables for pagination
     private var bookList: MutableList<BookItem> = mutableListOf()
     private var isLoading = false
     private var currentQuery: String? = null
     private var startIndex = 0
 
+    // Called to have the fragment instantiate its user interface view
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
+        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_search, container, false)
 
+        // Initialize the UI elements using findViewById
         searchButton = view.findViewById(R.id.searchButton)
         searchEditText = view.findViewById(R.id.searchEditText)
         recyclerView = view.findViewById(R.id.recyclerView)
 
-        recyclerView.layoutManager = LinearLayoutManager(activity)
-        bookAdapter = BookAdapter(bookList)
-        recyclerView.adapter = bookAdapter
-
+        // Set click listener for the search button
         searchButton.setOnClickListener {
-            performSearch()
+            performSearch() // Perform search when the button is clicked
         }
 
-        searchEditText.setOnEditorActionListener { v, actionId, event ->
+        // Set listener for the keyboard's search action
+        searchEditText.setOnEditorActionListener { _, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH ||
                 actionId == EditorInfo.IME_ACTION_DONE ||
                 event?.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
-                performSearch()
+                performSearch() // Perform search when the search action is triggered
                 true
             } else {
                 false
             }
         }
 
+        // Set up RecyclerView with a LinearLayoutManager and the adapter
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        bookAdapter = BookAdapter(bookList)
+        recyclerView.adapter = bookAdapter
+
+        // Add scroll listener to the RecyclerView for infinite scrolling
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -64,7 +75,7 @@ class SearchFragment : Fragment() {
                 val totalItemCount = layoutManager.itemCount
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                 if (!isLoading && totalItemCount <= (lastVisibleItem + 2)) {
-                    loadMoreBooks()
+                    loadMoreBooks() // Load more books when nearing the end of the list
                 }
             }
         })
@@ -72,15 +83,17 @@ class SearchFragment : Fragment() {
         return view
     }
 
+    // Load books from the query starting from startIndex
     private fun loadBooks() {
         currentQuery?.let { query ->
             isLoading = true
             (activity as MainActivity).searchBooks(query, startIndex) { books ->
                 isLoading = false
                 if (books != null) {
+                    val startPosition = bookList.size
                     bookList.addAll(books)
-                    bookAdapter.notifyDataSetChanged()
-                    startIndex += books.size
+                    bookAdapter.notifyItemRangeInserted(startPosition, books.size)
+                    startIndex += books.size // Update the start index for the next batch of books
                 } else {
                     Toast.makeText(activity, "No books found", Toast.LENGTH_SHORT).show()
                 }
@@ -88,19 +101,23 @@ class SearchFragment : Fragment() {
         }
     }
 
+    // Load more books for infinite scrolling
     private fun loadMoreBooks() {
         if (currentQuery != null) {
             loadBooks()
         }
     }
 
+    // Perform the search when the search button or search action is triggered
     private fun performSearch() {
         val query = searchEditText.text.toString()
         if (query.isNotBlank()) {
             currentQuery = query
-            bookList.clear()
-            startIndex = 0
-            loadBooks()
+            val itemCount = bookList.size
+            bookList.clear() // Clear the existing book list
+            bookAdapter.notifyItemRangeRemoved(0, itemCount)
+            startIndex = 0 // Reset the start index
+            loadBooks() // Load books based on the new query
         } else {
             Toast.makeText(activity, "Please enter a search query", Toast.LENGTH_SHORT).show()
         }

@@ -14,4 +14,11 @@
     <string name="genre_nonfiction">Non-fiction</string>
     <string name="save">Save</string>
 
+    <string name="book_image">Book cover image</string>
+    <string name="unknown_author">Unknown Author</string>
+    <string name="unknown_genres">Unknown Genres</string>
+    <string name="genres">Genres: %1$s</string>
+    <string name="book_added_to_collection">Book added to %1$s collection.</string>
+    <string name="failed_to_add_book">Failed to add book: %1$s</string>
+
 </resources>
