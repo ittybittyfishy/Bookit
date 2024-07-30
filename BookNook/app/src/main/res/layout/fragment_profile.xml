@@ -91,9 +91,10 @@
             <EditText
                 android:id="@+id/rectangle4"
                 android:layout_width="300dp"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_toEndOf="@id/icon1"
                 android:background="@drawable/rounded_rectangle_2"
+                android:layout_marginEnd="30dp"
                 android:hint="Enter text here"
                 android:padding="10dp" />
         </RelativeLayout>
@@ -118,9 +119,10 @@
             <EditText
                 android:id="@+id/rectangle5"
                 android:layout_width="300dp"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_toEndOf="@id/icon2"
                 android:background="@drawable/rounded_rectangle_2"
+                android:layout_marginEnd="35dp"
                 android:hint="Enter text here"
                 android:padding="10dp" />
         </RelativeLayout>

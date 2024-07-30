@@ -45,6 +45,9 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.firebase:firebase-auth:23.0.0")
     implementation("com.google.firebase:firebase-firestore:25.0.0")
+    implementation ("androidx.activity:activity-ktx:1.9.1")
+    implementation ("androidx.fragment:fragment-ktx:1.8.2")
+
 
     //paging
     "androidx.paging:paging-runtime:3.1.1"
