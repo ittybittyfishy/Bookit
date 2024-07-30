@@ -22,7 +22,7 @@
             android:text="Friends"
             android:textSize="18sp"
             android:background="@color/transparent"
-            android:textColor="@color/star_green" />
+            android:textColor="@color/main_text_brown" />
 
         <Button
             android:id="@+id/requests_button"
@@ -32,7 +32,7 @@
             android:layout_gravity="end"
             android:background="@color/transparent"
             android:text="Requests"
-            android:textColor="@color/main_text_brown"
+            android:textColor="@color/star_green"
             android:textSize="18sp" />
 
         <Button
@@ -46,38 +46,5 @@
 
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/search_friend_bar"
-        android:layout_width="360dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/rounded_rectangle"
-        android:elevation="10dp"
-        android:layout_gravity="center"
-        android:hint="Look up a username"
-        android:imeOptions="actionSearch"
-        android:padding="8dp"
-        android:textSize="20sp" />
-
-    <Button
-        android:id="@+id/search_friend_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Search"
-        android:backgroundTint="@color/star_green"
-        android:layout_gravity="center"
-        android:padding="8dp"
-        android:layout_marginTop="8dp"
-        android:textSize="18sp" />
-
-    <TextView
-        android:id="@+id/online_friends"
-        android:layout_width="64dp"
-        android:layout_height="25dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="10dp"
-        android:text="Online"
-        android:textColor="#A7CCAF"
-        android:textSize="20sp" />
 
 </LinearLayout>
