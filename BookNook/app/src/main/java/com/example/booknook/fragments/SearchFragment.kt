@@ -18,7 +18,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.KeyEvent
 
 // Fragment for searching books
-class SearchFragment : Fragment() {
+class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
     // Declare UI elements
     private lateinit var searchButton: Button
@@ -64,8 +64,9 @@ class SearchFragment : Fragment() {
 
         // Set up RecyclerView with a LinearLayoutManager and the adapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
-        bookAdapter = BookAdapter(bookList)
+        bookAdapter = BookAdapter(bookList, this)
         recyclerView.adapter = bookAdapter
+
 
         // Add scroll listener to the RecyclerView for infinite scrolling
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -121,5 +122,12 @@ class SearchFragment : Fragment() {
         } else {
             Toast.makeText(activity, "Please enter a search query", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    // Opens a book's details in another page upon clicking on it
+    override fun onItemClick(position: Int) {
+        val bookItem = bookList[position]
+        Toast.makeText(requireContext(), bookItem.volumeInfo.title, Toast.LENGTH_SHORT).show()
+        // TO-DO: Open new page with book details
     }
 }

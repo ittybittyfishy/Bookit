@@ -12,7 +12,8 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 // Adapter class for handling a list of BookItems in a RecyclerView
-class BookAdapter(private val bookList: List<BookItem>) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
+class BookAdapter(private val bookList: List<BookItem>,
+                  private val listener: RecyclerViewEvent) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
 
     // List of standard collections to display in the spinner
     private val standardCollections = listOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped")
@@ -77,14 +78,32 @@ class BookAdapter(private val bookList: List<BookItem>) : RecyclerView.Adapter<B
     // Returns the total number of items in the data set held by the adapter
     override fun getItemCount(): Int = bookList.size
 
+    // Handles book clicking in the RecyclerView
+    interface RecyclerViewEvent {
+        fun onItemClick(position: Int)
+    }
+
     // ViewHolder class to hold the views for each book item
-    class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         val title: TextView = itemView.findViewById(R.id.bookTitle)
         val authors: TextView = itemView.findViewById(R.id.bookAuthors)
         val bookImage: ImageView = itemView.findViewById(R.id.book_image)
         val rating: RatingBar = itemView.findViewById(R.id.bookRating)
         val genres: TextView = itemView.findViewById(R.id.bookGenres)
         val spinnerSelectCollection: Spinner = itemView.findViewById(R.id.spinnerSelectCollection)
+
+        // Sets the ViewHolder itself as click listener for itemView
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        // Checks if item's position in RecyclerView is valid
+        override fun onClick(v: View?) {
+            val position = adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                listener.onItemClick(position)
+            }
+        }
     }
 
     // Function to save the selected book to a specific collection in Firestore

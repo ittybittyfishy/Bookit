@@ -7,7 +7,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class CollectionAdapter(private val bookGroups: List<BookGroup>) :
+class CollectionAdapter(private val bookGroups: List<BookGroup>,
+                        private val listener: BookAdapter.RecyclerViewEvent) :
     RecyclerView.Adapter<CollectionAdapter.CollectionViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CollectionViewHolder {
@@ -19,7 +20,7 @@ class CollectionAdapter(private val bookGroups: List<BookGroup>) :
         val group = bookGroups[position]
         holder.collectionName.text = group.name
         holder.booksRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
-        holder.booksRecyclerView.adapter = BookAdapter(group.books)
+        holder.booksRecyclerView.adapter = BookAdapter(group.books, listener)
     }
 
     override fun getItemCount(): Int = bookGroups.size
