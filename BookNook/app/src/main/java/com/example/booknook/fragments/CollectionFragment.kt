@@ -1,5 +1,6 @@
 package com.example.booknook.fragments
 
+import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -22,11 +23,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 
-class CollectionFragment : Fragment(), BookAdapter.RecyclerViewEvent{
+class CollectionFragment : Fragment(){
 
     private lateinit var myCollectionButton: Button
     private lateinit var recyclerView: RecyclerView
-    private lateinit var bookAdapter: BookAdapter
     private lateinit var db: FirebaseFirestore
     private val userId: String? = FirebaseAuth.getInstance().currentUser?.uid
     private lateinit var collectionAdapter: CollectionAdapter
@@ -37,15 +37,12 @@ class CollectionFragment : Fragment(), BookAdapter.RecyclerViewEvent{
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_collection, container, false)
+        db = FirebaseFirestore.getInstance()
 
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(activity)
-
-        // Initialize adapter with the collection list
         collectionAdapter = CollectionAdapter(collectionList)
         recyclerView.adapter = collectionAdapter
-
-        db = FirebaseFirestore.getInstance()
 
         return view
     }
@@ -63,24 +60,39 @@ class CollectionFragment : Fragment(), BookAdapter.RecyclerViewEvent{
             (activity as MainActivity).replaceFragment(customcollectionFragment, "My Books")
         }
 
-        fetchCollectionNames()
+        fetchCollection()
 
     }
 
-    private fun fetchCollectionNames() {
-        userId?.let { id ->
-            db.collection("users").document(id).get()
+    private fun fetchCollection() {
+        userId?.let { uid ->
+            db.collection("users").document(uid).get()
                 .addOnSuccessListener { document ->
                     if (document != null) {
-                        // Extract the collection names
-                        val standardCollections = document.get("standardCollections") as? Map<String, Any>
-                        standardCollections?.keys?.forEach { collectionName ->
-                            collectionList.add(CollectionItem(collectionName))
-                        }
-                        // Notify adapter about data changes
-                        collectionAdapter.notifyDataSetChanged()
+                        val standardCollections = document.get("standardCollections") as? Map<String, List<Map<String, Any>>>
+                        if (standardCollections != null) {
+                            collectionList.clear() // Clear existing data
+                            for ((name, books) in standardCollections) {
+                                val bookItems = books.map { book ->
+                                    val imageLinkMap = book["imageLink"] as? Map<String, String>
+                                    val imageLinks = imageLinkMap?.let { ImageLinks(thumbnail = it["thumbnail"]) }
+
+                                    BookItem(VolumeInfo(
+                                        title = book["title"] as? String ?: "",
+                                        authors = book["authors"] as? List<String> ?: listOf("Unknown Author"),
+                                        imageLinks = imageLinks,
+                                        averageRating = (book["averageRating"] as? Number)?.toFloat() ?: 0.0f,
+                                        categories = book["categories"] as? List<String> ?: listOf("Unknown Genre")
+                                    ))
+                                }
+                                collectionList.add(CollectionItem(name, bookItems))
+                            }
+                            collectionAdapter.notifyDataSetChanged()
                     } else {
-                        Log.d("CollectionFragment", "No such document")
+                            Log.d("CollectionFragment", "No standardCollections found")
+                        }
+                    } else {
+                        Log.d("CollectionFragment", "Document does not exist")
                     }
                 }
                 .addOnFailureListener { exception ->
@@ -89,7 +101,12 @@ class CollectionFragment : Fragment(), BookAdapter.RecyclerViewEvent{
         }
     }
 
-    override fun onItemClick(position: Int) {
-        TODO("Not yet implemented")
+    private fun mapToBookItem(data: Map<String, Any>): BookItem {
+        val title = data["title"] as? String ?: ""
+        val authors = data["authors"] as? List<String> ?: emptyList()
+        val imageLink = data["imageLink"] as? ImageLinks?
+        val bookInfo = VolumeInfo(title, authors, imageLink)
+        return BookItem(bookInfo)
     }
+
 }
