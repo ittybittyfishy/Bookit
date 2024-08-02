@@ -127,7 +127,14 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
     // Opens a book's details in another page upon clicking on it
     override fun onItemClick(position: Int) {
         val bookItem = bookList[position]
-        Toast.makeText(requireContext(), bookItem.volumeInfo.title, Toast.LENGTH_SHORT).show()
-        // TO-DO: Open new page with book details
+        // TO-DO: Finish page with book details
+        val bookDetailsFragment = BookDetailsFragment()
+        val bundle = Bundle()
+        bundle.putString("bookTitle", bookItem.volumeInfo.title)
+        bundle.putString("bookAuthor", bookItem.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")
+        bundle.putString("bookImage", bookItem.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"))
+
+        bookDetailsFragment.arguments = bundle
+        (activity as MainActivity).replaceFragment(bookDetailsFragment, bookItem.volumeInfo.title)
     }
 }
