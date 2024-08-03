@@ -20,13 +20,17 @@ class BookDetailsFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_book_details, container, false)
 
+        // Retrieves data from arguments passed in
         val bookAuthor = arguments?.getString("bookAuthor")
         val bookImage = arguments?.getString("bookImage")
 
+        // Retrieves Ids in the fragment
         val authorTextView: TextView = view.findViewById(R.id.bookAuthor)
         val imageView: ImageView = view.findViewById(R.id.bookImage)
 
-        authorTextView.text = bookAuthor
+        authorTextView.text = bookAuthor  // Update text with the book's author(s)
+
+        // Update the book's image
         if (bookImage != null) {
             Glide.with(this)
                 .load(bookImage)

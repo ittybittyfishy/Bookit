@@ -129,12 +129,13 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         val bookItem = bookList[position]
         // TO-DO: Finish page with book details
         val bookDetailsFragment = BookDetailsFragment()
-        val bundle = Bundle()
+        val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
+        // Adds data into the bundle
         bundle.putString("bookTitle", bookItem.volumeInfo.title)
         bundle.putString("bookAuthor", bookItem.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")
         bundle.putString("bookImage", bookItem.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"))
 
-        bookDetailsFragment.arguments = bundle
-        (activity as MainActivity).replaceFragment(bookDetailsFragment, bookItem.volumeInfo.title)
+        bookDetailsFragment.arguments = bundle  // sets bookDetailsFragment's arguments to the data in bundle
+        (activity as MainActivity).replaceFragment(bookDetailsFragment, bookItem.volumeInfo.title)  // Opens a new fragment
     }
 }
