@@ -134,6 +134,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         bundle.putString("bookTitle", bookItem.volumeInfo.title)
         bundle.putString("bookAuthor", bookItem.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")
         bundle.putString("bookImage", bookItem.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"))
+        bundle.putFloat("bookRating", bookItem.volumeInfo.averageRating ?: 0f)
 
         bookDetailsFragment.arguments = bundle  // sets bookDetailsFragment's arguments to the data in bundle
         (activity as MainActivity).replaceFragment(bookDetailsFragment, bookItem.volumeInfo.title)  // Opens a new fragment
