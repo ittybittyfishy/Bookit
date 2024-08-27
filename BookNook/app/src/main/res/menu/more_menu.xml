@@ -8,9 +8,9 @@
         android:id = "@+id/groups"
         />
     <item
-        android:title="Achievments"
+        android:title="Achievements"
         android:icon="@drawable/home"
-        android:id = "@+id/achievments"/>
+        android:id = "@+id/achievements"/>
     <item
         android:title="Settings"
         android:icon="@drawable/profile"

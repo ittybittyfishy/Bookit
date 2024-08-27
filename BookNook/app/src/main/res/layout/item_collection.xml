@@ -2,25 +2,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="20dp">
 
     <TextView
-        android:id="@+id/collectionTitle"
+        android:id="@+id/collectionName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:textSize="20sp"
-        android:background="?attr/selectableItemBackground"
-        android:text="Collection Title"
-        android:clickable="true" />
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:textColor="@color/banner_green"
+        android:paddingBottom="4dp"
+        android:hint="Collection Name"/>
 
-    <LinearLayout
-        android:id="@+id/booksContainer"
-        android:orientation="vertical"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone">
-        <!-- Book items will be added here dynamically -->
-    </LinearLayout>
+        android:layout_height="match_parent"
+        android:nestedScrollingEnabled="false" />
 
 </LinearLayout>

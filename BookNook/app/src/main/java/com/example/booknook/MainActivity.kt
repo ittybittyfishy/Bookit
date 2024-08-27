@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.friends -> replaceFragment(friendsFragment, "Friends")
                 R.id.groups -> replaceFragment(groupsFragment, "Groups")
-                R.id.achievments -> replaceFragment(achievementsFragment, "Achievements")
+                R.id.achievements -> replaceFragment(achievementsFragment, "Achievements")
                 R.id.settings -> replaceFragment(settingsFragment, "Settings")
             }
             true

@@ -1,5 +1,5 @@
 package com.example.booknook
 
-class CollectionItem (val title: String,
-                      val books: List<BookItem>,
-                      var isExpanded: Boolean = false) {}
+class CollectionItem (val name: String,
+                      val books: List<BookItem> = listOf()){
+}

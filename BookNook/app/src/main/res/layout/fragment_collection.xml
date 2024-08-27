@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.CollectionFragment"
-    android:background="@color/background_tan">
+    android:background="@color/background_tan"
+    android:padding="20dp">
 
     <!-- TODO: Update blank fragment layout -->
     <Button
@@ -12,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginStart="40dp"
+        android:layout_marginStart="20dp"
         android:text="Overview"
         android:textSize="20dp"
         android:background="@color/transparent"
@@ -22,13 +23,28 @@
         android:id="@+id/my_collection_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:background="@color/transparent"
         android:text="My Collection"
         android:textColor="@color/main_text_brown"
-        android:background="@color/transparent"
-        android:textSize="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_gravity="end"
-        android:layout_marginEnd="40dp"/>
+        android:textSize="20dp" />
+
+    <Spinner
+        android:id="@+id/sort_by"
+        android:layout_width="93dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="60dp"
+        android:background="@drawable/rounded_rectangle" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="110dp"/>
+
 
 
 

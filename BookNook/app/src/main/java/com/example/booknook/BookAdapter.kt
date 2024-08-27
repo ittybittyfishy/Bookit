@@ -1,64 +1,141 @@
 package com.example.booknook
 
-import android.util.Log
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.booknook.R
-import com.example.booknook.BookItem
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 
-//a view is a UI element that appears on the screen
-//inflate means to create
-//book adapter provides instructions for recyclerview to correctly display data
-//create viewholder, bind the data, provide total number of items in data set
+// Adapter class for handling a list of BookItems in a RecyclerView
+class BookAdapter(private val bookList: List<BookItem>,
+                  private val listener: RecyclerViewEvent) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
 
-//connect booklist with the views that display them in recyclerview
-class BookAdapter(private val bookList: List<BookItem>) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
+    // List of standard collections to display in the spinner
+    private val standardCollections = listOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped")
 
-    //layout inflater creates views from .xml layouts
-    //R contains references to resources
-    //parent is the viewgroup the view will be attached to
-    //parent.context ensures the new view inherits the correct info from parent for consistent interface
-
-    //creates new views for each item on the list
+    // Called when RecyclerView needs a new ViewHolder of the given type
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_book, parent, false)
         return BookViewHolder(view)
     }
 
-    //overrides method in recyclerview.adapter
-    //holder:bookViewHolder represents the contents of the item at the given position
-    //binds data to each view, loads images using glide and sets placeholder image
+    // Called by RecyclerView to display the data at the specified position
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
-        val book = bookList[position] //accesses the book data at the specified position
+        val book = bookList[position]
 
-        holder.title.text = book.volumeInfo.title //displays the title of the book in the title textvieww of the viewholder
-        //displays the authors, if none it says unknown author
-        holder.authors.text = book.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author"
+        // Set the title of the book
+        holder.title.text = book.volumeInfo.title
 
-        // Use HTTPS for the image URL
-        //this accesses the books image
+        // Set the authors of the book or a default text if authors are unknown
+        holder.authors.text = book.volumeInfo.authors?.joinToString(", ") ?: holder.itemView.context.getString(R.string.unknown_author)
+
+        // Load the book's thumbnail image using Glide
         val imageUrl = book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
-        //load the image with glide, first initialize with the itemview context
         Glide.with(holder.itemView.context)
-            .load(imageUrl) //tell glide to load image
-            .placeholder(R.drawable.placeholder_image) // Ensure the placeholder image exists in res/drawable
-            .error(R.drawable.placeholder_image) // Show placeholder image if loading fails
-            .into(holder.bookImage) //tells glide to load image into bookimage
+            .load(imageUrl)
+            .placeholder(R.drawable.placeholder_image) // Placeholder image while loading
+            .error(R.drawable.placeholder_image) // Image to display on error
+            .into(holder.bookImage)
+
+        // Set the rating of the book
+        holder.rating.rating = book.volumeInfo.averageRating ?: 0f
+
+        // Set the genres of the book or a default text if genres are unknown
+        holder.genres.text = holder.itemView.context.getString(R.string.genres, book.volumeInfo.categories?.joinToString(", ") ?: holder.itemView.context.getString(R.string.unknown_genres))
+
+        // Set up the spinner with standard collections
+        val adapter = ArrayAdapter(
+            holder.itemView.context,
+            android.R.layout.simple_spinner_item,
+            standardCollections
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        holder.spinnerSelectCollection.adapter = adapter
+
+        // Handle spinner item selection
+        holder.spinnerSelectCollection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                if (position != 0) { // Check if the selected position is not the default one
+                    val selectedCollection = standardCollections[position]
+                    saveBookToCollection(
+                        holder.itemView.context,
+                        book.volumeInfo.title,
+                        holder.authors.text.toString(),
+                        imageUrl,
+                        selectedCollection
+                    )
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
     }
 
-    //return size of booklist
+    // Returns the total number of items in the data set held by the adapter
     override fun getItemCount(): Int = bookList.size
 
-    //helper class that hold references to the views within a single item layout
-    //makes it easy to access views without having to repeatedly calling it
-    class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val title: TextView = itemView.findViewById(R.id.bookTitle) //display title of book
-        val authors: TextView = itemView.findViewById(R.id.bookAuthors) //display author
-        val bookImage: ImageView = itemView.findViewById(R.id.book_image) //display book cover
+    // Handles book clicking in the RecyclerView
+    interface RecyclerViewEvent {
+        fun onItemClick(position: Int)
+    }
+
+    // ViewHolder class to hold the views for each book item
+    inner class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        val title: TextView = itemView.findViewById(R.id.bookTitle)
+        val authors: TextView = itemView.findViewById(R.id.bookAuthors)
+        val bookImage: ImageView = itemView.findViewById(R.id.book_image)
+        val rating: RatingBar = itemView.findViewById(R.id.bookRating)
+        val genres: TextView = itemView.findViewById(R.id.bookGenres)
+        val spinnerSelectCollection: Spinner = itemView.findViewById(R.id.spinnerSelectCollection)
+
+        // Sets the ViewHolder itself as click listener for itemView
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        // Checks if item's position in RecyclerView is valid
+        override fun onClick(v: View?) {
+            val position = adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                listener.onItemClick(position)
+            }
+        }
+    }
+
+    // Function to save the selected book to a specific collection in Firestore
+    private fun saveBookToCollection(
+        context: Context,
+        title: String,
+        authors: String,
+        bookImage: String?,
+        collectionName: String
+    ) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) { // Check if the user is logged in
+            val db = FirebaseFirestore.getInstance()
+
+            // Create a map representing the book
+            val book = hashMapOf(
+                "title" to title,
+                "authors" to authors.split(", "), // Split authors string into a list
+                "imageLink" to bookImage
+            )
+
+            // Update the user's document in Firestore with the new book
+            db.collection("users").document(userId)
+                .update("standardCollections.$collectionName", FieldValue.arrayUnion(book))
+                .addOnSuccessListener {
+                    // Show a success message
+                    Toast.makeText(context, context.getString(R.string.book_added_to_collection, collectionName), Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    // Show an error message
+                    Toast.makeText(context, context.getString(R.string.failed_to_add_book, e.message), Toast.LENGTH_SHORT).show()
+                }
+        }
     }
 }

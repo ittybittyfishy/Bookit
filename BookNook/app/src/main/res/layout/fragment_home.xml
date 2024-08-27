@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|top"
-        android:layout_marginTop="60dp">
+        android:layout_marginTop="5dp">
 
         <!-- Orange rectangle with rounded corners -->
         <View
@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:text="Logged in as"
             android:textSize="20sp"
-            android:padding="12dp"
+            android:padding="0dp"
             android:gravity="center"
             android:singleLine="true"
             android:textColor="@android:color/black"
