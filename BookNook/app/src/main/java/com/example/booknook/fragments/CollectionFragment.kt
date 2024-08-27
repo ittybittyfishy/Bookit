@@ -22,9 +22,10 @@ import com.example.booknook.IndustryIdentifier
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-
+//This class displays and manages a users book collection
 class CollectionFragment : Fragment(){
 
+    //Declare UI elements
     private lateinit var myCollectionButton: Button
     private lateinit var recyclerView: RecyclerView
     private lateinit var db: FirebaseFirestore
@@ -32,13 +33,17 @@ class CollectionFragment : Fragment(){
     private lateinit var collectionAdapter: CollectionAdapter
     private val collectionList = mutableListOf<CollectionItem>()
 
+    //Layout
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_collection, container, false)
+
+        //initialize database
         db = FirebaseFirestore.getInstance()
 
+        //Setup recycler view
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(activity)
         collectionAdapter = CollectionAdapter(collectionList)
@@ -69,26 +74,39 @@ class CollectionFragment : Fragment(){
             db.collection("users").document(uid).get()
                 .addOnSuccessListener { document ->
                     if (document != null) {
-                        val standardCollections = document.get("standardCollections") as? Map<String, List<Map<String, Any>>>
+                        val standardCollections = document.get("standardCollections") as? Map<String, Any>
                         if (standardCollections != null) {
                             collectionList.clear() // Clear existing data
-                            for ((name, books) in standardCollections) {
-                                val bookItems = books.map { book ->
-                                    val imageLinkMap = book["imageLink"] as? Map<String, String>
-                                    val imageLinks = imageLinkMap?.let { ImageLinks(thumbnail = it["thumbnail"]) }
 
-                                    BookItem(VolumeInfo(
-                                        title = book["title"] as? String ?: "",
-                                        authors = book["authors"] as? List<String> ?: listOf("Unknown Author"),
-                                        imageLinks = imageLinks,
-                                        averageRating = (book["averageRating"] as? Number)?.toFloat() ?: 0.0f,
-                                        categories = book["categories"] as? List<String> ?: listOf("Unknown Genre")
-                                    ))
+                            for ((name, books) in standardCollections) {
+                                if (books is List<*>) {
+                                    val bookItems = books.mapNotNull { book ->
+                                        if (book is Map<*, *>) {
+                                            val imageLinkMap = book["imageLink"] as? Map<*, *>
+                                            val imageLinks = imageLinkMap?.let {
+                                                ImageLinks(thumbnail = it["thumbnail"] as? String)
+                                            }
+
+                                            BookItem(
+                                                VolumeInfo(
+                                                    title = book["title"] as? String ?: "",
+                                                    authors = book["authors"] as? List<String> ?: listOf("Unknown Author"),
+                                                    imageLinks = imageLinks,
+                                                    averageRating = (book["averageRating"] as? Number)?.toFloat() ?: 0.0f,
+                                                    categories = book["categories"] as? List<String> ?: listOf("Unknown Genre")
+                                                )
+                                            )
+                                        } else {
+                                            null
+                                        }
+                                    }
+                                    collectionList.add(CollectionItem(name, bookItems))
+                                } else {
+                                    Log.d("CollectionFragment", "Unexpected type for books: ${books?.javaClass}")
                                 }
-                                collectionList.add(CollectionItem(name, bookItems))
                             }
                             collectionAdapter.notifyDataSetChanged()
-                    } else {
+                        } else {
                             Log.d("CollectionFragment", "No standardCollections found")
                         }
                     } else {
@@ -100,6 +118,7 @@ class CollectionFragment : Fragment(){
                 }
         }
     }
+
 
     private fun mapToBookItem(data: Map<String, Any>): BookItem {
         val title = data["title"] as? String ?: ""
