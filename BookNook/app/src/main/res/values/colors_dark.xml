@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <color name="black">#FFFFFFFF</color>
+    <color name="white">#FF000000</color>
+    <color name="background_tan">#333333</color>
+    <color name="main_text_brown">#CCCCCC</color>
+    <color name="sub_text_brown">#AAAAAA</color>
+    <color name="star_green">#A4C639</color>
+    <color name="banner_green">#689F38</color>
+    <color name="submenu_brown">#444444</color>
+    <color name="genre_tag_brown">#444444</color>
+    <color name="custom_tag_pink">#AD1457</color>
+    <color name="border_green">#33691E</color>
+    <color name="transparent">#00000000</color>
+</resources>
+
+
