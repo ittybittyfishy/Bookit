@@ -93,10 +93,10 @@ class Register : AppCompatActivity() {
                         val userEmail = firebaseUser.email
 
                         val standardCollections = hashMapOf(
-                            "Want to Read" to emptyList<HashMap<String, Any>>(),
-                            "Reading" to emptyList<HashMap<String, Any>>(),
-                            "Finished" to emptyList<HashMap<String, Any>>(),
-                            "Dropped" to emptyList<HashMap<String, Any>>()
+                            "Want to Read" to mutableListOf<Map<String, Any>>(),
+                            "Reading" to mutableListOf<Map<String, Any>>(),
+                            "Finished" to mutableListOf<Map<String, Any>>(),
+                            "Dropped" to mutableListOf<Map<String, Any>>()
                         )
 
                         // create new user with email and timestamp

@@ -1,6 +1,7 @@
 package com.example.booknook
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -106,36 +107,62 @@ class BookAdapter(private val bookList: List<BookItem>,
         }
     }
 
-    // Function to save the selected book to a specific collection in Firestore
     private fun saveBookToCollection(
         context: Context,
         title: String,
         authors: String,
         bookImage: String?,
-        collectionName: String
+        newCollectionName: String
     ) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId != null) { // Check if the user is logged in
+        if (userId != null) {
             val db = FirebaseFirestore.getInstance()
 
             // Create a map representing the book
             val book = hashMapOf(
                 "title" to title,
-                "authors" to authors.split(", "), // Split authors string into a list
+                "authors" to authors.split(", "),
                 "imageLink" to bookImage
             )
 
-            // Update the user's document in Firestore with the new book
-            db.collection("users").document(userId)
-                .update("standardCollections.$collectionName", FieldValue.arrayUnion(book))
-                .addOnSuccessListener {
-                    // Show a success message
-                    Toast.makeText(context, context.getString(R.string.book_added_to_collection, collectionName), Toast.LENGTH_SHORT).show()
+            // Reference to the user's document
+            val userDocRef = db.collection("users").document(userId)
+
+            // Firestore transaction to ensure atomicity
+            db.runTransaction { transaction ->
+                // Retrieve the current document snapshot
+                val snapshot = transaction.get(userDocRef)
+
+                // Check each standard collection to see if the book is in any of them
+                for (collection in standardCollections) {
+                    if (collection != "Select Collection" && collection != newCollectionName) {
+                        val booksInCollection = snapshot.get("standardCollections.$collection") as? List<Map<String, Any>>
+
+                        // Debugging: print the books retrieved
+                        Log.d("FirestoreData", "Books in $collection: $booksInCollection")
+
+                        booksInCollection?.let {
+                            for (existingBook in it) {
+                                if (existingBook["title"] == title && existingBook["authors"] == authors.split(", ")) {
+                                    // Remove the book from the old collection
+                                    transaction.update(userDocRef, "standardCollections.$collection", FieldValue.arrayRemove(existingBook))
+                                    break
+                                }
+                            }
+                        }
+                    }
                 }
-                .addOnFailureListener { e ->
-                    // Show an error message
-                    Toast.makeText(context, context.getString(R.string.failed_to_add_book, e.message), Toast.LENGTH_SHORT).show()
-                }
+
+                // Add the book to the new collection
+                transaction.update(userDocRef, "standardCollections.$newCollectionName", FieldValue.arrayUnion(book))
+
+                // Indicate successful completion
+                null
+            }.addOnSuccessListener {
+                Toast.makeText(context, context.getString(R.string.book_added_to_collection, newCollectionName), Toast.LENGTH_SHORT).show()
+            }.addOnFailureListener { e ->
+                Toast.makeText(context, context.getString(R.string.failed_to_add_book, e.message), Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
