@@ -157,5 +157,4 @@
         android:text="© 2024 Book Nook, Inc."
         android:textColor="@color/sub_text_brown"
         android:textSize="14sp" />
-
 </FrameLayout>
