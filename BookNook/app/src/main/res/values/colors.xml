@@ -12,4 +12,6 @@
     <color name="custom_tag_pink">#EAD2E3</color>
     <color name="border_green">#A8C19F</color>
     <color name="transparent">#00000000</color>
+    <color name="app_background">#FFF8F1</color>
+
 </resources>

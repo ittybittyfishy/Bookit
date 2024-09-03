@@ -4,14 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import android.text.TextUtils
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
-import com.example.booknook.fragments.HomeFragment
 import com.google.firebase.firestore.FirebaseFirestore
-
 
 class Login : AppCompatActivity() {
     lateinit var email: EditText
@@ -20,6 +19,7 @@ class Login : AppCompatActivity() {
     lateinit var registerButton: Button
     lateinit var auth: FirebaseAuth
     lateinit var db: FirebaseFirestore
+    lateinit var forgotPass: TextView  // Change from Button to TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,21 +29,20 @@ class Login : AppCompatActivity() {
         password = findViewById(R.id.passwordEditText)
         login = findViewById(R.id.LoginButton)
         registerButton = findViewById(R.id.registerButton)
+        forgotPass = findViewById(R.id.ForgotPass)  // Initialize the TextView
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
         registerButton.setOnClickListener {
-            Log.d("TAG", "Button clicked") // Add this line
+            Log.d("TAG", "Register Button clicked")
             val intent = Intent(this@Login, Register::class.java)
-            // Start the HomePageActivity
             startActivity(intent)
-            // Finish the current activity to prevent the user from navigating back to it
             finish()
         }
 
         login.setOnClickListener {
-            Log.d("TAG", "Button clicked") // Add this line
+            Log.d("TAG", "Login Button clicked")
             val txtEmail = email.text.toString()
             val txtPassword = password.text.toString()
 
@@ -52,6 +51,12 @@ class Login : AppCompatActivity() {
             } else {
                 loginUser(txtEmail, txtPassword)
             }
+        }
+
+        forgotPass.setOnClickListener {
+            Log.d("TAG", "Forgot Password clicked")
+            val intent = Intent(this@Login, ForgotPasswordActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -72,13 +77,9 @@ class Login : AppCompatActivity() {
 
                                 Toast.makeText(this@Login, "Login successful", Toast.LENGTH_SHORT).show()
 
-                                // Create an Intent to start the MainActivity
                                 val intent = Intent(this@Login, MainActivity::class.java)
-                                // Pass whether it's the user's first login
                                 intent.putExtra("isFirstLogin", isFirstLogin)
-                                // Start the MainActivity
                                 startActivity(intent)
-                                // Finish the current activity to prevent the user from navigating back to it
                                 finish()
                             }
                         }
@@ -88,10 +89,7 @@ class Login : AppCompatActivity() {
                 }
             }
             .addOnFailureListener(this) { exception ->
-                // Handle registration failure
                 Toast.makeText(this@Login, "Login failed: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
-
 }
-

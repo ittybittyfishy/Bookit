@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private val genrePreferenceFragment = GenrePreferenceFragment()
     private val accountFragment = AccountFragment()
 
+    //Unique api key
     private val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM"
 
     override fun onCreate(savedInstanceState: Bundle?) {
