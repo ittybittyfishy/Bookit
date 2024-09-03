@@ -55,6 +55,7 @@
         android:elevation="10dp"
         android:layout_gravity="center"
         android:hint="Look up a username"
+        android:textColorHint="@color/hint_text_color"
         android:imeOptions="actionSearch"
         android:padding="8dp"
         android:textSize="20sp" />
@@ -64,7 +65,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Search"
-        android:backgroundTint="@color/star_green"
+        android:textColor="@color/icon_color"
+        android:backgroundTint="@color/green_to_purple"
         android:layout_gravity="center"
         android:padding="8dp"
         android:layout_marginTop="8dp"
@@ -77,7 +79,7 @@
         android:layout_marginLeft="15dp"
         android:layout_marginTop="10dp"
         android:text="Online"
-        android:textColor="#A7CCAF"
+        android:textColor="@color/star_green"
         android:textSize="20sp" />
 
 </LinearLayout>
