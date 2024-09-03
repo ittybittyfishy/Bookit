@@ -1,24 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="20dp">
+    android:orientation="vertical"
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/collectionName"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@color/banner_green"
-        android:paddingBottom="4dp"
-        android:hint="Collection Name"/>
+        android:paddingBottom="8dp"
+        android:textColor="@color/banner_green"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/booksRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:nestedScrollingEnabled="false" />
-
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" />
 </LinearLayout>
