@@ -1,15 +1,14 @@
 <resources>
-    <!-- 다크 모드 색상 정의 -->
-    <color name="black">#FFFFFFFF</color>
-    <color name="white">#FF121212</color>
-    <color name="background_tan">#FF121212</color>
-    <color name="main_text_brown">#FFD3D3D3</color>
-    <color name="sub_text_brown">#FFB0B0B0</color>
-    <color name="star_green">#FF81C784</color>
-    <color name="banner_green">#FF388E3C</color>
-    <color name="submenu_brown">#FF2C2C2C</color>
-    <color name="genre_tag_brown">#FF3E3E3E</color>
-    <color name="custom_tag_pink">#FF4E2A4F</color>
-    <color name="border_green">#FF4CAF50</color>
+    <color name="black">#FFFFFFFF</color> <!-- White for dark mode -->
+    <color name="icon_color">#FFFFFFFF</color>
+    <color name="background_tan">#FF2B2B2B</color> <!-- Darker background -->
+    <color name="main_text_brown">#FFD1C4A8</color> <!-- Lighter text color -->
+    <color name="sub_text_brown">#9C9C9C</color>
+    <color name="star_green">#FF97C87C</color>
+    <color name="banner_green">#3B4286</color>
+    <color name="submenu_brown">#FF404040</color> <!-- Darker submenu -->
+    <color name="genre_tag_brown">#FF404040</color>
+    <color name="custom_tag_pink">#FF623757</color>
+    <color name="border_green">#FF6E8F6D</color>
     <color name="transparent">#00000000</color>
 </resources>
