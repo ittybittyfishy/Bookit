@@ -13,13 +13,14 @@
         android:text="Create Collection"
         android:textSize="20dp"
         android:layout_gravity="center_horizontal"
-        android:textColor="@color/star_green"
+        android:textColor="@color/green_to_purple"
         android:textStyle="bold"/>
     <EditText
         android:id="@+id/collectionNameEditText"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:hint="Collection Name"
+        android:textColorHint="@color/hint_text_color"
         android:background="@drawable/rounded_rectangle"/>
 
     <EditText
@@ -27,6 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:hint="Collection Summary"
+        android:textColorHint="@color/hint_text_color"
         android:layout_marginTop="8dp"
         android:background="@drawable/rounded_rectangle"/>
 
@@ -35,6 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Create Collection"
+        android:textColor="@color/icon_color"
         android:layout_marginTop="16dp"
         android:layout_gravity="center_horizontal"
         android:backgroundTint="@color/banner_green"/>
