@@ -1,0 +1,14 @@
+<resources>
+    <!-- Dark Theme -->
+    <style name="Theme.BookNook.Dark" parent="Base.Theme.BookNook">
+        <item name="colorPrimary">@color/star_green</item>
+        <item name="colorPrimaryContainer">@color/banner_green</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/star_green</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSurface">@color/submenu_brown</item>
+        <item name="colorOnSurface">@color/main_text_brown</item>
+        <item name="colorError">@color/custom_tag_pink</item>
+    </style>
+</resources>
+
