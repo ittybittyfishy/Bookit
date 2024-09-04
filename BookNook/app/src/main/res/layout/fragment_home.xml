@@ -40,8 +40,30 @@
         android:layout_height="wrap_content"
         android:text="Daily Recommendations"
         android:textColor="@color/home_pink"
-        android:textSize="25sp"
+        android:textSize="30sp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="53dp"/>
+        android:layout_marginTop="54dp"/>
+
+    <!-- Divider -->
+    <View
+        android:id="@+id/divider1"
+        android:layout_width="350dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="312dp"
+        android:layout_marginStart="0dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/rounded_rectangle"
+        android:backgroundTint="@color/main_text_brown" />
+
+    <!-- While You Were Away Section -->
+    <TextView
+        android:id="@+id/recentActivityTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:text="While you were away..."
+        android:textColor="@color/home_pink"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="315dp" />
 
 </FrameLayout>
