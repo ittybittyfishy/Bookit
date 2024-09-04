@@ -8,7 +8,7 @@
     <!-- Outer Circle (Stroke only) -->
     <path
         android:strokeColor="#6E8663"
-    android:strokeWidth="3"
+    android:strokeWidth="2"
     android:fillColor="@android:color/transparent"
     android:pathData="M12,2A10,10 0 1,1 2,12A10,10 0 0,1 12,2z"/>
 
