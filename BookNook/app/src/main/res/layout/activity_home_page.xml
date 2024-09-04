@@ -13,7 +13,7 @@
         android:layout_marginStart="128dp"
         android:layout_marginTop="236dp"
         android:text="Logged in as \n username"
-        android:textColor="@android:color/black"
+        android:textColor="@color/user_name_home"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

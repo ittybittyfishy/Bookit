@@ -14,6 +14,8 @@
     <color name="hint_text_color">#FFC0C0C0</color>
     <color name="green_to_purple">#5A6ABF</color>
     <color name="app_background">#2C2C2C</color>
+    <color name="home_pink">#B05B73</color>
+    <color name="user_name_home">#F04D4D</color>
 
     <!-- Dark Mode Color for Drawable -->
     <color name="circle">#3E3E3E</color>
