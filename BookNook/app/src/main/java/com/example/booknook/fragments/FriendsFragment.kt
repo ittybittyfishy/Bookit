@@ -10,6 +10,8 @@ import android.widget.EditText
 import android.widget.Toast
 import com.example.booknook.MainActivity
 import com.example.booknook.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 
@@ -70,10 +72,10 @@ class FriendsFragment : Fragment() {
                     val result: QuerySnapshot? = searchTask.result  // gets result from Task object, which can be null
                     if (result != null && !result.isEmpty) {  // checks if result is null and contains at least one document
                         val userDocument = result.documents[0]  // retrieves first document
-                        val userId = userDocument.id  // retrieves user's id
+                        val receiverId = userDocument.id  // retrieves user's id
                         val userName = userDocument.getString("username")  // retrieves "username" field
 
-                        sendFriendRequest(userId)  // calls function send a friend request
+                        sendFriendRequest(receiverId)  // calls function to send a friend request
                         Toast.makeText(activity, "User found: $userName", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(activity, "User not found", Toast.LENGTH_SHORT).show()  // displays if user doesn't exist
@@ -84,7 +86,49 @@ class FriendsFragment : Fragment() {
             }
     }
 
-    private fun sendFriendRequest(userId: String) {  // Function to send a friend request
+    private fun sendFriendRequest(receiverId: String) {  // Function to send a friend request
+        // To-do
+        val db = FirebaseFirestore.getInstance()
+        val friendRequestsRef = db.collection("users").document(receiverId)
+        val senderId = FirebaseAuth.getInstance().currentUser?.uid
 
+        if (senderId != null) {
+            db.collection("users").document(senderId).get().addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val senderUsername = document.getString("username")
+
+                    if (senderUsername != null) {
+                        val friendRequest = hashMapOf(
+                            "senderId" to senderId,
+                            "senderUsername" to senderUsername,
+                            "receiverId" to receiverId,
+                            "status" to "pending",
+                        )
+
+                        friendRequestsRef.update(
+                            "friendRequests",
+                            FieldValue.arrayUnion(friendRequest)
+                        )
+                            .addOnSuccessListener {
+                                Toast.makeText(
+                                    activity,
+                                    "Friend request sent",
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(
+                                    activity,
+                                    "Failed to send friend request",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                    }
+                } else {
+                    Toast.makeText(activity, "Not authenticated", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 }

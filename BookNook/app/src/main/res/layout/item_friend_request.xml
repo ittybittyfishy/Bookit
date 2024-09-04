@@ -7,18 +7,20 @@
     android:layout_margin="8dp">
 
     <TextView
-        android:id="@+id/username"
+        android:id="@+id/friend_req_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:text="Username" />
     
     <Button
+        android:id="@+id/accept_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Accept"/>
 
     <Button
+        android:id="@+id/reject_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Decline"/>
