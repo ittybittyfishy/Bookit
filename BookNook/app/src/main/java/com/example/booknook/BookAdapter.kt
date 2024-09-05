@@ -114,8 +114,10 @@ class BookAdapter(private val bookList: List<BookItem>,
         bookImage: String?,
         newCollectionName: String
     ) {
+        // Get the current user's ID from Firebase Authentication
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
+            // Get a reference to the Firestore database
             val db = FirebaseFirestore.getInstance()
 
             // Create a map representing the book
@@ -128,7 +130,7 @@ class BookAdapter(private val bookList: List<BookItem>,
             // Reference to the user's document
             val userDocRef = db.collection("users").document(userId)
 
-            // Firestore transaction to ensure atomicity
+            // Firestore transaction
             db.runTransaction { transaction ->
                 // Retrieve the current document snapshot
                 val snapshot = transaction.get(userDocRef)
@@ -159,8 +161,10 @@ class BookAdapter(private val bookList: List<BookItem>,
                 // Indicate successful completion
                 null
             }.addOnSuccessListener {
+                // Show a success message once the book has been added to the collection
                 Toast.makeText(context, context.getString(R.string.book_added_to_collection, newCollectionName), Toast.LENGTH_SHORT).show()
             }.addOnFailureListener { e ->
+                // Show an error message if the transaction fails
                 Toast.makeText(context, context.getString(R.string.failed_to_add_book, e.message), Toast.LENGTH_SHORT).show()
             }
         }

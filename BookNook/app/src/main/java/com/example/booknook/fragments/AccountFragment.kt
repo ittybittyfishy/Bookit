@@ -38,6 +38,7 @@ class AccountFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Initialize UI elements
         val savedButton : Button = view.findViewById(R.id.saveButton)
         newPassword = view.findViewById(R.id.newPassword)
         confirmPassword = view.findViewById(R.id.confirmedPassword)
@@ -46,18 +47,23 @@ class AccountFragment : Fragment() {
         gender = view.findViewById(R.id.genderEdit)
         birthday = view.findViewById((R.id.birthdayEditText))
 
+        // Initialize Firebase authentication and Firestore
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
+        // Set a click listener on the save button to perform actions based on input fields
         savedButton.setOnClickListener{
+            // Check if password fields are filled and trigger password change if so
             if (newPassword.text.isNotEmpty() || currentPassword.text.isNotEmpty() || confirmPassword.text.isNotEmpty())
             {
                 changePassword()
             }
+            // If the name field is filled, trigger name change
             else if (name.text.isNotEmpty())
             {
                 changeName()
             }
+            // If the gender field is filled, trigger gender change
             else if (gender.text.isNotEmpty())
             {
                 changeGender()
@@ -65,7 +71,9 @@ class AccountFragment : Fragment() {
         }
     }
 
+    // Function to handle password change
     private fun changePassword() {
+        // Get new and confirmed passwords from the input fields
         val newPassword = newPassword.text.toString()
         val confirmPassword = confirmPassword.text.toString()
 
@@ -75,12 +83,13 @@ class AccountFragment : Fragment() {
             Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
             return
         }
+        // Ensure the new password meets the minimum length requirement
         else if (newPassword.length < 6)
         {
             Toast.makeText(requireContext(), "New password too short", Toast.LENGTH_SHORT).show()
             return
         }
-
+        // Ensure the new password is not the same as the current password
         else if (currentPassword.text.toString() == newPassword)
         {
             Toast.makeText(requireContext(), "New password cannot be the same password", Toast.LENGTH_SHORT).show()
@@ -91,7 +100,7 @@ class AccountFragment : Fragment() {
         val user = auth.currentUser
 
         user?.let {
-            // Call reauthenticate method to reauthenticate the user
+            // Reauthenticate the user before changing the password
             val credential =
                 EmailAuthProvider.getCredential(user.email!!, currentPassword.text.toString())
             user.reauthenticate(credential)
@@ -134,6 +143,7 @@ class AccountFragment : Fragment() {
         }
     }
 
+    // Function to handle name change
     private fun changeName() {
         val newName = name.text.toString()
         // Get the current user
@@ -142,12 +152,14 @@ class AccountFragment : Fragment() {
         // If user is logged in, fetch username from Firebase
         userId?.let { uid ->
             db.collection("users").document(uid).update("name",newName).addOnSuccessListener {
+                // Notify the user that the name update was successful
                 Toast.makeText(
                     requireContext(),
                     "Name updated successfully",
                     Toast.LENGTH_SHORT
                 ).show()
             }.addOnFailureListener { e ->
+                // Notify the user if there was an error updating the name
                 Toast.makeText(
                     requireContext(),
                     "Error updating name: ${e.message}",
@@ -157,6 +169,7 @@ class AccountFragment : Fragment() {
         }
     }
 
+    // Function to handle gender change
     private fun changeGender()
     {
         val newGender = gender.text.toString()
@@ -166,12 +179,14 @@ class AccountFragment : Fragment() {
         // If user is logged in, fetch username from Firebase
         userId?.let { uid ->
             db.collection("users").document(uid).update("gender",newGender).addOnSuccessListener {
+                // Notify the user that the gender update was successful
                 Toast.makeText(
                     requireContext(),
                     "Gender updated successfully",
                     Toast.LENGTH_SHORT
                 ).show()
             }.addOnFailureListener { e ->
+                // Notify the user if there was an error updating the gender
                 Toast.makeText(
                     requireContext(),
                     "Error updating Gender: ${e.message}",
