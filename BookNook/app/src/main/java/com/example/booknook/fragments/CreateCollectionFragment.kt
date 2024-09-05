@@ -15,6 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class CreateCollectionFragment : DialogFragment() {
 
+    // Declaring variables for the EditText and Button UI elements
     private lateinit var collectionNameEditText: EditText
     private lateinit var collectionSummaryEditText: EditText
     private lateinit var createButton: Button
@@ -30,20 +31,26 @@ class CreateCollectionFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Initialize the UI elements by finding them by their respective IDs in the layout
         collectionNameEditText = view.findViewById(R.id.collectionNameEditText)
         collectionSummaryEditText = view.findViewById(R.id.collectionSummaryEditText)
         createButton = view.findViewById(R.id.createButton)
 
+        // Set an OnClickListener to the create button to activate creation
         createButton.setOnClickListener {
+            // Get the text entered in the collection name and summary EditText fields
             val collectionName = collectionNameEditText.text.toString()
             val collectionSummary = collectionSummaryEditText.text.toString()
 
+            // Check if both the collection name and summary fields are not empty
             if (collectionName.isNotEmpty() && collectionSummary.isNotEmpty())
             {
+                // If valid input, call the function to create a new collection in Firestore
                 createCollection(collectionName, collectionSummary)
             }
             else
             {
+                // Show a Toast message if any of the fields are empty
                 Toast.makeText(activity, "Please enter a collection name and summary", Toast.LENGTH_SHORT).show()
             }
         }
