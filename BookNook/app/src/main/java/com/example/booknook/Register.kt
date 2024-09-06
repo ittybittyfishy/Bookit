@@ -81,6 +81,7 @@ class Register : AppCompatActivity() {
             }
     }
 
+    // Itzel Medina
     private fun registerUser(email: String, password: String) {
         val txtUser = username.text.toString()
 
@@ -92,6 +93,7 @@ class Register : AppCompatActivity() {
                         val userId = firebaseUser.uid
                         val userEmail = firebaseUser.email
 
+                        // Olivia Fishbough
                         val standardCollections = hashMapOf(
                             "Want to Read" to mutableListOf<Map<String, Any>>(),
                             "Reading" to mutableListOf<Map<String, Any>>(),
