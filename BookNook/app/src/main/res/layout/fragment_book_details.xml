@@ -53,4 +53,28 @@
         android:text="Summary"
         android:textSize="16sp" />
 
+    <!-- User Review Section Title -->
+    <TextView
+        android:id="@+id/userReviewTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User Review"
+        android:textSize="20sp"
+        android:textColor="@color/green_to_purple"
+        android:layout_marginTop="485dp"
+        android:layout_centerHorizontal="true" />
+
+    <!-- Write Review Button -->
+    <Button
+        android:id="@+id/searchButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="515dp"
+        android:padding="5dp"
+        android:text="Write a Review"
+        android:backgroundTint="@color/green_to_purple"
+        android:layout_gravity="center"
+        android:textSize="14sp"/>
+
 </RelativeLayout>
