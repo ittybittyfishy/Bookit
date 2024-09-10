@@ -22,8 +22,8 @@
 
             <ImageView
                 android:id="@+id/bookImage"
-                android:layout_width="131dp"
-                android:layout_height="190dp"
+                android:layout_width="100dp"
+                android:layout_height="120dp"
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="5dp"
                 android:scaleType="centerCrop"
@@ -78,5 +78,92 @@
         </RelativeLayout>
 
     </androidx.cardview.widget.CardView>
+
+    <!-- My Rating Section -->
+    <TextView
+        android:id="@+id/myRatingLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="My Rating"
+        android:textSize="16sp"
+        android:textColor="@color/green_to_purple"
+        android:layout_below="@id/bookInfoCard"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" /> <!-- 상단 마진 줄임 -->
+
+    <RatingBar
+        android:id="@+id/myRatingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:rating="0"
+        android:stepSize="0.5"
+        android:layout_below="@id/myRatingLabel"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="2dp" /> <!-- 상단 마진 줄임 -->
+
+    <TextView
+        android:id="@+id/openSubRatings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="open sub ratings"
+        android:textColor="@color/green_to_purple"
+        android:textSize="10sp"
+        android:layout_below="@id/myRatingBar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="2dp" /> <!-- 상단 마진 줄임 -->
+
+    <!-- Review Template Button -->
+    <Button
+        android:id="@+id/useTemplateButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Use Review template"
+        android:background="@drawable/circle_shape"
+        android:layout_below="@id/openSubRatings"
+        android:layout_marginTop="12dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/home_pink"
+        android:textSize="14sp" /> <!-- 텍스트 크기 줄임 -->
+
+    <!-- Review Input Box -->
+    <EditText
+        android:id="@+id/reviewInput"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_below="@id/useTemplateButton"
+        android:layout_marginTop="12dp"
+        android:hint="Write a review...."
+        android:background="@drawable/rounded_rectangle_1"
+        android:padding="12dp"
+        android:textColor="@color/green_to_purple"
+        android:textSize="14sp" />
+
+
+    <!-- Checkbox Options -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/reviewInput"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical">
+
+        <CheckBox
+            android:id="@+id/spoilerCheckbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="My review has spoilers"
+            android:textColor="@color/black"/>
+
+        <CheckBox
+            android:id="@+id/sensitiveTopicsCheckbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="My review has sensitive topics"
+            android:textColor="@color/black" />
+
+
+
+    </LinearLayout>
 
 </RelativeLayout>
