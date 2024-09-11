@@ -62,4 +62,18 @@
         android:layout_below="@id/bookGenres"
         android:layout_marginStart="16dp"
         android:layout_toEndOf="@id/book_image" />
+
+    <Button
+        android:id="@+id/btnAddToCustomCollection"
+        android:contentDescription="Put book in custom collection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinnerSelectCollection"
+        android:layout_toEndOf="@id/book_image"
+        android:layout_marginStart="16dp"
+        android:padding="4dp"
+        android:text="Add to Custom Collection"
+        android:textStyle="italic"
+        android:textColor="@color/banner_green"
+        android:backgroundTint="@color/transparent"/>
 </RelativeLayout>

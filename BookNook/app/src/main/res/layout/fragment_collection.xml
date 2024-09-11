@@ -31,14 +31,6 @@
         android:textColor="@color/main_text_brown"
         android:textSize="20dp" />
 
-    <Spinner
-        android:id="@+id/sort_by"
-        android:layout_width="93dp"
-        android:layout_height="48dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="60dp"
-        android:background="@drawable/rounded_rectangle" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
