@@ -1,18 +1,21 @@
 package com.example.booknook.fragments
 
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import android.widget.Button
-import android.content.Intent
+import androidx.fragment.app.Fragment
 import com.example.booknook.R
 import com.example.booknook.R.*
-import com.example.booknook.R.id.*
 
-class ReviewActivity : AppCompatActivity() {
+class ReviewActivity : Fragment() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // XML 파일 연결 (activity_write_review_no_template.xml 사용)
-        setContentView(layout.activity_write_review_no_template)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_write_review_no_template, container, false)
     }
 }

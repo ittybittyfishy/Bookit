@@ -16,11 +16,16 @@ import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
 
 class BookDetailsFragment : Fragment() {
+
+    private lateinit var writeReviewButton: Button
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
+
     ): View? {
         val view = inflater.inflate(R.layout.fragment_book_details, container, false)
+
 
         // Retrieves data from arguments passed in
         val bookAuthor = arguments?.getString("bookAuthor")
@@ -43,6 +48,16 @@ class BookDetailsFragment : Fragment() {
                 .error(R.drawable.placeholder_image)
                 .into(imageView)
         }
+
+        //Declare button that connects to XML,
+        writeReviewButton = view.findViewById(R.id.write_review_button)
+
+        writeReviewButton.setOnClickListener {
+            // Handle requests button click
+            val noTemplateFragment = ReviewActivity()
+            (activity as MainActivity).replaceFragment(noTemplateFragment, "Write a Review")
+        }
+
 
         return view
     }
