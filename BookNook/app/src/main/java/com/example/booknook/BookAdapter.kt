@@ -1,5 +1,6 @@
 package com.example.booknook
 
+import android.app.AlertDialog
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,15 +16,16 @@ import com.google.firebase.firestore.FirebaseFirestore
 // Adapter class for handling a list of BookItems in a RecyclerView
 class BookAdapter(private val bookList: List<BookItem>,
                   private val listener: RecyclerViewEvent) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
-
     // List of standard collections to display in the spinner
     private val standardCollections = listOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped")
+    // initialize button
 
     // Called when RecyclerView needs a new ViewHolder of the given type
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_book, parent, false)
         return BookViewHolder(view)
     }
+
 
     // Called by RecyclerView to display the data at the specified position
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
@@ -33,7 +35,8 @@ class BookAdapter(private val bookList: List<BookItem>,
         holder.title.text = book.volumeInfo.title
 
         // Set the authors of the book or a default text if authors are unknown
-        holder.authors.text = book.volumeInfo.authors?.joinToString(", ") ?: holder.itemView.context.getString(R.string.unknown_author)
+        holder.authors.text = book.volumeInfo.authors?.joinToString(", ")
+            ?: holder.itemView.context.getString(R.string.unknown_author)
 
         // Load the book's thumbnail image using Glide
         val imageUrl = book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
@@ -47,7 +50,11 @@ class BookAdapter(private val bookList: List<BookItem>,
         holder.rating.rating = book.volumeInfo.averageRating ?: 0f
 
         // Set the genres of the book or a default text if genres are unknown
-        holder.genres.text = holder.itemView.context.getString(R.string.genres, book.volumeInfo.categories?.joinToString(", ") ?: holder.itemView.context.getString(R.string.unknown_genres))
+        holder.genres.text = holder.itemView.context.getString(
+            R.string.genres,
+            book.volumeInfo.categories?.joinToString(", ")
+                ?: holder.itemView.context.getString(R.string.unknown_genres)
+        )
 
         // Set up the spinner with standard collections
         val adapter = ArrayAdapter(
@@ -59,20 +66,32 @@ class BookAdapter(private val bookList: List<BookItem>,
         holder.spinnerSelectCollection.adapter = adapter
 
         // Handle spinner item selection
-        holder.spinnerSelectCollection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                if (position != 0) { // Check if the selected position is not the default one
-                    val selectedCollection = standardCollections[position]
-                    saveBookToCollection(
-                        holder.itemView.context,
-                        book.volumeInfo.title,
-                        holder.authors.text.toString(),
-                        imageUrl,
-                        selectedCollection
-                    )
+        holder.spinnerSelectCollection.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    if (position != 0) { // Check if the selected position is not the default one
+                        val selectedCollection = standardCollections[position]
+                        saveBookToCollection(
+                            holder.itemView.context,
+                            book.volumeInfo.title,
+                            holder.authors.text.toString(),
+                            imageUrl,
+                            selectedCollection
+                        )
+                    }
                 }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {}
             }
-            override fun onNothingSelected(parent: AdapterView<*>) {}
+
+        // Set OnClickListener for the "Add to Custom Collection" button
+        holder.btnAddToCustomCollection.setOnClickListener {
+            showCustomCollectionDialog(holder.itemView.context, book)
         }
     }
 
@@ -92,6 +111,7 @@ class BookAdapter(private val bookList: List<BookItem>,
         val rating: RatingBar = itemView.findViewById(R.id.bookRating)
         val genres: TextView = itemView.findViewById(R.id.bookGenres)
         val spinnerSelectCollection: Spinner = itemView.findViewById(R.id.spinnerSelectCollection)
+        val btnAddToCustomCollection: Button = itemView.findViewById(R.id.btnAddToCustomCollection)
 
         // Sets the ViewHolder itself as click listener for itemView
         init {
@@ -168,5 +188,61 @@ class BookAdapter(private val bookList: List<BookItem>,
                 Toast.makeText(context, context.getString(R.string.failed_to_add_book, e.message), Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    // Method to show the dialog for selecting a custom collection
+    private fun showCustomCollectionDialog(context: Context, book: BookItem) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userId != null) {
+            val db = FirebaseFirestore.getInstance()
+
+            // Fetch custom collections from Firestore
+            db.collection("users").document(userId).get()
+                .addOnSuccessListener { document ->
+                    val customCollections = document.get("customCollections") as? Map<String, Any>
+
+                    if (!customCollections.isNullOrEmpty()) {
+                        // Show the dialog to choose a custom collection
+                        val customCollectionNames = customCollections.keys.toList()
+
+                        AlertDialog.Builder(context)
+                            .setTitle("Select Custom Collection")
+                            .setItems(customCollectionNames.toTypedArray()) { dialog, which ->
+                                val selectedCollectionName = customCollectionNames[which]
+                                addBookToCustomCollection(userId, book, selectedCollectionName, context)
+                            }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+                    } else {
+                        Toast.makeText(context, "No custom collections found.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(context, "Error loading custom collections.", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
+    // Method to add the selected book to the custom collection
+    private fun addBookToCustomCollection(userId: String, book: BookItem, collectionName: String, context: Context) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Prepare the book data to add
+        val bookData = hashMapOf(
+            "title" to book.volumeInfo.title,
+            "authors" to book.volumeInfo.authors,
+            "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
+        )
+
+        // Update the Firestore document
+        db.collection("users").document(userId)
+            .update("customCollections.$collectionName.books", FieldValue.arrayUnion(bookData))
+            .addOnSuccessListener {
+                Toast.makeText(context, "Book added to $collectionName", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Failed to add book to $collectionName", Toast.LENGTH_SHORT).show()
+            }
     }
 }
