@@ -91,36 +91,44 @@ class FriendsFragment : Fragment() {
             }
     }
 
-    private fun sendFriendRequest(receiverId: String) {  // Function to send a friend request
-        // To-do
+    private fun sendFriendRequest(receiverId: String) {
         val db = FirebaseFirestore.getInstance()
-        val friendRequestsRef = db.collection("users").document(receiverId)
-        val senderId = FirebaseAuth.getInstance().currentUser?.uid
+        val currentUser = FirebaseAuth.getInstance().currentUser
 
-        if (senderId != null) {
-            db.collection("users").document(senderId).get().addOnSuccessListener { document ->
-                if (document != null && document.exists()) {
-                    val senderUsername = document.getString("username")
+        if (currentUser != null) {
+            val senderId = currentUser.uid
+            val senderRef = db.collection("users").document(senderId)
 
-                    if (senderUsername != null) {
-                        val friendRequest = hashMapOf(
-                            "senderId" to senderId,
-                            "senderUsername" to senderUsername,
-                            "receiverId" to receiverId,
-                            "status" to "pending",
-                        )
+            // Fetch sender's username in one call
+            senderRef.get().addOnSuccessListener { senderDoc ->
+                val senderUsername = senderDoc?.getString("username")
 
-                        friendRequestsRef.update("friendRequests", FieldValue.arrayUnion(friendRequest))
-                            .addOnSuccessListener {
-                                Toast.makeText(activity, "Friend request sent", Toast.LENGTH_SHORT).show()
-                            }
-                            .addOnFailureListener { e -> Toast.makeText(activity, "Failed to send friend request", Toast.LENGTH_SHORT).show()
-                            }
-                    }
+                if (senderUsername != null) {
+                    val friendRequest = hashMapOf(
+                        "senderId" to senderId,
+                        "senderUsername" to senderUsername,
+                        "receiverId" to receiverId,
+                        "status" to "pending"
+                    )
+
+                    // Update receiver's friend requests array
+                    db.collection("users").document(receiverId)
+                        .update("friendRequests", FieldValue.arrayUnion(friendRequest))
+                        .addOnSuccessListener {
+                            Toast.makeText(activity, "Friend request sent", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e -> Toast.makeText(activity, "Failed to send friend request: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
                 } else {
-                    Toast.makeText(activity, "Not authenticated", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, "Sender username not found", Toast.LENGTH_SHORT).show()
                 }
+            }.addOnFailureListener {
+                Toast.makeText(activity, "Failed to send friend request", Toast.LENGTH_SHORT).show()
             }
+        } else {
+            Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
         }
     }
+
+
 }
