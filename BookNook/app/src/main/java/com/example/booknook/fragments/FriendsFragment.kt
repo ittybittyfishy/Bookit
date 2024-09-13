@@ -99,7 +99,7 @@ class FriendsFragment : Fragment() {
             val senderId = currentUser.uid
             val senderRef = db.collection("users").document(senderId)
 
-            // Fetch sender's username in one call
+            // Fetch sender's username
             senderRef.get().addOnSuccessListener { senderDoc ->
                 val senderUsername = senderDoc?.getString("username")
 
