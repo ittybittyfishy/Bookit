@@ -33,13 +33,13 @@ class FriendsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize buttons
+        // Initialize buttons and views
         requestsButton = view.findViewById(R.id.requests_button)
         blockedButton = view.findViewById(R.id.blocked_button)
         searchButton = view.findViewById(R.id.search_friend_button)
         searchBar = view.findViewById(R.id.search_friend_bar)
 
-        // Set listeners
+        // Set listeners for button click
         requestsButton.setOnClickListener {
             // Handle requests button click
             val requestsFragment = FriendRequestsTab()
@@ -62,7 +62,8 @@ class FriendsFragment : Fragment() {
         }
     }
 
-    private fun searchUser(username: String) {  // Function to search for a user with their username
+    // Function to search for a user with their username
+    private fun searchUser(username: String) {
         val db = FirebaseFirestore.getInstance()
         val senderId = FirebaseAuth.getInstance().currentUser?.uid
         db.collection("users").whereEqualTo("username", username).get()  // checks for username in documents in users collection
@@ -91,12 +92,13 @@ class FriendsFragment : Fragment() {
             }
     }
 
+    // Function to send a friend request
     private fun sendFriendRequest(receiverId: String) {
         val db = FirebaseFirestore.getInstance()
-        val currentUser = FirebaseAuth.getInstance().currentUser
+        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
 
         if (currentUser != null) {
-            val senderId = currentUser.uid
+            val senderId = currentUser.uid  // senderId is the current user
             val senderRef = db.collection("users").document(senderId)
 
             // Fetch sender's username
@@ -104,6 +106,7 @@ class FriendsFragment : Fragment() {
                 val senderUsername = senderDoc?.getString("username")
 
                 if (senderUsername != null) {
+                    // creates a map of friend request details
                     val friendRequest = hashMapOf(
                         "senderId" to senderId,
                         "senderUsername" to senderUsername,
@@ -111,7 +114,7 @@ class FriendsFragment : Fragment() {
                         "status" to "pending"
                     )
 
-                    // Update receiver's friend requests array
+                    // Update receiver's friend requests array in database
                     db.collection("users").document(receiverId)
                         .update("friendRequests", FieldValue.arrayUnion(friendRequest))
                         .addOnSuccessListener {

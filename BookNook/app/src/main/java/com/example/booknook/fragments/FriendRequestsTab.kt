@@ -44,18 +44,21 @@ class FriendRequestsTab : Fragment() {
         friendsButton = view.findViewById(R.id.friends_button)
         blockedButton = view.findViewById(R.id.blocked_button)
 
+        // Switches to Friends fragment upon click of button
         friendsButton.setOnClickListener {
             val friendsFragment = FriendsFragment()
             (activity as MainActivity).replaceFragment(friendsFragment, "Friends")
         }
 
+        // Switches to Blocked fragment upon click of button
         blockedButton.setOnClickListener {
             val blockedFragment = BlockedFriendsTab()
             (activity as MainActivity).replaceFragment(blockedFragment, "Friends")
         }
 
+        // References recycler view
         friendRequestsRecyclerView = view.findViewById(R.id.friend_reqs_recycler_view)
-        friendRequestsRecyclerView.layoutManager = GridLayoutManager(context, 2)  // displays friend requests in 2 columns
+        friendRequestsRecyclerView.layoutManager = GridLayoutManager(context, 2)  // Displays friend requests in 2 columns
 
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid // Gets the current user
         if (currentUserId != null) {
@@ -69,12 +72,14 @@ class FriendRequestsTab : Fragment() {
                     if (documentSnapshot != null && documentSnapshot.exists()) {
                         val friendRequests = documentSnapshot.get("friendRequests") as? List<Map<String, Any>>
                         if (friendRequests != null) {
+                            // Maps each friend request to a FriendRequest object
                             val friendRequestList = friendRequests.map { request ->
                                 FriendRequest(
                                     username = request["senderUsername"] as String,
                                     senderId = request["senderId"] as String
                                 )
                             }
+                            // Calls adapter with list of FriendRequest objects and functions to handle accepting and rejecting requests
                             friendRequestsRecyclerView.adapter = FriendRequestAdapter(
                                 friendRequestList,
                                 onAcceptClick = { acceptFriendRequest(it, currentUserId) },
@@ -103,6 +108,7 @@ class FriendRequestsTab : Fragment() {
                 )
             )).addOnSuccessListener {
                 FirebaseAuth.getInstance().currentUser?.let { currentUser ->
+                    // Add the current user as a friend to sender's friends collection as well
                     senderRef.update("friends", FieldValue.arrayUnion(
                         mapOf(
                             "friendId" to currentUserId,
@@ -113,7 +119,7 @@ class FriendRequestsTab : Fragment() {
             }
         }
 
-        // Removes the friend request
+        // Removes the friend request after finished
         userRef.update("friendRequests", FieldValue.arrayRemove(
             mapOf(
                 "senderId" to request.senderId,
