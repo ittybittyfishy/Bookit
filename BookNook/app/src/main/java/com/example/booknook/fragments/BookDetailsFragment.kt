@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.example.booknook.BookItem
+import com.example.booknook.R.*
 import com.google.firebase.auth.FirebaseAuth
 
 class BookDetailsFragment : Fragment() {
@@ -25,7 +26,7 @@ class BookDetailsFragment : Fragment() {
         savedInstanceState: Bundle?
 
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_book_details, container, false)
+        val view = inflater.inflate(layout.fragment_book_details, container, false)
 
         // Retrieves data from arguments passed in
         val bookTitle = arguments?.getString("bookTitle")
@@ -45,8 +46,8 @@ class BookDetailsFragment : Fragment() {
         if (bookImage != null) {
             Glide.with(this)
                 .load(bookImage)
-                .placeholder(R.drawable.placeholder_image)
-                .error(R.drawable.placeholder_image)
+                .placeholder(drawable.placeholder_image)
+                .error(drawable.placeholder_image)
                 .into(imageView)
         }
 
