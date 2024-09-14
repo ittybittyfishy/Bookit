@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.FriendRequest
@@ -54,7 +55,7 @@ class FriendRequestsTab : Fragment() {
         }
 
         friendRequestsRecyclerView = view.findViewById(R.id.friend_reqs_recycler_view)
-        friendRequestsRecyclerView.layoutManager = LinearLayoutManager(context)
+        friendRequestsRecyclerView.layoutManager = GridLayoutManager(context, 2)  // displays friend requests in 2 columns
 
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid // Gets the current user
         if (currentUserId != null) {

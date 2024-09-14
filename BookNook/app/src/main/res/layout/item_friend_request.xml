@@ -6,23 +6,47 @@
     android:padding="16dp"
     android:layout_margin="8dp">
 
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profileImage"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:src="@drawable/profile_picture_placeholder" />
+
     <TextView
         android:id="@+id/friend_req_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="7dp"
+        android:gravity="center"
         android:textSize="20sp"
         android:text="Username" />
     
-    <Button
-        android:id="@+id/accept_button"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Accept"/>
+        android:layout_gravity="center"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/reject_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Decline"/>
+        <Button
+            android:id="@+id/accept_button"
+            android:layout_width="50dp"
+            android:layout_height="55dp"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="center"
+            android:padding="0dp"
+            android:layout_marginEnd="10dp"
+            android:text="✓"/>
+
+        <Button
+            android:id="@+id/reject_button"
+            android:layout_width="50dp"
+            android:layout_height="55dp"
+            android:textColor="#FFFFFF"
+            android:padding="0dp"
+            android:text="X"/>
+    </LinearLayout>
+    
 
 </LinearLayout>
