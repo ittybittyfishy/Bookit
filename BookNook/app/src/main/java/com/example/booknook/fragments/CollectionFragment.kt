@@ -34,7 +34,7 @@ class CollectionFragment : Fragment(){
     private lateinit var collectionAdapter: CollectionAdapter // manages and displays collection data in a scrollabe envrioment
     private val collectionList = mutableListOf<CollectionItem>() // mutable list to hold collection (initally empty)
 
-    //Layout, called when fragmetns view is being created
+    //Layout, called when fragments view is being created
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
