@@ -94,11 +94,11 @@ class FriendRequestsTab : Fragment() {
     // Function to accept a friend request
     private fun acceptFriendRequest(request: FriendRequest, currentUserId: String) {
         val db = FirebaseFirestore.getInstance()
-        val userRef = db.collection("users").document(currentUserId)
-        val senderRef = db.collection("users").document(request.senderId)
+        val userRef = db.collection("users").document(currentUserId)  // Gets the current user's document
+        val senderRef = db.collection("users").document(request.senderId)  // Gets the sender's document
 
         userRef.get().addOnSuccessListener { document ->
-            val currentUsername = document.getString("username")
+            val currentUsername = document.getString("username")  // Gets the current user's username
 
             // Add the friend to the user's friends collection
             userRef.update("friends", FieldValue.arrayUnion(

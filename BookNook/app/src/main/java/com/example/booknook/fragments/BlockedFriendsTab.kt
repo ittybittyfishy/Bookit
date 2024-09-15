@@ -98,28 +98,36 @@ class BlockedFriendsTab : Fragment() {
 
         if (currentUser != null) {
             val senderId = currentUser.uid  // senderId is the current user
-            val senderRef = db.collection("users").document(senderId)
-            val blockedUsername = db.collection("users").document(receiverId)
+            val senderRef = db.collection("users").document(senderId)  // gets the sender's document
+            val blockedUserRef = db.collection("users").document(receiverId)  // gets the blocked user's document
 
             // Fetch sender's username
             senderRef.get().addOnSuccessListener { senderDoc ->
-                val senderUsername = senderDoc?.getString("username")
+                val senderUsername = senderDoc?.getString("username")  // gets the sender's username
 
                 if (senderUsername != null) {
-                    // creates a map of blocked user details
-                    val blockedUser = hashMapOf(
-                        "blockedUserId" to receiverId,
-                        "blockedUsername" to blockedUsername
-                    )
+                    blockedUserRef.get().addOnSuccessListener { blockedUserDoc ->
+                        val blockedUsername = blockedUserDoc?.getString("username")  // gets the blocked user's username
 
-                    // Update current user's blocked users array in database
-                    db.collection("users").document(senderId)
-                        .update("blockedUsers", FieldValue.arrayUnion(blockedUser))
-                        .addOnSuccessListener {
-                            Toast.makeText(activity, "User blocked", Toast.LENGTH_SHORT).show()
+                        if (blockedUsername != null) {
+                            // creates a map of blocked user's details
+                            val blockedUser = hashMapOf(
+                                "blockedUserId" to receiverId,
+                                "blockedUsername" to blockedUsername
+                            )
+
+                            // Update current user's blocked users array in database
+                            db.collection("users").document(senderId)
+                                .update("blockedUsers", FieldValue.arrayUnion(blockedUser))
+                                .addOnSuccessListener {
+                                    Toast.makeText(activity, "User blocked", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { e -> Toast.makeText(activity, "Failed to block user: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        } else {
+                            Toast.makeText(activity, "Blocked user's username not found", Toast.LENGTH_SHORT).show()
                         }
-                        .addOnFailureListener { e -> Toast.makeText(activity, "Failed to block user: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
+                    }
                 } else {
                     Toast.makeText(activity, "Sender username not found", Toast.LENGTH_SHORT).show()
                 }
