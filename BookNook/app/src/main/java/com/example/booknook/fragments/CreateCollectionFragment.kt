@@ -65,7 +65,7 @@ class CreateCollectionFragment : DialogFragment() {
             val db = FirebaseFirestore.getInstance()
             val collectionData = hashMapOf(
                 "summary" to summary,
-                "books" to emptyList<String>()
+                "books" to mutableListOf<String>()
             )
 
             db.collection("users").document(userId)
