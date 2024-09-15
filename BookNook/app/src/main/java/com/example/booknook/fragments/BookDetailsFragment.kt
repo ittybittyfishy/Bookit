@@ -38,9 +38,11 @@ class BookDetailsFragment : Fragment() {
         val authorTextView: TextView = view.findViewById(R.id.bookAuthor)
         val imageView: ImageView = view.findViewById(R.id.bookImage)
         val bookRatingBar: RatingBar = view.findViewById(R.id.bookRating)
+        val ratingNumberTextView: TextView = view.findViewById(R.id.ratingNumber)
 
         authorTextView.text = bookAuthor  // Update text with the book's author(s)
         bookRatingBar.rating = bookRating // Update stars with rating
+        ratingNumberTextView.text = "(${bookRating.toString()})" // Set the rating number text
 
         // Update the book's image
         if (bookImage != null) {
@@ -71,7 +73,6 @@ class BookDetailsFragment : Fragment() {
             reviewActivityFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
             (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review")  // Opens a new fragment
         }
-
 
         return view
     }
