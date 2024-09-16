@@ -22,7 +22,7 @@
         android:gravity="center"
         android:textSize="20sp"
         android:text="Username" />
-    
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
         <Button
             android:id="@+id/accept_button"
             android:layout_width="50dp"
-            android:layout_height="55dp"
+            android:layout_height="50dp"
             android:textColor="#FFFFFF"
             android:layout_gravity="center"
             android:padding="0dp"
@@ -42,11 +42,11 @@
         <Button
             android:id="@+id/reject_button"
             android:layout_width="50dp"
-            android:layout_height="55dp"
+            android:layout_height="50dp"
             android:textColor="#FFFFFF"
             android:padding="0dp"
             android:text="X"/>
     </LinearLayout>
-    
+
 
 </LinearLayout>

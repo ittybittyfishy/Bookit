@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.FriendRequest
 import com.example.booknook.FriendRequestAdapter
@@ -18,7 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
-class FriendRequestsTab : Fragment() {
+class FriendRequestsFragment : Fragment() {
     // Declare elements
     private lateinit var friendsButton: Button
     private lateinit var requestsButton: Button
@@ -52,7 +51,7 @@ class FriendRequestsTab : Fragment() {
 
         // Switches to Blocked fragment upon click of button
         blockedButton.setOnClickListener {
-            val blockedFragment = BlockedFriendsTab()
+            val blockedFragment = BlockedUsersFragment()
             (activity as MainActivity).replaceFragment(blockedFragment, "Friends")
         }
 

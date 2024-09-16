@@ -12,8 +12,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.Friend
 import com.example.booknook.FriendAdapter
-import com.example.booknook.FriendRequest
-import com.example.booknook.FriendRequestAdapter
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
@@ -51,13 +49,13 @@ class FriendsFragment : Fragment() {
         // Set listeners for button click
         requestsButton.setOnClickListener {
             // Handle requests button click
-            val requestsFragment = FriendRequestsTab()
+            val requestsFragment = FriendRequestsFragment()
             (activity as MainActivity).replaceFragment(requestsFragment, "Friends")
         }
 
         blockedButton.setOnClickListener {
             // Handle blocked button click
-            val blockedFragment = BlockedFriendsTab()
+            val blockedFragment = BlockedUsersFragment()
             (activity as MainActivity).replaceFragment(blockedFragment, "Friends")
         }
 

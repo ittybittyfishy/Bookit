@@ -8,31 +8,41 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.booknook.BlockedUser
+import com.example.booknook.BlockedUserAdapter
+import com.example.booknook.Friend
+import com.example.booknook.FriendAdapter
 import com.example.booknook.MainActivity
 import com.example.booknook.R
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 
-class BlockedFriendsTab : Fragment() {
+class BlockedUsersFragment : Fragment() {
     private lateinit var friendsButton: Button
     private lateinit var requestsButton: Button
     private lateinit var blockedButton: Button
     private lateinit var searchButton: Button
     private lateinit var searchBar: EditText
+    private lateinit var blockedRecyclerView: RecyclerView
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_blocked_friends_tab, container, false)
+        return inflater.inflate(R.layout.fragment_blocked_users_tab, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        db = FirebaseFirestore.getInstance()
         // Initialize buttons and views
         friendsButton = view.findViewById(R.id.friends_button)
         requestsButton = view.findViewById(R.id.requests_button)
@@ -48,7 +58,7 @@ class BlockedFriendsTab : Fragment() {
 
         requestsButton.setOnClickListener {
             // Handle account button click
-            val requestsFragment = FriendRequestsTab()
+            val requestsFragment = FriendRequestsFragment()
             (activity as MainActivity).replaceFragment(requestsFragment, "Friends")
         }
 
@@ -60,9 +70,43 @@ class BlockedFriendsTab : Fragment() {
                 Toast.makeText(activity, "Please enter a username", Toast.LENGTH_SHORT).show()
             }
         }
+
+        blockedRecyclerView = view.findViewById(R.id.blocked_recycler_view)
+        blockedRecyclerView.layoutManager = GridLayoutManager(context, 2) // Displays blocked user in 2 columns
+
+        loadBlockedUsers()  // loads the blocked users
+    }
+
+    private fun loadBlockedUsers() {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid // Gets the current user
+        if (currentUserId != null) {
+            db.collection("users").document(currentUserId)
+                .addSnapshotListener { documentSnapshot, e ->
+                    if (e != null) {
+                        Toast.makeText(activity,"Error loading blocked users", Toast.LENGTH_SHORT).show()
+                        return@addSnapshotListener
+                    }
+
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
+                        val blockedUsers = documentSnapshot.get("blockedUsers") as? List<Map<String, Any>>
+                        if (blockedUsers != null) {
+                            // Maps each friend request to a BlockedUser object
+                            val blockedUserList = blockedUsers.map { blockedUser ->
+                                BlockedUser(
+                                    blockedUserId = blockedUser["blockedUserId"] as String,
+                                    blockedUsername = blockedUser["blockedUsername"] as String
+                                )
+                            }
+                            // Calls adapter with list of BlockedUser objects and functions to handle accepting and rejecting requests
+                            blockedRecyclerView.adapter = BlockedUserAdapter(blockedUserList)
+                        }
+                    }
+                }
+        }
     }
 
     // Function to search for a user with their username
+    // Temporary just to test blocking users and adding in database
     private fun searchUser(username: String) {
         val db = FirebaseFirestore.getInstance()
         val senderId = FirebaseAuth.getInstance().currentUser?.uid
@@ -78,8 +122,7 @@ class BlockedFriendsTab : Fragment() {
                         if (senderId == receiverId) {
                             Toast.makeText(activity, "Can't block yourself", Toast.LENGTH_SHORT).show()
                         } else {
-                            // To-do: Pull up user's profile after looking up their username instead of requesting right away
-                            blockUser(receiverId)  // calls function to send a friend request
+                            blockUser(receiverId)  // calls function to block a user
                             Toast.makeText(activity, "User found: $userName", Toast.LENGTH_SHORT).show()
                         }
                     } else {
