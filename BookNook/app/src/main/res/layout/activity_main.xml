@@ -17,6 +17,8 @@
         android:textColor="@android:color/white"
         android:textSize="30sp"
         android:text="Home"
+        android:ellipsize="end"
+        android:maxLines="1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>

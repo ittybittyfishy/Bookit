@@ -28,6 +28,10 @@
         android:layout_marginStart="94dp"
         android:layout_toEndOf="@id/bookImage"
         android:textColor="#A7CCAF"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_weight="1"
+        android:maxWidth="200dp"
         android:textSize="16dp" />
 
     <RatingBar
@@ -52,5 +56,42 @@
         android:layout_toEndOf="@id/bookImage"
         android:text="Summary"
         android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/ratingNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_toEndOf="@id/bookRating"
+        android:layout_alignBottom="@id/bookRating"
+        android:text="4.5"
+        android:textSize="16sp"
+        android:textColor="#000" />
+
+
+
+    <!-- User Review Section Title -->
+    <TextView
+        android:id="@+id/userReviewTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User Review"
+        android:textSize="20sp"
+        android:textColor="@color/green_to_purple"
+        android:layout_marginTop="485dp"
+        android:layout_centerHorizontal="true" />
+
+    <!-- Write Review Button -->
+    <Button
+        android:id="@+id/write_review_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="515dp"
+        android:padding="5dp"
+        android:text="Write a Review"
+        android:backgroundTint="@color/green_to_purple"
+        android:layout_gravity="center"
+        android:textSize="14sp"/>
 
 </RelativeLayout>
