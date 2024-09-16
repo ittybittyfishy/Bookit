@@ -212,13 +212,21 @@ class BookAdapter(private val bookList: List<BookItem>,
 
                     if (!customCollections.isNullOrEmpty()) {
                         // Show the dialog to choose a custom collection
-                        val customCollectionNames = customCollections.keys.toList()
+                        val customCollectionNames = customCollections.keys.toMutableList()
+                        customCollectionNames.add("Remove from Custom Collections")
 
                         AlertDialog.Builder(context)
                             .setTitle("Select Custom Collection")
                             .setItems(customCollectionNames.toTypedArray()) { dialog, which ->
                                 val selectedCollectionName = customCollectionNames[which]
-                                addBookToCustomCollection(userId, book, selectedCollectionName, context)
+                                if (selectedCollectionName == "Remove from Custom Collections") {
+                                    // Logic to remove the book from all custom collections
+                                    removeBookFromCustomCollections(userId, book, context)
+                                }else {
+                                    // Logic to add the book to the selected custom collection
+                                    addBookToCustomCollection(userId, book, selectedCollectionName, context)
+                                }
+
                             }
                             .setNegativeButton("Cancel", null)
                             .show()
@@ -295,5 +303,50 @@ class BookAdapter(private val bookList: List<BookItem>,
                 Toast.makeText(context, "Failed to remove book: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun removeBookFromCustomCollections(userId: String, book: BookItem, context: Context) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Prepare the book data for removal (use the same structure as when adding)
+        val bookData = hashMapOf(
+            "title" to book.volumeInfo.title,
+            "authors" to book.volumeInfo.authors,
+            "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://") // Ensure this is exactly the same
+        )
+
+        // Fetch the user's custom collections from Firestore
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                val customCollections = document.get("customCollections") as? Map<String, Any>
+
+                if (!customCollections.isNullOrEmpty()) {
+                    // Use a Firestore batch to update multiple collections at once
+                    val batch = db.batch()
+
+                    // Loop through each custom collection
+                    for (collectionName in customCollections.keys) {
+                        // Reference to the user's document
+                        val collectionRef = db.collection("users").document(userId)
+
+                        // Apply arrayRemove to remove the book from each collection
+                        batch.update(collectionRef, "customCollections.$collectionName.books", FieldValue.arrayRemove(bookData))
+                    }
+
+                    // Commit the batch operation
+                    batch.commit()
+                        .addOnSuccessListener {
+                            Toast.makeText(context, "Book removed from all custom collections.", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "Failed to remove book from custom collections.", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    Toast.makeText(context, "No custom collections found.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Error loading custom collections.", Toast.LENGTH_SHORT).show()
+            }
     }
 }
