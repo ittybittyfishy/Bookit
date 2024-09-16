@@ -8,6 +8,12 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.booknook.Friend
+import com.example.booknook.FriendAdapter
+import com.example.booknook.FriendRequest
+import com.example.booknook.FriendRequestAdapter
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
@@ -21,6 +27,8 @@ class FriendsFragment : Fragment() {
     private lateinit var blockedButton: Button
     private lateinit var searchButton: Button
     private lateinit var searchBar: EditText
+    private lateinit var friendsRecyclerView: RecyclerView
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,6 +41,7 @@ class FriendsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        db = FirebaseFirestore.getInstance()
         // Initialize buttons and views
         requestsButton = view.findViewById(R.id.requests_button)
         blockedButton = view.findViewById(R.id.blocked_button)
@@ -60,7 +69,43 @@ class FriendsFragment : Fragment() {
                 Toast.makeText(activity, "Please enter a username", Toast.LENGTH_SHORT).show()
             }
         }
+
+        friendsRecyclerView = view.findViewById(R.id.friends_recycler_view)
+        friendsRecyclerView.layoutManager =
+            GridLayoutManager(context, 2)  // Displays friends in 2 columns
+
+        loadFriends()
     }
+
+    // Function to load the user's friends
+    private fun loadFriends() {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid // Gets the current user
+        if (currentUserId != null) {
+            db.collection("users").document(currentUserId)
+                .addSnapshotListener { documentSnapshot, e ->
+                    if (e != null) {
+                        Toast.makeText(activity,"Error loading friends", Toast.LENGTH_SHORT).show()
+                        return@addSnapshotListener
+                    }
+
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
+                        val friends = documentSnapshot.get("friends") as? List<Map<String, Any>>
+                        if (friends != null) {
+                            // Maps each friend request to a FriendRequest object
+                            val friendList = friends.map { friend ->
+                                Friend(
+                                    friendId = friend["friendId"] as String,
+                                    friendUsername = friend["friendUsername"] as String
+                                )
+                            }
+                            // Calls adapter with list of FriendRequest objects and functions to handle accepting and rejecting requests
+                            friendsRecyclerView.adapter = FriendAdapter(friendList)
+                        }
+                    }
+                }
+        }
+    }
+
 
     // Function to search for a user with their username
     private fun searchUser(username: String) {
