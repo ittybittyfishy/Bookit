@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,6 +26,7 @@ class FriendRequestsFragment : Fragment() {
     private lateinit var friendRequestsRecyclerView: RecyclerView
     private lateinit var friendRequestAdapter: FriendRequestAdapter
     private lateinit var friendRequests: MutableList<FriendRequest>
+    private lateinit var numFriendRequests: TextView
     private lateinit var db: FirebaseFirestore
 
 
@@ -42,6 +44,7 @@ class FriendRequestsFragment : Fragment() {
         db = FirebaseFirestore.getInstance()
         friendsButton = view.findViewById(R.id.friends_button)
         blockedButton = view.findViewById(R.id.blocked_button)
+        numFriendRequests = view.findViewById(R.id.num_friend_reqs)
 
         // Switches to Friends fragment upon click of button
         friendsButton.setOnClickListener {
@@ -59,6 +62,11 @@ class FriendRequestsFragment : Fragment() {
         friendRequestsRecyclerView = view.findViewById(R.id.friend_reqs_recycler_view)
         friendRequestsRecyclerView.layoutManager = GridLayoutManager(context, 2)  // Displays friend requests in 2 columns
 
+        loadFriendRequests()  // Calls function to get friend requests
+    }
+
+    // Function to load all of the user's friend requests
+    private fun loadFriendRequests() {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid // Gets the current user
         if (currentUserId != null) {
             db.collection("users").document(currentUserId)
@@ -71,6 +79,10 @@ class FriendRequestsFragment : Fragment() {
                     if (documentSnapshot != null && documentSnapshot.exists()) {
                         val friendRequests = documentSnapshot.get("friendRequests") as? List<Map<String, Any>>
                         if (friendRequests != null) {
+                            // Gets the number of friend requests
+                            val numRequests = friendRequests.size
+                            // Update text to display the number of friend requests
+                            numFriendRequests.text = "You have ($numRequests) friend request(s)"
                             // Maps each friend request to a FriendRequest object
                             val friendRequestList = friendRequests.map { request ->
                                 FriendRequest(
@@ -89,7 +101,6 @@ class FriendRequestsFragment : Fragment() {
                 }
         }
     }
-
     // Function to accept a friend request
     private fun acceptFriendRequest(request: FriendRequest, currentUserId: String) {
         val db = FirebaseFirestore.getInstance()

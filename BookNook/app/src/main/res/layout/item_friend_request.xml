@@ -4,23 +4,32 @@
     android:layout_width="150dp"
     android:layout_height="wrap_content"
     android:padding="16dp"
-    android:layout_margin="8dp">
+    android:layout_margin="8dp"
+    android:background="@drawable/friend_req_border"
+    android:elevation="4dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profileImage"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
         android:src="@drawable/profile_picture_placeholder" />
 
     <TextView
         android:id="@+id/friend_req_username"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="7dp"
+        android:layout_marginBottom="10dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:gravity="center"
         android:textSize="20sp"
+        android:textColor="#9c9779"
+        android:background="@drawable/friend_req_username_border"
         android:text="Username" />
 
     <LinearLayout
@@ -31,20 +40,24 @@
 
         <ImageButton
             android:id="@+id/accept_button"
-            android:background="?android:attr/selectableItemBackground"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:background="@drawable/accept_reject_btn_background"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:padding="0dp"
-            android:src="@drawable/ic_like" />
+            android:src="@drawable/ic_accept_button"
+            android:layout_marginEnd="15dp"
+            android:scaleType="centerInside"/>
 
 
         <ImageButton
             android:id="@+id/reject_button"
-            android:background="?android:attr/selectableItemBackground"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:background="@drawable/accept_reject_btn_background"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:padding="0dp"
-            android:src="@drawable/ic_dislike" />
+            android:src="@drawable/ic_reject_button"
+            android:layout_marginStart="15dp"
+            android:scaleType="centerInside"/>
 
     </LinearLayout>
 

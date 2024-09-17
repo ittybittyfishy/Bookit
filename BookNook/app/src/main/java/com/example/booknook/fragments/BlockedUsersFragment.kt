@@ -77,6 +77,7 @@ class BlockedUsersFragment : Fragment() {
         loadBlockedUsers()  // loads the blocked users
     }
 
+    // Function to load all of the user's blocked users
     private fun loadBlockedUsers() {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid // Gets the current user
         if (currentUserId != null) {
