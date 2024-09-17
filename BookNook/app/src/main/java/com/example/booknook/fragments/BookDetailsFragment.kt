@@ -59,9 +59,6 @@ class BookDetailsFragment : Fragment() {
         writeReviewButton.setOnClickListener {
 
             // Handle requests button click
-            val noTemplateFragment = ReviewActivity()
-            (activity as MainActivity).replaceFragment(noTemplateFragment, "Write a Review")
-
             val reviewActivityFragment = ReviewActivity()
             val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
             // Adds data into the bundle
