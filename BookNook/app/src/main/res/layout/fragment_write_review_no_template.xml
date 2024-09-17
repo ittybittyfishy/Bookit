@@ -136,6 +136,7 @@
         android:background="@drawable/rounded_rectangle_1"
         android:padding="12dp"
         android:textColor="@color/green_to_purple"
+        android:gravity="top"
         android:textSize="14sp" />
 
 
