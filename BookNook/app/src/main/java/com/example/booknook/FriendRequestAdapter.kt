@@ -3,6 +3,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,8 +16,8 @@ class FriendRequestAdapter(private val friendRequests: List<FriendRequest>,
     // References views in each item of the recycler view
     class FriendRequestViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         val username: TextView = itemView.findViewById(R.id.friend_req_username)
-        val acceptButton: Button = itemView.findViewById(R.id.accept_button)
-        val rejectButton: Button = itemView.findViewById(R.id.reject_button)
+        val acceptButton: ImageButton = itemView.findViewById(R.id.accept_button)
+        val rejectButton: ImageButton = itemView.findViewById(R.id.reject_button)
 
     }
 

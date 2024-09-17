@@ -29,23 +29,23 @@
         android:layout_gravity="center"
         android:orientation="horizontal">
 
-        <Button
+        <ImageButton
             android:id="@+id/accept_button"
+            android:background="?android:attr/selectableItemBackground"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:textColor="#FFFFFF"
-            android:layout_gravity="center"
             android:padding="0dp"
-            android:layout_marginEnd="10dp"
-            android:text="✓"/>
+            android:src="@drawable/ic_like" />
 
-        <Button
+
+        <ImageButton
             android:id="@+id/reject_button"
+            android:background="?android:attr/selectableItemBackground"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:textColor="#FFFFFF"
             android:padding="0dp"
-            android:text="X"/>
+            android:src="@drawable/ic_dislike" />
+
     </LinearLayout>
 
 
