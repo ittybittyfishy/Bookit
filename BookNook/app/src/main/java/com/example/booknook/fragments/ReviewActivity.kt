@@ -73,38 +73,38 @@ class ReviewActivity : Fragment() {
     }
 
     private fun saveReview(reviewText: String, rating: Float, hasSpoilers: Boolean, hasSensitiveTopics: Boolean) {
-        val db = FirebaseFirestore.getInstance()
-        val review = hashMapOf(
-            "userId" to FirebaseAuth.getInstance().currentUser?.uid,
-            "reviewText" to reviewText,
-            "rating" to rating,
-            "hasSpoilers" to hasSpoilers,
-            "hasSensitiveTopics" to hasSensitiveTopics,
-            "timestamp" to FieldValue.serverTimestamp()
-        )
+        // Get the current user's ID from FirebaseAuth
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
 
-        db.collection("reviews")
-            .add(review)
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Review saved successfully!", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Error saving review: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-    }
+        if (userId != null) {
+            val db = FirebaseFirestore.getInstance()
 
-    private fun goToBookDetailsFragment() {
-        // Assuming you're using MainActivity for fragment transactions
-        val bookDetailsFragment = BookDetailsFragment()
+            // Create a map for the review fields
+            val reviewData = mapOf(
+                "reviewText" to reviewText,
+                "rating" to rating,
+                "hasSpoilers" to hasSpoilers,
+                "hasSensitiveTopics" to hasSensitiveTopics,
+                "timestamp" to FieldValue.serverTimestamp()
+            )
 
-        // If needed, pass data back to the BookDetailsFragment using a bundle
-        val bundle = Bundle()
-        bundle.putString("bookAuthor", arguments?.getString("bookAuthor"))
-        bundle.putString("bookImage", arguments?.getString("bookImage"))
-        bundle.putFloat("bookRating", arguments?.getFloat("bookRating") ?: 0f)
-        bookDetailsFragment.arguments = bundle
+            // Add or update the review data directly under the user's document in the "users" collection
+            db.collection("users").document(userId)
+                .update("review", reviewData)  // Saving the review data under the "review" field in the user's document
+                .addOnSuccessListener {
+                    // Show a success message
+                    Toast.makeText(activity, "Review saved successfully under user!", Toast.LENGTH_SHORT).show()
 
-        // Replace the current fragment with BookDetailsFragment
-        (activity as MainActivity).replaceFragment(bookDetailsFragment, "Book Details")
+                    // Navigate to the HomeFragment or any other fragment if necessary
+                    (activity as? MainActivity)?.replaceFragment(HomeFragment(), "Home")
+                }
+                .addOnFailureListener {
+                    // Show a failure message
+                    Toast.makeText(activity, "Failed to save review", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            // Handle case where the user is not logged in
+            Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
+        }
     }
 }
