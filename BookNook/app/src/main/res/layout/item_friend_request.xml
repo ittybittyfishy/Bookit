@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="150dp"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:padding="16dp"
     android:layout_margin="8dp"
@@ -29,7 +29,7 @@
         android:gravity="center"
         android:textSize="20sp"
         android:textColor="#9c9779"
-        android:background="@drawable/friend_req_username_border"
+        android:background="@drawable/friend_username_border"
         android:text="Username" />
 
     <LinearLayout
