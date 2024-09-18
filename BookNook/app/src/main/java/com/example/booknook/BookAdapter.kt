@@ -17,7 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class BookAdapter(private val bookList: List<BookItem>,
                   private val listener: RecyclerViewEvent) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
     // List of standard collections to display in the spinner
-    private val standardCollections = listOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped")
+    private val standardCollections = listOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped", "Remove")
     // initialize button
 
     // Called when RecyclerView needs a new ViewHolder of the given type
@@ -74,7 +74,15 @@ class BookAdapter(private val bookList: List<BookItem>,
                     position: Int,
                     id: Long
                 ) {
-                    if (position != 0) { // Check if the selected position is not the default one
+                    if (position == 5)
+                    {
+                        removeBookFromStandardCollection(
+                            holder.itemView.context,
+                            book.volumeInfo.title,
+                            holder.authors.text.toString()
+                        )
+                    }
+                    else if (position != 0) { // Check if the selected position is not the default one
                         val selectedCollection = standardCollections[position]
                         saveBookToCollection(
                             holder.itemView.context,
@@ -204,13 +212,21 @@ class BookAdapter(private val bookList: List<BookItem>,
 
                     if (!customCollections.isNullOrEmpty()) {
                         // Show the dialog to choose a custom collection
-                        val customCollectionNames = customCollections.keys.toList()
+                        val customCollectionNames = customCollections.keys.toMutableList()
+                        customCollectionNames.add("Remove from Custom Collections")
 
                         AlertDialog.Builder(context)
                             .setTitle("Select Custom Collection")
                             .setItems(customCollectionNames.toTypedArray()) { dialog, which ->
                                 val selectedCollectionName = customCollectionNames[which]
-                                addBookToCustomCollection(userId, book, selectedCollectionName, context)
+                                if (selectedCollectionName == "Remove from Custom Collections") {
+                                    // Logic to remove the book from all custom collections
+                                    removeBookFromCustomCollections(userId, book, context)
+                                }else {
+                                    // Logic to add the book to the selected custom collection
+                                    addBookToCustomCollection(userId, book, selectedCollectionName, context)
+                                }
+
                             }
                             .setNegativeButton("Cancel", null)
                             .show()
@@ -243,6 +259,94 @@ class BookAdapter(private val bookList: List<BookItem>,
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Failed to add book to $collectionName", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun removeBookFromStandardCollection(
+        context: Context,
+        title: String,
+        authors: String
+    ) {
+        // Get the current user's ID from Firebase Authentication
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            // Get a reference to the Firestore database
+            val db = FirebaseFirestore.getInstance()
+            val userDocRef = db.collection("users").document(userId)
+
+            // Firestore transaction
+            db.runTransaction { transaction ->
+                // Retrieve the current document snapshot
+                val snapshot = transaction.get(userDocRef)
+
+                // Loop through the standard collections and remove the book from any collection it's found in
+                for (collection in listOf("Reading", "Finished", "Want to Read", "Dropped")) {
+                    val booksInCollection = snapshot.get("standardCollections.$collection") as? List<Map<String, Any>>
+
+                    // If the book exists in the current collection, remove it
+                    booksInCollection?.let {
+                        for (existingBook in it) {
+                            if (existingBook["title"] == title && existingBook["authors"] == authors.split(", ")) {
+                                transaction.update(userDocRef, "standardCollections.$collection", FieldValue.arrayRemove(existingBook))
+                                break
+                            }
+                        }
+                    }
+                }
+                // Return null to complete the transaction
+                null
+            }.addOnSuccessListener {
+                // Show a success message once the book has been removed from the collection
+                Toast.makeText(context, "Book removed from standard collection", Toast.LENGTH_SHORT).show()
+            }.addOnFailureListener { e ->
+                // Show an error message if the transaction fails
+                Toast.makeText(context, "Failed to remove book: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun removeBookFromCustomCollections(userId: String, book: BookItem, context: Context) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Prepare the book data for removal (use the same structure as when adding)
+        val bookData = hashMapOf(
+            "title" to book.volumeInfo.title,
+            "authors" to book.volumeInfo.authors,
+            "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://") // Ensure this is exactly the same
+        )
+
+        // Fetch the user's custom collections from Firestore
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                val customCollections = document.get("customCollections") as? Map<String, Any>
+
+                if (!customCollections.isNullOrEmpty()) {
+                    // Use a Firestore batch to update multiple collections at once
+                    val batch = db.batch()
+
+                    // Loop through each custom collection
+                    for (collectionName in customCollections.keys) {
+                        // Reference to the user's document
+                        val collectionRef = db.collection("users").document(userId)
+
+                        // Apply arrayRemove to remove the book from each collection
+                        batch.update(collectionRef, "customCollections.$collectionName.books", FieldValue.arrayRemove(bookData))
+                    }
+
+                    // Commit the batch operation
+                    batch.commit()
+                        .addOnSuccessListener {
+                            Toast.makeText(context, "Book removed from all custom collections.", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "Failed to remove book from custom collections.", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    Toast.makeText(context, "No custom collections found.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Error loading custom collections.", Toast.LENGTH_SHORT).show()
             }
     }
 }
