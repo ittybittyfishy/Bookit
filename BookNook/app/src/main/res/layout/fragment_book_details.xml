@@ -57,6 +57,7 @@
         android:text="Summary"
         android:textSize="16sp" />
 
+
     <TextView
         android:id="@+id/ratingNumber"
         android:layout_width="wrap_content"
