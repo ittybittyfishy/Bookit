@@ -33,6 +33,7 @@ class BookDetailsFragment : Fragment() {
         val bookAuthor = arguments?.getString("bookAuthor")
         val bookImage = arguments?.getString("bookImage")
         val bookRating = arguments?.getFloat("bookRating") ?: 0f
+        val isbn = arguments?.getString("bookIsbn")
 
         // Retrieves Ids in the fragment
         val authorTextView: TextView = view.findViewById(R.id.bookAuthor)
@@ -66,6 +67,7 @@ class BookDetailsFragment : Fragment() {
             bundle.putString("bookAuthor", bookAuthor)
             bundle.putString("bookImage", bookImage)
             bundle.putFloat("bookRating", bookRating)
+            bundle.putString("bookIsbn", isbn)
 
             reviewActivityFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
             (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review")  // Opens a new fragment

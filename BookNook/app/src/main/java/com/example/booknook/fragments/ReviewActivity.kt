@@ -36,6 +36,7 @@ class ReviewActivity : Fragment() {
         sensitiveCheckbox = view.findViewById(R.id.sensitiveTopicsCheckbox)
 
         // Retrieves data from arguments passed in
+        val bookTitle = arguments?.getString("bookTitle")
         val bookAuthor = arguments?.getString("bookAuthor")
         val bookImage = arguments?.getString("bookImage")
         val bookRating = arguments?.getFloat("bookRating") ?: 0f
@@ -73,38 +74,96 @@ class ReviewActivity : Fragment() {
     }
 
     private fun saveReview(reviewText: String, rating: Float, hasSpoilers: Boolean, hasSensitiveTopics: Boolean) {
-        // Get the current user's ID from FirebaseAuth
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        val user = FirebaseAuth.getInstance().currentUser
+        val userId = user?.uid
+        val username = user?.displayName
 
         if (userId != null) {
             val db = FirebaseFirestore.getInstance()
+            val bookIsbn = arguments?.getString("bookIsbn")
 
-            // Create a map for the review fields
-            val reviewData = mapOf(
-                "reviewText" to reviewText,
-                "rating" to rating,
-                "hasSpoilers" to hasSpoilers,
-                "hasSensitiveTopics" to hasSensitiveTopics,
-                "timestamp" to FieldValue.serverTimestamp()
-            )
+            db.collection("users").document(userId).get().addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val username = document.getString("username")
 
-            // Add or update the review data directly under the user's document in the "users" collection
-            db.collection("users").document(userId)
-                .update("review", reviewData)  // Saving the review data under the "review" field in the user's document
-                .addOnSuccessListener {
-                    // Show a success message
-                    Toast.makeText(activity, "Review saved successfully under user!", Toast.LENGTH_SHORT).show()
+                    if (bookIsbn != null) {
+                        val reviewData = mapOf(
+                            "userId" to userId,
+                            "username" to username,
+                            "reviewText" to reviewText,
+                            "rating" to rating,
+                            "hasSpoilers" to hasSpoilers,
+                            "hasSensitiveTopics" to hasSensitiveTopics,
+                            "timestamp" to FieldValue.serverTimestamp()
+                        )
 
-                    // Navigate to the HomeFragment or any other fragment if necessary
-                    (activity as? MainActivity)?.replaceFragment(HomeFragment(), "Home")
+                        // Reference to the specific book's document
+                        val bookRef = db.collection("books").document(bookIsbn)
+
+                        // Check if the user has already submitted a review
+                        bookRef.collection("reviews").whereEqualTo("userId", userId).get()
+                            .addOnSuccessListener { querySnapshot ->
+                                if (querySnapshot.isEmpty) {
+                                    // Add a new review if no existing review is found
+                                    bookRef.collection("reviews").add(reviewData)
+                                        .addOnSuccessListener {
+                                            Toast.makeText(
+                                                activity,
+                                                "Review saved successfully!",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            (activity as? MainActivity)?.replaceFragment(
+                                                HomeFragment(),
+                                                "Home"
+                                            )
+                                        }
+                                        .addOnFailureListener {
+                                            Toast.makeText(
+                                                activity,
+                                                "Failed to save review",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                } else {
+                                    // Update existing review
+                                    val existingReviewId = querySnapshot.documents[0].id
+                                    bookRef.collection("reviews").document(existingReviewId)
+                                        .set(reviewData)
+                                        .addOnSuccessListener {
+                                            Toast.makeText(
+                                                activity,
+                                                "Review updated successfully!",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            (activity as? MainActivity)?.replaceFragment(
+                                                HomeFragment(),
+                                                "Home"
+                                            )
+                                        }
+                                        .addOnFailureListener {
+                                            Toast.makeText(
+                                                activity,
+                                                "Failed to update review",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                }
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(
+                                    activity,
+                                    "Failed to check existing reviews",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                    } else {
+                        Toast.makeText(activity, "Book ISBN not provided", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                } else {
+                    Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
                 }
-                .addOnFailureListener {
-                    // Show a failure message
-                    Toast.makeText(activity, "Failed to save review", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            // Handle case where the user is not logged in
-            Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
