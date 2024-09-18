@@ -10,22 +10,25 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.booknook.BlockedUser
+import com.example.booknook.BlockedUserAdapter
 import com.example.booknook.Friend
 import com.example.booknook.FriendAdapter
 import com.example.booknook.MainActivity
 import com.example.booknook.R
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 
-class FriendsFragment : Fragment() {
-
+class BlockedUsersFragment : Fragment() {
+    private lateinit var friendsButton: Button
     private lateinit var requestsButton: Button
     private lateinit var blockedButton: Button
     private lateinit var searchButton: Button
     private lateinit var searchBar: EditText
-    private lateinit var friendsRecyclerView: RecyclerView
+    private lateinit var blockedRecyclerView: RecyclerView
     private lateinit var db: FirebaseFirestore
 
     override fun onCreateView(
@@ -33,7 +36,7 @@ class FriendsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_friends, container, false)
+        return inflater.inflate(R.layout.fragment_blocked_users_tab, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -41,22 +44,22 @@ class FriendsFragment : Fragment() {
 
         db = FirebaseFirestore.getInstance()
         // Initialize buttons and views
+        friendsButton = view.findViewById(R.id.friends_button)
         requestsButton = view.findViewById(R.id.requests_button)
-        blockedButton = view.findViewById(R.id.blocked_button)
-        searchButton = view.findViewById(R.id.search_friend_button)
-        searchBar = view.findViewById(R.id.search_friend_bar)
+        searchButton = view.findViewById(R.id.block_user_search_button)
+        searchBar = view.findViewById(R.id.block_user_search)
 
-        // Set listeners for button click
-        requestsButton.setOnClickListener {
-            // Handle requests button click
-            val requestsFragment = FriendRequestsFragment()
-            (activity as MainActivity).replaceFragment(requestsFragment, "Friends")
+        // Set listeners
+        friendsButton.setOnClickListener {
+            // Handle account button click
+            val friendsFragment = FriendsFragment()
+            (activity as MainActivity).replaceFragment(friendsFragment, "Friends")
         }
 
-        blockedButton.setOnClickListener {
-            // Handle blocked button click
-            val blockedFragment = BlockedUsersFragment()
-            (activity as MainActivity).replaceFragment(blockedFragment, "Friends")
+        requestsButton.setOnClickListener {
+            // Handle account button click
+            val requestsFragment = FriendRequestsFragment()
+            (activity as MainActivity).replaceFragment(requestsFragment, "Friends")
         }
 
         searchButton.setOnClickListener {
@@ -68,44 +71,43 @@ class FriendsFragment : Fragment() {
             }
         }
 
-        friendsRecyclerView = view.findViewById(R.id.friends_recycler_view)
-        friendsRecyclerView.layoutManager =
-            GridLayoutManager(context, 2)  // Displays friends in 2 columns
+        blockedRecyclerView = view.findViewById(R.id.blocked_recycler_view)
+        blockedRecyclerView.layoutManager = GridLayoutManager(context, 2) // Displays blocked user in 2 columns
 
-        loadFriends()
+        loadBlockedUsers()  // loads the blocked users
     }
 
-    // Function to load the user's friends
-    private fun loadFriends() {
+    // Function to load all of the user's blocked users
+    private fun loadBlockedUsers() {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid // Gets the current user
         if (currentUserId != null) {
             db.collection("users").document(currentUserId)
                 .addSnapshotListener { documentSnapshot, e ->
                     if (e != null) {
-                        Toast.makeText(activity,"Error loading friends", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(activity,"Error loading blocked users", Toast.LENGTH_SHORT).show()
                         return@addSnapshotListener
                     }
 
                     if (documentSnapshot != null && documentSnapshot.exists()) {
-                        val friends = documentSnapshot.get("friends") as? List<Map<String, Any>>
-                        if (friends != null) {
-                            // Maps each friend request to a FriendRequest object
-                            val friendList = friends.map { friend ->
-                                Friend(
-                                    friendId = friend["friendId"] as String,
-                                    friendUsername = friend["friendUsername"] as String
+                        val blockedUsers = documentSnapshot.get("blockedUsers") as? List<Map<String, Any>>
+                        if (blockedUsers != null) {
+                            // Maps each friend request to a BlockedUser object
+                            val blockedUserList = blockedUsers.map { blockedUser ->
+                                BlockedUser(
+                                    blockedUserId = blockedUser["blockedUserId"] as String,
+                                    blockedUsername = blockedUser["blockedUsername"] as String
                                 )
                             }
-                            // Calls adapter with list of FriendRequest objects and functions to handle accepting and rejecting requests
-                            friendsRecyclerView.adapter = FriendAdapter(friendList)
+                            // Calls adapter with list of BlockedUser objects and functions to handle accepting and rejecting requests
+                            blockedRecyclerView.adapter = BlockedUserAdapter(blockedUserList)
                         }
                     }
                 }
         }
     }
 
-
     // Function to search for a user with their username
+    // Temporary just to test blocking users and adding in database
     private fun searchUser(username: String) {
         val db = FirebaseFirestore.getInstance()
         val senderId = FirebaseAuth.getInstance().currentUser?.uid
@@ -119,11 +121,9 @@ class FriendsFragment : Fragment() {
                         val receiverId = userDocument.id  // retrieves the receiver user's id
                         val userName = userDocument.getString("username")  // retrieves "username" field of receiver
                         if (senderId == receiverId) {
-                            Toast.makeText(activity, "Can't add yourself as friend", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(activity, "Can't block yourself", Toast.LENGTH_SHORT).show()
                         } else {
-                            // To-do: Pull up user's profile after looking up their username instead of requesting right away
-                            //
-                            sendFriendRequest(receiverId)  // calls function to send a friend request
+                            blockUser(receiverId)  // calls function to block a user
                             Toast.makeText(activity, "User found: $userName", Toast.LENGTH_SHORT).show()
                         }
                     } else {
@@ -135,46 +135,51 @@ class FriendsFragment : Fragment() {
             }
     }
 
-    // Function to send a friend request
-    private fun sendFriendRequest(receiverId: String) {
+    // Temporary test function to block a user
+    private fun blockUser(receiverId: String) {
         val db = FirebaseFirestore.getInstance()
         val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
 
         if (currentUser != null) {
             val senderId = currentUser.uid  // senderId is the current user
-            val senderRef = db.collection("users").document(senderId)
+            val senderRef = db.collection("users").document(senderId)  // gets the sender's document
+            val blockedUserRef = db.collection("users").document(receiverId)  // gets the blocked user's document
 
             // Fetch sender's username
             senderRef.get().addOnSuccessListener { senderDoc ->
-                val senderUsername = senderDoc?.getString("username")
+                val senderUsername = senderDoc?.getString("username")  // gets the sender's username
 
                 if (senderUsername != null) {
-                    // creates a map of friend request details
-                    val friendRequest = hashMapOf(
-                        "senderId" to senderId,
-                        "senderUsername" to senderUsername,
-                        "receiverId" to receiverId,
-                        "status" to "pending"
-                    )
+                    blockedUserRef.get().addOnSuccessListener { blockedUserDoc ->
+                        val blockedUsername = blockedUserDoc?.getString("username")  // gets the blocked user's username
 
-                    // Update receiver's friend requests array in database
-                    db.collection("users").document(receiverId)
-                        .update("friendRequests", FieldValue.arrayUnion(friendRequest))
-                        .addOnSuccessListener {
-                            Toast.makeText(activity, "Friend request sent", Toast.LENGTH_SHORT).show()
+                        if (blockedUsername != null) {
+                            // creates a map of blocked user's details
+                            val blockedUser = hashMapOf(
+                                "blockedUserId" to receiverId,
+                                "blockedUsername" to blockedUsername
+                            )
+
+                            // Update current user's blocked users array in database
+                            db.collection("users").document(senderId)
+                                .update("blockedUsers", FieldValue.arrayUnion(blockedUser))
+                                .addOnSuccessListener {
+                                    Toast.makeText(activity, "User blocked", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { e -> Toast.makeText(activity, "Failed to block user: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        } else {
+                            Toast.makeText(activity, "Blocked user's username not found", Toast.LENGTH_SHORT).show()
                         }
-                        .addOnFailureListener { e -> Toast.makeText(activity, "Failed to send friend request: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
+                    }
                 } else {
                     Toast.makeText(activity, "Sender username not found", Toast.LENGTH_SHORT).show()
                 }
             }.addOnFailureListener {
-                Toast.makeText(activity, "Failed to send friend request", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, "Failed to block user", Toast.LENGTH_SHORT).show()
             }
         } else {
             Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
         }
     }
-
-
 }

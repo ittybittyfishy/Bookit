@@ -82,4 +82,21 @@
         android:textColor="@color/star_green"
         android:textSize="20sp" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/friends_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="25dp"
+        android:paddingEnd="25dp"/>
+
+    <TextView
+        android:id="@+id/offline_friends"
+        android:layout_width="64dp"
+        android:layout_height="25dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="10dp"
+        android:text="Offline"
+        android:textColor="@color/star_green"
+        android:textSize="20sp" />
+
 </LinearLayout>
