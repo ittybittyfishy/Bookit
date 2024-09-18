@@ -43,8 +43,39 @@
             android:text="Blocked"
             android:textColor="@color/star_green"
             android:textSize="18sp" />
-
     </LinearLayout>
 
+    <EditText
+        android:id="@+id/block_user_search"
+        android:layout_width="360dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/rounded_rectangle"
+        android:elevation="10dp"
+        android:layout_gravity="center"
+        android:hint="Look up a username to block"
+        android:textColorHint="@color/hint_text_color"
+        android:imeOptions="actionSearch"
+        android:padding="8dp"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/block_user_search_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search"
+        android:textColor="@color/icon_color"
+        android:backgroundTint="@color/green_to_purple"
+        android:layout_gravity="center"
+        android:padding="8dp"
+        android:layout_marginTop="8dp"
+        android:textSize="18sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/blocked_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="30dp"
+        android:paddingEnd="25dp"/>
 
 </LinearLayout>
