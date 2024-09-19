@@ -12,6 +12,8 @@ import android.widget.TextView
 import android.widget.Toast
 import com.example.booknook.BookItem
 import com.example.booknook.BookResponse
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -99,5 +101,45 @@ class MainActivity : AppCompatActivity() {
                 callback(null)
             }
         })
+    }
+
+    // When the app comes back to the foreground
+    override fun onResume() {
+        super.onResume()
+        super.onResume()
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
+        if (firebaseUser != null) {
+            val userId = firebaseUser.uid
+            FirebaseFirestore.getInstance().collection("users").document(userId)
+                .update("isOnline", true)  // Mark user as online
+        }
+    }
+
+    // When activity is no longer in foreground, but still visible in multi-window mode
+    override fun onPause() {
+        super.onPause()
+        setUserOffline()
+    }
+
+    // When newly launched activity covers the entire screen
+    override fun onStop() {
+        super.onStop()
+        setUserOffline()
+    }
+
+    // When user clears out the app
+    override fun onDestroy() {
+        super.onDestroy()
+        setUserOffline()
+    }
+
+    // Function to update the user's status to offline in database under "isOnline" field
+    private fun setUserOffline() {
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
+        if (firebaseUser != null) {
+            val userId = firebaseUser.uid
+            FirebaseFirestore.getInstance().collection("users").document(userId)
+                .update("isOnline", false)
+        }
     }
 }

@@ -17,6 +17,7 @@ import com.example.booknook.Account
 import com.example.booknook.MainActivity
 import com.example.booknook.Register
 import android.content.res.Configuration
+import com.google.firebase.firestore.FirebaseFirestore
 
 class SettingsFragment : Fragment() {
 
@@ -60,11 +61,19 @@ class SettingsFragment : Fragment() {
 
         signOutButton.setOnClickListener {
             // Handle sign out button click
-            auth.signOut()
-            val intent = Intent(activity, Login::class.java)
-            startActivity(intent)
-            Toast.makeText(requireContext(), "You have been logged out", Toast.LENGTH_SHORT).show()
-            activity?.finish()
+            val user = auth.currentUser
+            if (user != null) {
+                val userId = user.uid
+                FirebaseFirestore.getInstance().collection("users").document(userId)
+                    .update("isOnline", false)  // Updates the user's status to offline when they sign out
+                    .addOnSuccessListener {
+                        auth.signOut()
+                        val intent = Intent(activity, Login::class.java)
+                        startActivity(intent)
+                        Toast.makeText(requireContext(), "You have been logged out", Toast.LENGTH_SHORT).show()
+                        activity?.finish()
+                    }
+            }
         }
 
         darkModeSwitch.isChecked = isDarkThemeOn()

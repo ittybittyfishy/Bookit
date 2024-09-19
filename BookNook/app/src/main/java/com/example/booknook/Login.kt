@@ -67,22 +67,26 @@ class Login : AppCompatActivity() {
                     val firebaseUser = auth.currentUser
                     if (firebaseUser != null) {
                         val userId = firebaseUser.uid
-                        db.collection("users").document(userId).get().addOnSuccessListener { document ->
-                            if (document != null) {
-                                val isFirstLogin = document.getBoolean("isFirstLogin") ?: true
-                                val userEmail = document.getString("email")
-                                Log.d("TAG", "User Email: $userEmail")
-                                val userName = document.getString("username")
-                                Log.d("TAG", "Username: $userName")
+                        db.collection("users").document(userId)
+                            .update("isOnline", true)  // Updates user's status to online when they log in
+                            .addOnSuccessListener {
+                                db.collection("users").document(userId).get().addOnSuccessListener { document ->
+                                    if (document != null) {
+                                        val isFirstLogin = document.getBoolean("isFirstLogin") ?: true
+                                        val userEmail = document.getString("email")
+                                        Log.d("TAG", "User Email: $userEmail")
+                                        val userName = document.getString("username")
+                                        Log.d("TAG", "Username: $userName")
 
-                                Toast.makeText(this@Login, "Login successful", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(this@Login, "Login successful", Toast.LENGTH_SHORT).show()
 
-                                val intent = Intent(this@Login, MainActivity::class.java)
-                                intent.putExtra("isFirstLogin", isFirstLogin)
-                                startActivity(intent)
-                                finish()
+                                        val intent = Intent(this@Login, MainActivity::class.java)
+                                        intent.putExtra("isFirstLogin", isFirstLogin)
+                                        startActivity(intent)
+                                        finish()
+                                    }
+                                }
                             }
-                        }
                     }
                 } else {
                     Toast.makeText(this@Login, "Login failed", Toast.LENGTH_SHORT).show()
