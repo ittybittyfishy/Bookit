@@ -25,7 +25,6 @@ class ReviewActivity : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_write_review_no_template, container, false)
 
         // Retrieve views
@@ -35,28 +34,29 @@ class ReviewActivity : Fragment() {
         spoilerCheckbox = view.findViewById(R.id.spoilerCheckbox)
         sensitiveCheckbox = view.findViewById(R.id.sensitiveTopicsCheckbox)
 
-        // Retrieves data from arguments passed in
-        val bookTitle = arguments?.getString("bookTitle")
-        val bookAuthor = arguments?.getString("bookAuthor")
-        val bookImage = arguments?.getString("bookImage")
-        val bookRating = arguments?.getFloat("bookRating") ?: 0f
+        val bookIsbn = arguments?.getString("bookIsbn")
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
 
-        // Retrieves Ids in the fragment
-        val authorTextView: TextView = view.findViewById(R.id.bookAuthor)
-        val imageView: ImageView = view.findViewById(R.id.bookImage)
-        val bookRatingBar: RatingBar = view.findViewById(R.id.bookRating)
+        // Fetch existing review if it exists
+        if (userId != null && bookIsbn != null) {
+            val db = FirebaseFirestore.getInstance()
+            val bookRef = db.collection("books").document(bookIsbn)
 
-        // Apply book data to views
-        authorTextView.text = bookAuthor  // Update text with the book's author(s)
-        bookRatingBar.rating = bookRating // Update stars with rating
+            bookRef.collection("reviews").whereEqualTo("userId", userId).get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val existingReview = querySnapshot.documents[0].data
 
-        // Load the book's image
-        if (bookImage != null) {
-            Glide.with(this)
-                .load(bookImage)
-                .placeholder(R.drawable.placeholder_image)
-                .error(R.drawable.placeholder_image)
-                .into(imageView)
+                        // Populate the form fields with existing review data
+                        reviewEditText.setText(existingReview?.get("reviewText") as? String ?: "")
+                        ratingBar.rating = (existingReview?.get("rating") as? Double)?.toFloat() ?: 0f
+                        spoilerCheckbox.isChecked = existingReview?.get("hasSpoilers") as? Boolean ?: false
+                        sensitiveCheckbox.isChecked = existingReview?.get("hasSensitiveTopics") as? Boolean ?: false
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(activity, "Failed to retrieve existing review", Toast.LENGTH_SHORT).show()
+                }
         }
 
         // Handle the submit button click
