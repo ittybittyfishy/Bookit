@@ -34,8 +34,24 @@ class ReviewActivity : Fragment() {
         spoilerCheckbox = view.findViewById(R.id.spoilerCheckbox)
         sensitiveCheckbox = view.findViewById(R.id.sensitiveTopicsCheckbox)
 
+        // Retrieve the ImageView for displaying the book image
+        val bookImageView: ImageView = view.findViewById(R.id.bookImage)
+
+        // Retrieve book information from arguments
         val bookIsbn = arguments?.getString("bookIsbn")
+        val bookImage = arguments?.getString("bookImage") // Image URL passed in arguments
         val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        // Load the book's image using Glide
+        if (!bookImage.isNullOrEmpty()) {
+            Glide.with(this)
+                .load(bookImage)
+                .placeholder(R.drawable.placeholder_image) // Add a placeholder image
+                .into(bookImageView)
+        } else {
+            // Optionally set a default or placeholder image if no image URL is available
+            bookImageView.setImageResource(R.drawable.placeholder_image)
+        }
 
         // Fetch existing review if it exists
         if (userId != null && bookIsbn != null) {
