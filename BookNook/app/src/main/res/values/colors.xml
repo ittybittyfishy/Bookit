@@ -22,6 +22,7 @@
     <color name="checkbox_color">#A3BB9B</color>
     <color name="button_review_template">#D3E3CE</color>
     <color name="review_button_text">#8B845E</color>
+    <color name="review_card_author_text">#6C9E5C</color>
 
 
     <color name="circle">#EAE6D2</color>

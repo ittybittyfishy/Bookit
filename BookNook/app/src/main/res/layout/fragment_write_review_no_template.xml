@@ -55,7 +55,7 @@
                         android:layout_marginStart="16dp"
                         android:layout_below="@id/authors"
                         android:layout_toEndOf="@id/bookImage"
-                        android:textColor="@color/star_green"
+                        android:textColor="@color/review_card_author_text"
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:layout_weight="1"
