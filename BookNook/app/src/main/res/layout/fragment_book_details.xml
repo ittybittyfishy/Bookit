@@ -67,7 +67,7 @@
         android:layout_alignBottom="@id/bookRating"
         android:text="4.5"
         android:textSize="16sp"
-        android:textColor="#000" />
+        android:textColor="@color/black" />
 
 
 

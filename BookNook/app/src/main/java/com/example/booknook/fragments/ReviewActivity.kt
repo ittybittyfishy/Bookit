@@ -36,11 +36,20 @@ class ReviewActivity : Fragment() {
 
         // Retrieve the ImageView for displaying the book image
         val bookImageView: ImageView = view.findViewById(R.id.bookImage)
+        val authorTextView: TextView = view.findViewById(R.id.bookAuthor)
+        val bookRatingBar: RatingBar = view.findViewById(R.id.bookRating)
+        val ratingNumberTextView: TextView = view.findViewById(R.id.ratingNumber)
 
         // Retrieve book information from arguments
+        val bookAuthor = arguments?.getString("bookAuthor")
+        val bookRating = arguments?.getFloat("bookRating") ?: 0f
         val bookIsbn = arguments?.getString("bookIsbn")
         val bookImage = arguments?.getString("bookImage") // Image URL passed in arguments
         val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        authorTextView.text = bookAuthor  // Update text with the book's author(s)
+        bookRatingBar.rating = bookRating // Update stars with rating
+        ratingNumberTextView.text = "(${bookRating.toString()})" // Set the rating number text
 
         // Load the book's image using Glide
         if (!bookImage.isNullOrEmpty()) {
