@@ -81,19 +81,22 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
         val db = FirebaseFirestore.getInstance()
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-        // 1. Update in standard collection
+        // 1. Update in standard collections
         db.collection("users").document(userId).get().addOnSuccessListener { document ->
             val standardCollections = document.get("standardCollections") as? Map<String, Any>
             standardCollections?.forEach { (collectionName, books) ->
                 if (books is List<*>) {
-                    // Check if the book exists in the collection
-                    val bookInCollection = books.find { it is Map<*, *> && it["title"] == book.title }
+                    // Find the book by title and authors
+                    val bookInCollection = books.find { it is Map<*, *> &&
+                            it["title"] == book.title &&
+                            (it["authors"] as? List<*>)?.containsAll(book.authors) == true
+                    }
                     if (bookInCollection != null) {
-                        // Update page count for this book
+                        // Remove the old book
                         db.collection("users").document(userId)
                             .update("standardCollections.$collectionName", FieldValue.arrayRemove(bookInCollection))
 
-                        // Modify pages and re-add it
+                        // Modify pages and re-add the book
                         val updatedBook = (bookInCollection as Map<String, Any>).toMutableMap()
                         updatedBook["pages"] = newPages
                         db.collection("users").document(userId)
@@ -108,8 +111,13 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
             val customCollections = document.get("customCollections") as? Map<String, Map<String, Any>>
             customCollections?.forEach { (collectionName, collectionData) ->
                 val booksInCustom = collectionData["books"] as? List<Map<String, Any>> ?: return@forEach
-                booksInCustom.find { it["title"] == book.title }?.let { bookInCustom ->
-                    // Update the book's pages
+                // Find the book by title and authors
+                val bookInCustom = booksInCustom.find {
+                    it["title"] == book.title &&
+                            (it["authors"] as? List<*>)?.containsAll(book.authors) == true
+                }
+                if (bookInCustom != null) {
+                    // Remove the old book and update the pages
                     val updatedBook = bookInCustom.toMutableMap()
                     updatedBook["pages"] = newPages
                     val updatedBooks = booksInCustom.toMutableList().apply {
@@ -124,6 +132,8 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
             }
         }
     }
+
+
 
     // This function returns the total number of books to display in the RecyclerView
     override fun getItemCount(): Int = books.size

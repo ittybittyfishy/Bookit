@@ -156,7 +156,7 @@ class CustomCollectionTab : Fragment() {
             val title = bookMap["title"] as? String ?: "Unknown title"
             val authors = bookMap["authors"] as? List<String> ?: listOf("Unknown author")
             val imageLink = bookMap["imageLink"] as String
-            val pages = bookMap["pages"] as? Int ?: 0
+            val pages = (bookMap["pages"] as?  Long ?: 0).toInt()
 
             BookItemCollection(title, authors, imageLink, pages)
         }

@@ -100,7 +100,7 @@ class CollectionFragment : Fragment(){
                                                 title = book["title"] as? String ?: "",
                                                 authors = book["authors"] as? List<String> ?: listOf("Unknown Author"),
                                                 imageLink = book["imageLink"] as? String ?: "",
-                                                pages = (book["pagesRead"] as? Long ?: 0).toInt()
+                                                pages = (book["pages"] as? Long ?: 0).toInt()
                                             )
                                         } else {
                                             null // Ignore invalid books
