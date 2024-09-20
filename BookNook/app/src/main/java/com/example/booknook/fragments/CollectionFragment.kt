@@ -99,7 +99,8 @@ class CollectionFragment : Fragment(){
                                             BookItemCollection(
                                                 title = book["title"] as? String ?: "",
                                                 authors = book["authors"] as? List<String> ?: listOf("Unknown Author"),
-                                                imageLink = book["imageLink"] as? String ?: ""
+                                                imageLink = book["imageLink"] as? String ?: "",
+                                                pages = (book["pagesRead"] as? Long ?: 0).toInt()
                                             )
                                         } else {
                                             null // Ignore invalid books
@@ -122,51 +123,4 @@ class CollectionFragment : Fragment(){
         }
     }
 
-    // Function to make sure that the book collection is being caled correctly (debugging)
-    private fun fetchAndLogCollections() {
-        // Check if userId is not null, meaning a user is logged in
-        userId?.let { uid ->
-            // Access the Firestore collection for the user and retrieve their document
-            db.collection("users").document(uid).get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
-                        val standardCollections = document.get("standardCollections") as? Map<String, Any>
-                        if (standardCollections != null) {
-                            // Loop through each collection in the standardCollections map
-                            for ((collectionName, books) in standardCollections) {
-                                // Log the collection name for debugging
-                                Log.d("CollectionFragment", "Collection: $collectionName")
-                                if (books is List<*>) {
-                                    // Loop through each book in the collection
-                                    for (book in books) {
-                                        if (book is Map<*, *>) {
-                                            // Log each key-value pair in the book map
-                                            for ((key, value) in book) {
-                                                Log.d("CollectionFragment", "Key: $key, Value: $value")
-                                            }
-                                        } else {
-                                            // Log an unexpected format message if the book data isn't as expected
-                                            Log.d("CollectionFragment", "Unexpected book format: ${book?.javaClass}")
-                                        }
-                                    }
-                                } else {
-                                    // Log an unexpected type message if the books variable isn't a list
-                                    Log.d("CollectionFragment", "Unexpected type for books: ${books?.javaClass}")
-                                }
-                            }
-                        } else {
-                            // Log a message if no standard collections are found
-                            Log.d("CollectionFragment", "No standardCollections found")
-                        }
-                    } else {
-                        // Log a message if the document doesn't exist (likely an error)
-                        Log.d("CollectionFragment", "Document does not exist")
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    // Log an error message if something goes wrong when retrieving the document
-                    Log.d("CollectionFragment", " failed with ", exception)
-                }
-        }
-    }
 }

@@ -4,6 +4,7 @@ package com.example.booknook
 // Olivia Fishbough
 class BookItemCollection (val title: String,
                           val authors: List<String>,
-                          val imageLink: String)
+                          val imageLink: String,
+                          val pages: Int)
 {
 }

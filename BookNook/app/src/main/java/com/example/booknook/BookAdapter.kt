@@ -248,7 +248,8 @@ class BookAdapter(private val bookList: List<BookItem>,
         val bookData = hashMapOf(
             "title" to book.volumeInfo.title,
             "authors" to book.volumeInfo.authors,
-            "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
+            "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"),
+            "pages" to 0
         )
 
         // Update the Firestore document
@@ -312,7 +313,8 @@ class BookAdapter(private val bookList: List<BookItem>,
         val bookData = hashMapOf(
             "title" to book.volumeInfo.title,
             "authors" to book.volumeInfo.authors,
-            "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://") // Ensure this is exactly the same
+            "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"),
+            "pages" to 0
         )
 
         // Fetch the user's custom collections from Firestore
