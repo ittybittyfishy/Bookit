@@ -248,7 +248,8 @@ class BookAdapter(private val bookList: List<BookItem>,
         val bookData = hashMapOf(
             "title" to book.volumeInfo.title,
             "authors" to book.volumeInfo.authors,
-            "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
+            "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"),
+            "pages" to 0
         )
 
         // Update the Firestore document
@@ -308,12 +309,9 @@ class BookAdapter(private val bookList: List<BookItem>,
     private fun removeBookFromCustomCollections(userId: String, book: BookItem, context: Context) {
         val db = FirebaseFirestore.getInstance()
 
-        // Prepare the book data for removal (use the same structure as when adding)
-        val bookData = hashMapOf(
-            "title" to book.volumeInfo.title,
-            "authors" to book.volumeInfo.authors,
-            "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://") // Ensure this is exactly the same
-        )
+        // Prepare the book data for comparison (without including 'pages')
+        val bookTitle = book.volumeInfo.title
+        val bookAuthors = book.volumeInfo.authors
 
         // Fetch the user's custom collections from Firestore
         db.collection("users").document(userId).get()
@@ -326,11 +324,24 @@ class BookAdapter(private val bookList: List<BookItem>,
 
                     // Loop through each custom collection
                     for (collectionName in customCollections.keys) {
-                        // Reference to the user's document
                         val collectionRef = db.collection("users").document(userId)
 
-                        // Apply arrayRemove to remove the book from each collection
-                        batch.update(collectionRef, "customCollections.$collectionName.books", FieldValue.arrayRemove(bookData))
+                        // Fetch the books in the current collection
+                        val books = (customCollections[collectionName] as? Map<String, Any>)?.get("books") as? List<Map<String, Any>>
+
+                        if (!books.isNullOrEmpty()) {
+                            // Filter out the books that match by title and authors (ignoring 'pages')
+                            val booksToRemove = books.filter { bookMap ->
+                                val title = bookMap["title"] as? String
+                                val authors = bookMap["authors"] as? List<String>
+                                title == bookTitle && authors == bookAuthors
+                            }
+
+                            // Remove the matched books from the collection
+                            for (bookToRemove in booksToRemove) {
+                                batch.update(collectionRef, "customCollections.$collectionName.books", FieldValue.arrayRemove(bookToRemove))
+                            }
+                        }
                     }
 
                     // Commit the batch operation
