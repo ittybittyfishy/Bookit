@@ -1,6 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="8dp">
 
@@ -37,12 +38,15 @@
         android:orientation="horizontal"
         android:layout_gravity="center">
 
-        <Button
+        <ImageButton
             android:id="@+id/subtractPages"
             android:contentDescription="Decrement page counter"
             android:layout_width="49dp"
             android:layout_height="49dp"
-            android:background = "@drawable/minus_svgrepo_com"/>
+            android:scaleType="fitCenter"
+            android:src = "@drawable/minus_svgrepo_com"
+            app:tint="@color/banner_green"
+            android:backgroundTint="@color/transparent"/>
         <EditText
             android:id="@+id/pages"
             android:layout_width="49dp"
@@ -51,12 +55,16 @@
             android:background="@drawable/rounded_rectangle"
             android:textAlignment="center"
             android:inputType="number"/>
-        <Button
+        <ImageButton
             android:id="@+id/addPages"
             android:contentDescription="Increment Page Counter"
             android:layout_width="49dp"
             android:layout_height="49dp"
-            android:background="@drawable/add"/>
+            android:scaleType="fitCenter"
+            android:src="@drawable/add"
+            app:tint="@color/banner_green"
+            android:backgroundTint="@color/transparent"
+            />
     </LinearLayout>
 
 </LinearLayout>

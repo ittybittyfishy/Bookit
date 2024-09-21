@@ -89,20 +89,19 @@ class CustomCollectionTab : Fragment() {
         if (userId != null) {
             val db = FirebaseFirestore.getInstance()
 
-            Log.d("CustomCollectionTab", "Fetching custom collections for user: $userId")
+            // Listen for real-time updates to the user's document
+            db.collection("users").document(userId)
+                .addSnapshotListener { documentSnapshot, error ->
+                    if (error != null) {
+                        Log.e("CustomCollectionTab", "Listen failed: ${error.message}")
+                        return@addSnapshotListener
+                    }
 
-            db.collection("users").document(userId).get()
-                .addOnSuccessListener { document ->
-                    if (document != null && document.exists()) {
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
                         val customCollections =
-                            document.get("customCollections") as? Map<String, Map<String, Any>>
+                            documentSnapshot.get("customCollections") as? Map<String, Map<String, Any>>
                         if (customCollections != null) {
-                            Log.d(
-                                "CustomCollectionTab",
-                                "Custom collections retrieved: $customCollections"
-                            )
-
-                            // Transform the customCollections map into a list of CollectionCustomItem
+                            // Map the Firestore data to your local model
                             val collectionList = customCollections.map { entry ->
                                 val collectionName = entry.key
                                 val collectionData = entry.value
@@ -113,44 +112,21 @@ class CustomCollectionTab : Fragment() {
                                     collectionData["books"] as? List<Map<String, Any>> ?: listOf()
                                 val books = mapBooks(booksData)
 
-                                Log.d(
-                                    "CustomCollectionTab",
-                                    "Collection name: $collectionName, Summary: $summary, Books: $books"
-                                )
-
                                 CollectionCustomItem(collectionName, books, summary)
                             }
 
-                            Log.d(
-                                "CustomCollectionTab",
-                                "Updating RecyclerView with collection list"
-                            )
-
-                            // Update the adapter with the retrieved collections
+                            // Update the adapter with the new collection list
                             customCollectionAdapter = CollectionCustomAdapter(collectionList)
                             recyclerView.adapter = customCollectionAdapter
                             customCollectionAdapter.notifyDataSetChanged()
-
-                            // If no collections exist, log and handle empty state
-                            if (collectionList.isEmpty()) {
-                                Log.d(
-                                    "CustomCollectionTab",
-                                    "No custom collections found, showing default empty state"
-                                )
-                                // Handle empty state here, such as showing a message
-                            }
-                        } else {
-                            Log.d("CustomCollectionTab", "No custom collections found for user")
                         }
                     }
-                }
-                .addOnFailureListener { e ->
-                    Log.e("CustomCollectionTab", "Failed to fetch custom collections: ${e.message}")
                 }
         } else {
             Log.e("CustomCollectionTab", "User ID is null, unable to fetch collections")
         }
     }
+
     private fun mapBooks(booksData: List<Map<String, Any>>): List<BookItemCollection> {
         return booksData.map { bookMap ->
             val title = bookMap["title"] as? String ?: "Unknown title"

@@ -1,18 +1,37 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="8dp">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
     <TextView
         android:id="@+id/collectionName"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:padding="10dp"
         android:textSize="20sp"
         android:textStyle="bold"
         android:paddingBottom="8dp"
         android:textColor="@color/banner_green"
-        android:hint="Collection Title"/>
+        android:hint="Collection Title"
+        android:layout_weight="1"/>
+
+        <ImageButton
+            android:id="@+id/editButton"
+            android:contentDescription="Button to edit custom collection"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/edit"
+            android:scaleType="fitCenter"
+            app:tint="@color/banner_green"
+            android:backgroundTint="@color/transparent"
+            />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/collectionDes"
