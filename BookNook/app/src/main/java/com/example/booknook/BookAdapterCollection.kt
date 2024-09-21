@@ -53,11 +53,11 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
             .into(holder.bookImage)
 
         // Handle increment and decrement page actions
-        holder.itemView.findViewById<Button>(R.id.addPages).setOnClickListener {
+        holder.itemView.findViewById<ImageButton>(R.id.addPages).setOnClickListener {
             updatePageCount(book, holder.pages, 1)
         }
 
-        holder.itemView.findViewById<Button>(R.id.subtractPages).setOnClickListener {
+        holder.itemView.findViewById<ImageButton>(R.id.subtractPages).setOnClickListener {
             updatePageCount(book, holder.pages, -1)
         }
     }

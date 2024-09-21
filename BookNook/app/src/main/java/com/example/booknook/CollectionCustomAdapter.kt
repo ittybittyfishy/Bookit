@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,7 +24,7 @@ class CollectionCustomAdapter(private val collections: List<CollectionCustomItem
         // textview to display summary
         val collectionDes: TextView = itemView.findViewById(R.id.collectionDes)
         // Edit button
-        val editButton: Button = itemView.findViewById(R.id.editButton)
+        val editButton: ImageButton = itemView.findViewById(R.id.editButton)
     }
 
     // This function is called when the RecyclerView needs a new ViewHolder to represent an item
