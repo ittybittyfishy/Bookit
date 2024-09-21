@@ -147,34 +147,53 @@ class FriendsFragment : Fragment() {
         }
     }
 
-
     // Function to search for a user with their username
     private fun searchUser(username: String) {
         val db = FirebaseFirestore.getInstance()
         val senderId = FirebaseAuth.getInstance().currentUser?.uid
-        db.collection("users").whereEqualTo("username", username).get()  // checks for username in documents in users collection
-            .addOnCompleteListener { searchTask ->
-                if (searchTask.isSuccessful)
-                {
-                    val result: QuerySnapshot? = searchTask.result  // gets result from Task object, which can be null
-                    if (result != null && !result.isEmpty) {  // checks if result is null and contains at least one document
-                        val userDocument = result.documents[0]  // retrieves first document
-                        val receiverId = userDocument.id  // retrieves the receiver user's id
-                        val userName = userDocument.getString("username")  // retrieves "username" field of receiver
-                        if (senderId == receiverId) {
-                            Toast.makeText(activity, "Can't add yourself as friend", Toast.LENGTH_SHORT).show()
+        if (senderId == null) {
+            Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        db.collection("users").document(senderId).get()
+            .addOnSuccessListener { senderDoc ->
+                // Gets the user's current friends
+                val allFriends = senderDoc?.get("friends") as? List<Map<String, Any>> ?: emptyList()
+
+                db.collection("users").whereEqualTo("username", username).get()  // checks for username in documents in users collection
+                    .addOnCompleteListener { searchTask ->
+                        if (searchTask.isSuccessful)
+                        {
+                            val result: QuerySnapshot? = searchTask.result  // gets result from Task object, which can be null
+                            if (result != null && !result.isEmpty) {  // checks if result is null and contains at least one document
+                                val userDocument = result.documents[0]  // retrieves first document
+                                val receiverId = userDocument.id  // retrieves the receiver user's id
+                                val userName = userDocument.getString("username")  // retrieves "username" field of receiver
+
+                                // Checks to see if they are already the current user's friend
+                                val alreadyFriend = allFriends.any { friend ->  // Checks all friends in user's database
+                                    friend["friendId"] == receiverId  // If any of the user's friends matches the receiverID
+                                }
+
+                                if (alreadyFriend) {
+                                    // User can't send friend request if they're already friends
+                                    Toast.makeText(activity, "$userName already added as friend", Toast.LENGTH_SHORT).show()
+                                } else if (senderId == receiverId) {
+                                    // User can't send a friend request to themselves
+                                    Toast.makeText(activity, "Can't add yourself as friend", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    // To-do: Pull up user's profile after looking up their username instead of requesting right away
+                                    sendFriendRequest(receiverId)  // calls function to send a friend request
+                                    Toast.makeText(activity, "User found: $userName", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                Toast.makeText(activity, "User not found", Toast.LENGTH_SHORT).show()  // displays if user doesn't exist
+                            }
                         } else {
-                            // To-do: Pull up user's profile after looking up their username instead of requesting right away
-                            //
-                            sendFriendRequest(receiverId)  // calls function to send a friend request
-                            Toast.makeText(activity, "User found: $userName", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(activity, "Error in retrieving documents", Toast.LENGTH_SHORT).show()
                         }
-                    } else {
-                        Toast.makeText(activity, "User not found", Toast.LENGTH_SHORT).show()  // displays if user doesn't exist
                     }
-                } else {
-                    Toast.makeText(activity, "Error in retrieving documents", Toast.LENGTH_SHORT).show()
-                }
             }
     }
 
