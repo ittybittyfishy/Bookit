@@ -59,6 +59,7 @@ class Register : AppCompatActivity() {
             } else if (txtPassword != txtConfirmPass) {
                 Toast.makeText(this@Register, "Passwords do not match", Toast.LENGTH_SHORT).show()
             }
+            // Veronica Nguyen
             else {
                 checkIfUsernameExists(txtUser) { exists ->
                     if (exists) {
@@ -76,8 +77,8 @@ class Register : AppCompatActivity() {
     private fun checkIfUsernameExists(username: String, callback: (Boolean) -> Unit) {
         // Checks if any of the usernames in the database are the same as the registering user's
         db.collection("users").whereEqualTo("username", username).get()
-            .addOnSuccessListener { documents -> callback(!documents.isEmpty)}
-            .addOnFailureListener { exception ->
+            .addOnSuccessListener { documents -> callback(!documents.isEmpty)}  // Check was successful
+            .addOnFailureListener { exception ->  // Check failed
                 Toast.makeText(this@Register, "Username check failed: ${exception.message}", Toast.LENGTH_SHORT).show()
                 callback(false)
             }
