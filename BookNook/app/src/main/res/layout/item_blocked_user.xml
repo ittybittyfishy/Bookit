@@ -8,6 +8,7 @@
     android:background="@drawable/friend_req_border"
     android:elevation="4dp">
 
+    <!-- Profile picture -->
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profileImage"
         android:layout_width="80dp"
@@ -16,6 +17,7 @@
         android:layout_marginBottom="11dp"
         android:src="@drawable/profile_picture_placeholder" />
 
+    <!-- User's username -->
     <TextView
         android:id="@+id/blocked_username"
         android:layout_width="wrap_content"

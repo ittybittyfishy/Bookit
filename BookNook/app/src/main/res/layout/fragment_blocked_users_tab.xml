@@ -15,6 +15,7 @@
         android:paddingStart="20dp"
         android:paddingEnd="15dp">
 
+        <!-- Button for Friends tab -->
         <Button
             android:id="@+id/friends_button"
             android:layout_width="wrap_content"
@@ -24,6 +25,7 @@
             android:background="@color/transparent"
             android:textColor="@color/main_text_brown" />
 
+        <!-- Button for Requests tab -->
         <Button
             android:id="@+id/requests_button"
             android:layout_width="wrap_content"
@@ -35,6 +37,7 @@
             android:textColor="@color/main_text_brown"
             android:textSize="18sp" />
 
+        <!-- Button for Blocked tab -->
         <Button
             android:id="@+id/blocked_button"
             android:layout_width="wrap_content"
@@ -45,6 +48,7 @@
             android:textSize="18sp" />
     </LinearLayout>
 
+    <!-- Search Bar to look up username -->
     <EditText
         android:id="@+id/block_user_search"
         android:layout_width="360dp"
@@ -59,6 +63,7 @@
         android:padding="8dp"
         android:textSize="20sp" />
 
+    <!-- Search button -->
     <Button
         android:id="@+id/block_user_search_button"
         android:layout_width="wrap_content"
@@ -71,6 +76,7 @@
         android:layout_marginTop="8dp"
         android:textSize="18sp" />
 
+    <!-- Recycler view to display blocked users -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/blocked_recycler_view"
         android:layout_width="match_parent"
