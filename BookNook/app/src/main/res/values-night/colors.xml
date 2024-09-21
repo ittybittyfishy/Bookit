@@ -16,6 +16,11 @@
     <color name="app_background">#2C2C2C</color>
     <color name="home_pink">#B05B73</color>
     <color name="user_name_home">#B03C3C</color>
+    <color name="review_card">#7D678E</color>
+    <color name="checkbox_color">#5A6ABF</color>
+    <color name="button_review_template">#5A6ABF</color>
+    <color name="review_button_text">#FFFFFFFF</color>
+    <color name="review_card_author_text">#FFFFFFFF</color>
 
     <!-- Dark Mode Color for Drawable -->
     <color name="circle">#3E3E3E</color>
