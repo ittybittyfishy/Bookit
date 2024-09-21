@@ -124,10 +124,10 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         }
     }
 
+    // Veronica Nguyen
     // Opens a book's details in another page upon clicking on it
     override fun onItemClick(position: Int) {
         val bookItem = bookList[position]
-        // TO-DO: Finish page with book details
         val bookDetailsFragment = BookDetailsFragment()
         val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
         val isbn = bookItem.volumeInfo.industryIdentifiers

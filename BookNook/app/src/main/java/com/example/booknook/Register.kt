@@ -72,7 +72,9 @@ class Register : AppCompatActivity() {
         }
     }
 
+    // Veronica Nguyen
     private fun checkIfUsernameExists(username: String, callback: (Boolean) -> Unit) {
+        // Checks if any of the usernames in the database are the same as the registering user's
         db.collection("users").whereEqualTo("username", username).get()
             .addOnSuccessListener { documents -> callback(!documents.isEmpty)}
             .addOnFailureListener { exception ->

@@ -17,6 +17,7 @@ import com.example.booknook.BookItem
 import com.example.booknook.R.*
 import com.google.firebase.auth.FirebaseAuth
 
+// Veronica Nguyen
 class BookDetailsFragment : Fragment() {
 
     private lateinit var writeReviewButton: Button
@@ -28,7 +29,7 @@ class BookDetailsFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(layout.fragment_book_details, container, false)
 
-        // Retrieves data from arguments passed in
+        // Retrieves data from arguments passed in from the search fragment
         val bookTitle = arguments?.getString("bookTitle")
         val bookAuthor = arguments?.getString("bookAuthor")
         val bookImage = arguments?.getString("bookImage")
@@ -54,7 +55,8 @@ class BookDetailsFragment : Fragment() {
                 .into(imageView)
         }
 
-        //Declare button that connects to XML,
+        // Yunjong Noh
+        //Declare button that connects to XML
         writeReviewButton = view.findViewById(R.id.write_review_button)
 
         writeReviewButton.setOnClickListener {

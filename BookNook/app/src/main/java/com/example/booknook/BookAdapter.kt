@@ -121,16 +121,18 @@ class BookAdapter(private val bookList: List<BookItem>,
         val spinnerSelectCollection: Spinner = itemView.findViewById(R.id.spinnerSelectCollection)
         val btnAddToCustomCollection: Button = itemView.findViewById(R.id.btnAddToCustomCollection)
 
+        // Veronica Nguyen
         // Sets the ViewHolder itself as click listener for itemView
         init {
             itemView.setOnClickListener(this)
         }
 
+        // Veronica Nguyen
         // Checks if item's position in RecyclerView is valid
         override fun onClick(v: View?) {
-            val position = adapterPosition
+            val position = bindingAdapterPosition
             if (position != RecyclerView.NO_POSITION) {
-                listener.onItemClick(position)
+                listener.onItemClick(position)  // Calls function to open book details on another page
             }
         }
     }
