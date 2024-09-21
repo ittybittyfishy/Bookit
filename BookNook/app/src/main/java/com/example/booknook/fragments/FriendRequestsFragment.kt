@@ -42,6 +42,7 @@ class FriendRequestsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         db = FirebaseFirestore.getInstance()
+        // Initialize buttons and views
         friendsButton = view.findViewById(R.id.friends_button)
         blockedButton = view.findViewById(R.id.blocked_button)
         numFriendRequests = view.findViewById(R.id.num_friend_reqs)
@@ -76,7 +77,9 @@ class FriendRequestsFragment : Fragment() {
                         return@addSnapshotListener
                     }
 
+                    // If user is found
                     if (documentSnapshot != null && documentSnapshot.exists()) {
+                        // Gets user's friend requests as a list
                         val friendRequests = documentSnapshot.get("friendRequests") as? List<Map<String, Any>>
                         if (friendRequests != null) {
                             // Gets the number of friend requests

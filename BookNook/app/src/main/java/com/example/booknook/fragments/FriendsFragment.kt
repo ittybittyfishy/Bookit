@@ -67,10 +67,11 @@ class FriendsFragment : Fragment() {
             (activity as MainActivity).replaceFragment(blockedFragment, "Friends")
         }
 
+        // Handle search friend by username button click
         searchButton.setOnClickListener {
             val query = searchBar.text.toString().trim()
             if (query.isNotEmpty()) {
-                searchUser(query)
+                searchUser(query)  // Searches for user
             } else {
                 Toast.makeText(activity, "Please enter a username", Toast.LENGTH_SHORT).show()
             }
@@ -115,18 +116,23 @@ class FriendsFragment : Fragment() {
                         return@addSnapshotListener
                     }
 
+                    // If user is found
                     if (documentSnapshot != null && documentSnapshot.exists()) {
-                        val friends = documentSnapshot.get("friends") as? List<Map<String, Any>>
+                        val friends = documentSnapshot.get("friends") as? List<Map<String, Any>>  // Gets the user's friends as a list
                         if (friends != null) {
+                            // Create separate lists for online and offline friends
                             val onlineFriends = mutableListOf<Friend>()
                             val offlineFriends = mutableListOf<Friend>()
 
+                            // Loops through all of the user's friends
                             friends.forEach { friend ->
                                 val isOnline = friend["isOnline"] as? Boolean ?: false  // casts value to boolean or false if the cast fails
+                                // Creates friend information to put into lists
                                 val friendInfo = Friend(
                                     friendId = friend["friendId"] as String,
                                     friendUsername = friend["friendUsername"] as String
                                 )
+                                // Checks if the user is online and adds their info to the corresponding list
                                 if (isOnline) {
                                     onlineFriends.add(friendInfo)
                                 } else {

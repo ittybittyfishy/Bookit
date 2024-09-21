@@ -49,23 +49,24 @@ class BlockedUsersFragment : Fragment() {
         searchButton = view.findViewById(R.id.block_user_search_button)
         searchBar = view.findViewById(R.id.block_user_search)
 
-        // Set listeners
+        // Switches to Friends fragment upon click of button
         friendsButton.setOnClickListener {
-            // Handle account button click
             val friendsFragment = FriendsFragment()
             (activity as MainActivity).replaceFragment(friendsFragment, "Friends")
         }
 
+        // Switches to Requests fragment upon click of button
         requestsButton.setOnClickListener {
             // Handle account button click
             val requestsFragment = FriendRequestsFragment()
             (activity as MainActivity).replaceFragment(requestsFragment, "Friends")
         }
 
+        // Handle search for user by username button click
         searchButton.setOnClickListener {
             val query = searchBar.text.toString().trim()
             if (query.isNotEmpty()) {
-                searchUser(query)
+                searchUser(query)  // Searches for user
             } else {
                 Toast.makeText(activity, "Please enter a username", Toast.LENGTH_SHORT).show()
             }
@@ -88,7 +89,9 @@ class BlockedUsersFragment : Fragment() {
                         return@addSnapshotListener
                     }
 
+                    // If user is found
                     if (documentSnapshot != null && documentSnapshot.exists()) {
+                        // Gets user's blocked users as a list
                         val blockedUsers = documentSnapshot.get("blockedUsers") as? List<Map<String, Any>>
                         if (blockedUsers != null) {
                             // Maps each friend request to a BlockedUser object

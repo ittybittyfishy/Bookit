@@ -10,14 +10,17 @@ class FriendAdapter(private val friends: List<Friend>
 ) : RecyclerView.Adapter<FriendAdapter.FriendViewHolder>(){
 
     class FriendViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val username: TextView = itemView.findViewById(R.id.friend_username)
+        val username: TextView = itemView.findViewById(R.id.friend_username)  // Initialize username view
     }
 
+    // Inflates layout for each friend  item and returns new FriendViewHolder instance
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
+        // Gets view of individual friend item
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_friend, parent, false)
-        return FriendViewHolder(view)
+        return FriendViewHolder(view)  // Returns the view holder with the view
     }
 
+    // Binds data to view holder
     override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
         val friend = friends[position]
         holder.username.text = friend.friendUsername  // Sets username text

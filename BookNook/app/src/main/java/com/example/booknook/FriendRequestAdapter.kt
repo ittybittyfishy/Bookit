@@ -23,6 +23,7 @@ class FriendRequestAdapter(private val friendRequests: List<FriendRequest>,
 
     // Inflates layout for each friend request item and returns new FriendRequestViewHolder instance
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendRequestViewHolder {
+        // Gets view of individual friend request item
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_friend_request, parent, false)
         return FriendRequestViewHolder(view)
     }
