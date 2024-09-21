@@ -24,9 +24,13 @@ class FriendsFragment : Fragment() {
     private lateinit var requestsButton: Button
     private lateinit var blockedButton: Button
     private lateinit var searchButton: Button
+    private lateinit var collapseOnlineButton: Button
+    private lateinit var collapseOfflineButton: Button
     private lateinit var searchBar: EditText
-    private lateinit var friendsRecyclerView: RecyclerView
     private lateinit var db: FirebaseFirestore
+    private lateinit var onlineFriendsRecyclerView: RecyclerView
+    private lateinit var offlineFriendsRecyclerView: RecyclerView
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,6 +49,10 @@ class FriendsFragment : Fragment() {
         blockedButton = view.findViewById(R.id.blocked_button)
         searchButton = view.findViewById(R.id.search_friend_button)
         searchBar = view.findViewById(R.id.search_friend_bar)
+        collapseOnlineButton = view.findViewById(R.id.collapse_online_button)
+        collapseOfflineButton = view.findViewById(R.id.collapse_offline_button)
+        onlineFriendsRecyclerView = view.findViewById(R.id.friends_recycler_view)
+        offlineFriendsRecyclerView = view.findViewById(R.id.offline_friends_recycler_view)
 
         // Set listeners for button click
         requestsButton.setOnClickListener {
@@ -68,11 +76,32 @@ class FriendsFragment : Fragment() {
             }
         }
 
-        friendsRecyclerView = view.findViewById(R.id.friends_recycler_view)
-        friendsRecyclerView.layoutManager =
-            GridLayoutManager(context, 2)  // Displays friends in 2 columns
+        onlineFriendsRecyclerView.layoutManager = GridLayoutManager(context, 2)  // Displays online friends in 2 columns
+        offlineFriendsRecyclerView.layoutManager = GridLayoutManager(context, 2)  // Displays offline friends in 2 columns
 
-        loadFriends()
+        // Handles when collapse button for online friends is clicked
+        collapseOnlineButton.setOnClickListener {
+            if (onlineFriendsRecyclerView.visibility == View.GONE) {  // If the view is current collapsed
+                onlineFriendsRecyclerView.visibility = View.VISIBLE  // Make the online friends visible
+                collapseOnlineButton.text = "Collapse"  // Change text in button to "Collapse"
+            } else {
+                onlineFriendsRecyclerView.visibility = View.GONE  // If the view is currently expanded
+                collapseOnlineButton.text = "Expand"  // Change text in button to "Expand"
+            }
+        }
+
+        // Handles when collapse button for offline friends is clicked
+        collapseOfflineButton.setOnClickListener {
+            if (offlineFriendsRecyclerView.visibility == View.GONE) {  // If the view is current collapsed
+                offlineFriendsRecyclerView.visibility = View.VISIBLE  // Make the offline friends visible
+                collapseOfflineButton.text = "Collapse"  // Change text in button to "Collapse"
+            } else {
+                offlineFriendsRecyclerView.visibility = View.GONE  // If the view is currently expanded
+                collapseOfflineButton.text = "Expand"  // Change text in button to "Expand"
+            }
+        }
+
+        loadFriends()  // Loads the user's friends
     }
 
     // Function to load the user's friends
@@ -89,15 +118,29 @@ class FriendsFragment : Fragment() {
                     if (documentSnapshot != null && documentSnapshot.exists()) {
                         val friends = documentSnapshot.get("friends") as? List<Map<String, Any>>
                         if (friends != null) {
-                            // Maps each friend request to a FriendRequest object
-                            val friendList = friends.map { friend ->
-                                Friend(
+                            val onlineFriends = mutableListOf<Friend>()
+                            val offlineFriends = mutableListOf<Friend>()
+
+                            friends.forEach { friend ->
+                                val isOnline = friend["isOnline"] as? Boolean ?: false  // casts value to boolean or false if the cast fails
+                                val friendInfo = Friend(
                                     friendId = friend["friendId"] as String,
                                     friendUsername = friend["friendUsername"] as String
                                 )
+                                if (isOnline) {
+                                    onlineFriends.add(friendInfo)
+                                } else {
+                                    offlineFriends.add(friendInfo)
+                                }
                             }
+
+                            val onlineFriendsRecyclerView = view?.findViewById<RecyclerView>(R.id.friends_recycler_view)
+                            val offlineFriendsRecyclerView = view?.findViewById<RecyclerView>(R.id.offline_friends_recycler_view)
+
                             // Calls adapter with list of FriendRequest objects and functions to handle accepting and rejecting requests
-                            friendsRecyclerView.adapter = FriendAdapter(friendList)
+                            onlineFriendsRecyclerView?.adapter = FriendAdapter(onlineFriends)
+                            offlineFriendsRecyclerView?.adapter = FriendAdapter(offlineFriends)
+
                         }
                     }
                 }
