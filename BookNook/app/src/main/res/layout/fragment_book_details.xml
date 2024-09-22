@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:padding="16dp">
 
+    <!-- Book Image -->
     <ImageView
         android:id="@+id/bookImage"
         android:layout_width="131dp"
@@ -12,6 +13,7 @@
         android:layout_marginStart="5dp"
         android:scaleType="centerCrop" />
 
+    <!-- Book Author Title -->
     <TextView
         android:id="@+id/authors"
         android:layout_width="wrap_content"
@@ -21,6 +23,7 @@
         android:text="Author(s):"
         android:textSize="16sp" />
 
+    <!-- Book Author(s) -->
     <TextView
         android:id="@+id/bookAuthor"
         android:layout_width="wrap_content"
@@ -34,6 +37,7 @@
         android:maxWidth="200dp"
         android:textSize="16dp" />
 
+    <!-- Book Rating Stars-->
     <RatingBar
         android:id="@+id/bookRating"
         style="@style/Widget.AppCompat.RatingBar.Small"
@@ -47,6 +51,7 @@
         android:numStars="5"
         android:stepSize="0.5" />
 
+    <!-- Book Summary -->
     <TextView
         android:id="@+id/bookSummary"
         android:layout_width="wrap_content"
@@ -57,7 +62,8 @@
         android:text="Summary"
         android:textSize="16sp" />
 
-
+    <!-- Yunjong Noh -->
+    <!-- Book Rating Number -->
     <TextView
         android:id="@+id/ratingNumber"
         android:layout_width="wrap_content"
@@ -69,8 +75,7 @@
         android:textSize="16sp"
         android:textColor="@color/black" />
 
-
-
+    <!-- Yunjong Noh -->
     <!-- User Review Section Title -->
     <TextView
         android:id="@+id/userReviewTitle"
@@ -82,6 +87,7 @@
         android:layout_marginTop="485dp"
         android:layout_centerHorizontal="true" />
 
+    <!-- Yunjong Noh -->
     <!-- Write Review Button -->
     <Button
         android:id="@+id/write_review_button"
