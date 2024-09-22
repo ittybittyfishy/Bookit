@@ -7,8 +7,7 @@
     <!-- Scrollable content -->
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/submitReviewButton">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,62 +29,74 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
+                    <!-- Book Cover Image -->
                     <ImageView
                         android:id="@+id/bookImage"
                         android:layout_width="110dp"
                         android:layout_height="140dp"
                         android:layout_alignParentStart="true"
-                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="16dp"
                         android:scaleType="centerCrop" />
 
+                    <!-- Book Title -->
                     <TextView
-                        android:id="@+id/authors"
+                        android:id="@+id/bookTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
                         android:layout_toEndOf="@id/bookImage"
-                        android:text="Author(s):"
-                        android:textSize="16sp"
-                        android:textColor="@color/black" />
+                        android:text="Before I Fall"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:textColor="@color/green_to_purple" />
 
+                    <!-- Author Text -->
                     <TextView
                         android:id="@+id/bookAuthor"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_below="@id/authors"
+                        android:layout_below="@id/bookTitle"
                         android:layout_toEndOf="@id/bookImage"
+                        android:text="Author(s): Lauren Oliver"
                         android:textColor="@color/review_card_author_text"
                         android:maxLines="1"
                         android:ellipsize="end"
-                        android:layout_weight="1"
-                        android:maxWidth="150dp"
                         android:textSize="16sp" />
 
+                    <!-- Book Rating -->
                     <RatingBar
                         android:id="@+id/bookRating"
                         style="@style/Widget.AppCompat.RatingBar.Small"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/bookAuthor"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="4dp"
                         android:layout_toEndOf="@id/bookImage"
                         android:isIndicator="true"
                         android:numStars="5"
                         android:stepSize="0.5"
-                        android:progressTint="@color/star_green"
-                        android:secondaryProgressTint="@color/star_green" />
+                        android:progressTint="@color/star_green" />
 
+                    <!-- Rating Number -->
                     <TextView
                         android:id="@+id/ratingNumber"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
+                        android:layout_below="@id/bookAuthor"
                         android:layout_toEndOf="@id/bookRating"
-                        android:layout_alignBottom="@id/bookRating"
-                        android:text="4.5"
+                        android:layout_marginStart="8dp"
+                        android:text="3.9"
                         android:textSize="16sp"
+                        android:textColor="@color/black" />
+
+                    <!-- Total Reviews Text -->
+                    <TextView
+                        android:id="@+id/reviewCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/bookRating"
+                        android:layout_toEndOf="@id/bookImage"
+                        android:layout_marginTop="4dp"
+                        android:text="4,152,342 ratings"
+                        android:textSize="14sp"
                         android:textColor="@color/black" />
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
@@ -101,6 +112,7 @@
                 android:textColor="@color/green_to_purple"
                 android:layout_marginTop="16dp" />
 
+            <!-- User Rating Bar -->
             <RatingBar
                 android:id="@+id/myRatingBar"
                 android:layout_width="wrap_content"
@@ -115,76 +127,265 @@
                 android:scaleX="0.7"
                 android:scaleY="0.7" />
 
-            <Button
-                android:id="@+id/openSubRatings"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Open Sub Ratings"
-                android:scaleX="0.55"
-                android:scaleY="0.55"
-                android:backgroundTint="@color/button_review_template"
-                android:textColor="@color/review_button_text"
-                android:textSize="25sp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="-20dp" />
-
-            <!-- Review Template Button -->
-
             <!-- Review Input Box -->
-
-            <Button
-                android:id="@+id/useTemplateButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="-65dp"
-                android:layout_marginTop="0dp"
-                android:layout_marginBottom="-15dp"
-                android:backgroundTint="@color/button_review_template"
-                android:textColor="@color/review_button_text"
-                android:scaleX="0.5"
-                android:scaleY="0.5"
-                android:text="Use Review template"
-                android:textSize="26sp" />
-
-
-            <!-- Checkbox Options -->
             <EditText
                 android:id="@+id/reviewInput"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/rounded_rectangle_1"
-                android:backgroundTint="@color/review_card"
                 android:gravity="top"
                 android:hint="Write a review...."
-                android:textColorHint="@color/review_button_text"
                 android:padding="12dp"
+                android:textColorHint="@color/review_button_text"
                 android:textColor="@color/review_button_text"
                 android:textSize="14sp" />
 
-            <LinearLayout
+            <!-- Remove Review Template Button -->
+            <Button
+                android:id="@+id/removeTemplateButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:orientation="vertical">
+                android:layout_marginTop="12dp"
+                android:backgroundTint="@color/button_review_template"
+                android:textColor="@color/review_button_text"
+                android:scaleX="0.7"
+                android:scaleY="0.7"
+                android:text="Remove Review template"
+                android:textSize="16sp"
+                android:layout_gravity="start" />
 
-                <CheckBox
-                    android:id="@+id/spoilerCheckbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="My review has spoilers"
-                    android:buttonTint="@color/checkbox_color"
-                    android:textColor="@color/black"/>
+            <!-- Sub-Ratings Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="16dp">
 
-                <CheckBox
-                    android:id="@+id/sensitiveTopicsCheckbox"
-                    android:layout_width="wrap_content"
+                <!-- Sub-Rating: Characters -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="My review has sensitive topics"
-                    android:buttonTint="@color/checkbox_color"
-                    android:textColor="@color/black" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <CheckBox
+                        android:id="@+id/charactersCheckbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Characters"
+                        android:textColor="@color/button_review_template"
+                        android:textSize="16sp" />
+
+                    <RatingBar
+                        android:id="@+id/charactersRatingBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="5"
+                        android:stepSize="0.5"
+                        android:scaleX="0.7"
+                        android:scaleY="0.7"
+                        android:progressTint="@color/star_green"
+                        android:secondaryProgressTint="@color/star_green"
+                        android:layout_gravity="center_horizontal" />
+
+                    <TextView
+                        android:id="@+id/charactersRatingValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="(0.0)"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
+                <!-- Sub-Rating: Writing -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <CheckBox
+                        android:id="@+id/writingCheckbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Writing"
+                        android:textColor="@color/button_review_template"
+                        android:textSize="16sp" />
+
+                    <RatingBar
+                        android:id="@+id/writingRatingBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="5"
+                        android:stepSize="0.5"
+                        android:scaleX="0.7"
+                        android:scaleY="0.7"
+                        android:progressTint="@color/star_green"
+                        android:secondaryProgressTint="@color/star_green"
+                        android:layout_gravity="center_horizontal" />
+
+                    <TextView
+                        android:id="@+id/writingRatingValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="(0.0)"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
+                <!-- Sub-Rating: Plot -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <CheckBox
+                        android:id="@+id/plotCheckbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Plot"
+                        android:textColor="@color/button_review_template"
+                        android:textSize="16sp" />
+
+                    <RatingBar
+                        android:id="@+id/plotRatingBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="5"
+                        android:stepSize="0.5"
+                        android:scaleX="0.7"
+                        android:scaleY="0.7"
+                        android:progressTint="@color/star_green"
+                        android:secondaryProgressTint="@color/star_green"
+                        android:layout_gravity="center_horizontal" />
+
+                    <TextView
+                        android:id="@+id/plotRatingValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="(0.0)"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
+                <!-- Sub-Rating: Themes -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <CheckBox
+                        android:id="@+id/themesCheckbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Themes"
+                        android:textColor="@color/button_review_template"
+                        android:textSize="16sp" />
+
+                    <RatingBar
+                        android:id="@+id/themesRatingBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="5"
+                        android:stepSize="0.5"
+                        android:scaleX="0.7"
+                        android:scaleY="0.7"
+                        android:progressTint="@color/star_green"
+                        android:secondaryProgressTint="@color/star_green"
+                        android:layout_gravity="center_horizontal" />
+
+                    <TextView
+                        android:id="@+id/themesRatingValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="(0.0)"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
+                <!-- Sub-Rating: Strengths -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <CheckBox
+                        android:id="@+id/strengthsCheckbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Strengths"
+                        android:textColor="@color/button_review_template"
+                        android:textSize="16sp" />
+
+                    <RatingBar
+                        android:id="@+id/strengthsRatingBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="5"
+                        android:stepSize="0.5"
+                        android:scaleX="0.7"
+                        android:scaleY="0.7"
+                        android:progressTint="@color/star_green"
+                        android:secondaryProgressTint="@color/star_green"
+                        android:layout_gravity="center_horizontal" />
+
+                    <TextView
+                        android:id="@+id/strengthsRatingValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="(0.0)"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
+                <!-- Sub-Rating: Weaknesses -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <CheckBox
+                        android:id="@+id/weaknessesCheckbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Weaknesses"
+                        android:textColor="@color/button_review_template"
+                        android:textSize="16sp" />
+
+                    <RatingBar
+                        android:id="@+id/weaknessesRatingBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="5"
+                        android:stepSize="0.5"
+                        android:scaleX="0.7"
+                        android:scaleY="0.7"
+                        android:progressTint="@color/star_green"
+                        android:secondaryProgressTint="@color/star_green"
+                        android:layout_gravity="center_horizontal" />
+
+                    <TextView
+                        android:id="@+id/weaknessesRatingValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="(0.0)"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
             </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 
@@ -194,12 +395,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="2dp"
+        android:layout_marginBottom="16dp"
         android:backgroundTint="@color/button_review_template"
         android:scaleX="0.85"
         android:scaleY="0.85"
         android:text="Submit Review"
         android:textColor="@color/review_button_text"
-        android:textSize="19sp" />
+        android:textSize="18sp" />
 
 </RelativeLayout>
