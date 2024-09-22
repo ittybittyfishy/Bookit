@@ -15,6 +15,7 @@
         android:paddingStart="20dp"
         android:paddingEnd="15dp">
 
+        <!-- Button for Friends tab -->
         <Button
             android:id="@+id/friends_button"
             android:layout_width="wrap_content"
@@ -24,6 +25,7 @@
             android:background="@color/transparent"
             android:textColor="@color/main_text_brown" />
 
+        <!-- Button for Requests tab -->
         <Button
             android:id="@+id/requests_button"
             android:layout_width="wrap_content"
@@ -35,6 +37,7 @@
             android:textColor="@color/star_green"
             android:textSize="18sp" />
 
+        <!-- Button for Blocked tab -->
         <Button
             android:id="@+id/blocked_button"
             android:layout_width="wrap_content"
@@ -46,6 +49,7 @@
 
     </LinearLayout>
 
+    <!-- Text to display number of friend requests -->
     <TextView
         android:id="@+id/num_friend_reqs"
         android:layout_width="match_parent"
@@ -57,6 +61,7 @@
         android:textSize="18dp" />
 
 
+    <!-- Recycler view to display user's friend requests -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/friend_reqs_recycler_view"
         android:layout_width="match_parent"

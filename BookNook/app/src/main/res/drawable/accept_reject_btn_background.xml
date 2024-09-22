@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
+    <!-- Design for friend request accept/reject buttons  -->
     <solid android:color="#f7f3eb"/>
     <stroke android:width="4dp"
         android:color="#9c9779"/>
