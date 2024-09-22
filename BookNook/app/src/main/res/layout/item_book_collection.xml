@@ -3,7 +3,10 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:layout_margin="8dp"
+    android:background="@drawable/friend_username_border">
+
 
     <ImageView
         android:id="@+id/bookImage"
@@ -14,7 +17,7 @@
 
     <TextView
         android:id="@+id/bookTitle"
-        android:layout_width="120dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -25,18 +28,21 @@
 
     <TextView
         android:id="@+id/bookAuthors"
-        android:layout_width="120dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="14sp"
         android:paddingTop="2dp"
         android:layout_gravity="center"
-        android:textAlignment="center"/>
+        android:textAlignment="center"
+        />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:background="@drawable/rounded_rectangle"
+        android:layout_marginTop="4dp">
 
         <ImageButton
             android:id="@+id/subtractPages"
@@ -52,9 +58,9 @@
             android:layout_width="49dp"
             android:layout_height="49dp"
             android:text="0"
-            android:background="@drawable/rounded_rectangle"
+            android:background="@color/transparent"
             android:textAlignment="center"
-            android:inputType="number"/>
+            android:inputType="number" />
         <ImageButton
             android:id="@+id/addPages"
             android:contentDescription="Increment Page Counter"
