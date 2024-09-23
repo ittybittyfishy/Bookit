@@ -101,7 +101,7 @@ class BookDetailsFragment : Fragment() {
         // Handles click of save changes button
         saveChangesButton.setOnClickListener {
             val summaryText = personalSummary.text.toString()
-            // Save summaryText as needed
+
 
             // Hide the buttons
             cancelButton.visibility = View.GONE

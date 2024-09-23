@@ -151,7 +151,7 @@
             <EditText
                 android:id="@+id/reviewInput"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/rounded_rectangle_1"
                 android:backgroundTint="@color/review_card"
@@ -160,7 +160,12 @@
                 android:textColorHint="@color/review_button_text"
                 android:padding="12dp"
                 android:textColor="@color/review_button_text"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:minLines="5"
+                android:maxLines="30"
+                android:scrollbars="vertical"
+                android:inputType="textMultiLine"
+                android:overScrollMode="ifContentScrolls" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -184,21 +189,20 @@
                     android:buttonTint="@color/checkbox_color"
                     android:textColor="@color/black" />
             </LinearLayout>
+            <!-- Submit Review Button at the bottom -->
+            <Button
+                android:id="@+id/submitReviewButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="2dp"
+                android:backgroundTint="@color/button_review_template"
+                android:scaleX="0.85"
+                android:scaleY="0.85"
+                android:text="Submit Review"
+                android:textColor="@color/review_button_text"
+                android:textSize="19sp" />
+
         </LinearLayout>
     </ScrollView>
-
-    <!-- Submit Review Button at the bottom -->
-    <Button
-        android:id="@+id/submitReviewButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="2dp"
-        android:backgroundTint="@color/button_review_template"
-        android:scaleX="0.85"
-        android:scaleY="0.85"
-        android:text="Submit Review"
-        android:textColor="@color/review_button_text"
-        android:textSize="19sp" />
-
 </RelativeLayout>
