@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.text.TextUtils
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
@@ -16,11 +19,21 @@ import com.example.booknook.R
 import com.example.booknook.BookItem
 import com.example.booknook.R.*
 import com.google.firebase.auth.FirebaseAuth
+import android.content.Context
+import android.view.inputmethod.InputMethodManager
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+
 
 // Veronica Nguyen
 class BookDetailsFragment : Fragment() {
-
+    private lateinit var editButton: ImageButton
+    private lateinit var personalSummary: EditText
     private lateinit var writeReviewButton: Button
+    private lateinit var cancelButton: Button
+    private lateinit var saveChangesButton: Button
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,6 +66,46 @@ class BookDetailsFragment : Fragment() {
                 .placeholder(drawable.placeholder_image)
                 .error(drawable.placeholder_image)
                 .into(imageView)
+        }
+
+        // Calls views for the edit button and personal summary
+        editButton = view.findViewById(R.id.edit_summary_button)
+        personalSummary = view.findViewById(R.id.personal_summary)
+        cancelButton = view.findViewById(R.id.cancel_button)
+        saveChangesButton = view.findViewById(R.id.save_changes_button)
+
+        // Handles click of edit button
+        editButton.setOnClickListener {
+            // Allows user to now type in box
+            personalSummary.isFocusable = true
+            personalSummary.isFocusableInTouchMode = true
+            personalSummary.requestFocus()
+            // Makes the keyboard pop up
+            val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(personalSummary, InputMethodManager.SHOW_IMPLICIT)
+
+            // Makes cancel and save changes button visible
+            cancelButton.visibility = View.VISIBLE
+            saveChangesButton.visibility = View.VISIBLE
+        }
+
+        // Handles click of cancel button
+        cancelButton.setOnClickListener {
+            personalSummary.isFocusable = false
+            personalSummary.isFocusableInTouchMode = false
+            personalSummary.setText("")
+            cancelButton.visibility = View.GONE
+            saveChangesButton.visibility = View.GONE
+        }
+
+        // Handles click of save changes button
+        saveChangesButton.setOnClickListener {
+            val summaryText = personalSummary.text.toString()
+            // Save summaryText as needed
+
+            // Hide the buttons
+            cancelButton.visibility = View.GONE
+            saveChangesButton.visibility = View.GONE
         }
 
         // Yunjong Noh
