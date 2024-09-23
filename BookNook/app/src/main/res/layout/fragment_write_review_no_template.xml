@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- CardView for Book Info -->
+            <!-- CardView for Book Info (image, author name, rating, etc.) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/bookInfoCard"
                 android:layout_width="match_parent"

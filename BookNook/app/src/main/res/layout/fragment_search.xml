@@ -17,9 +17,6 @@
         android:imeOptions="actionSearch"
         android:padding="8dp"
         android:textSize="25sp" />
-
-    <!-- Yunjong Noh -->
-    <!-- change variable name related to color to do color match  -->
     <Button
         android:id="@+id/searchButton"
         android:layout_width="wrap_content"

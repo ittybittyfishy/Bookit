@@ -19,7 +19,6 @@ import com.google.firebase.auth.FirebaseAuth
 
 // Veronica Nguyen
 class BookDetailsFragment : Fragment() {
-
     private lateinit var writeReviewButton: Button
 
     override fun onCreateView(
