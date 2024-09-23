@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/background_tan"
     tools:context=".MainActivity">
-
     <TextView
         android:id="@+id/bannerTextView"
         android:layout_width="match_parent"
