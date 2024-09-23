@@ -107,7 +107,7 @@ class FriendsFragment : Fragment() {
 
     // Function to load the user's friends
     private fun loadFriends() {
-        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid // Gets the current user
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
         if (currentUserId != null) {
             db.collection("users").document(currentUserId)
                 .addSnapshotListener { documentSnapshot, e ->
@@ -118,42 +118,51 @@ class FriendsFragment : Fragment() {
                         return@addSnapshotListener
                     }
 
-                    // If user is found
                     if (documentSnapshot != null && documentSnapshot.exists()) {
-                        val friends = documentSnapshot.get("friends") as? List<Map<String, Any>>  // Gets the user's friends as a list
+                        // Gets the user's friends list
+                        val friends = documentSnapshot.get("friends") as? List<Map<String, Any>>
+                        // Creates list for online and offline friends
                         if (friends != null) {
-                            // Create separate lists for online and offline friends
                             val onlineFriends = mutableListOf<Friend>()
                             val offlineFriends = mutableListOf<Friend>()
 
-                            // Loops through all of the user's friends
+                            // Loops through each friend
                             friends.forEach { friend ->
-                                val isOnline = friend["isOnline"] as? Boolean ?: false  // casts value to boolean or false if the cast fails
-                                // Creates friend information to put into lists
-                                val friendInfo = Friend(
-                                    friendId = friend["friendId"] as String,
-                                    friendUsername = friend["friendUsername"] as String
-                                )
-                                // Checks if the user is online and adds their info to the corresponding list
-                                if (isOnline) {
-                                    onlineFriends.add(friendInfo)
-                                } else {
-                                    offlineFriends.add(friendInfo)
-                                }
+                                val friendId = friend["friendId"] as String
+                                val friendUsername = friend["friendUsername"] as String
+
+                                // Checks to see if the friend is online or offline
+                                db.collection("users").document(friendId).get()
+                                    .addOnSuccessListener { friendDocument ->
+                                        val isOnline = friendDocument.getBoolean("isOnline") ?: false
+
+                                        // Friend information
+                                        val friendInfo = Friend(
+                                            friendId = friendId,
+                                            friendUsername = friendUsername
+                                        )
+
+                                        // Add friend to the appropriate list based on isOnline status
+                                        if (isOnline) {
+                                            onlineFriends.add(friendInfo)
+                                        } else {
+                                            offlineFriends.add(friendInfo)
+                                        }
+
+                                        // Update recycler views of each list
+                                        onlineFriendsRecyclerView.adapter = FriendAdapter(onlineFriends)
+                                        offlineFriendsRecyclerView.adapter = FriendAdapter(offlineFriends)
+                                    }
+                                    .addOnFailureListener {
+                                        Toast.makeText(activity, "Error loading friend data", Toast.LENGTH_SHORT).show()
+                                    }
                             }
-
-                            val onlineFriendsRecyclerView = view?.findViewById<RecyclerView>(R.id.friends_recycler_view)
-                            val offlineFriendsRecyclerView = view?.findViewById<RecyclerView>(R.id.offline_friends_recycler_view)
-
-                            // Calls adapter with list of FriendRequest objects and functions to handle accepting and rejecting requests
-                            onlineFriendsRecyclerView?.adapter = FriendAdapter(onlineFriends)
-                            offlineFriendsRecyclerView?.adapter = FriendAdapter(offlineFriends)
-
                         }
                     }
                 }
         }
     }
+
 
     // Function to search for a user with their username
     private fun searchUser(username: String) {
