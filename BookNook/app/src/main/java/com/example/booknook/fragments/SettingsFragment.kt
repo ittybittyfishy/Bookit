@@ -24,6 +24,7 @@ class SettingsFragment : Fragment() {
     lateinit var accountButton: Button
     lateinit var notificationButton: Button
     lateinit var signOutButton: Button
+    //Declare darkmode component
     lateinit var darkModeSwitch: Switch
     lateinit var auth: FirebaseAuth
 
@@ -75,7 +76,7 @@ class SettingsFragment : Fragment() {
                     }
             }
         }
-
+        // function to turn on and off dark mode
         darkModeSwitch.isChecked = isDarkThemeOn()
 
         // Handle the switch toggle action

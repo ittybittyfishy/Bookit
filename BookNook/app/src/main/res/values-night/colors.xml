@@ -1,3 +1,5 @@
+<!-- Yunjong Noh -->
+<!-- Color variables have been setup for Darkmode -->
 <resources>
     <color name="black">#FFFFFFFF</color> <!-- White for dark mode -->
     <color name="icon_color">#FFFFFFFF</color>
