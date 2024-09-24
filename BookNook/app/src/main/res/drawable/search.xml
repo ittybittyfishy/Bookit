@@ -3,6 +3,8 @@
     android:height="512dp"
     android:viewportWidth="512"
     android:viewportHeight="512">
+  <!-- Yunjong Noh -->
+  <!-- change variable name for strokeColor for dark mode -->
   <path
       android:pathData="M221.09,64a157.09,157.09 0,1 0,157.09 157.09A157.1,157.1 0,0 0,221.09 64z"
       android:strokeWidth="32"

@@ -73,7 +73,10 @@ class FriendRequestsFragment : Fragment() {
             db.collection("users").document(currentUserId)
                 .addSnapshotListener { documentSnapshot, e ->
                     if (e != null) {
-                        Toast.makeText(activity,"Error loading friend requests", Toast.LENGTH_SHORT).show()
+                        activity?.let { context ->
+                            Toast.makeText(context, "Error loading friends", Toast.LENGTH_SHORT)
+                                .show()
+                        }
                         return@addSnapshotListener
                     }
 
