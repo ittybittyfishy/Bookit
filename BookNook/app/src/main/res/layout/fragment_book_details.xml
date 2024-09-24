@@ -9,10 +9,40 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <TextView
+                android:id="@+id/bookTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="Title"
+                android:textColor="@color/star_green"
+                android:textSize="25dp"
+                android:gravity="center"
+                android:maxLines="5"
+                android:ellipsize="end"/>
+
+            <TextView
+                android:id="@+id/showMoreLess"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/bookTitle"
+                android:layout_alignParentEnd="true"
+                android:text="...Show More"
+                android:textSize="14sp"
+                android:textColor="@color/banner_green"
+                android:visibility="gone"/>
+        </RelativeLayout>
+
         <!-- Book Details Section -->
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
 
             <!-- Book Image -->
             <ImageView

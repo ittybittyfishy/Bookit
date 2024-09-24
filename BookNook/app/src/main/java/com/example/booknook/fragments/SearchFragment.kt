@@ -144,6 +144,6 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         bundle.putString("bookIsbn", isbn)
 
         bookDetailsFragment.arguments = bundle  // sets bookDetailsFragment's arguments to the data in bundle
-        (activity as MainActivity).replaceFragment(bookDetailsFragment, bookItem.volumeInfo.title)  // Opens a new fragment
+        (activity as MainActivity).replaceFragment(bookDetailsFragment, "Book Details")  // Opens a new fragment
     }
 }
