@@ -78,22 +78,21 @@ class CollectionFragment : Fragment(){
 
     // function to get users collection
     private fun fetchCollectionsAndBooks() {
-        // check if user is logged in
         userId?.let { uid ->
-            // Access the Firestore collection for the user and retrieve their document
             db.collection("users").document(uid).get()
                 .addOnSuccessListener { document ->
-                    // If the document is successfully retrieved
                     if (document != null) {
-                        // Get the standard collections from the document,
                         val standardCollections = document.get("standardCollections") as? Map<String, Any>
                         if (standardCollections != null) {
-                            collectionList.clear() // Clear the existing data
-                            // Loop through each collection in the standardCollections map
-                            for ((name, books) in standardCollections) {
-                                // Check if the books are in a list format
+                            collectionList.clear()
+
+                            // Define the desired order
+                            val desiredOrder = listOf("Want to Read", "Reading", "Finished", "Dropped")
+
+                            // Loop through collections in desired order
+                            for (name in desiredOrder) {
+                                val books = standardCollections[name]
                                 if (books is List<*>) {
-                                    // Map each book in the list to a BookItemCollection object
                                     val bookItems = books.mapNotNull { book ->
                                         if (book is Map<*, *>) {
                                             BookItemCollection(
@@ -103,21 +102,18 @@ class CollectionFragment : Fragment(){
                                                 pages = (book["pages"] as? Long ?: 0).toInt()
                                             )
                                         } else {
-                                            null // Ignore invalid books
+                                            null
                                         }
                                     }
-                                    // Add the collection to the list with its name and associated books
                                     collectionList.add(CollectionItem(name, bookItems))
                                 }
                             }
 
-                            // Notify the adapter that data has changed so it updates recyle view
                             collectionAdapter.notifyDataSetChanged()
                         }
                     }
                 }
                 .addOnFailureListener { exception ->
-                    // Log an error message
                     Log.d("CollectionFragment", "get failed with ", exception)
                 }
         }

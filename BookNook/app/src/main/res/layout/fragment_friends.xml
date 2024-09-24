@@ -21,6 +21,7 @@
             android:paddingStart="20dp"
             android:paddingEnd="15dp">
 
+            <!-- Button for Friends tab -->
             <Button
                 android:id="@+id/friends_button"
                 android:layout_width="wrap_content"
@@ -30,6 +31,7 @@
                 android:background="@color/transparent"
                 android:textColor="@color/star_green" />
 
+            <!-- Button for Requests tab -->
             <Button
                 android:id="@+id/requests_button"
                 android:layout_width="wrap_content"
@@ -41,6 +43,7 @@
                 android:textColor="@color/main_text_brown"
                 android:textSize="18sp" />
 
+            <!-- Button for Blocked tab -->
             <Button
                 android:id="@+id/blocked_button"
                 android:layout_width="wrap_content"
@@ -52,6 +55,7 @@
 
         </LinearLayout>
 
+        <!-- Search bar to look up friends by username -->
         <EditText
             android:id="@+id/search_friend_bar"
             android:layout_width="360dp"
@@ -66,6 +70,7 @@
             android:padding="8dp"
             android:textSize="20sp" />
 
+        <!-- Search button -->
         <Button
             android:id="@+id/search_friend_button"
             android:layout_width="wrap_content"
@@ -84,6 +89,7 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
+            <!-- Text to display online users -->
             <TextView
                 android:id="@+id/online_friends"
                 android:layout_width="64dp"
@@ -96,6 +102,7 @@
                 android:layout_marginEnd="210dp"
                 android:textSize="20sp" />
 
+            <!-- Button to collapse/expand online friends -->
             <Button
                 android:id="@+id/collapse_online_button"
                 android:layout_width="wrap_content"
@@ -109,6 +116,7 @@
                 android:textSize="18sp"/>
         </LinearLayout>
 
+        <!-- Recycler view displays online friends -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/friends_recycler_view"
             android:layout_width="match_parent"
@@ -123,6 +131,7 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
+            <!-- Text to display offline users -->
             <TextView
                 android:id="@+id/offline_friends"
                 android:layout_width="64dp"
@@ -135,6 +144,7 @@
                 android:textColor="@color/star_green"
                 android:textSize="20sp" />
 
+            <!-- Button to collapse/expand offline friends -->
             <Button
                 android:id="@+id/collapse_offline_button"
                 android:layout_width="wrap_content"
@@ -149,6 +159,7 @@
 
         </LinearLayout>
 
+        <!-- Recycler view displays offline friends -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/offline_friends_recycler_view"
             android:layout_width="match_parent"

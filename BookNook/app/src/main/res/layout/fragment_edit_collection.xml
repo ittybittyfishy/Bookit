@@ -36,7 +36,7 @@
         android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Save Collection"
+        android:text="Save Edits"
         android:textColor="@color/icon_color"
         android:layout_marginTop="16dp"
         android:layout_gravity="center_horizontal"
@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:background="@color/transparent"
-        android:text="Delete Edits"
+        android:text="Delete Collection"
         android:textStyle="italic"
         android:textColor="@color/banner_green"
         android:layout_marginTop="16dp"/>

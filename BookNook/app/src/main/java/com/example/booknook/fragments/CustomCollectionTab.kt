@@ -115,8 +115,11 @@ class CustomCollectionTab : Fragment() {
                                 CollectionCustomItem(collectionName, books, summary)
                             }
 
+                            // Sort the collection list alphabetically by collection name
+                            val sortedCollectionList = collectionList.sortedBy { it.collectionName }
+
                             // Update the adapter with the new collection list
-                            customCollectionAdapter = CollectionCustomAdapter(collectionList)
+                            customCollectionAdapter = CollectionCustomAdapter(sortedCollectionList)
                             recyclerView.adapter = customCollectionAdapter
                             customCollectionAdapter.notifyDataSetChanged()
                         }
@@ -135,7 +138,7 @@ class CustomCollectionTab : Fragment() {
             val pages = (bookMap["pages"] as?  Long ?: 0).toInt()
 
             BookItemCollection(title, authors, imageLink, pages)
-        }
+        }.sortedBy { it.title }
     }
 
 

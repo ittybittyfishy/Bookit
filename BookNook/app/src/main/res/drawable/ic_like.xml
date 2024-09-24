@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Yunjong Noh -->
+<!-- design for check (like) mark for future button usage -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="48dp"
     android:height="48dp"
@@ -21,8 +23,3 @@
         android:strokeLineCap="round"
         android:strokeLineJoin="round"/>
 </vector>
-
-
-
-
-

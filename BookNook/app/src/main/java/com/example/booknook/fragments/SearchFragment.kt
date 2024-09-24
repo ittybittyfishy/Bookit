@@ -131,6 +131,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         val bookDetailsFragment = BookDetailsFragment()
         val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
         // Yunjong Noh
+        // get ISBN number to manage books collection data
         val isbn = bookItem.volumeInfo.industryIdentifiers
             ?.find { it.type == "ISBN_13" || it.type == "ISBN_10" }
             ?.identifier ?: "No ISBN"

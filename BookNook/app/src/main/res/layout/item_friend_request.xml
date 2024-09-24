@@ -8,6 +8,7 @@
     android:background="@drawable/friend_req_border"
     android:elevation="4dp">
 
+    <!-- User's profile picture -->
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profileImage"
         android:layout_width="80dp"
@@ -16,6 +17,7 @@
         android:layout_marginBottom="10dp"
         android:src="@drawable/profile_picture_placeholder" />
 
+    <!-- User's username -->
     <TextView
         android:id="@+id/friend_req_username"
         android:layout_width="wrap_content"
@@ -38,6 +40,7 @@
         android:layout_gravity="center"
         android:orientation="horizontal">
 
+        <!-- Accept request button -->
         <ImageButton
             android:id="@+id/accept_button"
             android:background="@drawable/accept_reject_btn_background"
@@ -49,6 +52,7 @@
             android:scaleType="centerInside"/>
 
 
+        <!-- Reject request button -->
         <ImageButton
             android:id="@+id/reject_button"
             android:background="@drawable/accept_reject_btn_background"

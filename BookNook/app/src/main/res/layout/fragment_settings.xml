@@ -39,7 +39,8 @@
         android:layout_marginTop="200dp"
         android:text="Sign Out"
         android:textSize="30dp"/>
-
+    <!-- Yunjong Noh -->
+    <!-- Toogle switch to turn on and off dark mode -->
     <Switch
         android:id="@+id/darkModeSwitch"
         android:layout_width="wrap_content"
