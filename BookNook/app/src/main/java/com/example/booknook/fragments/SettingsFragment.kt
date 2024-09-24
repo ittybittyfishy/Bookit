@@ -17,6 +17,7 @@ import com.example.booknook.Account
 import com.example.booknook.MainActivity
 import com.example.booknook.Register
 import android.content.res.Configuration
+import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 
 class SettingsFragment : Fragment() {
@@ -74,6 +75,12 @@ class SettingsFragment : Fragment() {
                         Toast.makeText(requireContext(), "You have been logged out", Toast.LENGTH_SHORT).show()
                         activity?.finish()
                     }
+                    .addOnFailureListener { e ->
+                        Log.e("SignOut", "Error updating Firestore: ${e.message}")
+                        Toast.makeText(requireContext(), "Error logging out. Please try again.", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                Log.e("SignOut", "User is null, unable to sign out")
             }
         }
         // function to turn on and off dark mode
