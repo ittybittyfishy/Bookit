@@ -35,7 +35,17 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="110dp" />
+        android:layout_marginTop="120dp"
+        />
+
+    <Spinner
+        android:id="@+id/sortBooks"
+        android:layout_width="155dp"
+        android:layout_height="50dp"
+        android:entries="@array/book_sort_options"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="62dp"
+        android:background="@drawable/green_round" />
 
 
 </FrameLayout>
