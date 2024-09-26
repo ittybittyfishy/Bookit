@@ -26,6 +26,7 @@ import android.widget.RelativeLayout
 import android.widget.Toast
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 
 // Veronica Nguyen
@@ -160,6 +161,8 @@ class BookDetailsFragment : Fragment() {
         if (userId != null) {
             val db = FirebaseFirestore.getInstance()
             var bookIsbn = arguments?.getString("bookIsbn") // Retrieve the book's ISBN from arguments
+            val bookTitle = arguments?.getString("bookTitle")
+            val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
 
             if (bookIsbn.isNullOrEmpty()) {
                 // Creates a new document for the book and uses Firestore ID if it doesn't have an ISBN
@@ -180,8 +183,16 @@ class BookDetailsFragment : Fragment() {
                         "timestamp" to FieldValue.serverTimestamp() // Use Firestore timestamp
                     )
 
+                    // Map to store book data
+                    val bookData = mapOf(
+                        "bookTitle" to bookTitle,
+                        "authors" to bookAuthors
+                    )
+
                     // Reference to the specific book's document (ISBN or Firestore ID)
                     val bookRef = db.collection("books").document(bookIsbn)
+
+                    bookRef.set(bookData, SetOptions.merge())  // Updates database with book details if not in database already
 
                     // Check if the user has already submitted a summary
                     bookRef.collection("summaries").whereEqualTo("userId", userId).get()

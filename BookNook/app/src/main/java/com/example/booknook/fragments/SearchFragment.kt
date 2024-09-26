@@ -138,7 +138,10 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
         // Adds data into the bundle
         bundle.putString("bookTitle", bookItem.volumeInfo.title)
+        // Puts authors in a string separated by commas
         bundle.putString("bookAuthor", bookItem.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")
+        // Puts authors in a string array list to store database
+        bundle.putStringArrayList("bookAuthorsList", ArrayList(bookItem.volumeInfo.authors ?: listOf("Unknown Author")))
         bundle.putString("bookImage", bookItem.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"))
         bundle.putFloat("bookRating", bookItem.volumeInfo.averageRating ?: 0f)
         bundle.putString("bookIsbn", isbn)
