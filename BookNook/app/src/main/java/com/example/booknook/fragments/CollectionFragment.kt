@@ -7,7 +7,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.Button
+import android.widget.Spinner
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,6 +35,7 @@ class CollectionFragment : Fragment(){
     private val userId: String? = FirebaseAuth.getInstance().currentUser?.uid
     private lateinit var collectionAdapter: CollectionAdapter // manages and displays collection data in a scrollabe envrioment
     private val collectionList = mutableListOf<CollectionItem>() // mutable list to hold collection (initally empty)
+    private lateinit var sortSpinner: Spinner
 
     //Layout, called when fragments view is being created
     override fun onCreateView(
@@ -53,6 +56,7 @@ class CollectionFragment : Fragment(){
         collectionAdapter = CollectionAdapter(collectionList)
         recyclerView.adapter = collectionAdapter
 
+
         // returns view that was created so it can be displayed
         return view
     }
@@ -69,11 +73,29 @@ class CollectionFragment : Fragment(){
             // Changes fragment to custom collections
             val customcollectionFragment = CustomCollectionTab()
             (activity as MainActivity).replaceFragment(customcollectionFragment, "My Books")
+
         }
+
+        // initalize spinner
+        sortSpinner = view.findViewById(R.id.sortBooks)
 
         // Fetch the user's collections and books from Firestore
         fetchCollectionsAndBooks()
 
+    }
+
+    private fun setupSortSpinner() {
+        // Set listener for spinner selection
+        sortSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val selectedSortOption = parent.getItemAtPosition(position).toString()
+                sortBooks(selectedSortOption)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // No-op
+            }
+        }
     }
 
     // function to get users collection
@@ -110,6 +132,10 @@ class CollectionFragment : Fragment(){
                             }
 
                             collectionAdapter.notifyDataSetChanged()
+
+                            // Set up the spinner after the data is fetched
+                            setupSortSpinner()
+
                         }
                     }
                 }
@@ -119,4 +145,21 @@ class CollectionFragment : Fragment(){
         }
     }
 
+    // Function to sort the books based on the selected option
+    private fun sortBooks(sortOption: String) {
+        for (collectionBook in collectionList) {
+            collectionBook.books = when (sortOption) {
+                "Title (A-Z)" -> collectionBook.books.sortedBy { it.title }
+                "Title (Z-A)" -> collectionBook.books.sortedByDescending { it.title }
+                "Author (A-Z)" -> collectionBook.books.sortedBy { it.authors.firstOrNull() ?: "Unknown Author" }
+                "Author (Z-A)" -> collectionBook.books.sortedByDescending { it.authors.firstOrNull() ?: "Unknown Author" }
+                "Chapter's Read (Ascending)" -> collectionBook.books.sortedBy { it.pages }
+                "Chapter's Read (Descending)" -> collectionBook.books.sortedByDescending { it.pages }
+                else -> collectionBook.books // default
+            }
+        }
+
+        // Notify the adapter to update the UI
+        collectionAdapter.notifyDataSetChanged()
+    }
 }
