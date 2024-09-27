@@ -47,6 +47,7 @@ class BookDetailsFragment : Fragment() {
         // Retrieves data from arguments passed in from the search fragment
         val bookTitle = arguments?.getString("bookTitle")
         val bookAuthor = arguments?.getString("bookAuthor")
+        val bookAuthorsList = arguments?.getStringArrayList("bookAuthorsList")
         val bookImage = arguments?.getString("bookImage")
         val bookRating = arguments?.getFloat("bookRating") ?: 0f
         val isbn = arguments?.getString("bookIsbn")
@@ -142,6 +143,7 @@ class BookDetailsFragment : Fragment() {
             // Adds data into the bundle
             bundle.putString("bookTitle", bookTitle)
             bundle.putString("bookAuthor", bookAuthor)
+            bundle.putStringArrayList("bookAuthorsList", bookAuthorsList)
             bundle.putString("bookImage", bookImage)
             bundle.putFloat("bookRating", bookRating)
             bundle.putString("bookIsbn", isbn)

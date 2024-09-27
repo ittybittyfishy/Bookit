@@ -1,6 +1,7 @@
 package com.example.booknook.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
 
 // Yunjong Noh
 // This fragment handles the function of writing and storing review data to Firebase
@@ -113,7 +115,15 @@ class ReviewActivity : Fragment() {
 
         if (userId != null) {
             val db = FirebaseFirestore.getInstance()
-            val bookIsbn = arguments?.getString("bookIsbn") // Retrieve the book's ISBN from arguments
+            var bookIsbn = arguments?.getString("bookIsbn") // Retrieve the book's ISBN from arguments
+            val bookTitle = arguments?.getString("bookTitle")
+            val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
+
+            if (bookIsbn.isNullOrEmpty()) {
+                // Creates a new document for the book and uses Firestore ID if it doesn't have an ISBN
+                val newBookRef = db.collection("books").document()
+                bookIsbn = newBookRef.id // Use the Firestore ID as the unique identifier for the book
+            }
 
             // Retrieve the user's username from Firestore (for storing with the review)
             db.collection("users").document(userId).get().addOnSuccessListener { document ->
@@ -132,8 +142,15 @@ class ReviewActivity : Fragment() {
                             "timestamp" to FieldValue.serverTimestamp() // Use Firestore timestamp
                         )
 
+                        // Map to store book data
+                        val bookData = mapOf(
+                            "bookTitle" to bookTitle,
+                            "authors" to bookAuthors
+                        )
+
                         // Reference to the specific book's document in Firestore
                         val bookRef = db.collection("books").document(bookIsbn)
+                        bookRef.set(bookData, SetOptions.merge())  // Updates database with book details if not in database already
 
                         // Check if the user has already submitted a review
                         bookRef.collection("reviews").whereEqualTo("userId", userId).get()
@@ -171,11 +188,6 @@ class ReviewActivity : Fragment() {
                                                 "Review updated successfully!",
                                                 Toast.LENGTH_SHORT
                                             ).show()
-                                            // Navigate back to the Home fragment after updating
-                                            (activity as? MainActivity)?.replaceFragment(
-                                                HomeFragment(),
-                                                "Home"
-                                            )
                                         }
                                         .addOnFailureListener {
                                             Toast.makeText(
