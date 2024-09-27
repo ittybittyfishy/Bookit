@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#e5e0cc">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/rectangle_border"
+        android:layout_gravity="center_horizontal">
+
+        <!-- Language Input -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Language"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="#8b774e"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/languageEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rectangle_border_white"
+            android:padding="8dp"
+            android:textColorHint="#c1a37a"
+            android:textSize="16sp"
+            android:inputType="text"/>
+
+        <!-- Rating Input (Spinner) -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Select Rating Range"
+            android:textColor="#8b774e"
+            android:textSize="18sp" />
+
+        <Spinner
+            android:id="@+id/ratingSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rectangle_border_white"
+            android:padding="8dp"
+            android:textSize="16sp"/>
+
+        <!-- Include Genres Section Toggle Button -->
+        <Button
+            android:id="@+id/includeGenresToggleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter by Genre ▼"
+            android:textSize="18sp"
+            android:background="@null"
+            android:backgroundTint="#99ba91"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Include Genres Section (Initially Collapsed) -->
+        <LinearLayout
+            android:id="@+id/includeGenresSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:orientation="horizontal">
+                <!-- Dynamically populate genres here -->
+            </GridLayout>
+        </LinearLayout>
+
+        <!-- Exclude Genres Section Toggle Button -->
+        <Button
+            android:id="@+id/excludeGenresToggleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Exclude Genres ▼"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="@null"
+            android:backgroundTint="#99ba91"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Exclude Genres Section (Initially Collapsed) -->
+        <LinearLayout
+            android:id="@+id/excludeGenresSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:orientation="horizontal">
+                <!-- Dynamically populate genres here -->
+            </GridLayout>
+        </LinearLayout>
+
+        <!-- Submit Button -->
+        <Button
+            android:id="@+id/submitButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Submit"
+            android:layout_gravity="center"
+            android:layout_marginTop="24dp"
+            android:background="@null"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#99ba91"
+            android:padding="12dp"/>
+    </LinearLayout>
+</ScrollView>

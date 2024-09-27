@@ -1,38 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp">
-    <!-- Yunjong Noh -->
-    <!-- change variable name related to color to do color match  -->
-    <EditText
-        android:id="@+id/searchEditText"
+    android:padding="16dp"
+    android:background="#fdf5e6">
+
+    <!-- FrameLayout for search bar and search button -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/rounded_rectangle"
-        android:elevation="10dp"
-        android:hint="Enter book title"
-        android:textColorHint="@color/hint_text_color"
-        android:imeOptions="actionSearch"
-        android:padding="8dp"
-        android:textSize="25sp" />
-    <Button
-        android:id="@+id/searchButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Search"
-        android:textColor="@color/icon_color"
-        android:backgroundTint="@color/green_to_purple"
-        android:layout_gravity="center"
-        android:padding="8dp"
-        android:layout_marginTop="8dp"
-        android:textSize="18sp"/>
+        android:layout_marginBottom="16dp">
 
+        <!-- EditText for the search bar -->
+        <EditText
+            android:id="@+id/searchEditText"
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:hint="Search"
+            android:textColor="#8b774e"
+            android:textColorHint="#c1a37a"
+            android:elevation="7dp"
+            android:padding="10dp"
+            android:textSize="18sp"
+            android:imeOptions="actionSearch"
+            android:fontFamily="sans-serif-light"
+            />
+
+        <!-- Search Button with search icon -->
+        <Button
+            android:id="@+id/searchButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="end|center_vertical"
+            android:elevation="6dp"
+            android:layout_marginRight="10dp" />
+    </FrameLayout>
+
+    <!-- Filters and Sort By Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <!-- Filters Button -->
+        <Button
+            android:id="@+id/filtersButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filters (+)"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#99ba91"
+            android:elevation="4dp"
+            android:padding="10dp" />
+
+        <!-- Sort By Button -->
+        <Button
+            android:id="@+id/sortByButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sort By ▼"
+            android:layout_marginStart="16dp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#99ba91"
+            android:elevation="4dp"
+            android:padding="10dp" />
+    </LinearLayout>
+
+    <!-- RecyclerView for displaying book items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="16dp" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:paddingBottom="16dp" />
+
+    <!-- TextView to display when no search results are found -->
+    <TextView
+        android:id="@+id/noResultsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="No results found"
+        android:paddingTop="20dp"
+        android:textSize="18sp"
+        android:textColor="#8b774e"
+        android:visibility="gone" /> <!-- Initially hidden -->
 
 </LinearLayout>

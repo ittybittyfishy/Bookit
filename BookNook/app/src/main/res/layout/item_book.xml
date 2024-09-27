@@ -1,23 +1,38 @@
-<?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp">
 
-    <ImageView
-        android:id="@+id/book_image"
-        android:layout_width="100dp"
-        android:layout_height="150dp"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/book_card"
+        android:layout_width="140dp"
+        android:layout_height="190dp"
         android:layout_alignParentStart="true"
-        android:contentDescription="@string/book_image"
-        android:scaleType="centerCrop" />
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="8dp"
+        app:cardElevation="10dp"
+        app:cardCornerRadius="4dp"
+        app:cardUseCompatPadding="true">
+
+        <ImageView
+            android:id="@+id/book_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/image_outline"
+            android:contentDescription="@string/book_image"
+            android:padding="5dp"
+            android:scaleType="centerCrop" />
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/bookTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/book_image"
-        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@id/book_card"
+        android:layout_marginStart="10dp"
+        android:paddingTop="20dp"
         android:layout_alignParentTop="true"
         android:text="Book Title"
         android:textStyle="bold"
@@ -28,8 +43,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/bookTitle"
-        android:layout_toEndOf="@id/book_image"
-        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@id/book_card"
+        android:layout_marginStart="10dp"
         android:text="Author" />
 
     <RatingBar
@@ -37,8 +52,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/bookAuthors"
-        android:layout_toEndOf="@id/book_image"
-        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@id/book_card"
+        android:layout_marginStart="9dp"
         android:numStars="5"
         android:stepSize="0.5"
         android:isIndicator="true"
@@ -50,8 +65,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/bookRating"
-        android:layout_toEndOf="@id/book_image"
-        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@id/book_card"
+        android:layout_marginStart="10dp"
         android:text="Genres"
         android:layout_marginTop="4dp" />
 
@@ -60,8 +75,8 @@
         android:layout_width="181dp"
         android:layout_height="51dp"
         android:layout_below="@id/bookGenres"
-        android:layout_marginStart="16dp"
-        android:layout_toEndOf="@id/book_image" />
+        android:layout_marginStart="3dp"
+        android:layout_toEndOf="@id/book_card" />
 
     <Button
         android:id="@+id/btnAddToCustomCollection"
@@ -69,8 +84,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/spinnerSelectCollection"
-        android:layout_toEndOf="@id/book_image"
-        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@id/book_card"
+        android:layout_marginStart="10dp"
         android:padding="4dp"
         android:text="Add to Custom Collection"
         android:textStyle="italic"
