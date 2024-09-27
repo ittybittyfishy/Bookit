@@ -1,15 +1,17 @@
 package com.example.booknook
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.api.RetrofitInstance
 import com.example.booknook.fragments.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import com.example.booknook.BookItem
 import com.example.booknook.BookResponse
 import com.google.firebase.auth.FirebaseAuth
@@ -18,9 +20,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-//this is the updated version that uses Retrofit
-
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
 
     // Initialize fragments for different sections of the app
     private val homeFragment = HomeFragment()
@@ -34,14 +34,25 @@ class MainActivity : AppCompatActivity() {
     private val genrePreferenceFragment = GenrePreferenceFragment()
     private val accountFragment = AccountFragment()
 
-    //Unique api key
+    // Unique API key
     private val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM"
+
+    // Declare the book list and adapter for sorting functionality
+    private var bookList: MutableList<BookItem> = mutableListOf()
+    private lateinit var bookAdapter: BookAdapter
+    private lateinit var recyclerView: RecyclerView
 
     // Method called when the activity is created
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Set the layout resource for this activity
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_main)  // Set your activity's layout
+
+        // Initialize RecyclerView and Adapter (with listener parameter)
+        recyclerView = findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)  // Set the layout manager
+        bookAdapter = BookAdapter(bookList, this)  // Pass 'this' as the listener
+        recyclerView.adapter = bookAdapter  // Set the adapter
+
 
         // Get references to the BottomNavigationView and banner TextView from the layout
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation)
@@ -105,10 +116,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Function to search for books using an API call
-    fun searchBooks(query: String, startIndex: Int, callback: (List<BookItem>?) -> Unit) {
-        val call = RetrofitInstance.api.searchBooks(query, startIndex, apiKey)
+    fun searchBooks(query: String, startIndex: Int, languageFilter: String? = null, callback: (List<BookItem>?) -> Unit) {
+        val call = RetrofitInstance.api.searchBooks(query, startIndex, apiKey, languageFilter)
         call.enqueue(object : Callback<BookResponse> {
-            // When the API call is successfulgithub is t
             override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
                 if (response.isSuccessful) {
                     callback(response.body()?.items)
@@ -124,9 +134,36 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    // Function to sort books based on different criteria
+    fun sortBooks(criteria: String) {
+        when (criteria) {
+            "high_rating" -> {
+                // Sort by rating from high to low
+                bookList.sortByDescending { it.volumeInfo.averageRating ?: 0f }
+            }
+            "low_rating" -> {
+                // Sort by rating from low to high
+                bookList.sortBy { it.volumeInfo.averageRating ?: 0f }
+            }
+            "title_az" -> {
+                // Sort by title A to Z
+                bookList.sortBy { it.volumeInfo.title }
+            }
+            "title_za" -> {
+                // Sort by title Z to A
+                bookList.sortByDescending { it.volumeInfo.title }
+            }
+            "author" -> {
+                // Sort by first author's name A to Z (if authors exist)
+                bookList.sortBy { it.volumeInfo.authors?.firstOrNull() ?: "" }
+            }
+        }
+        // Notify the adapter that the data has changed after sorting
+        bookAdapter.notifyDataSetChanged()
+    }
+
     // When the app comes back to the foreground
     override fun onResume() {
-        super.onResume()
         super.onResume()
         val firebaseUser = FirebaseAuth.getInstance().currentUser
         if (firebaseUser != null) {
@@ -162,5 +199,20 @@ class MainActivity : AppCompatActivity() {
             FirebaseFirestore.getInstance().collection("users").document(userId)
                 .update("isOnline", false)
         }
+    }
+
+    // Implementing the required method for BookAdapter.RecyclerViewEvent interface
+    override fun onItemClick(position: Int) {
+        val bookItem = bookList[position]
+        val bookDetailsFragment = BookDetailsFragment()
+        val bundle = Bundle()
+
+        bundle.putString("bookTitle", bookItem.volumeInfo.title)
+        bundle.putString("bookAuthor", bookItem.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")
+        bundle.putString("bookImage", bookItem.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"))
+        bundle.putFloat("bookRating", bookItem.volumeInfo.averageRating ?: 0f)
+
+        bookDetailsFragment.arguments = bundle
+        replaceFragment(bookDetailsFragment, bookItem.volumeInfo.title)
     }
 }

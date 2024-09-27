@@ -32,4 +32,16 @@
         <item>Chapter\'s Read (Descending)</item>
     </string-array>
 
+        <!-- Other resources -->
+
+        <string-array name="rating_ranges">
+            <item>0.0 to 0.9</item>
+            <item>1.0 to 1.9</item>
+            <item>2.0 to 2.9</item>
+            <item>3.0 to 3.9</item>
+            <item>4.0 to 4.9</item>
+            <item>5.0 only</item>
+        </string-array>
+
+
 </resources>
