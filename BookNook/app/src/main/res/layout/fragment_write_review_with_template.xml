@@ -385,22 +385,21 @@
                 </LinearLayout>
 
             </LinearLayout>
-
+            <!-- Submit Review Button at the bottom -->
+            <Button
+                android:id="@+id/submitReviewButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="@color/button_review_template"
+                android:scaleX="0.85"
+                android:scaleY="0.85"
+                android:text="Submit Review"
+                android:textColor="@color/review_button_text"
+                android:textSize="18sp" />
         </LinearLayout>
     </ScrollView>
 
-    <!-- Submit Review Button at the bottom -->
-    <Button
-        android:id="@+id/submitReviewButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/button_review_template"
-        android:scaleX="0.85"
-        android:scaleY="0.85"
-        android:text="Submit Review"
-        android:textColor="@color/review_button_text"
-        android:textSize="18sp" />
 
 </RelativeLayout>

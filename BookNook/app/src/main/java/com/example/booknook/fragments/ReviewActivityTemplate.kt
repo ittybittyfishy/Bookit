@@ -15,7 +15,7 @@ import com.google.firebase.firestore.FieldValue
 
 // Yunjong Noh
 // This fragment handles the function of writing and storing review data to Firebase
-class ReviewActivity : Fragment() {
+class ReviewActivityTemplate : Fragment() {
 
     // Declare UI components for submitting reviews
     private lateinit var submitButton: Button
@@ -23,22 +23,20 @@ class ReviewActivity : Fragment() {
     private lateinit var ratingBar: RatingBar
     private lateinit var spoilerCheckbox: CheckBox
     private lateinit var sensitiveCheckbox: CheckBox
-    private lateinit var useTemplateButton: Button
+    private lateinit var useTemplateButton: Button // Declare the button
+
     // Called when the fragment is created
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment (no-template layout used initially)
-        val view = inflater.inflate(R.layout.fragment_write_review_no_template, container, false)
+        // Inflate the layout for this fragment
+        val view = inflater.inflate(R.layout.fragment_write_review_with_template, container, false)
 
-        // Retrieve UI components from the view
+        // Initialize UI componentsa
         submitButton = view.findViewById(R.id.submitReviewButton)
         reviewEditText = view.findViewById(R.id.reviewInput)
         ratingBar = view.findViewById(R.id.myRatingBar)
-        spoilerCheckbox = view.findViewById(R.id.spoilerCheckbox)
-        sensitiveCheckbox = view.findViewById(R.id.sensitiveTopicsCheckbox)
-        useTemplateButton = view.findViewById(R.id.useTemplateButton)
 
         // Retrieve views for displaying the book image and author details
         val bookImageView: ImageView = view.findViewById(R.id.bookImage)
@@ -47,7 +45,6 @@ class ReviewActivity : Fragment() {
         val ratingNumberTextView: TextView = view.findViewById(R.id.ratingNumber)
 
         // Retrieve book information passed through arguments (e.g., from previous screen)
-        val bookTitle = arguments?.getString("bookTitle")
         val bookAuthor = arguments?.getString("bookAuthor")
         val bookRating = arguments?.getFloat("bookRating") ?: 0f
         val bookIsbn = arguments?.getString("bookIsbn") // Use this to identify the book for the review
@@ -83,8 +80,6 @@ class ReviewActivity : Fragment() {
                         val existingReview = querySnapshot.documents[0].data
                         reviewEditText.setText(existingReview?.get("reviewText") as? String ?: "")
                         ratingBar.rating = (existingReview?.get("rating") as? Double)?.toFloat() ?: 0f
-                        spoilerCheckbox.isChecked = existingReview?.get("hasSpoilers") as? Boolean ?: false
-                        sensitiveCheckbox.isChecked = existingReview?.get("hasSensitiveTopics") as? Boolean ?: false
                     }
                 }
                 .addOnFailureListener {
@@ -102,24 +97,6 @@ class ReviewActivity : Fragment() {
 
             // Save the review to Firestore
             saveReview(reviewText, rating, hasSpoilers, hasSensitiveTopics)
-        }
-
-        // Yunjong Noh
-        //Declare button that connects to XML
-        useTemplateButton.setOnClickListener {
-
-            // Handle requests button click
-            val reviewActivityTemplateFragment = ReviewActivityTemplate()
-            val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
-            // Adds data into the bundle
-            bundle.putString("bookTitle", bookTitle)
-            bundle.putString("bookAuthor", bookAuthor)
-            bundle.putString("bookImage", bookImage)
-            bundle.putFloat("bookRating", bookRating)
-            bundle.putString("bookIsbn", bookIsbn)
-
-            reviewActivityTemplateFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
-            (activity as MainActivity).replaceFragment(reviewActivityTemplateFragment, "Write a Review")  // Opens a new fragment
         }
 
         return view
