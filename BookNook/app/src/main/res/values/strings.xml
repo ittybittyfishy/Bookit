@@ -35,7 +35,8 @@
         <!-- Other resources -->
 
         <string-array name="rating_ranges">
-            <item>0.0 to 0.9</item>
+            <item>All ratings</item>
+            <item>Below 1 star</item>
             <item>1.0 to 1.9</item>
             <item>2.0 to 2.9</item>
             <item>3.0 to 3.9</item>
