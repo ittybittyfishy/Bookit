@@ -34,7 +34,6 @@
             android:inputType="text"/>
 
         <!-- Rating Input (Spinner) -->
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -74,6 +73,7 @@
             android:visibility="gone">
 
             <GridLayout
+                android:id="@+id/includeGenresGridLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount="2"
@@ -82,18 +82,17 @@
             </GridLayout>
         </LinearLayout>
 
-        <!-- Exclude Genres Section Toggle Button -->
+        <!-- Exclude Genres Section Toggle Button (Missing button added here) -->
         <Button
             android:id="@+id/excludeGenresToggleButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Exclude Genres ▼"
             android:textSize="18sp"
-            android:textColor="#FFFFFF"
             android:background="@null"
             android:backgroundTint="#99ba91"
-            android:layout_marginTop="0dp"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp" />
 
         <!-- Exclude Genres Section (Initially Collapsed) -->
         <LinearLayout
@@ -104,6 +103,7 @@
             android:visibility="gone">
 
             <GridLayout
+                android:id="@+id/excludeGenresGridLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount="2"

@@ -12,8 +12,6 @@ import com.example.booknook.fragments.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.view.View
 import android.widget.TextView
-import com.example.booknook.BookItem
-import com.example.booknook.BookResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import retrofit2.Call
@@ -53,6 +51,16 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         bookAdapter = BookAdapter(bookList, this)  // Pass 'this' as the listener
         recyclerView.adapter = bookAdapter  // Set the adapter
 
+        // Listen for filters being applied (when coming back from SearchFiltersFragment)
+        supportFragmentManager.setFragmentResultListener("requestKey", this) { requestKey, bundle ->
+            val selectedGenres = bundle.getStringArrayList("selectedGenres")
+            val languageFilter = bundle.getString("languageFilter")
+            val minRating = bundle.getFloat("minRating", 0f)
+            val maxRating = bundle.getFloat("maxRating", 5f)
+
+            // Perform a search or filter books using the received filters
+            searchBooksWithFilters(selectedGenres, languageFilter, minRating, maxRating)
+        }
 
         // Get references to the BottomNavigationView and banner TextView from the layout
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation)
@@ -132,6 +140,29 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
                 callback(null)
             }
         })
+    }
+
+    // Function to search and apply filters
+    fun searchBooksWithFilters(genres: List<String>?, language: String?, minRating: Float, maxRating: Float) {
+        val query = "some search query"  // You'll need to update this to match the user's input
+
+        // Call the API or perform filtering on the local dataset
+        searchBooks(query, 0, language) { bookItems ->
+            val filteredBooks = bookItems?.filter { book ->
+                // Filter by genres
+                genres?.isEmpty() ?: true || genres?.any { genre ->
+                    book.volumeInfo.categories?.contains(genre) == true
+                } ?: true &&
+
+                        // Filter by rating
+                        (book.volumeInfo.averageRating ?: 0f) in minRating..maxRating
+            }
+
+            // Update the book list with filtered results and notify adapter
+            bookList.clear()
+            filteredBooks?.let { bookList.addAll(it) }
+            bookAdapter.notifyDataSetChanged()
+        }
     }
 
     // Function to sort books based on different criteria

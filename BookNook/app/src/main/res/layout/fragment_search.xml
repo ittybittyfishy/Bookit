@@ -18,24 +18,25 @@
             android:id="@+id/searchEditText"
             android:layout_width="320dp"
             android:layout_height="wrap_content"
+            android:background="@drawable/rectangle_border_white"
+            android:elevation="7dp"
+            android:fontFamily="sans-serif-light"
             android:hint="Search"
+            android:imeOptions="actionSearch"
+            android:padding="10dp"
             android:textColor="#8b774e"
             android:textColorHint="#c1a37a"
-            android:elevation="7dp"
-            android:padding="10dp"
-            android:textSize="18sp"
-            android:imeOptions="actionSearch"
-            android:fontFamily="sans-serif-light"
-            />
+            android:textSize="18sp" />
 
         <!-- Search Button with search icon -->
         <Button
             android:id="@+id/searchButton"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_gravity="end|center_vertical"
+            android:background="@drawable/search_icon"
             android:elevation="6dp"
-            android:layout_marginRight="10dp" />
+            android:layout_marginBottom="5dp" />
     </FrameLayout>
 
     <!-- Filters and Sort By Buttons -->
@@ -67,6 +68,19 @@
             android:backgroundTint="#99ba91"
             android:elevation="4dp"
             android:padding="10dp" />
+    </LinearLayout>
+
+    <!-- Dynamic Active Filters Section -->
+    <LinearLayout
+        android:id="@+id/activeFiltersLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:visibility="gone"> <!-- Initially hidden, only visible when filters are applied -->
+
+        <!-- This will dynamically show active filters, e.g., Genre: Fiction, Rating: 3.0-5.0 -->
     </LinearLayout>
 
     <!-- RecyclerView for displaying book items -->

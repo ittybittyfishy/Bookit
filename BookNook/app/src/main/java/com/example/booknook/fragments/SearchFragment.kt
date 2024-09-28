@@ -22,6 +22,7 @@ import android.graphics.drawable.ColorDrawable
 
 class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
+    // Declare variables
     private lateinit var searchButton: Button
     private lateinit var searchEditText: EditText
     private lateinit var recyclerView: RecyclerView
@@ -37,11 +38,9 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
     private var excludeGenres: ArrayList<String>? = null
     private var languageFilter: String? = null
     private var minimumRating: Float = 0f
-    private val loadedBookIdentifiers = mutableSetOf<String>()
     private val availableGenres: MutableSet<String> = mutableSetOf() // Store available genres
 
-    private lateinit var noResultsTextView: TextView //for when no filter results are found
-
+    private lateinit var noResultsTextView: TextView // For when no filter results are found
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,7 +48,8 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
     ): View {
         val view = inflater.inflate(R.layout.fragment_search, container, false)
 
-        noResultsTextView = view.findViewById(R.id.noResultsTextView) //when no results are found
+        // Initialize UI elements
+        noResultsTextView = view.findViewById(R.id.noResultsTextView)
         searchButton = view.findViewById(R.id.searchButton)
         searchEditText = view.findViewById(R.id.searchEditText)
         recyclerView = view.findViewById(R.id.recyclerView)
@@ -60,6 +60,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         bookAdapter = BookAdapter(bookList, this)
         recyclerView.adapter = bookAdapter
 
+        // Set scroll listener for pagination
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -74,6 +75,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
             }
         })
 
+        // Check if there are existing arguments (e.g., from filters)
         currentQuery = arguments?.getString("currentQuery")
         includeGenres = arguments?.getStringArrayList("includeGenres")
         excludeGenres = arguments?.getStringArrayList("excludeGenres")
@@ -81,8 +83,15 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         minimumRating = arguments?.getFloat("minRating") ?: 0f
         val maxRating = arguments?.getFloat("maxRating") ?: 5f
 
+        Log.d("SearchFragment", "Current Query: $currentQuery")
+        Log.d("SearchFragment", "Included Genres: $includeGenres")
+        Log.d("SearchFragment", "Excluded Genres: $excludeGenres")
+        Log.d("SearchFragment", "Language Filter: $languageFilter")
+        Log.d("SearchFragment", "Rating Range: $minimumRating to $maxRating")
+
         searchEditText.setText(currentQuery)
 
+        // Set click listeners for search and filter buttons
         searchButton.setOnClickListener {
             performSearch()
         }
@@ -95,6 +104,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
             showSortPopup(it)
         }
 
+        // If a query exists, perform the search
         if (!currentQuery.isNullOrBlank()) {
             performSearch()
         }
@@ -102,70 +112,97 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         return view
     }
 
+    // Function to load books based on the query and filters
     private fun loadBooks(query: String) {
         if (isLoading) return
 
         isLoading = true
-
-        val includeGenresList = includeGenres ?: emptyList()
-        val excludeGenresList = excludeGenres ?: emptyList()
-
         val localLanguageFilter = languageFilter ?: ""
         val localMaxRating = arguments?.getFloat("maxRating") ?: 5f
 
+        // Perform the book search query (this interacts with your API or backend)
         (activity as MainActivity).searchBooks(query, startIndex, localLanguageFilter.takeIf { it.isNotBlank() }) { books ->
             isLoading = false
 
             if (books != null && books.isNotEmpty()) {
-                val filteredBooks = books.filter { book ->
-                    val genres = book.volumeInfo.categories ?: emptyList()
-
-                    val genreIncluded = includeGenresList.isEmpty() || includeGenresList.any { includeGenre ->
-                        genres.any { it.equals(includeGenre, ignoreCase = true) }
+                // Extract available genres from books and add them to availableGenres set
+                books.forEach { book ->
+                    book.volumeInfo.categories?.forEach { genre ->
+                        availableGenres.add(genre)
                     }
-                    val genreExcluded = excludeGenresList.isNotEmpty() && excludeGenresList.any { excludeGenre ->
-                        genres.any { it.equals(excludeGenre, ignoreCase = true) }
-                    }
-
-                    val bookRating = book.volumeInfo.averageRating ?: 0f
-                    val matchesRating = if (bookRating == 0f && minimumRating == 0f) {
-                        true
-                    } else {
-                        bookRating in minimumRating..localMaxRating
-                    }
-
-                    val matchesLanguage = localLanguageFilter.isBlank() || book.volumeInfo.language == localLanguageFilter
-
-                    val bookIdentifier = book.volumeInfo.industryIdentifiers?.firstOrNull()?.identifier
-                    val fallbackIdentifier = "${book.volumeInfo.title}-${book.volumeInfo.authors?.firstOrNull() ?: "Unknown Author"}"
-                    val isUnique = (bookIdentifier != null && loadedBookIdentifiers.add(bookIdentifier)) ||
-                            loadedBookIdentifiers.add(fallbackIdentifier)
-
-                    availableGenres.addAll(genres) // Collect genres from each book
-
-                    genreIncluded && !genreExcluded && matchesRating && matchesLanguage && isUnique
                 }
 
+                // Filter the genres by excluding those that are in excludeGenres
+                val filteredIncludeGenres = includeGenres?.filter { genre ->
+                    excludeGenres?.let { !it.contains(genre) } ?: true // If excludeGenres is null, treat as no exclusion
+                }
+
+// Map genres to lowercase and trim, return emptyList() if categories are null
+                val filteredBooks = books.filter { book ->
+                    val genres = book.volumeInfo.categories?.map { it.trim().lowercase() } ?: emptyList()
+
+                    Log.d("SearchFragment", "Book Genres: $genres")
+                    Log.d("SearchFragment", "Filtered Include Genres: $filteredIncludeGenres")
+                    Log.d("SearchFragment", "Selected Exclude Genres: $excludeGenres")
+
+                    // If inclusion filter is applied
+                    val genreIncluded = if (!filteredIncludeGenres.isNullOrEmpty()) {
+                        filteredIncludeGenres.any { selectedGenre ->
+                            genres.contains(selectedGenre.lowercase().trim())
+                        }
+                    } else {
+                        true // No inclusion filter, so all books pass this check
+                    }
+
+                    // If exclusion filter is applied
+                    val genreExcluded = if (!excludeGenres.isNullOrEmpty()) {
+                        excludeGenres!!.none { excludedGenre ->
+                            genres.contains(excludedGenre.lowercase().trim())
+                        }
+                    } else {
+                        true // No exclusion filter, so all books pass this check
+                    }
+
+                    Log.d("SearchFragment", "Genre Included: $genreIncluded, Genre Excluded: $genreExcluded")
+
+                    genreIncluded && genreExcluded
+                }
+
+                // If no books matched, show "No results found"
                 if (filteredBooks.isEmpty()) {
-                    noResultsTextView.visibility = View.VISIBLE // Show "No results found"
-                    recyclerView.visibility = View.GONE // Hide RecyclerView
+                    updateNoResultsVisibility(true)
                 } else {
-                    noResultsTextView.visibility = View.GONE // Hide "No results found"
-                    recyclerView.visibility = View.VISIBLE // Show RecyclerView
+                    updateNoResultsVisibility(false)
 
                     val startPosition = bookList.size
                     bookList.addAll(filteredBooks)
                     bookAdapter.notifyItemRangeInserted(startPosition, filteredBooks.size)
-
                     startIndex += books.size
                 }
             } else {
-                noResultsTextView.visibility = View.VISIBLE // Show "No results found"
-                recyclerView.visibility = View.GONE // Hide RecyclerView
+                updateNoResultsVisibility(true)
             }
         }
     }
 
+    // Function to update the visibility of the no results text view
+    private fun updateNoResultsVisibility(isVisible: Boolean) {
+        noResultsTextView.visibility = if (isVisible) View.VISIBLE else View.GONE
+        recyclerView.visibility = if (isVisible) View.GONE else View.VISIBLE
+    }
+
+    // Function to navigate to the filter fragment
+    private fun navigateToFilters() {
+        val filterFragment = SearchFiltersFragment()
+        val bundle = Bundle()
+        bundle.putString("currentQuery", searchEditText.text.toString())
+        bundle.putStringArrayList("availableGenres", ArrayList(availableGenres)) // Pass available genres to filter fragment
+        filterFragment.arguments = bundle
+
+        (activity as MainActivity).replaceFragment(filterFragment, "Search Filters")
+    }
+
+    // Other functions (performSearch, onItemClick, etc.) stay the same
 
     private fun loadMoreBooks() {
         currentQuery?.let {
@@ -191,18 +228,6 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
         startIndex = 0
         loadBooks(currentQuery!!)
-    }
-
-
-    private fun navigateToFilters() {
-        val filterFragment = SearchFiltersFragment()
-        val bundle = Bundle()
-
-        bundle.putString("currentQuery", searchEditText.text.toString())
-        bundle.putStringArrayList("availableGenres", ArrayList(availableGenres)) // Pass only available genres
-        filterFragment.arguments = bundle
-
-        (activity as MainActivity).replaceFragment(filterFragment, "Search Filters")
     }
 
     override fun onItemClick(position: Int) {
@@ -237,25 +262,21 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
             popupWindow.dismiss()
         }
 
-        //low rating
         popupView.findViewById<TextView>(R.id.sort_by_low_rating).setOnClickListener {
             sortBooksByRating(highToLow = false)
             popupWindow.dismiss()
         }
 
-        //sort a - z
         popupView.findViewById<TextView>(R.id.sort_by_rating_az).setOnClickListener {
             sortBooksByTitle(ascending = true)
             popupWindow.dismiss()
         }
 
-        //sort z - a
         popupView.findViewById<TextView>(R.id.sort_by_rating_za).setOnClickListener {
             sortBooksByTitle(ascending = false)
             popupWindow.dismiss()
         }
 
-        //sort by author
         popupView.findViewById<TextView>(R.id.sort_by_author).setOnClickListener {
             sortBooksByAuthor(ascending = true)
             popupWindow.dismiss()

@@ -1,24 +1,25 @@
 package com.example.booknook.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
-import com.example.booknook.MainActivity
 import com.example.booknook.R
+import android.widget.GridLayout
+import com.example.booknook.MainActivity
 
 class SearchFiltersFragment : Fragment() {
 
-    // Declare variables for UI elements and data
-    private lateinit var submitButton: Button // Button to submit the search filters
-    private var currentQuery: String? = null // Store the current search query
-    private lateinit var includeGenresSection: LinearLayout // Section for genres to include
-    private lateinit var excludeGenresSection: LinearLayout // Section for genres to exclude
-    private lateinit var includeToggleButton: Button // Toggle button to show/hide include genres section
-    private lateinit var excludeToggleButton: Button // Toggle button to show/hide exclude genres section
-    private var availableGenres: ArrayList<String>? = null // List of available genres
+    private lateinit var submitButton: Button
+    private var currentQuery: String? = null
+    private lateinit var includeGenresSection: LinearLayout
+    private lateinit var excludeGenresSection: LinearLayout
+    private lateinit var includeToggleButton: Button
+    private lateinit var excludeToggleButton: Button
+    private var availableGenres: ArrayList<String>? = null // Available genres from the search
 
     val languageMap = mapOf(
         "english" to "en",
@@ -27,45 +28,34 @@ class SearchFiltersFragment : Fragment() {
         "german" to "de",
         "spanish" to "es",
         "chinese" to "zh",
-        "korean" to "ko",
-        // Add more languages as needed
+        "korean" to "ko"
     )
 
-
-    // This function is called to create the view for the fragment
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.activity_search_filters, container, false)
 
-        // Find and set up the language filter input (EditText)
+        // Initialize UI elements
         val languageEditText: EditText = view.findViewById(R.id.languageEditText)
-
-        // Set up the rating spinner (drop-down menu) with rating ranges
         val ratingSpinner = view.findViewById<Spinner>(R.id.ratingSpinner)
         val adapter = ArrayAdapter.createFromResource(
             requireContext(),
-            R.array.rating_ranges, // Array of rating options
-            android.R.layout.simple_spinner_item // Layout for spinner items
+            R.array.rating_ranges,
+            android.R.layout.simple_spinner_item
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         ratingSpinner.adapter = adapter
 
-        // Get passed arguments for current query and available genres
         currentQuery = arguments?.getString("currentQuery")
-        availableGenres = arguments?.getStringArrayList("availableGenres")
+        availableGenres = arguments?.getStringArrayList("availableGenres") // Retrieve passed genres
 
-        // Find the genre sections for including and excluding genres
         includeGenresSection = view.findViewById(R.id.includeGenresSection)
         excludeGenresSection = view.findViewById(R.id.excludeGenresSection)
-
-        // Find the toggle buttons to show/hide genre sections
         includeToggleButton = view.findViewById(R.id.includeGenresToggleButton)
         excludeToggleButton = view.findViewById(R.id.excludeGenresToggleButton)
 
-        // Set up click listeners for toggle buttons to show/hide genre sections
         includeToggleButton.setOnClickListener {
             toggleVisibility(includeGenresSection, includeToggleButton)
         }
@@ -74,15 +64,18 @@ class SearchFiltersFragment : Fragment() {
             toggleVisibility(excludeGenresSection, excludeToggleButton)
         }
 
-        // Dynamically add genre checkboxes to include and exclude sections
-        populateGenreCheckboxes(includeGenresSection, "Include")
-        populateGenreCheckboxes(excludeGenresSection, "Exclude")
+        // Populate the genres in both include and exclude sections
+        if (!availableGenres.isNullOrEmpty()) {
+            populateGenreCheckboxes(includeGenresSection, "Include")
+            populateGenreCheckboxes(excludeGenresSection, "Exclude")
+        } else {
+            Log.e("SearchFiltersFragment", "No genres available for filtering")
+        }
 
-        // Set up the submit button to trigger the search with selected genres
         submitButton = view.findViewById(R.id.submitButton)
         submitButton.setOnClickListener {
-            val genresPair = getSelectedGenres() // Get selected genres from checkboxes
-            performSearchWithGenres(genresPair) // Perform the search with those genres
+            val genresPair = getSelectedGenres()
+            performSearchWithGenres(genresPair)
         }
 
         return view
@@ -91,107 +84,104 @@ class SearchFiltersFragment : Fragment() {
     // Function to toggle the visibility of genre sections (show/hide)
     private fun toggleVisibility(section: LinearLayout, toggleButton: Button) {
         if (section.visibility == View.GONE) {
-            section.visibility = View.VISIBLE // Show section if it's hidden
-            toggleButton.text = toggleButton.text.toString().replace("▼", "▲") // Change arrow direction
+            section.visibility = View.VISIBLE
+            toggleButton.text = toggleButton.text.toString().replace("▼", "▲")
         } else {
-            section.visibility = View.GONE // Hide section if it's visible
-            toggleButton.text = toggleButton.text.toString().replace("▲", "▼") // Change arrow direction
+            section.visibility = View.GONE
+            toggleButton.text = toggleButton.text.toString().replace("▲", "▼")
         }
     }
 
     // Function to dynamically create checkboxes for each genre
     private fun populateGenreCheckboxes(container: LinearLayout, type: String) {
-        availableGenres?.forEach { genre ->
-            val checkBox = CheckBox(context) // Create a new checkbox
-            checkBox.text = genre // Set checkbox label with "Include/Exclude" and genre name
-            checkBox.textSize = 18f
-            checkBox.tag = genre // Tag it with the genre name for later use
-            container.addView(checkBox) // Add the checkbox to the section
+        val gridLayout = if (type == "Include") {
+            container.findViewById<GridLayout>(R.id.includeGenresGridLayout)
+        } else {
+            container.findViewById<GridLayout>(R.id.excludeGenresGridLayout)
+        }
+
+        // Check if available genres are not null and not empty
+        availableGenres?.let {
+            if (it.isNotEmpty()) {
+                gridLayout.removeAllViews() // Clear any previous checkboxes
+                it.forEach { genre ->
+                    val checkBox = CheckBox(context) // Create a new checkbox
+                    checkBox.text = genre
+                    checkBox.textSize = 18f
+                    checkBox.tag = genre
+                    gridLayout.addView(checkBox) // Add checkbox to the GridLayout
+                }
+            } else {
+                Log.d("SearchFiltersFragment", "No genres available to populate checkboxes")
+            }
         }
     }
 
     // Function to retrieve the selected genres from checkboxes
     private fun getSelectedGenres(): Pair<MutableList<String>, MutableList<String>> {
-        val includeGenres = mutableListOf<String>() // List to store included genres
-        val excludeGenres = mutableListOf<String>() // List to store excluded genres
+        val includeGenres = mutableListOf<String>()
+        val excludeGenres = mutableListOf<String>()
 
-        // Loop through all the children of the include genres section
-        for (i in 0 until includeGenresSection.childCount) {
-            val child = includeGenresSection.getChildAt(i)
-            if (child is GridLayout) { // Check if the child is a GridLayout (could be different container)
-                for (j in 0 until child.childCount) {
-                    val checkBox = child.getChildAt(j)
-                    if (checkBox is CheckBox && checkBox.isChecked) { // If it's a checked checkbox
-                        includeGenres.add(checkBox.tag as String) // Add genre to include list
-                    }
-                }
+        // Retrieve checkboxes from the include grid
+        val includeGrid = includeGenresSection.findViewById<GridLayout>(R.id.includeGenresGridLayout)
+        for (i in 0 until includeGrid.childCount) {
+            val child = includeGrid.getChildAt(i)
+            if (child is CheckBox && child.isChecked) {
+                includeGenres.add(child.tag as String)
             }
         }
 
-        // Loop through all the children of the exclude genres section
-        for (i in 0 until excludeGenresSection.childCount) {
-            val child = excludeGenresSection.getChildAt(i)
-            if (child is GridLayout) { // Check if the child is a GridLayout
-                for (j in 0 until child.childCount) {
-                    val checkBox = child.getChildAt(j)
-                    if (checkBox is CheckBox && checkBox.isChecked) { // If it's a checked checkbox
-                        excludeGenres.add(checkBox.tag as String) // Add genre to exclude list
-                    }
-                }
+        // Retrieve checkboxes from the exclude grid
+        val excludeGrid = excludeGenresSection.findViewById<GridLayout>(R.id.excludeGenresGridLayout)
+        for (i in 0 until excludeGrid.childCount) {
+            val child = excludeGrid.getChildAt(i)
+            if (child is CheckBox && child.isChecked) {
+                excludeGenres.add(child.tag as String)
             }
         }
 
-        // Return a pair of lists: one for included genres, one for excluded genres
         return Pair(includeGenres, excludeGenres)
     }
 
     private fun performSearchWithGenres(genresPair: Pair<MutableList<String>, MutableList<String>>) {
-        val (includeGenres, excludeGenres) = genresPair // structure the pair into two lists
-        val searchFragment = SearchFragment() // Create a new SearchFragment instance
-        val bundle = Bundle() // Create a bundle to pass data to the next fragment
+        val (includeGenres, excludeGenres) = genresPair
+        val searchFragment = SearchFragment()
+        val bundle = Bundle()
 
-        // Get the language filter input from the EditText
         val userInputLanguage = view?.findViewById<EditText>(R.id.languageEditText)?.text.toString().trim()
+        val languageFilter = languageMap[userInputLanguage.lowercase()] ?: userInputLanguage
 
-        // Convert user input to lowercase and look it up in the languageMap
-        val languageFilter = languageMap[userInputLanguage.toLowerCase()] ?: userInputLanguage // If not found, use raw input
-
-        // Get the rating range from the spinner
         val selectedRatingRange = view?.findViewById<Spinner>(R.id.ratingSpinner)?.selectedItem.toString()
         val ratingRange = parseRatingRange(selectedRatingRange)
 
-        // Put all search filters into the bundle
         bundle.putString("currentQuery", currentQuery)
-        bundle.putStringArrayList("includeGenres", ArrayList(includeGenres)) // Include genres list
-        bundle.putStringArrayList("excludeGenres", ArrayList(excludeGenres)) // Exclude genres list
-        bundle.putString("languageFilter", languageFilter) // Add the language code (or raw input)
+        bundle.putStringArrayList("includeGenres", ArrayList(includeGenres))
+        bundle.putStringArrayList("excludeGenres", ArrayList(excludeGenres))
+        bundle.putString("languageFilter", languageFilter)
 
-        // If a rating range was selected, add it to the bundle
         if (ratingRange != null) {
             bundle.putFloat("minRating", ratingRange.first)
             bundle.putFloat("maxRating", ratingRange.second)
         } else {
-            // Default rating range if none was selected
             bundle.putFloat("minRating", 0f)
             bundle.putFloat("maxRating", 5f)
         }
 
-        // Pass the bundle of filters to the SearchFragment
         searchFragment.arguments = bundle
-        (activity as MainActivity).replaceFragment(searchFragment, "Search Results") // Replace the fragment with search results
+        (activity as MainActivity).replaceFragment(searchFragment, "Search Results")
     }
-
 
     // Function to parse the rating range selected from the spinner
     private fun parseRatingRange(selectedRange: String): Pair<Float, Float>? {
         return when (selectedRange) {
-            "0.0 to 0.9" -> Pair(0.0f, 0.9f) //Range for ratings between 0.0 and 0.9
-            "1.0 to 1.9" -> Pair(1.0f, 1.9f) // Range for ratings between 1.0 and 1.9
-            "2.0 to 2.9" -> Pair(2.0f, 2.9f) // Range for ratings between 2.0 and 2.9
-            "3.0 to 3.9" -> Pair(3.0f, 3.9f) // Range for ratings between 3.0 and 3.9
-            "4.0 to 4.9" -> Pair(4.0f, 4.9f) // Range for ratings between 4.0 and 4.9
-            "5.0 only" -> Pair(5.0f, 5.0f) // Only ratings of 5.0
-            else -> null // No rating range selected
+            "All Ratings" -> Pair(0.0f, 5.0f)
+            "0.0 to 0.9" -> Pair(0.0f, 0.9f)
+            "1.0 to 1.9" -> Pair(1.0f, 1.9f)
+            "2.0 to 2.9" -> Pair(2.0f, 2.9f)
+            "3.0 to 3.9" -> Pair(3.0f, 3.9f)
+            "4.0 to 4.9" -> Pair(4.0f, 4.9f)
+            "5.0 only" -> Pair(5.0f, 5.0f)
+            else -> null
         }
     }
 }
