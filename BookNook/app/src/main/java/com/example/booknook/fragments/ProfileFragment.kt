@@ -21,6 +21,9 @@ import com.example.booknook.R
 import de.hdodenhof.circleimageview.CircleImageView
 import java.io.IOException
 import android.graphics.BitmapFactory
+import android.widget.TextView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 // Define a Fragment class for the Profile section
 class ProfileFragment : Fragment() {
@@ -30,6 +33,7 @@ class ProfileFragment : Fragment() {
     private lateinit var profileImage: CircleImageView
     private lateinit var uploadBannerButton: Button
     private lateinit var uploadProfileButton: Button
+    private lateinit var test: TextView
 
     // Declare ActivityResultLauncher variables for handling image picking results
     private lateinit var pickBannerImageLauncher: ActivityResultLauncher<Intent>
@@ -48,6 +52,10 @@ class ProfileFragment : Fragment() {
         profileImage = view.findViewById(R.id.profileImage)
         uploadBannerButton = view.findViewById(R.id.uploadBannerButton)
         uploadProfileButton = view.findViewById(R.id.uploadProfileButton)
+        test = view.findViewById(R.id.test)
+
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val userId: String? = currentUser?.uid  // Retrieves id of the current user
 
         // Register ActivityResultLauncher for picking banner image
         pickBannerImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -78,6 +86,69 @@ class ProfileFragment : Fragment() {
         uploadProfileButton.setOnClickListener {
             // Call method to pick an image for the profile
             pickImageFromGallery(PICK_PROFILE_IMAGE)
+        }
+
+        // Function displays the number of books the user has read
+        fun displayNumBooksRead(userId: String, textView: TextView) {
+            // References document of current user
+            val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+
+            userDocRef.get().addOnSuccessListener { document ->
+                    // Retrieves the standardCollections map in database
+                    val standardCollections = document.get("standardCollections") as? Map<String, Any>
+                    //  Retrieves the "Finished" array under the map
+                    val finishedBooks = standardCollections?.get("Finished") as? List<*>
+                    // Finds the size of the array to determine number of books read
+                    val numBooksRead = finishedBooks?.size ?: 0
+                    // Update the TextView  using the numBooksRead variable
+                     textView.setText("$numBooksRead")
+                }.addOnFailureListener { e ->
+                    Toast.makeText(activity, "Error getting number of books read: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+        // Function displays the number of custom collections a user has
+        fun displayNumCollections(userId: String, textView: TextView) {
+            // References document of current user
+            val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+
+            userDocRef.get().addOnSuccessListener { document ->
+                // Retrieves the customCollections map in database
+                val customCollections = document.get("customCollections") as? Map<String, Any>
+                // Finds the size of the map to determine number of books read
+                val numCollections = customCollections?.size ?: 0
+                // Update the TextView using the numCollections variable
+                textView.setText("$numCollections")
+            }.addOnFailureListener { e ->
+                Toast.makeText(activity, "Error getting number of collections: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Function displays the number of friends the user has
+        fun displayNumFriends(userId: String, textView: TextView) {
+            // References document of current user
+            val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+
+            userDocRef.get().addOnSuccessListener { document ->
+                // Retrieves the friends array in database
+                val friends = document.get("friends") as? List<*>
+                // Finds the size of the array to determine number of friends
+                val numFriends = friends?.size ?: 0
+                // Update the TextView using the numFriends variable
+                textView.setText("$numFriends")
+            }.addOnFailureListener { e ->
+                Toast.makeText(activity, "Error getting number of friends: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        if (userId != null) {
+            // Displays all of the user's stats to the corresponding view
+            // displayNumBooksRead(userId, test)
+            // displayNumCollections(userId, test)
+            // displayNumFriends(userId, test)
+
+        } else {
+            Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
         }
 
         // Return the created view

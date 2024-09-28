@@ -141,4 +141,11 @@
         android:background="#9D00FF"
         android:text="Upload Banner" />
 
+    <TextView
+        android:id="@+id/test"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="400dp"
+        android:text="hi"/>
+
 </FrameLayout>
