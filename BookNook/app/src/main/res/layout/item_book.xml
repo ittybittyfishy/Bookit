@@ -7,13 +7,13 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/book_card"
-        android:layout_width="140dp"
-        android:layout_height="190dp"
+        android:layout_width="170dp"
+        android:layout_height="210dp"
         android:layout_alignParentStart="true"
         android:layout_marginRight="5dp"
         android:layout_marginTop="8dp"
-        app:cardElevation="10dp"
-        app:cardCornerRadius="4dp"
+        app:cardElevation="2dp"
+        app:cardCornerRadius="1dp"
         app:cardUseCompatPadding="true">
 
         <ImageView

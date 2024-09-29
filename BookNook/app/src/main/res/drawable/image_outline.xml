@@ -5,9 +5,9 @@
 
     <!-- Define the outline (border) -->
     <stroke
-        android:width="10dp"
+        android:width="5dp"
         android:color="#9dd182" /> <!-- Change the color as needed -->
 
     <!-- Define the corner radius (optional) -->
-    <corners android:radius="0dp" /> <!-- Adjust if you want rounded corners -->
+    <corners android:radius="5dp" /> <!-- Adjust if you want rounded corners -->
 </shape>
