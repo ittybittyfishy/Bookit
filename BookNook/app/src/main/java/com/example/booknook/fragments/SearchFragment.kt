@@ -191,6 +191,9 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         val localMaxRating = maxRating
         val localMinRating = minRating
 
+        val localIncludeGenres = includeGenres.map { it.trim().lowercase() }.toSet()
+        val localExcludeGenres = excludeGenres.map { it.trim().lowercase() }.toSet()
+
         val mainActivity = activity as? MainActivity
         if (mainActivity == null) {
             isLoading = false
@@ -207,24 +210,22 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
             if (books != null) {
                 val filteredBooks = books.filter { book ->
-                    val genres = book.volumeInfo.categories?.flatMap { category ->
+                    val bookGenres = book.volumeInfo.categories?.flatMap { category ->
                         category.split("/", "&").map { it.trim().lowercase() }
-                    } ?: emptyList()
+                    }?.toSet() ?: emptySet()
                     val rating = book.volumeInfo.averageRating ?: 0f
 
-                    val genreIncluded = if (includeGenres.isNotEmpty()) {
-                        includeGenres.any { selectedGenre ->
-                            genres.any { genre ->
-                                genre.contains(selectedGenre.trim().lowercase())
-                            }
+                    val genreIncluded = if (localIncludeGenres.isNotEmpty()) {
+                        // Book's genres should be a subset of the includeGenres
+                        bookGenres.isNotEmpty() && bookGenres.all { genre ->
+                            localIncludeGenres.contains(genre)
                         }
                     } else true
 
-                    val genreExcluded = if (excludeGenres.isNotEmpty()) {
-                        excludeGenres.none { excludedGenre ->
-                            genres.any { genre ->
-                                genre.contains(excludedGenre.trim().lowercase())
-                            }
+                    val genreExcluded = if (localExcludeGenres.isNotEmpty()) {
+                        // None of the book's genres should be in excludeGenres
+                        bookGenres.none { genre ->
+                            localExcludeGenres.contains(genre)
                         }
                     } else true
 
