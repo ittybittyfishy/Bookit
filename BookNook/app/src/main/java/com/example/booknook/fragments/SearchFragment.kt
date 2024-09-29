@@ -401,6 +401,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
             }
         }
         bookAdapter.notifyDataSetChanged()
+        recyclerView.scrollToPosition(0)
     }
 
     override fun onItemClick(position: Int) {
