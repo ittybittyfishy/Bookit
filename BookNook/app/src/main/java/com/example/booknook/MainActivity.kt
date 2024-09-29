@@ -12,6 +12,7 @@ import com.example.booknook.fragments.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import retrofit2.Call
@@ -41,6 +42,8 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Initialize RecyclerView and Adapter if needed
+        // (If you're not using RecyclerView in MainActivity, you can remove these lines)
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         bookAdapter = BookAdapter(bookList, this)
@@ -118,28 +121,36 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         })
     }
 
-    // Fetches all available genres from Google Books API
-    fun getAvailableGenres(query: String, callback: (List<String>?) -> Unit) {
-        // We use the same searchBooks API and collect genres (categories) from the first 40 books
-        val call = RetrofitInstance.api.searchBooks(query, 0, apiKey, null)
-        call.enqueue(object : Callback<BookResponse> {
-            override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
-                if (response.isSuccessful) {
-                    val genres = mutableSetOf<String>()
-                    response.body()?.items?.forEach { bookItem ->
-                        bookItem.volumeInfo.categories?.let { genres.addAll(it) }
+    // Add the fetchGenresForQuery function here
+    fun fetchGenresForQuery(query: String, callback: (Set<String>?) -> Unit) {
+        val availableGenres = mutableSetOf<String>()
+        var booksFetched = 0
+        var startIndexForGenres = 0
+        val totalBooksToFetch = 50
+
+        fun fetchNextBatch() {
+            searchBooks(query, startIndexForGenres, languageFilter = null) { books ->
+                if (books != null && books.isNotEmpty()) {
+                    books.forEach { bookItem ->
+                        val genres = bookItem.volumeInfo.categories?.flatMap { category ->
+                            category.split("/", "&").map { it.trim() }
+                        } ?: emptyList()
+                        availableGenres.addAll(genres)
                     }
-                    callback(genres.toList()) // Return unique genres as a list
+                    booksFetched += books.size
+                    startIndexForGenres += books.size
+                    if (booksFetched < totalBooksToFetch && books.size > 0) {
+                        fetchNextBatch()
+                    } else {
+                        callback(availableGenres)
+                    }
                 } else {
-                    callback(null)
+                    callback(availableGenres)
                 }
             }
+        }
 
-            override fun onFailure(call: Call<BookResponse>, t: Throwable) {
-                t.printStackTrace()
-                callback(null)
-            }
-        })
+        fetchNextBatch()
     }
 
     fun searchBooksWithFilters(genres: List<String>?, language: String?, minRating: Float, maxRating: Float) {
@@ -147,9 +158,18 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
 
         searchBooks(query, 0, language) { bookItems ->
             val filteredBooks = bookItems?.filter { book ->
-                genres?.isEmpty() ?: true || genres?.any { genre ->
-                    book.volumeInfo.categories?.contains(genre) == true
-                } ?: true && (book.volumeInfo.averageRating ?: 0f) in minRating..maxRating
+                val bookGenres = book.volumeInfo.categories ?: emptyList()
+                val rating = book.volumeInfo.averageRating ?: 0f
+
+                val genreMatch = genres?.isEmpty() ?: true || genres?.any { genre ->
+                    bookGenres.any { bookGenre ->
+                        bookGenre.equals(genre, ignoreCase = true)
+                    }
+                } ?: true
+
+                val ratingInRange = rating in minRating..maxRating
+
+                genreMatch && ratingInRange
             }
 
             bookList.clear()
