@@ -120,14 +120,24 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
     private fun updateFiltersButtonText() {
         val filtersApplied = mutableListOf<String>()
+
         if (includeGenres.isNotEmpty() || excludeGenres.isNotEmpty()) {
-            filtersApplied.add("Genres")
+            val genresList = mutableListOf<String>()
+            if (includeGenres.isNotEmpty()) {
+                genresList.add("Include: ${includeGenres.joinToString(", ")}")
+            }
+            if (excludeGenres.isNotEmpty()) {
+                genresList.add("Exclude: ${excludeGenres.joinToString(", ")}")
+            }
+            filtersApplied.add("Genres: ${genresList.joinToString("; ")}")
         }
+
         if (!languageFilter.isNullOrBlank()) {
-            filtersApplied.add("Language")
+            filtersApplied.add("Language: $languageFilter")
         }
+
         if (minRating > 0f || maxRating < 5f) {
-            filtersApplied.add("Rating")
+            filtersApplied.add("Rating: $minRating - $maxRating")
         }
 
         val filterText = if (filtersApplied.isNotEmpty()) {
@@ -135,7 +145,13 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         } else {
             "Filters"
         }
-        filtersButton.text = filterText
+
+        // Limit the length of the button text to prevent it from becoming too long
+        filtersButton.text = if (filterText.length > 30) {
+            filterText.substring(0, 27) + "...)"
+        } else {
+            filterText
+        }
     }
 
     private fun performSearch() {

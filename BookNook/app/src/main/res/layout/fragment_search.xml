@@ -46,16 +46,22 @@
         android:orientation="horizontal"
         android:gravity="center">
 
-        <!-- Filters Button -->
         <Button
             android:id="@+id/filtersButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Filters (+)"
+            android:text="Filters"
+            android:textSize="16sp"
             android:textColor="#FFFFFF"
             android:backgroundTint="#99ba91"
-            android:elevation="4dp"
-            android:padding="10dp" />
+            android:singleLine="false"
+            android:maxLines="5"
+            android:ellipsize="none"
+            android:gravity="center"
+            android:padding="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
 
         <!-- Sort By Button -->
         <Button
@@ -63,6 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Sort By ▼"
+            android:textSize="16dp"
             android:layout_marginStart="16dp"
             android:textColor="#FFFFFF"
             android:backgroundTint="#99ba91"
