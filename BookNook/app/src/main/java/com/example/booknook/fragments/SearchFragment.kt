@@ -1,11 +1,10 @@
 package com.example.booknook.fragments
 
 import android.os.Bundle
-import android.util.Log // Import Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,174 +12,154 @@ import com.example.booknook.BookAdapter
 import com.example.booknook.BookItem
 import com.example.booknook.MainActivity
 import com.example.booknook.R
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 
 class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
-    // Declare variables
     private lateinit var searchButton: Button
     private lateinit var searchEditText: EditText
+    private lateinit var filtersButton: Button
+    private lateinit var sortByButton: Button
+    private lateinit var noResultsTextView: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var bookAdapter: BookAdapter
-    private lateinit var filterButton: Button
-    private lateinit var sortByButton: Button
 
     private var bookList: MutableList<BookItem> = mutableListOf()
     private var isLoading = false
-    private var currentQuery: String? = null
+    private var isSearching = false // Flag to prevent multiple searches
+
+    // Pagination variables
     private var startIndex = 0
-    private var includeGenres: ArrayList<String> = arrayListOf()
-    private var excludeGenres: ArrayList<String> = arrayListOf()
+    private var currentQuery: String? = null
+
+    // Filters
+    private var includeGenres: MutableList<String> = mutableListOf()
+    private var excludeGenres: MutableList<String> = mutableListOf()
     private var languageFilter: String? = null
-    private var minimumRating: Float = 0f
-    private val availableGenres: MutableSet<String> = mutableSetOf() // Store available genres
 
-    private lateinit var noResultsTextView: TextView // For when no filter results are found
+    // Available genres for the current search query
+    private var availableGenres: MutableSet<String> = mutableSetOf()
 
-    // Add a limit for genre collection to prevent excessive API calls
-    private val genreCollectionLimit = 50 // Adjust as needed
+    // Scroll listener for RecyclerView
+    private lateinit var scrollListener: RecyclerView.OnScrollListener
+
+    // Sorting criteria
+    private var currentSortCriteria: String = "default"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_search, container, false)
+        return inflater.inflate(R.layout.fragment_search, container, false)
+    }
 
-        // Initialize UI elements
-        noResultsTextView = view.findViewById(R.id.noResultsTextView)
+    // Initialize UI components and set up listeners
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         searchButton = view.findViewById(R.id.searchButton)
         searchEditText = view.findViewById(R.id.searchEditText)
-        recyclerView = view.findViewById(R.id.recyclerView)
-        filterButton = view.findViewById(R.id.filtersButton)
+        filtersButton = view.findViewById(R.id.filtersButton)
         sortByButton = view.findViewById(R.id.sortByButton)
+        noResultsTextView = view.findViewById(R.id.noResultsTextView)
+        recyclerView = view.findViewById(R.id.recyclerView)
 
         recyclerView.layoutManager = LinearLayoutManager(activity)
         bookAdapter = BookAdapter(bookList, this)
         recyclerView.adapter = bookAdapter
 
-        // Scroll listener to load more books as you scroll
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                // Existing code remains the same
-                super.onScrolled(recyclerView, dx, dy)
-                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-                val totalItemCount = layoutManager.itemCount
-                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-
-                // Load more books when reaching near the end of the list
-                if (!isLoading && totalItemCount <= lastVisibleItem + 5) {
-                    Log.d("SearchFragment", "Scrolled to bottom, loading more books")
-                    loadBooks(currentQuery ?: "", fetchAllGenres = false)
-                }
-            }
-        })
-
-        // Retrieve passed arguments
-        currentQuery = arguments?.getString("currentQuery")
-        includeGenres = arguments?.getStringArrayList("includeGenres") ?: arrayListOf()
-        excludeGenres = arguments?.getStringArrayList("excludeGenres") ?: arrayListOf()
-        languageFilter = arguments?.getString("languageFilter")
-        minimumRating = arguments?.getFloat("minRating") ?: 0f
-        val maxRating = arguments?.getFloat("maxRating") ?: 5f
-
-        Log.d("SearchFragment", "Received arguments:")
-        Log.d("SearchFragment", "currentQuery: $currentQuery")
-        Log.d("SearchFragment", "includeGenres: $includeGenres")
-        Log.d("SearchFragment", "excludeGenres: $excludeGenres")
-        Log.d("SearchFragment", "languageFilter: $languageFilter")
-        Log.d("SearchFragment", "minRating: $minimumRating")
-        Log.d("SearchFragment", "maxRating: $maxRating")
-
-        searchEditText.setText(currentQuery)
+        // Set up infinite scrolling
+        setupRecyclerViewScrollListener()
+        recyclerView.addOnScrollListener(scrollListener)
 
         searchButton.setOnClickListener {
-            performSearch(true) // Fetch all books and collect genres
+            Log.d("SearchFragment", "Search button clicked")
+            performSearch()
         }
 
-        // Updated filterButton listener to collect genres before navigating
-        filterButton.setOnClickListener {
-            currentQuery = searchEditText.text.toString()
+        filtersButton.setOnClickListener {
+            Log.d("SearchFragment", "Filters button clicked. Current query: $currentQuery")
             if (currentQuery.isNullOrBlank()) {
-                Toast.makeText(activity, "Please enter a search query", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+                Toast.makeText(activity, "Please enter a search query first", Toast.LENGTH_SHORT).show()
+            } else {
+                collectGenresAndNavigate()
             }
-
-            // Clear previous data
-            availableGenres.clear()
-            bookList.clear()
-            bookAdapter.notifyDataSetChanged()
-            startIndex = 0
-
-            Log.d("SearchFragment", "Filter button clicked. Current query: $currentQuery")
-
-            // Load books and collect genres
-            collectGenresAndNavigate()
         }
 
         sortByButton.setOnClickListener {
-            showSortPopup(it)
+            showSortByMenu()
         }
 
-        if (!currentQuery.isNullOrBlank()) {
-            performSearch(true) // Load all genres
-        }
-
-        return view
+        // Handle arguments passed from the filters
+        handleArguments()
     }
 
-    // Function to collect genres by fetching multiple pages
-    private fun collectGenresAndNavigate() {
-        val totalBooksToFetch = genreCollectionLimit
-        var booksFetched = 0
-        var tempStartIndex = 0
-        val tempAvailableGenres = mutableSetOf<String>()
+    private fun setupRecyclerViewScrollListener() {
+        scrollListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy > 0 && !isLoading) { // Check if scrolling down and not already loading
+                    val visibleItemCount = recyclerView.layoutManager?.childCount ?: 0
+                    val totalItemCount = recyclerView.layoutManager?.itemCount ?: 0
+                    val pastVisibleItems =
+                        (recyclerView.layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition()
+                            ?: 0
 
-        fun fetchNextBatch() {
-            isLoading = true
-            (activity as MainActivity).searchBooks(
-                currentQuery!!,
-                tempStartIndex,
-                languageFilter.takeIf { it?.isNotBlank() == true }
-            ) { books: List<BookItem>? ->
-                isLoading = false
-                if (books != null && books.isNotEmpty()) {
-                    books.forEach { book ->
-                        val genres = book.volumeInfo.categories?.map { it.trim() } ?: emptyList()
-                        tempAvailableGenres.addAll(genres)
+                    if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
+                        Log.d("SearchFragment", "Scrolled to bottom, loading more books")
+                        loadBooks(currentQuery ?: "", fetchAllGenres = false)
                     }
-                    booksFetched += books.size
-                    tempStartIndex += books.size
-
-                    Log.d("SearchFragment", "Fetched ${books.size} books for genre collection")
-                    Log.d("SearchFragment", "Collected genres so far: $tempAvailableGenres")
-
-                    if (booksFetched < totalBooksToFetch && books.size > 0) {
-                        // Fetch next batch
-                        fetchNextBatch()
-                    } else {
-                        // Done fetching genres
-                        availableGenres.clear()
-                        availableGenres.addAll(tempAvailableGenres)
-                        Log.d("SearchFragment", "Final collected genres: $availableGenres")
-                        navigateToFilters()
-                    }
-                } else {
-                    // No more books to fetch
-                    availableGenres.clear()
-                    availableGenres.addAll(tempAvailableGenres)
-                    Log.d("SearchFragment", "Final collected genres: $availableGenres")
-                    navigateToFilters()
                 }
             }
         }
-
-        // Start fetching genres
-        fetchNextBatch()
     }
 
-    // Function to load books based on the query and filters
-    // ... (other code)
+    private fun handleArguments() {
+        val args = arguments
+        if (args != null) {
+            currentQuery = args.getString("currentQuery")
+            includeGenres = args.getStringArrayList("includeGenres") ?: mutableListOf()
+            excludeGenres = args.getStringArrayList("excludeGenres") ?: mutableListOf()
+            languageFilter = args.getString("languageFilter")
+
+            Log.d("SearchFragment", "Received arguments:")
+            Log.d("SearchFragment", "currentQuery: $currentQuery")
+            Log.d("SearchFragment", "includeGenres: $includeGenres")
+            Log.d("SearchFragment", "excludeGenres: $excludeGenres")
+            Log.d("SearchFragment", "languageFilter: $languageFilter")
+            Log.d("SearchFragment", "minRating: ${args.getFloat("minRating")}")
+            Log.d("SearchFragment", "maxRating: ${args.getFloat("maxRating")}")
+
+            searchEditText.setText(currentQuery)
+            performSearch()
+        }
+    }
+
+    private fun performSearch(fetchAllGenres: Boolean = false) {
+        if (isSearching) {
+            // Prevent multiple searches at the same time
+            return
+        }
+        isSearching = true
+        searchButton.isEnabled = false // Disable the search button
+
+        currentQuery = searchEditText.text.toString()
+        if (currentQuery.isNullOrBlank()) {
+            Toast.makeText(activity, "Please enter a search query", Toast.LENGTH_SHORT).show()
+            isSearching = false
+            searchButton.isEnabled = true // Re-enable the search button
+            return
+        }
+
+        // Reset variables for new search
+        startIndex = 0
+        bookList.clear()
+        bookAdapter.notifyDataSetChanged()
+        availableGenres.clear()
+        updateNoResultsVisibility(false)
+
+        loadBooks(currentQuery!!, fetchAllGenres = true) {
+            // This callback is called when books are loaded
+            isSearching = false
+            searchButton.isEnabled = true // Re-enable the search button
+        }
+    }
 
     private fun loadBooks(
         query: String,
@@ -196,8 +175,15 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
         Log.d("SearchFragment", "Loading books with query: $query, startIndex: $startIndex")
 
-        // Perform the book search query (this interacts with your API or backend)
-        (activity as MainActivity).searchBooks(
+        val mainActivity = activity as? MainActivity
+        if (mainActivity == null) {
+            Log.w("SearchFragment", "Activity is null, cannot perform searchBooks")
+            isLoading = false
+            onBooksLoaded?.invoke()
+            return
+        }
+
+        mainActivity.searchBooks(
             query,
             startIndex,
             localLanguageFilter.takeIf { it.isNotBlank() }
@@ -253,7 +239,12 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
                     updateNoResultsVisibility(false)
                     val startPosition = bookList.size
                     bookList.addAll(filteredBooks)
-                    bookAdapter.notifyItemRangeInserted(startPosition, filteredBooks.size)
+                    // Apply sorting if a sort criteria is selected
+                    if (currentSortCriteria != "default") {
+                        sortBooks(currentSortCriteria)
+                    } else {
+                        bookAdapter.notifyItemRangeInserted(startPosition, filteredBooks.size)
+                    }
                 }
             } else {
                 Log.d("SearchFragment", "No books fetched from API")
@@ -267,54 +258,149 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         }
     }
 
-// ... (other code)
-
-
-    // Function to update the visibility of the no results text view
-    private fun updateNoResultsVisibility(isVisible: Boolean) {
-        noResultsTextView.visibility = if (isVisible) View.VISIBLE else View.GONE
-        recyclerView.visibility = if (isVisible) View.GONE else View.VISIBLE
-    }
-
-    // Function to navigate to the filter fragment
-    private fun navigateToFilters() {
-        Log.d("SearchFragment", "Navigating to filters with genres: $availableGenres")
-
-        val filterFragment = SearchFiltersFragment()
-        val bundle = Bundle()
-        bundle.putString("currentQuery", searchEditText.text.toString())
-        bundle.putStringArrayList("availableGenres", ArrayList(availableGenres)) // Pass genres
-        filterFragment.arguments = bundle
-
-        (activity as MainActivity).replaceFragment(filterFragment, "Search Filters")
-    }
-
-    private fun performSearch(fetchAllGenres: Boolean = false) {
-        currentQuery = searchEditText.text.toString()
-        if (currentQuery.isNullOrBlank()) {
+    private fun collectGenresAndNavigate() {
+        val currentQuery = searchEditText.text.toString()
+        if (currentQuery.isBlank()) {
             Toast.makeText(activity, "Please enter a search query", Toast.LENGTH_SHORT).show()
             return
         }
 
-        Log.d("SearchFragment", "Performing search with query: $currentQuery")
+        // Reset variables
+        availableGenres.clear()
+        var booksFetched = 0
+        var startIndexForGenres = 0
+        val totalBooksToFetch = 50
 
-        noResultsTextView.visibility = View.GONE // Hide "No results found" initially
-        recyclerView.visibility = View.VISIBLE // Show RecyclerView initially
+        fun fetchNextBatch() {
+            val mainActivity = activity as? MainActivity
+            if (mainActivity == null) {
+                Log.w("SearchFragment", "Activity is null, cannot perform searchBooks")
+                return
+            }
 
-        val itemCount = bookList.size
-        if (itemCount > 0) {
-            bookList.clear()
-            bookAdapter.notifyItemRangeRemoved(0, itemCount)
+            mainActivity.searchBooks(
+                currentQuery,
+                startIndexForGenres,
+                languageFilter = null
+            ) { books: List<BookItem>? ->
+                if (books != null && books.isNotEmpty()) {
+                    Log.d("SearchFragment", "Fetched ${books.size} books for genre collection")
+                    books.forEach { bookItem ->
+                        val genres = bookItem.volumeInfo.categories?.map { it.trim() } ?: emptyList()
+                        availableGenres.addAll(genres)
+                    }
+                    booksFetched += books.size
+                    startIndexForGenres += books.size
+                    Log.d("SearchFragment", "Collected genres so far: $availableGenres")
+                    if (booksFetched < totalBooksToFetch && books.size > 0) {
+                        // Fetch next batch
+                        fetchNextBatch()
+                    } else {
+                        // Done fetching genres
+                        Log.d("SearchFragment", "Final collected genres: $availableGenres")
+                        navigateToFilters()
+                    }
+                } else {
+                    // No more books to fetch
+                    Log.d("SearchFragment", "No more books to fetch for genres")
+                    navigateToFilters()
+                }
+            }
         }
 
-        // Reset the pagination
-        startIndex = 0
+        // Start fetching genres
+        fetchNextBatch()
+    }
 
-        // Clear previous genres
-        availableGenres.clear()
+    private fun navigateToFilters() {
+        Log.d("SearchFragment", "Navigating to filters with genres: $availableGenres")
+        val filterFragment = SearchFiltersFragment()
+        val bundle = Bundle()
+        bundle.putString("currentQuery", currentQuery)
+        bundle.putStringArrayList("availableGenres", ArrayList(availableGenres))
+        filterFragment.arguments = bundle
 
-        // Load books and collect genres
-        loadBooks(currentQuery!!, fetchAllGenres = true)
+        (activity as? MainActivity)?.replaceFragment(filterFragment, "Search Filters")
+    }
+
+    private fun updateNoResultsVisibility(show: Boolean) {
+        noResultsTextView.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private fun showSortByMenu() {
+        // Inflate the custom layout
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.fragment_sortby, null)
+        val builder = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+
+        val alertDialog = builder.create()
+
+        // Initialize the TextViews from the custom layout
+        val sortByHighRating: TextView = dialogView.findViewById(R.id.sort_by_high_rating)
+        val sortByLowRating: TextView = dialogView.findViewById(R.id.sort_by_low_rating)
+        val sortByTitleAZ: TextView = dialogView.findViewById(R.id.sort_by_rating_az    )
+        val sortByTitleZA: TextView = dialogView.findViewById(R.id.sort_by_rating_za)
+        val sortByAuthor: TextView = dialogView.findViewById(R.id.sort_by_author)
+
+        // Set click listeners for each sorting option
+        sortByHighRating.setOnClickListener {
+            currentSortCriteria = "high_rating"
+            sortBooks(currentSortCriteria)
+            alertDialog.dismiss()
+        }
+
+        sortByLowRating.setOnClickListener {
+            currentSortCriteria = "low_rating"
+            sortBooks(currentSortCriteria)
+            alertDialog.dismiss()
+        }
+
+        sortByTitleAZ.setOnClickListener {
+            currentSortCriteria = "title_az"
+            sortBooks(currentSortCriteria)
+            alertDialog.dismiss()
+        }
+
+        sortByTitleZA.setOnClickListener {
+            currentSortCriteria = "title_za"
+            sortBooks(currentSortCriteria)
+            alertDialog.dismiss()
+        }
+
+        sortByAuthor.setOnClickListener {
+            currentSortCriteria = "author"
+            sortBooks(currentSortCriteria)
+            alertDialog.dismiss()
+        }
+
+        // Show the dialog
+        alertDialog.show()
+    }
+
+    private fun sortBooks(criteria: String) {
+        when (criteria) {
+            "high_rating" -> {
+                bookList.sortByDescending { it.volumeInfo.averageRating ?: 0f }
+                sortByButton.text = "Rating: High to Low ▼"
+            }
+            "low_rating" -> {
+                bookList.sortBy { it.volumeInfo.averageRating ?: 0f }
+                sortByButton.text = "Rating: Low to High ▼"
+            }
+            "title_az" -> {
+                bookList.sortBy { it.volumeInfo.title ?: "" }
+                sortByButton.text = "Title: A to Z ▼"
+            }
+            "title_za" -> {
+                bookList.sortByDescending { it.volumeInfo.title ?: "" }
+                sortByButton.text = "Title: Z to A ▼"
+            }
+            "author" -> {
+                bookList.sortBy { it.volumeInfo.authors?.firstOrNull() ?: "" }
+                sortByButton.text = "Author: A to Z ▼"
+            }
+        }
+        bookAdapter.notifyDataSetChanged()
     }
 
     override fun onItemClick(position: Int) {
@@ -323,10 +409,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         val bundle = Bundle()
 
         bundle.putString("bookTitle", bookItem.volumeInfo.title)
-        bundle.putString(
-            "bookAuthor",
-            bookItem.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author"
-        )
+        bundle.putString("bookAuthor", bookItem.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")
         bundle.putString(
             "bookImage",
             bookItem.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
@@ -334,74 +417,6 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         bundle.putFloat("bookRating", bookItem.volumeInfo.averageRating ?: 0f)
 
         bookDetailsFragment.arguments = bundle
-        (activity as MainActivity).replaceFragment(bookDetailsFragment, bookItem.volumeInfo.title)
-    }
-
-    private fun showSortPopup(anchorView: View) {
-        val inflater = LayoutInflater.from(context)
-        val popupView = inflater.inflate(R.layout.fragment_sortby, null)
-
-        val popupWindow = PopupWindow(
-            popupView,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            true
-        )
-        popupWindow.showAsDropDown(anchorView, 0, 0)
-
-        popupView.findViewById<TextView>(R.id.sort_by_high_rating).setOnClickListener {
-            sortBooksByRating(highToLow = true)
-            popupWindow.dismiss()
-        }
-
-        popupView.findViewById<TextView>(R.id.sort_by_low_rating).setOnClickListener {
-            sortBooksByRating(highToLow = false)
-            popupWindow.dismiss()
-        }
-
-        popupView.findViewById<TextView>(R.id.sort_by_rating_az).setOnClickListener {
-            sortBooksByTitle(ascending = true)
-            popupWindow.dismiss()
-        }
-
-        popupView.findViewById<TextView>(R.id.sort_by_rating_za).setOnClickListener {
-            sortBooksByTitle(ascending = false)
-            popupWindow.dismiss()
-        }
-
-        popupView.findViewById<TextView>(R.id.sort_by_author).setOnClickListener {
-            sortBooksByAuthor(ascending = true)
-            popupWindow.dismiss()
-        }
-
-        popupWindow.isOutsideTouchable = true
-        popupWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-    }
-
-    private fun sortBooksByRating(highToLow: Boolean) {
-        if (highToLow) {
-            bookList.sortByDescending { it.volumeInfo.averageRating }
-        } else {
-            bookList.sortBy { it.volumeInfo.averageRating }
-        }
-        bookAdapter.notifyDataSetChanged()
-    }
-
-    private fun sortBooksByTitle(ascending: Boolean) {
-        if (ascending) {
-            bookList.sortBy { it.volumeInfo.title }
-        } else {
-            bookList.sortByDescending { it.volumeInfo.title }
-        }
-        bookAdapter.notifyDataSetChanged()
-    }
-
-    private fun sortBooksByAuthor(ascending: Boolean) {
-        if (ascending) {
-            bookList.sortBy { it.volumeInfo.authors?.firstOrNull() ?: "" }
-        } else {
-            bookList.sortByDescending { it.volumeInfo.authors?.firstOrNull() ?: "" }
-        }
-        bookAdapter.notifyDataSetChanged()
+        (activity as? MainActivity)?.replaceFragment(bookDetailsFragment, bookItem.volumeInfo.title)
     }
 }
