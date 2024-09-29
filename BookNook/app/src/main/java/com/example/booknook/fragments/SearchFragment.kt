@@ -180,6 +180,8 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
     }
 
     // Function to load books based on the query and filters
+    // ... (other code)
+
     private fun loadBooks(
         query: String,
         fetchAllGenres: Boolean = false,
@@ -239,18 +241,19 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
                 Log.d("SearchFragment", "Filtered books count: ${filteredBooks.size}")
 
+                // Increment the startIndex based on the original book list, not just the filtered list
+                startIndex += books.size
+
                 if (filteredBooks.isEmpty()) {
-                    if (startIndex == 0) {
+                    if (startIndex == books.size) { // startIndex was 0 before incrementing
                         updateNoResultsVisibility(true)
                     }
+                    // No need to fetch more books here; scrolling will fetch more
                 } else {
                     updateNoResultsVisibility(false)
                     val startPosition = bookList.size
                     bookList.addAll(filteredBooks)
                     bookAdapter.notifyItemRangeInserted(startPosition, filteredBooks.size)
-
-                    // Increment the startIndex based on the original book list, not just the filtered list
-                    startIndex += books.size
                 }
             } else {
                 Log.d("SearchFragment", "No books fetched from API")
@@ -263,6 +266,9 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
             onBooksLoaded?.invoke()
         }
     }
+
+// ... (other code)
+
 
     // Function to update the visibility of the no results text view
     private fun updateNoResultsVisibility(isVisible: Boolean) {
