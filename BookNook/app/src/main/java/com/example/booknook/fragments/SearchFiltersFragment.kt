@@ -1,14 +1,14 @@
 package com.example.booknook.fragments
 
 import android.os.Bundle
-import android.util.Log
+import android.util.Log // Import Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
-import com.example.booknook.R
 import com.example.booknook.MainActivity
+import com.example.booknook.R
 
 class SearchFiltersFragment : Fragment() {
 
@@ -50,6 +50,10 @@ class SearchFiltersFragment : Fragment() {
         currentQuery = arguments?.getString("currentQuery")
         availableGenres = arguments?.getStringArrayList("availableGenres") // Retrieve passed genres
 
+        Log.d("SearchFiltersFragment", "Received arguments:")
+        Log.d("SearchFiltersFragment", "currentQuery: $currentQuery")
+        Log.d("SearchFiltersFragment", "availableGenres: $availableGenres")
+
         includeGenresSection = view.findViewById(R.id.includeGenresSection)
         excludeGenresSection = view.findViewById(R.id.excludeGenresSection)
         includeToggleButton = view.findViewById(R.id.includeGenresToggleButton)
@@ -63,8 +67,9 @@ class SearchFiltersFragment : Fragment() {
             toggleVisibility(excludeGenresSection, excludeToggleButton)
         }
 
-        // Populate the genres in both include and exclude sections
+        // Populate genres only if they are available
         if (!availableGenres.isNullOrEmpty()) {
+            Log.d("SearchFiltersFragment", "Populating genre checkboxes")
             populateGenreCheckboxes(includeGenresSection, "Include")
             populateGenreCheckboxes(excludeGenresSection, "Exclude")
         } else {
@@ -74,6 +79,9 @@ class SearchFiltersFragment : Fragment() {
         submitButton = view.findViewById(R.id.submitButton)
         submitButton.setOnClickListener {
             val genresPair = getSelectedGenres()
+            Log.d("SearchFiltersFragment", "Selected genres:")
+            Log.d("SearchFiltersFragment", "Include: ${genresPair.first}")
+            Log.d("SearchFiltersFragment", "Exclude: ${genresPair.second}")
             performSearchWithGenres(genresPair)
         }
 
@@ -106,6 +114,7 @@ class SearchFiltersFragment : Fragment() {
         // Check if available genres are not null and not empty
         availableGenres?.let { genres ->
             if (genres.isNotEmpty()) {
+                Log.d("SearchFiltersFragment", "Populating checkboxes with genres: $genres")
                 // Dynamically create and add checkboxes for each genre
                 genres.forEach { genre ->
                     val checkBox = CheckBox(context) // Create a new checkbox
@@ -152,15 +161,17 @@ class SearchFiltersFragment : Fragment() {
         val searchFragment = SearchFragment()
         val bundle = Bundle()
 
-        val userInputLanguage = view?.findViewById<EditText>(R.id.languageEditText)?.text.toString().trim()
+        val userInputLanguage =
+            view?.findViewById<EditText>(R.id.languageEditText)?.text.toString().trim()
         val languageFilter = languageMap[userInputLanguage.lowercase()] ?: userInputLanguage
 
-        val selectedRatingRange = view?.findViewById<Spinner>(R.id.ratingSpinner)?.selectedItem.toString()
+        val selectedRatingRange =
+            view?.findViewById<Spinner>(R.id.ratingSpinner)?.selectedItem.toString()
         val ratingRange = parseRatingRange(selectedRatingRange)
 
         bundle.putString("currentQuery", currentQuery)
-        bundle.putStringArrayList("includeGenres", ArrayList(includeGenres))  // Pass the include genres
-        bundle.putStringArrayList("excludeGenres", ArrayList(excludeGenres))  // Pass the exclude genres
+        bundle.putStringArrayList("includeGenres", ArrayList(includeGenres))
+        bundle.putStringArrayList("excludeGenres", ArrayList(excludeGenres))
         bundle.putString("languageFilter", languageFilter)
 
         if (ratingRange != null) {
@@ -170,6 +181,12 @@ class SearchFiltersFragment : Fragment() {
             bundle.putFloat("minRating", 0f)
             bundle.putFloat("maxRating", 5f)
         }
+
+        Log.d("SearchFiltersFragment", "Navigating back to SearchFragment with filters:")
+        Log.d("SearchFiltersFragment", "includeGenres: $includeGenres")
+        Log.d("SearchFiltersFragment", "excludeGenres: $excludeGenres")
+        Log.d("SearchFiltersFragment", "languageFilter: $languageFilter")
+        Log.d("SearchFiltersFragment", "ratingRange: $ratingRange")
 
         searchFragment.arguments = bundle
         (activity as MainActivity).replaceFragment(searchFragment, "Search Results")

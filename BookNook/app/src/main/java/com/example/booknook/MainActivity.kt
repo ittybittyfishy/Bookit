@@ -20,7 +20,6 @@ import retrofit2.Response
 
 class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
 
-    // Initialize fragments for different sections of the app
     private val homeFragment = HomeFragment()
     private val profileFragment = ProfileFragment()
     private val collectionFragment = CollectionFragment()
@@ -32,84 +31,63 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
     private val genrePreferenceFragment = GenrePreferenceFragment()
     private val accountFragment = AccountFragment()
 
-    // Unique API key
     private val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM"
 
-    // Declare the book list and adapter for sorting functionality
     private var bookList: MutableList<BookItem> = mutableListOf()
     private lateinit var bookAdapter: BookAdapter
     private lateinit var recyclerView: RecyclerView
 
-    // Method called when the activity is created
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)  // Set your activity's layout
+        setContentView(R.layout.activity_main)
 
-        // Initialize RecyclerView and Adapter (with listener parameter)
         recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)  // Set the layout manager
-        bookAdapter = BookAdapter(bookList, this)  // Pass 'this' as the listener
-        recyclerView.adapter = bookAdapter  // Set the adapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        bookAdapter = BookAdapter(bookList, this)
+        recyclerView.adapter = bookAdapter
 
-        // Listen for filters being applied (when coming back from SearchFiltersFragment)
         supportFragmentManager.setFragmentResultListener("requestKey", this) { requestKey, bundle ->
             val selectedGenres = bundle.getStringArrayList("selectedGenres")
             val languageFilter = bundle.getString("languageFilter")
             val minRating = bundle.getFloat("minRating", 0f)
             val maxRating = bundle.getFloat("maxRating", 5f)
 
-            // Perform a search or filter books using the received filters
             searchBooksWithFilters(selectedGenres, languageFilter, minRating, maxRating)
         }
 
-        // Get references to the BottomNavigationView and banner TextView from the layout
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation)
         val bannerTextView: TextView = findViewById(R.id.bannerTextView)
 
-        // Check if it's the user's first login
         val isFirstLogin = intent.getBooleanExtra("isFirstLogin", false)
         if (isFirstLogin) {
-            // If first login, show Genre Preference Fragment for selecting genres
             replaceFragment(genrePreferenceFragment, "Select Genres")
         } else {
-            // Otherwise, show the Home Fragment
             replaceFragment(homeFragment, "Home")
         }
 
-        // Set up the BottomNavigationView's item selection listener
         bottomNavigationView.setOnItemSelectedListener {
             when (it.itemId) {
-                // When 'Home' is selected, load Home Fragment
                 R.id.home -> replaceFragment(homeFragment, "Home")
-                // When 'Collections' is selected, load Collection Fragment
                 R.id.collections -> replaceFragment(collectionFragment, "My Books")
-                // When 'Search' is selected, load Search Fragment
                 R.id.search -> replaceFragment(searchFragment, "Search")
-                // When 'Profile' is selected, load Profile Fragment
                 R.id.profile -> replaceFragment(profileFragment, "Profile")
-                // When 'More' is selected, show the additional options in a popup menu
                 R.id.more -> showMorePopupMenu(findViewById(R.id.more))
             }
             true
         }
     }
 
-    // Method to replace the current fragment with a new one and update the banner title
     fun replaceFragment(fragment: Fragment, title: String) {
         val transaction = supportFragmentManager.beginTransaction()
-        // Replace the fragment container with the selected fragment
         transaction.replace(R.id.menu_container, fragment)
         transaction.commit()
-        // Update the banner TextView with the new title
         findViewById<TextView>(R.id.bannerTextView).text = title
     }
 
-    // Method to show a popup menu when 'More' is selected
     private fun showMorePopupMenu(view: View) {
         val popupMenu = PopupMenu(this@MainActivity, view)
         popupMenu.inflate(R.menu.more_menu)
 
-        // Set up the item click listener for the popup menu
         popupMenu.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.friends -> replaceFragment(friendsFragment, "Friends")
@@ -119,11 +97,9 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
             }
             true
         }
-        // Show the popup menu
         popupMenu.show()
     }
 
-    // Function to search for books using an API call
     fun searchBooks(query: String, startIndex: Int, languageFilter: String? = null, callback: (List<BookItem>?) -> Unit) {
         val call = RetrofitInstance.api.searchBooks(query, startIndex, apiKey, languageFilter)
         call.enqueue(object : Callback<BookResponse> {
@@ -142,97 +118,89 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         })
     }
 
-    // Function to search and apply filters
-    fun searchBooksWithFilters(genres: List<String>?, language: String?, minRating: Float, maxRating: Float) {
-        val query = "some search query"  // You'll need to update this to match the user's input
-
-        // Call the API or perform filtering on the local dataset
-        searchBooks(query, 0, language) { bookItems ->
-            val filteredBooks = bookItems?.filter { book ->
-                // Filter by genres
-                genres?.isEmpty() ?: true || genres?.any { genre ->
-                    book.volumeInfo.categories?.contains(genre) == true
-                } ?: true &&
-
-                        // Filter by rating
-                        (book.volumeInfo.averageRating ?: 0f) in minRating..maxRating
+    // Fetches all available genres from Google Books API
+    fun getAvailableGenres(query: String, callback: (List<String>?) -> Unit) {
+        // We use the same searchBooks API and collect genres (categories) from the first 40 books
+        val call = RetrofitInstance.api.searchBooks(query, 0, apiKey, null)
+        call.enqueue(object : Callback<BookResponse> {
+            override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
+                if (response.isSuccessful) {
+                    val genres = mutableSetOf<String>()
+                    response.body()?.items?.forEach { bookItem ->
+                        bookItem.volumeInfo.categories?.let { genres.addAll(it) }
+                    }
+                    callback(genres.toList()) // Return unique genres as a list
+                } else {
+                    callback(null)
+                }
             }
 
-            // Update the book list with filtered results and notify adapter
+            override fun onFailure(call: Call<BookResponse>, t: Throwable) {
+                t.printStackTrace()
+                callback(null)
+            }
+        })
+    }
+
+    fun searchBooksWithFilters(genres: List<String>?, language: String?, minRating: Float, maxRating: Float) {
+        val query = "some search query"
+
+        searchBooks(query, 0, language) { bookItems ->
+            val filteredBooks = bookItems?.filter { book ->
+                genres?.isEmpty() ?: true || genres?.any { genre ->
+                    book.volumeInfo.categories?.contains(genre) == true
+                } ?: true && (book.volumeInfo.averageRating ?: 0f) in minRating..maxRating
+            }
+
             bookList.clear()
             filteredBooks?.let { bookList.addAll(it) }
             bookAdapter.notifyDataSetChanged()
         }
     }
 
-    // Function to sort books based on different criteria
     fun sortBooks(criteria: String) {
         when (criteria) {
-            "high_rating" -> {
-                // Sort by rating from high to low
-                bookList.sortByDescending { it.volumeInfo.averageRating ?: 0f }
-            }
-            "low_rating" -> {
-                // Sort by rating from low to high
-                bookList.sortBy { it.volumeInfo.averageRating ?: 0f }
-            }
-            "title_az" -> {
-                // Sort by title A to Z
-                bookList.sortBy { it.volumeInfo.title }
-            }
-            "title_za" -> {
-                // Sort by title Z to A
-                bookList.sortByDescending { it.volumeInfo.title }
-            }
-            "author" -> {
-                // Sort by first author's name A to Z (if authors exist)
-                bookList.sortBy { it.volumeInfo.authors?.firstOrNull() ?: "" }
-            }
+            "high_rating" -> bookList.sortByDescending { it.volumeInfo.averageRating ?: 0f }
+            "low_rating" -> bookList.sortBy { it.volumeInfo.averageRating ?: 0f }
+            "title_az" -> bookList.sortBy { it.volumeInfo.title }
+            "title_za" -> bookList.sortByDescending { it.volumeInfo.title }
+            "author" -> bookList.sortBy { it.volumeInfo.authors?.firstOrNull() ?: "" }
         }
-        // Notify the adapter that the data has changed after sorting
         bookAdapter.notifyDataSetChanged()
     }
 
-    // When the app comes back to the foreground
     override fun onResume() {
         super.onResume()
         val firebaseUser = FirebaseAuth.getInstance().currentUser
-        if (firebaseUser != null) {
-            val userId = firebaseUser.uid
+        firebaseUser?.uid?.let { userId ->
             FirebaseFirestore.getInstance().collection("users").document(userId)
-                .update("isOnline", true)  // Mark user as online
+                .update("isOnline", true)
         }
     }
 
-    // When activity is no longer in foreground, but still visible in multi-window mode
     override fun onPause() {
         super.onPause()
         setUserOffline()
     }
 
-    // When newly launched activity covers the entire screen
     override fun onStop() {
         super.onStop()
         setUserOffline()
     }
 
-    // When user clears out the app
     override fun onDestroy() {
         super.onDestroy()
         setUserOffline()
     }
 
-    // Function to update the user's status to offline in database under "isOnline" field
     private fun setUserOffline() {
         val firebaseUser = FirebaseAuth.getInstance().currentUser
-        if (firebaseUser != null) {
-            val userId = firebaseUser.uid
+        firebaseUser?.uid?.let { userId ->
             FirebaseFirestore.getInstance().collection("users").document(userId)
                 .update("isOnline", false)
         }
     }
 
-    // Implementing the required method for BookAdapter.RecyclerViewEvent interface
     override fun onItemClick(position: Int) {
         val bookItem = bookList[position]
         val bookDetailsFragment = BookDetailsFragment()
