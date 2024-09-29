@@ -21,7 +21,7 @@
             android:textSize="18sp"
             android:fontFamily="sans-serif-medium"
             android:textColor="#8b774e"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp" />
 
         <EditText
             android:id="@+id/languageEditText"
@@ -31,7 +31,7 @@
             android:padding="8dp"
             android:textColorHint="#c1a37a"
             android:textSize="16sp"
-            android:inputType="text"/>
+            android:inputType="text" />
 
         <!-- Rating Input (Spinner) -->
         <TextView
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/rectangle_border_white"
             android:padding="8dp"
-            android:textSize="16sp"/>
+            android:textSize="16sp" />
 
         <!-- Include Genres Section Toggle Button -->
         <Button
@@ -77,9 +77,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount="2"
-                android:orientation="horizontal">
-                <!-- Dynamically populate genres here -->
-            </GridLayout>
+                android:orientation="horizontal" />
         </LinearLayout>
 
         <!-- Exclude Genres Section Toggle Button (Missing button added here) -->
@@ -107,9 +105,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount="2"
-                android:orientation="horizontal">
-                <!-- Dynamically populate genres here -->
-            </GridLayout>
+                android:orientation="horizontal" />
         </LinearLayout>
 
         <!-- Submit Button -->
@@ -123,6 +119,6 @@
             android:background="@null"
             android:textColor="#FFFFFF"
             android:backgroundTint="#99ba91"
-            android:padding="12dp"/>
+            android:padding="12dp" />
     </LinearLayout>
 </ScrollView>

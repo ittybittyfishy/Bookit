@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.example.booknook.R
-import android.widget.GridLayout
 import com.example.booknook.MainActivity
 
 class SearchFiltersFragment : Fragment() {
@@ -94,21 +93,26 @@ class SearchFiltersFragment : Fragment() {
 
     // Function to dynamically create checkboxes for each genre
     private fun populateGenreCheckboxes(container: LinearLayout, type: String) {
+        // Use GridLayout for organizing checkboxes in a grid structure
         val gridLayout = if (type == "Include") {
             container.findViewById<GridLayout>(R.id.includeGenresGridLayout)
         } else {
             container.findViewById<GridLayout>(R.id.excludeGenresGridLayout)
         }
 
+        // Clear the previous checkboxes to prevent duplicates
+        gridLayout.removeAllViews()
+
         // Check if available genres are not null and not empty
-        availableGenres?.let {
-            if (it.isNotEmpty()) {
-                gridLayout.removeAllViews() // Clear any previous checkboxes
-                it.forEach { genre ->
+        availableGenres?.let { genres ->
+            if (genres.isNotEmpty()) {
+                // Dynamically create and add checkboxes for each genre
+                genres.forEach { genre ->
                     val checkBox = CheckBox(context) // Create a new checkbox
                     checkBox.text = genre
                     checkBox.textSize = 18f
                     checkBox.tag = genre
+
                     gridLayout.addView(checkBox) // Add checkbox to the GridLayout
                 }
             } else {
@@ -155,8 +159,8 @@ class SearchFiltersFragment : Fragment() {
         val ratingRange = parseRatingRange(selectedRatingRange)
 
         bundle.putString("currentQuery", currentQuery)
-        bundle.putStringArrayList("includeGenres", ArrayList(includeGenres))
-        bundle.putStringArrayList("excludeGenres", ArrayList(excludeGenres))
+        bundle.putStringArrayList("includeGenres", ArrayList(includeGenres))  // Pass the include genres
+        bundle.putStringArrayList("excludeGenres", ArrayList(excludeGenres))  // Pass the exclude genres
         bundle.putString("languageFilter", languageFilter)
 
         if (ratingRange != null) {
