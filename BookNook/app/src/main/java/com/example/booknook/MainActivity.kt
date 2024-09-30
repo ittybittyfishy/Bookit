@@ -67,15 +67,13 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
             replaceFragment(homeFragment, "Home")
         }
 
-        // Inside MainActivity, for the bottom navigation:
         bottomNavigationView.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.home -> replaceFragment(homeFragment, "Home")
                 R.id.collections -> replaceFragment(collectionFragment, "My Books")
                 R.id.search -> {
-                    // Pass a flag to SearchFragment to clear the search query
                     val bundle = Bundle()
-                    bundle.putBoolean("clearSearch", true) // This flag tells SearchFragment to clear search input
+                    bundle.putBoolean("clearSearch", true)
                     searchFragment.arguments = bundle
                     replaceFragment(searchFragment, "Search")
                 }
@@ -84,9 +82,6 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
             }
             true
         }
-
-
-
     }
 
     fun replaceFragment(fragment: Fragment, title: String) {
@@ -130,27 +125,30 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         })
     }
 
-    fun fetchGenresForQuery(query: String, callback: (Set<String>?) -> Unit) {
+    fun fetchGenresForQuery(query: String, language: String?, minRating: Float, maxRating: Float, callback: (Set<String>?) -> Unit) {
         val availableGenres = mutableSetOf<String>()
         var booksFetched = 0
         var startIndexForGenres = 0
-        val totalBooksToFetch = 50
+        val totalBooksToFetch = 50 // Adjust this as needed for performance
 
         fun fetchNextBatch() {
-            searchBooks(query, startIndexForGenres, languageFilter = null) { books ->
+            searchBooks(query, startIndexForGenres, language) { books ->
                 if (books != null && books.isNotEmpty()) {
-                    books.forEach { bookItem ->
-                        val genres = bookItem.volumeInfo.categories?.flatMap { category ->
-                            category.split("/", "&").map { GenreUtils.normalizeGenre(it) }
-                        } ?: emptyList()
-                        availableGenres.addAll(genres)
+                    books.forEach { book ->
+                        val rating = book.volumeInfo.averageRating ?: 0f
+                        if (rating in minRating..maxRating) {
+                            val genres = book.volumeInfo.categories?.flatMap { category ->
+                                category.split("/", "&").map { GenreUtils.normalizeGenre(it) }
+                            } ?: emptyList()
+                            availableGenres.addAll(genres)
+                        }
                     }
                     booksFetched += books.size
                     startIndexForGenres += books.size
-                    if (booksFetched < totalBooksToFetch && books.size > 0) {
-                        fetchNextBatch()
+                    if (booksFetched < totalBooksToFetch && books.isNotEmpty()) {
+                        fetchNextBatch() // Continue fetching more books
                     } else {
-                        callback(availableGenres)
+                        callback(availableGenres) // Return the available genres after all filters
                     }
                 } else {
                     callback(availableGenres)

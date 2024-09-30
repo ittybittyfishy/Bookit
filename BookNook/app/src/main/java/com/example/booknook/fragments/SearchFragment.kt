@@ -261,10 +261,17 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
             isLoading = false
 
             if (books != null) {
+
+                books.forEach { book ->
+                    Log.d("SearchFragment", "Book Title: ${book.volumeInfo.title}, Genres: ${book.volumeInfo.categories?.joinToString(", ") ?: "No genres"}")
+                }
+
                 val filteredBooks = books.filter { book ->
                     val bookGenres = book.volumeInfo.categories?.flatMap { category ->
                         category.split("/", "&").map { GenreUtils.normalizeGenre(it) }
                     }?.toSet() ?: emptySet()
+
+
 
                     val rating = book.volumeInfo.averageRating ?: 0f
                     val ratingInRange = rating in localMinRating..localMaxRating

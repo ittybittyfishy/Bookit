@@ -26,6 +26,21 @@ class SearchFiltersFragment : Fragment() {
     private lateinit var genresProgressBar: ProgressBar
     private var genreResultsMap: MutableMap<String, Int> = mutableMapOf() // Holds count of results per genre
 
+    // Map for language names to language codes
+    private val languageMap = mapOf(
+        "english" to "en",
+        "french" to "fr",
+        "spanish" to "es",
+        "german" to "de",
+        "italian" to "it",
+        "portuguese" to "pt",
+        "chinese" to "zh",
+        "japanese" to "ja",
+        "korean" to "ko",
+        "russian" to "ru"
+        // Add more languages as needed
+    )
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -104,8 +119,17 @@ class SearchFiltersFragment : Fragment() {
             return
         }
 
+        // Get the language filter and rating range from the input fields
+        val languageInput = languageEditText.text.toString().trim()
+        val languageFilter = languageMap[languageInput] ?: languageInput // Convert to code if necessary
+
+        val selectedRatingRange = view?.findViewById<Spinner>(R.id.ratingSpinner)?.selectedItem.toString()
+        val ratingRange = parseRatingRange(selectedRatingRange)
+        val minRating = ratingRange?.first ?: 0f
+        val maxRating = ratingRange?.second ?: 5f
+
         // Fetch genres from the main activity
-        mainActivity.fetchGenresForQuery(currentQuery ?: "") { genres: Set<String>? ->
+        mainActivity.fetchGenresForQuery(currentQuery ?: "", languageFilter, minRating, maxRating) { genres: Set<String>? ->
             handler.removeCallbacks(timeoutRunnable)
             activity?.runOnUiThread {
                 genresProgressBar.visibility = View.GONE
@@ -115,6 +139,7 @@ class SearchFiltersFragment : Fragment() {
 
                     // Fetch actual genre results count
                     fetchGenreResultsCount { genreResults ->
+                        availableGenres = availableGenres?.filter { genreResults.containsKey(it) } as ArrayList<String>
                         if (availableGenres != null && availableGenres!!.isNotEmpty()) {
                             populateGenreCheckboxes(includeGenresSection, "Include")
                             populateGenreCheckboxes(excludeGenresSection, "Exclude")
@@ -129,6 +154,7 @@ class SearchFiltersFragment : Fragment() {
             }
         }
     }
+
 
     // Fetch actual results count for each genre based on current search results
     private fun fetchGenreResultsCount(onResultsFetched: (Map<String, Int>) -> Unit) {
@@ -183,14 +209,11 @@ class SearchFiltersFragment : Fragment() {
         availableGenres?.let { genres ->
             if (genres.isNotEmpty()) {
                 genres.forEach { genre ->
-                    // Only add genres that have results
                     if (genreHasResults(genre)) {
                         val checkBox = CheckBox(context)
                         checkBox.text = genre
                         checkBox.textSize = 18f
                         checkBox.tag = genre
-
-                        // Ensure checkboxes are not pre-checked unless explicitly selected
                         checkBox.isChecked = false
 
                         Log.d("SearchFiltersFragment", "Adding Checkbox for Genre: $genre with results: ${genreResultsMap[genre]}")
@@ -202,7 +225,6 @@ class SearchFiltersFragment : Fragment() {
         }
     }
 
-    // Check if a genre has actual results (based on fetched results)
     private fun genreHasResults(genre: String): Boolean {
         val resultsCount = genreResultsMap[genre] ?: 0
         return resultsCount > 0 // Only show genres that have at least 1 result
@@ -228,7 +250,6 @@ class SearchFiltersFragment : Fragment() {
             }
         }
 
-        // Log the selected genres for debugging
         Log.d("SearchFiltersFragment", "User Selected Include Genres: $includeGenres")
         Log.d("SearchFiltersFragment", "User Selected Exclude Genres: $excludeGenres")
 
@@ -243,20 +264,18 @@ class SearchFiltersFragment : Fragment() {
         val selectedRatingRange = view?.findViewById<Spinner>(R.id.ratingSpinner)?.selectedItem.toString()
         val ratingRange = parseRatingRange(selectedRatingRange)
 
-        // Normalize genres before passing to SearchFragment
         val normalizedIncludeGenres = includeGenres.map { GenreUtils.normalizeGenre(it) }.toMutableList()
         val normalizedExcludeGenres = excludeGenres.map { GenreUtils.normalizeGenre(it) }.toMutableList()
 
         Log.d("SearchFiltersFragment", "Performing Search with Include Genres: $normalizedIncludeGenres, Exclude Genres: $normalizedExcludeGenres")
 
-        // Get the language filter from the input field
-        val languageFilter = languageEditText.text.toString() // Store the language filter
+        val languageInput = languageEditText.text.toString().trim()
+        val languageFilter = languageMap[languageInput] ?: languageInput
 
-        // Pass filters to SearchFragment
         bundle.putString("currentQuery", currentQuery)
         bundle.putStringArrayList("includeGenres", ArrayList(normalizedIncludeGenres))
         bundle.putStringArrayList("excludeGenres", ArrayList(normalizedExcludeGenres))
-        bundle.putString("languageFilter", languageFilter) // Pass the language filter
+        bundle.putString("languageFilter", languageFilter)
         if (ratingRange != null) {
             bundle.putFloat("minRating", ratingRange.first)
             bundle.putFloat("maxRating", ratingRange.second)
