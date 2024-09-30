@@ -24,6 +24,7 @@ class ReviewActivity : Fragment() {
     private lateinit var spoilerCheckbox: CheckBox
     private lateinit var sensitiveCheckbox: CheckBox
     private lateinit var useTemplateButton: Button
+
     // Called when the fragment is created
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,12 +40,14 @@ class ReviewActivity : Fragment() {
         spoilerCheckbox = view.findViewById(R.id.spoilerCheckbox)
         sensitiveCheckbox = view.findViewById(R.id.sensitiveTopicsCheckbox)
         useTemplateButton = view.findViewById(R.id.useTemplateButton)
+        openSubRatings = view.findViewById(R.id.openSubRatings)
 
         // Retrieve views for displaying the book image and author details
         val bookImageView: ImageView = view.findViewById(R.id.bookImage)
         val authorTextView: TextView = view.findViewById(R.id.bookAuthor)
         val bookRatingBar: RatingBar = view.findViewById(R.id.bookRating)
         val ratingNumberTextView: TextView = view.findViewById(R.id.ratingNumber)
+        val bookTitleView: TextView = view.findViewById(R.id.bookTitle)
 
         // Retrieve book information passed through arguments (e.g., from previous screen)
         val bookTitle = arguments?.getString("bookTitle")
@@ -58,6 +61,7 @@ class ReviewActivity : Fragment() {
         authorTextView.text = bookAuthor  // Display the book's author(s)
         bookRatingBar.rating = bookRating // Set rating bar with book rating
         ratingNumberTextView.text = "(${bookRating.toString()})" // Display the numeric rating
+        bookTitleView.text = bookTitle //Display the Title of book
 
         // Load the book's image using Glide (a third-party library for image loading)
         if (!bookImage.isNullOrEmpty()) {

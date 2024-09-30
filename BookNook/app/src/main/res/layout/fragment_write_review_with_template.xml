@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- CardView for Book Info (image, author name, rating, etc.) -->
+            <!-- CardView for Book Info (image, title, author name, rating, etc.) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/bookInfoCard"
                 android:layout_width="match_parent"
@@ -31,6 +31,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
+                    <!-- Book Image -->
                     <ImageView
                         android:id="@+id/bookImage"
                         android:layout_width="110dp"
@@ -39,16 +40,33 @@
                         android:layout_marginStart="5dp"
                         android:scaleType="fitCenter" />
 
+                    <!-- Book Title -->
+                    <TextView
+                        android:id="@+id/bookTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/bookImage"
+                        android:text="Before I Fall"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/star_green"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
+
+                    <!-- Author Label -->
                     <TextView
                         android:id="@+id/authors"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
+                        android:layout_below="@id/bookTitle"
                         android:layout_toEndOf="@id/bookImage"
                         android:text="Author(s):"
                         android:textSize="16sp"
                         android:textColor="@color/black" />
 
+                    <!-- Book Author -->
                     <TextView
                         android:id="@+id/bookAuthor"
                         android:layout_width="wrap_content"
@@ -63,6 +81,7 @@
                         android:maxWidth="150dp"
                         android:textSize="16sp" />
 
+                    <!-- Book Rating -->
                     <RatingBar
                         android:id="@+id/bookRating"
                         style="@style/Widget.AppCompat.RatingBar.Small"
@@ -78,6 +97,7 @@
                         android:progressTint="@color/star_green"
                         android:secondaryProgressTint="@color/star_green" />
 
+                    <!-- Rating Number -->
                     <TextView
                         android:id="@+id/ratingNumber"
                         android:layout_width="wrap_content"
@@ -85,7 +105,7 @@
                         android:layout_marginStart="8dp"
                         android:layout_toEndOf="@id/bookRating"
                         android:layout_alignBottom="@id/bookRating"
-                        android:text="4.5"
+                        android:text="(3.9)"
                         android:textSize="16sp"
                         android:textColor="@color/black" />
                 </RelativeLayout>

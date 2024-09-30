@@ -21,6 +21,7 @@ class ReviewActivityTemplate : Fragment() {
     private lateinit var submitButton: Button
     private lateinit var reviewEditText: EditText
     private lateinit var ratingBar: RatingBar
+    private lateinit var removeTemplateButton: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,12 +34,14 @@ class ReviewActivityTemplate : Fragment() {
         submitButton = view.findViewById(R.id.submitReviewButton)
         reviewEditText = view.findViewById(R.id.reviewInput)
         ratingBar = view.findViewById(R.id.myRatingBar)
+        removeTemplateButton = view.findViewById(R.id.removeTemplateButton)
 
         // Retrieve views for displaying the book image and author details
         val bookImageView: ImageView = view.findViewById(R.id.bookImage)
         val authorTextView: TextView = view.findViewById(R.id.bookAuthor)
         val bookRatingBar: RatingBar = view.findViewById(R.id.bookRating)
         val ratingNumberTextView: TextView = view.findViewById(R.id.ratingNumber)
+        val bookTitleView: TextView = view.findViewById(R.id.bookTitle)
 
         // Retrieve book information passed through arguments (e.g., from previous screen)
         val bookTitle = arguments?.getString("bookTitle")
@@ -52,6 +55,7 @@ class ReviewActivityTemplate : Fragment() {
         authorTextView.text = bookAuthor  // Display the book's author(s)
         bookRatingBar.rating = bookRating // Set rating bar with book rating
         ratingNumberTextView.text = "(${bookRating.toString()})" // Display the numeric rating
+        bookTitleView.text = bookTitle //Display the Title of book
 
         // Load the book's image using Glide (a third-party library for image loading)
         if (!bookImage.isNullOrEmpty()) {
@@ -133,6 +137,23 @@ class ReviewActivityTemplate : Fragment() {
                 strengthsChecked, strengthsRating, strengthsReview,
                 weaknessesChecked, weaknessesRating, weaknessesReview
             )
+        }
+
+        //Declare button that connects to XML
+        removeTemplateButton.setOnClickListener {
+
+            // Handle requests button click
+            val reviewActivityFragment = ReviewActivity()
+            val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
+            // Adds data into the bundle
+            bundle.putString("bookTitle", bookTitle)
+            bundle.putString("bookAuthor", bookAuthor)
+            bundle.putString("bookImage", bookImage)
+            bundle.putFloat("bookRating", bookRating)
+            bundle.putString("bookIsbn", bookIsbn)
+
+            reviewActivityFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
+            (activity as? MainActivity)?.replaceFragment(reviewActivityFragment, "Write a Review") // Go back to No template fragment
         }
 
         return view
