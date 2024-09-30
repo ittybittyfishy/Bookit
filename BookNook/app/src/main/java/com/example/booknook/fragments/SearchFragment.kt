@@ -282,16 +282,16 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
                 startIndex += books.size // Update the startIndex to load more in the next call
 
-                if (filteredBooks.isEmpty()) {
+                if (filteredBooks.isNotEmpty()) {
+                    bookList.addAll(filteredBooks)
+                    // Sort the entire bookList after adding the new books
+                    sortBooks(currentSortCriteria)
+                    updateNoResultsVisibility(false)
+                } else {
                     if (startIndex == books.size) {
                         Log.d("SearchFragment", "No books found after filtering.")
                         updateNoResultsVisibility(true)
                     }
-                } else {
-                    updateNoResultsVisibility(false)
-                    val startPosition = bookList.size
-                    bookList.addAll(filteredBooks)
-                    bookAdapter.notifyItemRangeInserted(startPosition, filteredBooks.size)
                 }
             } else {
                 if (startIndex == 0) {
@@ -303,6 +303,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
             onBooksLoaded?.invoke()
         }
     }
+
 
 
     private fun navigateToFilters() {
@@ -395,6 +396,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         bookAdapter.notifyDataSetChanged()
         recyclerView.scrollToPosition(0)
     }
+
 
     override fun onItemClick(position: Int) {
         val bookItem = bookList[position]
