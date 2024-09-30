@@ -55,6 +55,12 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         noResultsTextView = view.findViewById(R.id.noResultsTextView)
         recyclerView = view.findViewById(R.id.recyclerView)
 
+        // Initially disable filter and sort buttons until a search is made
+        filtersButton.isEnabled = false
+        filtersButton.alpha = 0.5f
+        sortByButton.isEnabled = false
+        sortByButton.alpha = 0.5f
+
         recyclerView.layoutManager = LinearLayoutManager(activity)
         bookAdapter = BookAdapter(bookList, this)
         recyclerView.adapter = bookAdapter
@@ -75,11 +81,16 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         }
 
         sortByButton.setOnClickListener {
-            showSortByMenu()
+            if (currentQuery.isNullOrBlank()) {
+                Toast.makeText(activity, "Please enter a search query first", Toast.LENGTH_SHORT).show()
+            } else {
+                showSortByMenu()
+            }
         }
 
         handleArguments()
     }
+
 
     private fun setupRecyclerViewScrollListener() {
         scrollListener = object : RecyclerView.OnScrollListener() {
@@ -175,6 +186,12 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         updateNoResultsVisibility(false)
 
         loadBooks(currentQuery!!) {
+            // Enable filter and sort buttons after the first search is performed
+            filtersButton.isEnabled = true
+            filtersButton.alpha = 1.0f
+            sortByButton.isEnabled = true
+            sortByButton.alpha = 1.0f
+
             isSearching = false
             searchButton.isEnabled = true
         }
@@ -213,6 +230,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
                     val bookGenres = book.volumeInfo.categories?.flatMap { category ->
                         category.split("/", "&").map { it.trim().lowercase() }
                     }?.toSet() ?: emptySet()
+
                     val rating = book.volumeInfo.averageRating ?: 0f
 
                     val genreIncluded = if (localIncludeGenres.isNotEmpty()) {

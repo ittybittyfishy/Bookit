@@ -72,10 +72,9 @@
 
     <Spinner
         android:id="@+id/spinnerSelectCollection"
-        android:layout_width="181dp"
+        android:layout_width="250dp"
         android:layout_height="51dp"
         android:layout_below="@id/bookGenres"
-        android:layout_marginStart="3dp"
         android:layout_toEndOf="@id/book_card"
         android:textAlignment="center"
         style="@style/CustomSpinner"/>
