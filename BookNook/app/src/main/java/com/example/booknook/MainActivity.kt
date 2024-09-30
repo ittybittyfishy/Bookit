@@ -1,4 +1,3 @@
-// File: MainActivity.kt
 package com.example.booknook
 
 import android.os.Bundle
@@ -10,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.api.RetrofitInstance
 import com.example.booknook.fragments.*
-import com.example.booknook.utils.GenreUtils // Import GenreUtils
+import com.example.booknook.utils.GenreUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.view.View
 import android.widget.TextView
@@ -44,8 +43,6 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Initialize RecyclerView and Adapter if needed
-        // (If you're not using RecyclerView in MainActivity, you can remove these lines)
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         bookAdapter = BookAdapter(bookList, this)
@@ -74,12 +71,20 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
             when (it.itemId) {
                 R.id.home -> replaceFragment(homeFragment, "Home")
                 R.id.collections -> replaceFragment(collectionFragment, "My Books")
-                R.id.search -> replaceFragment(searchFragment, "Search")
+                R.id.search -> {
+                    // Pass a flag to SearchFragment to clear the search results
+                    val bundle = Bundle()
+                    bundle.putBoolean("clearSearch", true) // Notify the fragment to clear results
+
+                    searchFragment.arguments = bundle
+                    replaceFragment(searchFragment, "Search")
+                }
                 R.id.profile -> replaceFragment(profileFragment, "Profile")
                 R.id.more -> showMorePopupMenu(findViewById(R.id.more))
             }
             true
         }
+
     }
 
     fun replaceFragment(fragment: Fragment, title: String) {
@@ -123,7 +128,6 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         })
     }
 
-    // Updated fetchGenresForQuery function with GenreUtils normalization
     fun fetchGenresForQuery(query: String, callback: (Set<String>?) -> Unit) {
         val availableGenres = mutableSetOf<String>()
         var booksFetched = 0
@@ -135,7 +139,6 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
                 if (books != null && books.isNotEmpty()) {
                     books.forEach { bookItem ->
                         val genres = bookItem.volumeInfo.categories?.flatMap { category ->
-                            // Normalize each genre using GenreUtils
                             category.split("/", "&").map { GenreUtils.normalizeGenre(it) }
                         } ?: emptyList()
                         availableGenres.addAll(genres)
@@ -156,19 +159,16 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         fetchNextBatch()
     }
 
-    // Updated searchBooksWithFilters with GenreUtils normalization
     fun searchBooksWithFilters(genres: List<String>?, language: String?, minRating: Float, maxRating: Float) {
-        val query = "some search query" // You might want to pass the actual query here
+        val query = "some search query"
 
         searchBooks(query, 0, language) { bookItems ->
             val filteredBooks = bookItems?.filter { book ->
                 val bookGenres = book.volumeInfo.categories?.flatMap { category ->
-                    // Normalize each genre using GenreUtils
                     category.split("/", "&").map { GenreUtils.normalizeGenre(it) }
                 } ?: emptyList()
                 val rating = book.volumeInfo.averageRating ?: 0f
 
-                // Normalize input genres for comparison
                 val normalizedInputGenres = genres?.map { GenreUtils.normalizeGenre(it) } ?: emptyList()
 
                 val genreMatch = normalizedInputGenres.isEmpty() || normalizedInputGenres.any { genre ->
@@ -184,7 +184,6 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
             filteredBooks?.let { bookList.addAll(it) }
             bookAdapter.notifyDataSetChanged()
 
-            // Optionally, handle the case when no books match the filters
             if (filteredBooks.isNullOrEmpty()) {
                 Toast.makeText(this, "No books found matching the filters.", Toast.LENGTH_SHORT).show()
             }
