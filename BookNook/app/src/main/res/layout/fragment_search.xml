@@ -40,42 +40,66 @@
     </FrameLayout>
 
     <!-- Filters and Sort By Buttons -->
+    <!-- Filters and Sort By Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center">
 
+        <!-- Filters Button -->
         <Button
             android:id="@+id/filtersButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Filters"
             android:textSize="16sp"
             android:textColor="#FFFFFF"
             android:backgroundTint="#99ba91"
-            android:singleLine="false"
-            android:maxLines="5"
-            android:ellipsize="none"
             android:gravity="center"
             android:padding="12dp"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
-
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:elevation="4dp"
+            android:layout_weight="1"/>
 
         <!-- Sort By Button -->
         <Button
             android:id="@+id/sortByButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Sort By ▼"
-            android:textSize="16dp"
-            android:layout_marginStart="16dp"
+            android:textSize="16sp"
             android:textColor="#FFFFFF"
             android:backgroundTint="#99ba91"
             android:elevation="4dp"
-            android:padding="10dp" />
+            android:gravity="center"
+            android:padding="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"/>
+
+        <!-- Clear Results Button -->
+        <Button
+            android:id="@+id/clearResultsButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Clear Results"
+            android:textSize="16sp"
+            android:textColor="@color/main_text_brown"
+            android:backgroundTint="@color/custom_tag_pink"
+            android:gravity="center"
+            android:padding="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:elevation="4dp"
+            android:layout_weight="1"
+            android:visibility="gone"/>
     </LinearLayout>
+
+
 
     <!-- Dynamic Active Filters Section -->
     <LinearLayout

@@ -1,4 +1,3 @@
-// File: SearchFragment.kt
 package com.example.booknook.fragments
 
 import android.app.AlertDialog
@@ -21,6 +20,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
     private lateinit var searchEditText: EditText
     private lateinit var filtersButton: Button
     private lateinit var sortByButton: Button
+    private lateinit var clearResultsButton: Button // New clear button
     private lateinit var noResultsTextView: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var bookAdapter: BookAdapter
@@ -54,6 +54,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         searchEditText = view.findViewById(R.id.searchEditText)
         filtersButton = view.findViewById(R.id.filtersButton)
         sortByButton = view.findViewById(R.id.sortByButton)
+        clearResultsButton = view.findViewById(R.id.clearResultsButton) // Initialize clear button
         noResultsTextView = view.findViewById(R.id.noResultsTextView)
         recyclerView = view.findViewById(R.id.recyclerView)
 
@@ -62,6 +63,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         filtersButton.alpha = 0.5f
         sortByButton.isEnabled = false
         sortByButton.alpha = 0.5f
+        clearResultsButton.visibility = View.GONE // Hide clear button initially
 
         recyclerView.layoutManager = LinearLayoutManager(activity)
         bookAdapter = BookAdapter(bookList, this)
@@ -72,6 +74,11 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
         searchButton.setOnClickListener {
             performSearch()
+            clearResultsButton.visibility = View.VISIBLE // Show clear button after search
+        }
+
+        clearResultsButton.setOnClickListener {
+            clearSearchResults() // Clear the search results
         }
 
         filtersButton.setOnClickListener {
@@ -196,6 +203,19 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
             isSearching = false
             searchButton.isEnabled = true
         }
+    }
+
+    private fun clearSearchResults() {
+        searchEditText.text.clear()
+        bookList.clear()
+        bookAdapter.notifyDataSetChanged()
+        noResultsTextView.visibility = View.GONE
+        clearResultsButton.visibility = View.GONE // Hide the clear button
+        filtersButton.isEnabled = false
+        filtersButton.alpha = 0.5f
+        sortByButton.isEnabled = false
+        sortByButton.alpha = 0.5f
+        Toast.makeText(activity, "Search results cleared", Toast.LENGTH_SHORT).show()
     }
 
     private fun loadBooks(
