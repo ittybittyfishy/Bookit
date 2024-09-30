@@ -62,6 +62,8 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         bookAdapter = BookAdapter(bookList, this)
         recyclerView.adapter = bookAdapter
 
+        setupRecyclerViewScrollListener()
+
         filtersButton.alpha = 0.5f
         sortByButton.alpha = 0.5f
 
@@ -144,20 +146,18 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
     private fun setupRecyclerViewScrollListener() {
         scrollListener = object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (dy > 0 && !isLoading) {
-                    val visibleItemCount = recyclerView.layoutManager?.childCount ?: 0
-                    val totalItemCount = recyclerView.layoutManager?.itemCount ?: 0
-                    val pastVisibleItems =
-                        (recyclerView.layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition()
-                            ?: 0
+                super.onScrolled(recyclerView, dx, dy)
 
-                    if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
-                        loadBooks(currentQuery ?: "")
-                    }
+                if (!recyclerView.canScrollVertically(1) && !isLoading) {
+                    // If user cannot scroll further and loading is not already in progress, load more books
+                    loadBooks(currentQuery ?: "")
                 }
             }
         }
+
+        recyclerView.addOnScrollListener(scrollListener)
     }
+
 
     private fun handleArguments() {
         val args = arguments
@@ -235,8 +235,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         if (isLoading) return
 
         isLoading = true
-        val localLanguageFilter = languageFilter ?: ""  // Language filter to be applied
-
+        val localLanguageFilter = languageFilter ?: ""
         val localMaxRating = maxRating
         val localMinRating = minRating
 
@@ -248,6 +247,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         Log.d("SearchFragment", "Exclude Genres: $localExcludeGenres")
         Log.d("SearchFragment", "Language Filter: $localLanguageFilter")
         Log.d("SearchFragment", "Rating Range: $localMinRating - $localMaxRating")
+        Log.d("SearchFragment", "Start Index: $startIndex") // Keep track of start index for debugging
 
         val mainActivity = activity as? MainActivity
         if (mainActivity == null) {
@@ -256,7 +256,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
             return
         }
 
-        // Pass the languageFilter when searching books
+        // Pass the languageFilter and startIndex when searching books for pagination
         mainActivity.searchBooks(query, startIndex, localLanguageFilter.takeIf { it.isNotBlank() }) { books: List<BookItem>? ->
             isLoading = false
 
@@ -280,7 +280,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
                     genreIncluded && genreExcluded && ratingInRange
                 }
 
-                startIndex += books.size
+                startIndex += books.size // Update the startIndex to load more in the next call
 
                 if (filteredBooks.isEmpty()) {
                     if (startIndex == books.size) {
@@ -303,6 +303,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
             onBooksLoaded?.invoke()
         }
     }
+
 
     private fun navigateToFilters() {
         val filterFragment = SearchFiltersFragment()
