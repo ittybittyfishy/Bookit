@@ -19,6 +19,9 @@
     <color name="green_to_purple">#6C9E5C</color>
     <color name="app_background">#FFF8F1</color>
 
+    <color name="light_green">#90EE90</color> <!-- Example light green color -->
+
+
     <color name="home_pink">#E88CA7</color>
     <color name="user_name_home">#F04D4D</color>
     <color name="review_card">#DADFD8</color>

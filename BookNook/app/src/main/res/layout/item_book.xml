@@ -8,9 +8,9 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/book_card"
         android:layout_width="170dp"
-        android:layout_height="210dp"
+        android:layout_height="250dp"
         android:layout_alignParentStart="true"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="10dp"
         android:layout_marginTop="8dp"
         app:cardElevation="2dp"
         app:cardCornerRadius="1dp"
@@ -76,19 +76,19 @@
         android:layout_height="51dp"
         android:layout_below="@id/bookGenres"
         android:layout_marginStart="3dp"
-        android:layout_toEndOf="@id/book_card" />
+        android:layout_toEndOf="@id/book_card"
+        android:textAlignment="center"
+        style="@style/CustomSpinner"/>
 
     <Button
         android:id="@+id/btnAddToCustomCollection"
-        android:contentDescription="Put book in custom collection"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/spinnerSelectCollection"
         android:layout_toEndOf="@id/book_card"
         android:layout_marginStart="10dp"
-        android:padding="4dp"
         android:text="Add to Custom Collection"
-        android:textStyle="italic"
-        android:textColor="@color/banner_green"
-        android:backgroundTint="@color/transparent"/>
+        style="@style/CustomButton" />
+
+
 </RelativeLayout>
