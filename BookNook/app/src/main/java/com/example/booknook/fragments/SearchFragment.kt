@@ -20,7 +20,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
     private lateinit var searchEditText: EditText
     private lateinit var filtersButton: Button
     private lateinit var sortByButton: Button
-    private lateinit var clearResultsButton: Button
+    private lateinit var clearFiltersButton: Button
     private lateinit var noResultsTextView: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var bookAdapter: BookAdapter
@@ -54,7 +54,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         searchEditText = view.findViewById(R.id.searchEditText)
         filtersButton = view.findViewById(R.id.filtersButton)
         sortByButton = view.findViewById(R.id.sortByButton)
-        clearResultsButton = view.findViewById(R.id.clearResultsButton)
+        clearFiltersButton = view.findViewById(R.id.clearFiltersButton)
         noResultsTextView = view.findViewById(R.id.noResultsTextView)
         recyclerView = view.findViewById(R.id.recyclerView)
 
@@ -65,20 +65,8 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         filtersButton.alpha = 0.5f
         sortByButton.alpha = 0.5f
 
-        // Check for clear search flag in arguments
-        arguments?.getBoolean("clearSearch")?.let { shouldClearSearch ->
-            if (shouldClearSearch) {
-                clearSearchResults()
-            }
-        }
-
         searchButton.setOnClickListener {
             performSearch()
-            showClearButton() // Make sure the clear button is visible after performing a search
-        }
-
-        clearResultsButton.setOnClickListener {
-            clearSearchResults()
         }
 
         filtersButton.setOnClickListener {
@@ -86,43 +74,71 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
                 Toast.makeText(activity, "Please enter a search query first", Toast.LENGTH_SHORT).show()
             } else {
                 navigateToFilters()
-                showClearButton() // Keep the clear button visible when applying filters
-                // Set alpha back to 1.0 (fully visible) when there's a valid query
-                sortByButton.alpha = 1.0f
             }
         }
 
         sortByButton.setOnClickListener {
             if (currentQuery.isNullOrBlank()) {
                 Toast.makeText(activity, "Please enter a search query first", Toast.LENGTH_SHORT).show()
-                // Set alpha to 0.5 if no query is entered
             } else {
                 showSortByMenu()
-                // Set alpha back to 1.0 (fully visible) when there's a valid query
-                sortByButton.alpha = 1.0f
             }
         }
 
+        clearFiltersButton.setOnClickListener {
+            clearFilters()
+        }
 
         handleArguments()
     }
 
-    fun clearSearchResults() {
-        view?.post {
-            searchEditText.setText("") // Ensure the search bar text is cleared
-        }
-        bookList.clear() // Clear the book list
-        bookAdapter.notifyDataSetChanged() // Notify the adapter that data has changed
-        noResultsTextView.visibility = View.GONE // Hide the "no results" text
-
-        // Only hide the clear button if both the search text and filters are cleared
-        if (searchEditText.text.isEmpty() && includeGenres.isEmpty() && excludeGenres.isEmpty()) {
-            clearResultsButton.visibility = View.GONE
+    override fun onResume() {
+        super.onResume()
+        // Check for the "clearSearch" flag passed from MainActivity
+        arguments?.getBoolean("clearSearch")?.let { shouldClearSearch ->
+            if (shouldClearSearch) {
+                clearSearchQuery()
+            }
         }
     }
 
-    private fun showClearButton() {
-        clearResultsButton.visibility = View.VISIBLE // Ensure the clear button is always shown when results or filters are present
+    // Function to clear the search query and reset filters
+    private fun clearSearchQuery() {
+        searchEditText.text.clear() // Clear the search query text
+        bookList.clear() // Clear any previous results
+        bookAdapter.notifyDataSetChanged() // Notify the adapter
+        noResultsTextView.visibility = View.GONE // Hide "no results" message
+        filtersButton.isEnabled = false
+        filtersButton.alpha = 0.5f
+        sortByButton.isEnabled = false
+        sortByButton.alpha = 0.5f
+    }
+
+    // New function to clear filters
+    private fun clearFilters() {
+        // Clear filters like language, rating, and genre selections
+        languageFilter = null
+        minRating = 0f
+        maxRating = 5f
+        includeGenres.clear()
+        excludeGenres.clear()
+
+        // Reset the UI states, such as disabling the filters and sort buttons
+        filtersButton.alpha = 0.5f
+        filtersButton.isEnabled = false
+        sortByButton.alpha = 0.5f
+        sortByButton.isEnabled = false
+
+        // Hide the clear filters button since filters have been cleared
+        clearFiltersButton.visibility = View.GONE
+
+        Toast.makeText(activity, "Filters cleared", Toast.LENGTH_SHORT).show()
+
+        // Update the filter button text to "Filters"
+        updateFiltersButtonText()
+
+        // Optionally, refresh the search results without filters
+        performSearch()
     }
 
     private fun setupRecyclerViewScrollListener() {
@@ -155,6 +171,13 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
             searchEditText.setText(currentQuery)
 
+            // Show the clear filters button if filters are applied
+            if (includeGenres.isNotEmpty() || excludeGenres.isNotEmpty() || languageFilter != null || minRating > 0f || maxRating < 5f) {
+                clearFiltersButton.visibility = View.VISIBLE
+            } else {
+                clearFiltersButton.visibility = View.GONE
+            }
+
             updateFiltersButtonText()
 
             performSearch()
@@ -162,41 +185,19 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
     }
 
     private fun updateFiltersButtonText() {
-        val filtersApplied = mutableListOf<String>()
+        // Count the number of active filters
+        var filterCount = 0
 
-        if (includeGenres.isNotEmpty() || excludeGenres.isNotEmpty()) {
-            val genresList = mutableListOf<String>()
-            if (includeGenres.isNotEmpty()) {
-                genresList.add("Include: ${includeGenres.joinToString(", ")}")
-            }
-            if (excludeGenres.isNotEmpty()) {
-                genresList.add("Exclude: ${excludeGenres.joinToString(", ")}")
-            }
-            filtersApplied.add("Genres: ${genresList.joinToString("; ")}")
+        if (includeGenres.isNotEmpty()) filterCount += 1
+        if (excludeGenres.isNotEmpty()) filterCount += 1
+        if (!languageFilter.isNullOrBlank()) filterCount += 1
+        if (minRating > 0f || maxRating < 5f) filterCount += 1
+
+        // Update the Filters button text based on the number of active filters
+        filtersButton.text = when (filterCount) {
+            0 -> "Filters"
+            else -> "Filters ($filterCount)"
         }
-
-        if (!languageFilter.isNullOrBlank()) {
-            filtersApplied.add("Language: $languageFilter")
-        }
-
-        if (minRating > 0f || maxRating < 5f) {
-            filtersApplied.add("Rating: $minRating - $maxRating")
-        }
-
-        val filterText = if (filtersApplied.isNotEmpty()) {
-            "Filters (${filtersApplied.joinToString(", ")})"
-        } else {
-            "Filters"
-        }
-
-        filtersButton.text = if (filterText.length > 30) {
-            filterText.substring(0, 27) + "...)"
-        } else {
-            filterText
-        }
-
-        // Ensure the clear button is visible when filters are applied
-        showClearButton()
     }
 
     private fun performSearch() {
@@ -227,9 +228,6 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
             isSearching = false
             searchButton.isEnabled = true
-
-            // Ensure the clear button is visible after searching
-            showClearButton()
         }
     }
 
@@ -237,7 +235,8 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         if (isLoading) return
 
         isLoading = true
-        val localLanguageFilter = languageFilter ?: ""
+        val localLanguageFilter = languageFilter ?: ""  // Language filter to be applied
+
         val localMaxRating = maxRating
         val localMinRating = minRating
 
@@ -257,6 +256,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
             return
         }
 
+        // Pass the languageFilter when searching books
         mainActivity.searchBooks(query, startIndex, localLanguageFilter.takeIf { it.isNotBlank() }) { books: List<BookItem>? ->
             isLoading = false
 

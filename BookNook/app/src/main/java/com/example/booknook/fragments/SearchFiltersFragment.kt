@@ -21,6 +21,7 @@ class SearchFiltersFragment : Fragment() {
     private lateinit var excludeGenresSection: LinearLayout
     private lateinit var includeToggleButton: Button
     private lateinit var excludeToggleButton: Button
+    private lateinit var languageEditText: EditText // Add language filter input field
     private var availableGenres: ArrayList<String>? = null
     private lateinit var genresProgressBar: ProgressBar
     private var genreResultsMap: MutableMap<String, Int> = mutableMapOf() // Holds count of results per genre
@@ -47,6 +48,7 @@ class SearchFiltersFragment : Fragment() {
         excludeGenresSection = view.findViewById(R.id.excludeGenresSection)
         includeToggleButton = view.findViewById(R.id.includeGenresToggleButton)
         excludeToggleButton = view.findViewById(R.id.excludeGenresToggleButton)
+        languageEditText = view.findViewById(R.id.languageEditText) // Initialize language filter input field
 
         includeToggleButton.setOnClickListener {
             toggleVisibility(includeGenresSection, includeToggleButton)
@@ -247,10 +249,14 @@ class SearchFiltersFragment : Fragment() {
 
         Log.d("SearchFiltersFragment", "Performing Search with Include Genres: $normalizedIncludeGenres, Exclude Genres: $normalizedExcludeGenres")
 
+        // Get the language filter from the input field
+        val languageFilter = languageEditText.text.toString() // Store the language filter
+
+        // Pass filters to SearchFragment
         bundle.putString("currentQuery", currentQuery)
         bundle.putStringArrayList("includeGenres", ArrayList(normalizedIncludeGenres))
         bundle.putStringArrayList("excludeGenres", ArrayList(normalizedExcludeGenres))
-
+        bundle.putString("languageFilter", languageFilter) // Pass the language filter
         if (ratingRange != null) {
             bundle.putFloat("minRating", ratingRange.first)
             bundle.putFloat("maxRating", ratingRange.second)
