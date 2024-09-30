@@ -1,3 +1,4 @@
+// File: MainActivity.kt
 package com.example.booknook
 
 import android.os.Bundle
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.api.RetrofitInstance
 import com.example.booknook.fragments.*
+import com.example.booknook.utils.GenreUtils // Import GenreUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.view.View
 import android.widget.TextView
@@ -121,7 +123,7 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         })
     }
 
-    // Add the fetchGenresForQuery function here
+    // Updated fetchGenresForQuery function with GenreUtils normalization
     fun fetchGenresForQuery(query: String, callback: (Set<String>?) -> Unit) {
         val availableGenres = mutableSetOf<String>()
         var booksFetched = 0
@@ -133,7 +135,8 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
                 if (books != null && books.isNotEmpty()) {
                     books.forEach { bookItem ->
                         val genres = bookItem.volumeInfo.categories?.flatMap { category ->
-                            category.split("/", "&").map { it.trim() }
+                            // Normalize each genre using GenreUtils
+                            category.split("/", "&").map { GenreUtils.normalizeGenre(it) }
                         } ?: emptyList()
                         availableGenres.addAll(genres)
                     }
@@ -153,19 +156,24 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         fetchNextBatch()
     }
 
+    // Updated searchBooksWithFilters with GenreUtils normalization
     fun searchBooksWithFilters(genres: List<String>?, language: String?, minRating: Float, maxRating: Float) {
-        val query = "some search query"
+        val query = "some search query" // You might want to pass the actual query here
 
         searchBooks(query, 0, language) { bookItems ->
             val filteredBooks = bookItems?.filter { book ->
-                val bookGenres = book.volumeInfo.categories ?: emptyList()
+                val bookGenres = book.volumeInfo.categories?.flatMap { category ->
+                    // Normalize each genre using GenreUtils
+                    category.split("/", "&").map { GenreUtils.normalizeGenre(it) }
+                } ?: emptyList()
                 val rating = book.volumeInfo.averageRating ?: 0f
 
-                val genreMatch = genres?.isEmpty() ?: true || genres?.any { genre ->
-                    bookGenres.any { bookGenre ->
-                        bookGenre.equals(genre, ignoreCase = true)
-                    }
-                } ?: true
+                // Normalize input genres for comparison
+                val normalizedInputGenres = genres?.map { GenreUtils.normalizeGenre(it) } ?: emptyList()
+
+                val genreMatch = normalizedInputGenres.isEmpty() || normalizedInputGenres.any { genre ->
+                    bookGenres.contains(genre)
+                }
 
                 val ratingInRange = rating in minRating..maxRating
 
@@ -175,6 +183,11 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
             bookList.clear()
             filteredBooks?.let { bookList.addAll(it) }
             bookAdapter.notifyDataSetChanged()
+
+            // Optionally, handle the case when no books match the filters
+            if (filteredBooks.isNullOrEmpty()) {
+                Toast.makeText(this, "No books found matching the filters.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -182,8 +195,8 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         when (criteria) {
             "high_rating" -> bookList.sortByDescending { it.volumeInfo.averageRating ?: 0f }
             "low_rating" -> bookList.sortBy { it.volumeInfo.averageRating ?: 0f }
-            "title_az" -> bookList.sortBy { it.volumeInfo.title }
-            "title_za" -> bookList.sortByDescending { it.volumeInfo.title }
+            "title_az" -> bookList.sortBy { it.volumeInfo.title ?: "" }
+            "title_za" -> bookList.sortByDescending { it.volumeInfo.title ?: "" }
             "author" -> bookList.sortBy { it.volumeInfo.authors?.firstOrNull() ?: "" }
         }
         bookAdapter.notifyDataSetChanged()
@@ -228,7 +241,10 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
 
         bundle.putString("bookTitle", bookItem.volumeInfo.title)
         bundle.putString("bookAuthor", bookItem.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")
-        bundle.putString("bookImage", bookItem.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"))
+        bundle.putString(
+            "bookImage",
+            bookItem.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
+        )
         bundle.putFloat("bookRating", bookItem.volumeInfo.averageRating ?: 0f)
 
         bookDetailsFragment.arguments = bundle
