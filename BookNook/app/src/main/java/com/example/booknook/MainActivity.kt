@@ -67,15 +67,15 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
             replaceFragment(homeFragment, "Home")
         }
 
+        // Inside MainActivity, for the bottom navigation:
         bottomNavigationView.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.home -> replaceFragment(homeFragment, "Home")
                 R.id.collections -> replaceFragment(collectionFragment, "My Books")
                 R.id.search -> {
-                    // Pass a flag to SearchFragment to clear the search results
+                    // Pass a flag to SearchFragment to clear the search query
                     val bundle = Bundle()
-                    bundle.putBoolean("clearSearch", true) // Notify the fragment to clear results
-
+                    bundle.putBoolean("clearSearch", true) // This flag tells SearchFragment to clear search input
                     searchFragment.arguments = bundle
                     replaceFragment(searchFragment, "Search")
                 }
@@ -84,6 +84,8 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
             }
             true
         }
+
+
 
     }
 
