@@ -20,7 +20,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
     private lateinit var searchEditText: EditText
     private lateinit var filtersButton: Button
     private lateinit var sortByButton: Button
-    private lateinit var clearResultsButton: Button // New clear button
+    private lateinit var clearResultsButton: Button
     private lateinit var noResultsTextView: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var bookAdapter: BookAdapter
@@ -54,31 +54,28 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         searchEditText = view.findViewById(R.id.searchEditText)
         filtersButton = view.findViewById(R.id.filtersButton)
         sortByButton = view.findViewById(R.id.sortByButton)
-        clearResultsButton = view.findViewById(R.id.clearResultsButton) // Initialize clear button
+        clearResultsButton = view.findViewById(R.id.clearResultsButton)
         noResultsTextView = view.findViewById(R.id.noResultsTextView)
         recyclerView = view.findViewById(R.id.recyclerView)
-
-        // Initially disable filter and sort buttons until a search is made
-        filtersButton.isEnabled = false
-        filtersButton.alpha = 0.5f
-        sortByButton.isEnabled = false
-        sortByButton.alpha = 0.5f
-        clearResultsButton.visibility = View.GONE // Hide clear button initially
 
         recyclerView.layoutManager = LinearLayoutManager(activity)
         bookAdapter = BookAdapter(bookList, this)
         recyclerView.adapter = bookAdapter
 
-        setupRecyclerViewScrollListener()
-        recyclerView.addOnScrollListener(scrollListener)
+        // Check for clear search flag in arguments
+        arguments?.getBoolean("clearSearch")?.let { shouldClearSearch ->
+            if (shouldClearSearch) {
+                clearSearchResults()
+            }
+        }
 
         searchButton.setOnClickListener {
             performSearch()
-            clearResultsButton.visibility = View.VISIBLE // Show clear button after search
+            clearResultsButton.visibility = View.VISIBLE
         }
 
         clearResultsButton.setOnClickListener {
-            clearSearchResults() // Clear the search results
+            clearSearchResults()
         }
 
         filtersButton.setOnClickListener {
@@ -99,6 +96,31 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
         handleArguments()
     }
+
+
+
+    // Correct version of clearSearchResults method
+    fun clearSearchResults() {
+        view?.post {
+            searchEditText.setText("") // Ensure the search bar text is cleared
+        }
+        bookList.clear()
+        bookAdapter.notifyDataSetChanged()
+        noResultsTextView.visibility = View.GONE
+
+        // Only hide the clear button if the results are fully cleared
+        if (searchEditText.text.isEmpty()) {
+            clearResultsButton.visibility = View.GONE
+        }
+
+        filtersButton.isEnabled = false
+        filtersButton.alpha = 0.5f
+        sortByButton.isEnabled = false
+        sortByButton.alpha = 0.5f
+    }
+
+
+
 
     private fun setupRecyclerViewScrollListener() {
         scrollListener = object : RecyclerView.OnScrollListener() {
@@ -130,7 +152,6 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
             searchEditText.setText(currentQuery)
 
-            // Update the filters button text based on the applied filters
             updateFiltersButtonText()
 
             performSearch()
@@ -165,7 +186,6 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
             "Filters"
         }
 
-        // Limit the length of the button text to prevent it from becoming too long
         filtersButton.text = if (filterText.length > 30) {
             filterText.substring(0, 27) + "...)"
         } else {
@@ -194,7 +214,6 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         updateNoResultsVisibility(false)
 
         loadBooks(currentQuery!!) {
-            // Enable filter and sort buttons after the first search is performed
             filtersButton.isEnabled = true
             filtersButton.alpha = 1.0f
             sortByButton.isEnabled = true
@@ -205,23 +224,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         }
     }
 
-    private fun clearSearchResults() {
-        searchEditText.text.clear()
-        bookList.clear()
-        bookAdapter.notifyDataSetChanged()
-        noResultsTextView.visibility = View.GONE
-        clearResultsButton.visibility = View.GONE // Hide the clear button
-        filtersButton.isEnabled = false
-        filtersButton.alpha = 0.5f
-        sortByButton.isEnabled = false
-        sortByButton.alpha = 0.5f
-        Toast.makeText(activity, "Search results cleared", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun loadBooks(
-        query: String,
-        onBooksLoaded: (() -> Unit)? = null
-    ) {
+    private fun loadBooks(query: String, onBooksLoaded: (() -> Unit)? = null) {
         if (isLoading) return
 
         isLoading = true
@@ -229,7 +232,6 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         val localMaxRating = maxRating
         val localMinRating = minRating
 
-        // Normalize genres using the utility
         val localIncludeGenres = includeGenres.map { GenreUtils.normalizeGenre(it) }.toSet()
         val localExcludeGenres = excludeGenres.map { GenreUtils.normalizeGenre(it) }.toSet()
 
