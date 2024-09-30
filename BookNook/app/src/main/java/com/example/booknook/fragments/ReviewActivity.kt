@@ -191,11 +191,6 @@ class ReviewActivity : Fragment() {
                                                 "Review updated successfully!",
                                                 Toast.LENGTH_SHORT
                                             ).show()
-                                            // Navigate back to the Home fragment after updating
-                                            (activity as? MainActivity)?.replaceFragment(
-                                                HomeFragment(),
-                                                "Home"
-                                            )
                                         }
                                         .addOnFailureListener {
                                             Toast.makeText(
