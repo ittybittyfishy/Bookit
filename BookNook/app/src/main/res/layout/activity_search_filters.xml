@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Root FrameLayout to overlay the ProgressBar on top of the existing content -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Existing ScrollView -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -70,7 +68,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="8dp" />
 
-            <!-- Include Genres Section (Initially Collapsed) -->
+            <!-- Include Genres Section (Vertical Layout for checkboxes) -->
             <LinearLayout
                 android:id="@+id/includeGenresSection"
                 android:layout_width="match_parent"
@@ -78,12 +76,12 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <GridLayout
-                    android:id="@+id/includeGenresGridLayout"
+                <!-- Updated to LinearLayout for vertical display of genres -->
+                <LinearLayout
+                    android:id="@+id/includeGenresLinearLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:columnCount="2"
-                    android:orientation="horizontal" />
+                    android:orientation="vertical" />
             </LinearLayout>
 
             <!-- Exclude Genres Section Toggle Button -->
@@ -98,7 +96,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="8dp" />
 
-            <!-- Exclude Genres Section (Initially Collapsed) -->
+            <!-- Exclude Genres Section (Vertical Layout for checkboxes) -->
             <LinearLayout
                 android:id="@+id/excludeGenresSection"
                 android:layout_width="match_parent"
@@ -106,12 +104,12 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <GridLayout
-                    android:id="@+id/excludeGenresGridLayout"
+                <!-- Updated to LinearLayout for vertical display of genres -->
+                <LinearLayout
+                    android:id="@+id/excludeGenresLinearLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:columnCount="2"
-                    android:orientation="horizontal" />
+                    android:orientation="vertical" />
             </LinearLayout>
 
             <!-- Submit Button -->
@@ -129,7 +127,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- ProgressBar added to indicate loading -->
+    <!-- ProgressBar to indicate loading -->
     <ProgressBar
         android:id="@+id/genresProgressBar"
         android:layout_width="wrap_content"
