@@ -1,10 +1,11 @@
+// File: SearchFragment.kt
 package com.example.booknook.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -12,6 +13,7 @@ import com.example.booknook.BookAdapter
 import com.example.booknook.BookItem
 import com.example.booknook.MainActivity
 import com.example.booknook.R
+import com.example.booknook.utils.GenreUtils
 
 class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
@@ -91,7 +93,6 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         handleArguments()
     }
 
-
     private fun setupRecyclerViewScrollListener() {
         scrollListener = object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -114,8 +115,8 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         val args = arguments
         if (args != null) {
             currentQuery = args.getString("currentQuery")
-            includeGenres = args.getStringArrayList("includeGenres") ?: mutableListOf()
-            excludeGenres = args.getStringArrayList("excludeGenres") ?: mutableListOf()
+            includeGenres = args.getStringArrayList("includeGenres")?.toMutableList() ?: mutableListOf()
+            excludeGenres = args.getStringArrayList("excludeGenres")?.toMutableList() ?: mutableListOf()
             languageFilter = args.getString("languageFilter")
             minRating = args.getFloat("minRating", 0f)
             maxRating = args.getFloat("maxRating", 5f)
@@ -208,8 +209,15 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         val localMaxRating = maxRating
         val localMinRating = minRating
 
-        val localIncludeGenres = includeGenres.map { it.trim().lowercase() }.toSet()
-        val localExcludeGenres = excludeGenres.map { it.trim().lowercase() }.toSet()
+        // Normalize genres using the utility
+        val localIncludeGenres = includeGenres.map { GenreUtils.normalizeGenre(it) }.toSet()
+        val localExcludeGenres = excludeGenres.map { GenreUtils.normalizeGenre(it) }.toSet()
+
+        Log.d("SearchFragment", "Search Query: $query")
+        Log.d("SearchFragment", "Include Genres: $localIncludeGenres")
+        Log.d("SearchFragment", "Exclude Genres: $localExcludeGenres")
+        Log.d("SearchFragment", "Language Filter: $localLanguageFilter")
+        Log.d("SearchFragment", "Rating Range: $localMinRating - $localMaxRating")
 
         val mainActivity = activity as? MainActivity
         if (mainActivity == null) {
@@ -218,36 +226,25 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
             return
         }
 
-        mainActivity.searchBooks(
-            query,
-            startIndex,
-            localLanguageFilter.takeIf { it.isNotBlank() }
-        ) { books: List<BookItem>? ->
+        mainActivity.searchBooks(query, startIndex, localLanguageFilter.takeIf { it.isNotBlank() }) { books: List<BookItem>? ->
             isLoading = false
 
             if (books != null) {
                 val filteredBooks = books.filter { book ->
                     val bookGenres = book.volumeInfo.categories?.flatMap { category ->
-                        category.split("/", "&").map { it.trim().lowercase() }
+                        category.split("/", "&").map { GenreUtils.normalizeGenre(it) }
                     }?.toSet() ?: emptySet()
 
                     val rating = book.volumeInfo.averageRating ?: 0f
+                    val ratingInRange = rating in localMinRating..localMaxRating
 
                     val genreIncluded = if (localIncludeGenres.isNotEmpty()) {
-                        // Book's genres should be a subset of the includeGenres
-                        bookGenres.isNotEmpty() && bookGenres.all { genre ->
-                            localIncludeGenres.contains(genre)
-                        }
+                        bookGenres.any { genre -> localIncludeGenres.contains(genre) }
                     } else true
 
                     val genreExcluded = if (localExcludeGenres.isNotEmpty()) {
-                        // None of the book's genres should be in excludeGenres
-                        bookGenres.none { genre ->
-                            localExcludeGenres.contains(genre)
-                        }
+                        bookGenres.none { genre -> localExcludeGenres.contains(genre) }
                     } else true
-
-                    val ratingInRange = rating in localMinRating..localMaxRating
 
                     genreIncluded && genreExcluded && ratingInRange
                 }
@@ -256,20 +253,18 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
                 if (filteredBooks.isEmpty()) {
                     if (startIndex == books.size) {
+                        Log.d("SearchFragment", "No books found after filtering.")
                         updateNoResultsVisibility(true)
                     }
                 } else {
                     updateNoResultsVisibility(false)
                     val startPosition = bookList.size
                     bookList.addAll(filteredBooks)
-                    if (currentSortCriteria != "default") {
-                        sortBooks(currentSortCriteria)
-                    } else {
-                        bookAdapter.notifyItemRangeInserted(startPosition, filteredBooks.size)
-                    }
+                    bookAdapter.notifyItemRangeInserted(startPosition, filteredBooks.size)
                 }
             } else {
                 if (startIndex == 0) {
+                    Log.d("SearchFragment", "No books returned from search.")
                     updateNoResultsVisibility(true)
                 }
             }
@@ -282,6 +277,11 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         val filterFragment = SearchFiltersFragment()
         val bundle = Bundle()
         bundle.putString("currentQuery", currentQuery)
+        bundle.putStringArrayList("includeGenres", ArrayList(includeGenres))
+        bundle.putStringArrayList("excludeGenres", ArrayList(excludeGenres))
+        bundle.putString("languageFilter", languageFilter)
+        bundle.putFloat("minRating", minRating)
+        bundle.putFloat("maxRating", maxRating)
         filterFragment.arguments = bundle
 
         (activity as? MainActivity)?.replaceFragment(filterFragment, "Search Filters")

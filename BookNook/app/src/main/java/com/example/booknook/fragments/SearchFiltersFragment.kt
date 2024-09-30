@@ -1,3 +1,4 @@
+// File: SearchFiltersFragment.kt
 package com.example.booknook.fragments
 
 import android.os.Bundle
@@ -9,6 +10,8 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import com.example.booknook.MainActivity
 import com.example.booknook.R
+import com.example.booknook.utils.GenreUtils
+import com.example.booknook.BookItem
 
 class SearchFiltersFragment : Fragment() {
 
@@ -19,18 +22,8 @@ class SearchFiltersFragment : Fragment() {
     private lateinit var includeToggleButton: Button
     private lateinit var excludeToggleButton: Button
     private var availableGenres: ArrayList<String>? = null
-
     private lateinit var genresProgressBar: ProgressBar
-
-    val languageMap = mapOf(
-        "english" to "en",
-        "japanese" to "ja",
-        "french" to "fr",
-        "german" to "de",
-        "spanish" to "es",
-        "chinese" to "zh",
-        "korean" to "ko"
-    )
+    private var genreResultsMap: MutableMap<String, Int> = mutableMapOf() // Holds count of results per genre
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,7 +32,6 @@ class SearchFiltersFragment : Fragment() {
         val view = inflater.inflate(R.layout.activity_search_filters, container, false)
 
         // Initialize UI elements
-        val languageEditText: EditText = view.findViewById(R.id.languageEditText)
         val ratingSpinner = view.findViewById<Spinner>(R.id.ratingSpinner)
         val adapter = ArrayAdapter.createFromResource(
             requireContext(),
@@ -95,7 +87,6 @@ class SearchFiltersFragment : Fragment() {
             if (genresProgressBar.visibility == View.VISIBLE) {
                 Toast.makeText(activity, "Fetching genres is taking too long", Toast.LENGTH_SHORT).show()
                 genresProgressBar.visibility = View.GONE
-                // Enable UI elements
                 submitButton.isEnabled = true
                 includeToggleButton.isEnabled = true
                 excludeToggleButton.isEnabled = true
@@ -111,21 +102,59 @@ class SearchFiltersFragment : Fragment() {
             return
         }
 
+        // Fetch genres from the main activity
         mainActivity.fetchGenresForQuery(currentQuery ?: "") { genres: Set<String>? ->
             handler.removeCallbacks(timeoutRunnable)
             activity?.runOnUiThread {
                 genresProgressBar.visibility = View.GONE
                 if (genres != null) {
                     availableGenres = ArrayList<String>(genres)
-                    populateGenreCheckboxes(includeGenresSection, "Include")
-                    populateGenreCheckboxes(excludeGenresSection, "Exclude")
+                    Log.d("SearchFiltersFragment", "Fetched Genres: $availableGenres")
+
+                    // Fetch actual genre results count
+                    fetchGenreResultsCount { genreResults ->
+                        if (availableGenres != null && availableGenres!!.isNotEmpty()) {
+                            populateGenreCheckboxes(includeGenresSection, "Include")
+                            populateGenreCheckboxes(excludeGenresSection, "Exclude")
+                        }
+                    }
                 } else {
                     Toast.makeText(activity, "Failed to fetch genres", Toast.LENGTH_SHORT).show()
                 }
-                // Enable UI elements
                 submitButton.isEnabled = true
                 includeToggleButton.isEnabled = true
                 excludeToggleButton.isEnabled = true
+            }
+        }
+    }
+
+    // Fetch actual results count for each genre based on current search results
+    private fun fetchGenreResultsCount(onResultsFetched: (Map<String, Int>) -> Unit) {
+        val mainActivity = activity as? MainActivity
+        if (mainActivity == null || currentQuery.isNullOrBlank()) {
+            onResultsFetched(emptyMap())
+            return
+        }
+
+        // Fetch books based on the current query to determine genre counts
+        mainActivity.searchBooks(currentQuery!!, 0, null) { books: List<BookItem>? ->
+            if (books != null) {
+                val results = mutableMapOf<String, Int>()
+                availableGenres?.forEach { genre ->
+                    val normalizedGenre = GenreUtils.normalizeGenre(genre)
+                    val count = books.count { book ->
+                        book.volumeInfo.categories?.any { category ->
+                            GenreUtils.normalizeGenre(category).contains(normalizedGenre)
+                        } ?: false
+                    }
+                    if (count > 0) {
+                        results[genre] = count
+                    }
+                }
+                genreResultsMap = results
+                onResultsFetched(results)
+            } else {
+                onResultsFetched(emptyMap())
             }
         }
     }
@@ -141,47 +170,65 @@ class SearchFiltersFragment : Fragment() {
     }
 
     private fun populateGenreCheckboxes(container: LinearLayout, type: String) {
-        val gridLayout = if (type == "Include") {
-            container.findViewById<GridLayout>(R.id.includeGenresGridLayout)
+        val genreLinearLayout = if (type == "Include") {
+            container.findViewById<LinearLayout>(R.id.includeGenresLinearLayout)
         } else {
-            container.findViewById<GridLayout>(R.id.excludeGenresGridLayout)
+            container.findViewById<LinearLayout>(R.id.excludeGenresLinearLayout)
         }
 
-        gridLayout.removeAllViews()
+        genreLinearLayout.removeAllViews()
 
         availableGenres?.let { genres ->
             if (genres.isNotEmpty()) {
                 genres.forEach { genre ->
-                    val checkBox = CheckBox(context)
-                    checkBox.text = genre
-                    checkBox.textSize = 18f
-                    checkBox.tag = genre
+                    // Only add genres that have results
+                    if (genreHasResults(genre)) {
+                        val checkBox = CheckBox(context)
+                        checkBox.text = genre
+                        checkBox.textSize = 18f
+                        checkBox.tag = genre
 
-                    gridLayout.addView(checkBox)
+                        // Ensure checkboxes are not pre-checked unless explicitly selected
+                        checkBox.isChecked = false
+
+                        Log.d("SearchFiltersFragment", "Adding Checkbox for Genre: $genre with results: ${genreResultsMap[genre]}")
+
+                        genreLinearLayout.addView(checkBox)
+                    }
                 }
             }
         }
+    }
+
+    // Check if a genre has actual results (based on fetched results)
+    private fun genreHasResults(genre: String): Boolean {
+        val resultsCount = genreResultsMap[genre] ?: 0
+        return resultsCount > 0 // Only show genres that have at least 1 result
     }
 
     private fun getSelectedGenres(): Pair<MutableList<String>, MutableList<String>> {
         val includeGenres = mutableListOf<String>()
         val excludeGenres = mutableListOf<String>()
 
-        val includeGrid = includeGenresSection.findViewById<GridLayout>(R.id.includeGenresGridLayout)
-        for (i in 0 until includeGrid.childCount) {
-            val child = includeGrid.getChildAt(i)
+        val includeLinearLayout = includeGenresSection.findViewById<LinearLayout>(R.id.includeGenresLinearLayout)
+        for (i in 0 until includeLinearLayout.childCount) {
+            val child = includeLinearLayout.getChildAt(i)
             if (child is CheckBox && child.isChecked) {
                 includeGenres.add(child.tag as String)
             }
         }
 
-        val excludeGrid = excludeGenresSection.findViewById<GridLayout>(R.id.excludeGenresGridLayout)
-        for (i in 0 until excludeGrid.childCount) {
-            val child = excludeGrid.getChildAt(i)
+        val excludeLinearLayout = excludeGenresSection.findViewById<LinearLayout>(R.id.excludeGenresLinearLayout)
+        for (i in 0 until excludeLinearLayout.childCount) {
+            val child = excludeLinearLayout.getChildAt(i)
             if (child is CheckBox && child.isChecked) {
                 excludeGenres.add(child.tag as String)
             }
         }
+
+        // Log the selected genres for debugging
+        Log.d("SearchFiltersFragment", "User Selected Include Genres: $includeGenres")
+        Log.d("SearchFiltersFragment", "User Selected Exclude Genres: $excludeGenres")
 
         return Pair(includeGenres, excludeGenres)
     }
@@ -191,18 +238,18 @@ class SearchFiltersFragment : Fragment() {
         val searchFragment = SearchFragment()
         val bundle = Bundle()
 
-        val userInputLanguage =
-            view?.findViewById<EditText>(R.id.languageEditText)?.text.toString().trim()
-        val languageFilter = languageMap[userInputLanguage.lowercase()] ?: userInputLanguage
-
-        val selectedRatingRange =
-            view?.findViewById<Spinner>(R.id.ratingSpinner)?.selectedItem.toString()
+        val selectedRatingRange = view?.findViewById<Spinner>(R.id.ratingSpinner)?.selectedItem.toString()
         val ratingRange = parseRatingRange(selectedRatingRange)
 
+        // Normalize genres before passing to SearchFragment
+        val normalizedIncludeGenres = includeGenres.map { GenreUtils.normalizeGenre(it) }.toMutableList()
+        val normalizedExcludeGenres = excludeGenres.map { GenreUtils.normalizeGenre(it) }.toMutableList()
+
+        Log.d("SearchFiltersFragment", "Performing Search with Include Genres: $normalizedIncludeGenres, Exclude Genres: $normalizedExcludeGenres")
+
         bundle.putString("currentQuery", currentQuery)
-        bundle.putStringArrayList("includeGenres", ArrayList<String>(includeGenres))
-        bundle.putStringArrayList("excludeGenres", ArrayList<String>(excludeGenres))
-        bundle.putString("languageFilter", languageFilter)
+        bundle.putStringArrayList("includeGenres", ArrayList(normalizedIncludeGenres))
+        bundle.putStringArrayList("excludeGenres", ArrayList(normalizedExcludeGenres))
 
         if (ratingRange != null) {
             bundle.putFloat("minRating", ratingRange.first)
@@ -213,12 +260,16 @@ class SearchFiltersFragment : Fragment() {
         }
 
         searchFragment.arguments = bundle
-        (activity as MainActivity).replaceFragment(searchFragment, "Search Results")
+
+        parentFragmentManager
+            .beginTransaction()
+            .replace(R.id.menu_container, searchFragment, "SearchFragment")
+            .addToBackStack("SearchFragment")
+            .commit()
     }
 
     private fun parseRatingRange(selectedRange: String): Pair<Float, Float>? {
         return when (selectedRange) {
-            "All Ratings" -> Pair(0.0f, 5.0f)
             "0.0 to 0.9" -> Pair(0.0f, 0.9f)
             "1.0 to 1.9" -> Pair(1.0f, 1.9f)
             "2.0 to 2.9" -> Pair(2.0f, 2.9f)
