@@ -170,11 +170,6 @@ class ReviewActivity : Fragment() {
                                                 "Review saved successfully!",
                                                 Toast.LENGTH_SHORT
                                             ).show()
-                                            // Navigate back to the Home fragment after saving
-                                            (activity as? MainActivity)?.replaceFragment(
-                                                HomeFragment(),
-                                                "Home"
-                                            )
                                         }
                                         .addOnFailureListener {
                                             Toast.makeText(

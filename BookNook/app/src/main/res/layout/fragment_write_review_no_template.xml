@@ -9,8 +9,7 @@
     <!-- Scrollable content -->
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/submitReviewButton">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"

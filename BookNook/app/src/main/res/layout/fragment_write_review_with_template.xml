@@ -138,8 +138,6 @@
                 android:scaleY="0.7" />
 
             <!-- Review Input Box -->
-
-            <!-- Remove Review Template Button -->
             <EditText
                 android:id="@+id/reviewInput"
                 android:layout_width="match_parent"
@@ -151,8 +149,14 @@
                 android:padding="12dp"
                 android:textColor="@color/review_button_text"
                 android:textColorHint="@color/review_button_text"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:minLines="5"
+                android:maxLines="30"
+                android:scrollbars="vertical"
+                android:inputType="textMultiLine"
+                android:overScrollMode="ifContentScrolls"/>
 
+            <!-- Remove Review Template Button -->
             <Button
                 android:id="@+id/removeTemplateButton"
                 android:layout_width="wrap_content"
@@ -232,7 +236,12 @@
                             android:padding="12dp"
                             android:textColorHint="@color/review_button_text"
                             android:textColor="@color/review_button_text"
-                            android:textSize="14sp" />
+                            android:textSize="14sp"
+                            android:minLines="5"
+                            android:maxLines="30"
+                            android:scrollbars="vertical"
+                            android:inputType="textMultiLine"
+                            android:overScrollMode="ifContentScrolls"/>
                     </LinearLayout>
 
                     </LinearLayout>
@@ -285,7 +294,12 @@
                         android:padding="12dp"
                         android:textColorHint="@color/review_button_text"
                         android:textColor="@color/review_button_text"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:minLines="5"
+                        android:maxLines="30"
+                        android:scrollbars="vertical"
+                        android:inputType="textMultiLine"
+                        android:overScrollMode="ifContentScrolls"/>
                 </LinearLayout>
 
 
@@ -335,7 +349,12 @@
                         android:padding="12dp"
                         android:textColorHint="@color/review_button_text"
                         android:textColor="@color/review_button_text"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:minLines="5"
+                        android:maxLines="30"
+                        android:scrollbars="vertical"
+                        android:inputType="textMultiLine"
+                        android:overScrollMode="ifContentScrolls"/>
                 </LinearLayout>
 
                 <!-- Sub-Rating: Themes -->
@@ -384,7 +403,12 @@
                         android:padding="12dp"
                         android:textColorHint="@color/review_button_text"
                         android:textColor="@color/review_button_text"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:minLines="5"
+                        android:maxLines="30"
+                        android:scrollbars="vertical"
+                        android:inputType="textMultiLine"
+                        android:overScrollMode="ifContentScrolls"/>
                 </LinearLayout>
 
                 <!-- Sub-Rating: Strengths -->
@@ -434,7 +458,12 @@
                         android:padding="12dp"
                         android:textColorHint="@color/review_button_text"
                         android:textColor="@color/review_button_text"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:minLines="5"
+                        android:maxLines="30"
+                        android:scrollbars="vertical"
+                        android:inputType="textMultiLine"
+                        android:overScrollMode="ifContentScrolls" />
                 </LinearLayout>
 
                 <!-- Sub-Rating: Weaknesses -->
@@ -484,7 +513,12 @@
                         android:padding="12dp"
                         android:textColorHint="@color/review_button_text"
                         android:textColor="@color/review_button_text"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:minLines="5"
+                        android:maxLines="30"
+                        android:scrollbars="vertical"
+                        android:inputType="textMultiLine"
+                        android:overScrollMode="ifContentScrolls" />
                 </LinearLayout>
 
             </LinearLayout>
