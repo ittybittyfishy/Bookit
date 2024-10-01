@@ -5,9 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.booknook.R
@@ -30,21 +31,30 @@ class GenrePreferenceFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Initialize the UI elements
-        val fictionCheckBox: CheckBox = view.findViewById(R.id.checkbox_fiction)
-        val nonFictionCheckBox: CheckBox = view.findViewById(R.id.checkbox_nonfiction)
+        val chipGroup: ChipGroup = view.findViewById(R.id.chip_group_genres)
         val saveButton: Button = view.findViewById(R.id.button_save)
 
         // Set click listener for the save button
         saveButton.setOnClickListener {
-            val selectedGenres = mutableListOf<String>()
-            // Add selected genres to the list
-            if (fictionCheckBox.isChecked) selectedGenres.add("Fiction")
-            if (nonFictionCheckBox.isChecked) selectedGenres.add("Non-fiction")
-            // Add checks for other genres
-
-            // Save the selected genre preferences
-            saveGenrePreferences(selectedGenres)
+            val selectedGenres = getSelectedGenres(chipGroup)
+            if (selectedGenres.isEmpty()) {
+                Toast.makeText(activity, "Please select at least one genre", Toast.LENGTH_SHORT).show()
+            } else {
+                saveGenrePreferences(selectedGenres)
+            }
         }
+    }
+
+    // Method to get selected genres from the ChipGroup
+    private fun getSelectedGenres(chipGroup: ChipGroup): List<String> {
+        val selectedGenres = mutableListOf<String>()
+        for (i in 0 until chipGroup.childCount) {
+            val chip = chipGroup.getChildAt(i) as Chip
+            if (chip.isChecked) {
+                selectedGenres.add(chip.text.toString())
+            }
+        }
+        return selectedGenres
     }
 
     // Method to save the selected genre preferences to Firestore
@@ -66,6 +76,8 @@ class GenrePreferenceFragment : Fragment() {
                     // Show a failure message
                     Toast.makeText(activity, "Failed to save preferences", Toast.LENGTH_SHORT).show()
                 }
+        } else {
+            Toast.makeText(activity, "User not logged in", Toast.LENGTH_SHORT).show()
         }
     }
 }

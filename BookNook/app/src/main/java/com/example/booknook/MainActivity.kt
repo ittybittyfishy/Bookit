@@ -109,21 +109,37 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
 
     fun searchBooks(query: String, startIndex: Int, languageFilter: String? = null, callback: (List<BookItem>?) -> Unit) {
         val call = RetrofitInstance.api.searchBooks(query, startIndex, apiKey, languageFilter)
+
         call.enqueue(object : Callback<BookResponse> {
             override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
+                // Log the HTTP response code
+                Log.d("API Response", "Response Code: ${response.code()}")
+
+                // Log the headers
+                Log.d("API Response", "Headers: ${response.headers()}")
+
                 if (response.isSuccessful) {
+                    // Log the response body (book items)
+                    Log.d("API Response", "Response Body: ${response.body()}")
+
+                    // Proceed with the successful response
                     callback(response.body()?.items)
                 } else {
+                    // Log the error message from the server
+                    Log.e("API Error", "Error Body: ${response.errorBody()?.string()}")
                     callback(null)
                 }
             }
 
             override fun onFailure(call: Call<BookResponse>, t: Throwable) {
+                // Log the failure reason
+                Log.e("API Failure", "Failure Message: ${t.message}")
                 t.printStackTrace()
                 callback(null)
             }
         })
     }
+
 
     fun fetchGenresForQuery(query: String, language: String?, minRating: Float, maxRating: Float, callback: (Set<String>?) -> Unit) {
         val availableGenres = mutableSetOf<String>()
