@@ -87,8 +87,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/tag_background"
+        android:backgroundTint = "@color/tag_background"
         android:text="Add Tags"
+        android:textColor="@color/white"
         android:visibility="gone"/>
 
 </LinearLayout>
