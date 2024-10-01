@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Selected state -->
-    <item android:state_checked="true" android:color="@color/review_card" />
-
+    <item android:state_checked="true" android:color="#d3bbed" />
     <!-- Default (unselected) state -->
-    <item android:state_checked="false" android:color="#ecd4ff" />
+    <item android:state_checked="false" android:color="@color/review_card" />
 
 </selector>

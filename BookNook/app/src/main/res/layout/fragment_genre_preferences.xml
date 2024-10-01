@@ -320,6 +320,6 @@
         android:text="Save preferences"
         android:layout_gravity="center"
         android:layout_marginTop="24dp"
-        android:backgroundTint="@color/checkbox_color"
+        android:backgroundTint="#b29ab5"
         android:textColor="@color/white"/>
 </LinearLayout>
