@@ -7,10 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.example.booknook.fragments.EditTagsFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.fragment.app.FragmentActivity
 
 // handles displaying the list of books within a collection in a RecyclerView
 class BookAdapterCollection (private val books: List<BookItemCollection>) : RecyclerView.Adapter<BookAdapterCollection.BookViewHolder>()
@@ -25,6 +29,9 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
         val bookAuthors: TextView = itemView.findViewById(R.id.bookAuthors)
         // EditText to display the book pages
         val pages: EditText = itemView.findViewById(R.id.pages)
+
+        val tagContainer: LinearLayout = itemView.findViewById(R.id.tagContainer)
+        val addTags: Button = itemView.findViewById(R.id.addTags)
     }
 
     // function is called when the RecyclerView needs a new ViewHolder to represent a book item
@@ -60,6 +67,38 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
         holder.itemView.findViewById<ImageButton>(R.id.subtractPages).setOnClickListener {
             updatePageCount(book, holder.pages, -1)
         }
+
+        // Clear any old tags
+        holder.tagContainer.removeAllViews()
+
+        // Load tags in book item
+        if (book.tags.isEmpty()) {
+            holder.addTags.visibility = View.VISIBLE
+        } else {
+            holder.addTags.visibility = View.GONE
+            book.tags.forEach { tag ->
+                val tagView = createTagView(tag, holder.itemView.context, book, position) // Create a custom TextView for each tag
+                holder.tagContainer.addView(tagView)
+            }
+        }
+
+        // Handle add/edit tags
+        holder.addTags.setOnClickListener {
+            // Open dialog or activity to add/edit tags
+            val fragmentManager = (holder.itemView.context as FragmentActivity).supportFragmentManager
+            val addTagsDialog = EditTagsFragment(book) { tags ->
+                // Update tags locally
+                book.tags = tags
+
+                // Update Firestore
+                updateTagsInFirestore(book, tags)
+
+                // Notify adapter to refresh
+                notifyItemChanged(position)
+            }
+            addTagsDialog.show(fragmentManager, "AddTagsDialog")
+        }
+
     }
 
     // Function to increment/decrement pages
@@ -133,7 +172,92 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
         }
     }
 
+    // Create TextViews for each tag in the list
+    private fun createTagView(tag: String, context: Context, book: BookItemCollection, position: Int): TextView {
+        val tagView = TextView(context)
+        tagView.text = tag
+        tagView.setBackgroundResource(R.drawable.tag_background) // Custom drawable for rectangle background
+        tagView.setPadding(15, 15, 15, 15)
 
+        // Set custom text color for the tag
+        tagView.setTextColor(ContextCompat.getColor(context, R.color.tag_text))
+
+        // Make the tag clickable
+        tagView.setOnClickListener {
+            // Open dialog to edit the tags
+            val fragmentManager = (context as FragmentActivity).supportFragmentManager
+            val editTagsDialog = EditTagsFragment(book) { tags ->
+                // Update tags locally
+                book.tags = tags
+
+                // Update Firestore
+                updateTagsInFirestore(book, tags)
+
+                // Notify adapter to refresh the item view
+                notifyItemChanged(position)
+            }
+            editTagsDialog.show(fragmentManager, "EditTagsDialog")
+        }
+
+        return tagView
+    }
+
+    private fun updateTagsInFirestore(book: BookItemCollection, tags: List<String>) {
+        val db = FirebaseFirestore.getInstance()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        // 1. Update in standard collections
+        db.collection("users").document(userId).get().addOnSuccessListener { document ->
+            val standardCollections = document.get("standardCollections") as? Map<String, Any>
+            standardCollections?.forEach { (collectionName, books) ->
+                if (books is List<*>) {
+                    val bookInCollection = books.find { it is Map<*, *> &&
+                            it["title"] == book.title &&
+                            (it["authors"] as? List<*>)?.containsAll(book.authors) == true
+                    }
+                    if (bookInCollection != null) {
+                        val updatedBook = (bookInCollection as Map<String, Any>).toMutableMap()
+                        updatedBook["tags"] = tags
+
+                        // 1. Remove the old book from the collection
+                        db.collection("users").document(userId)
+                            .update("standardCollections.$collectionName", FieldValue.arrayRemove(bookInCollection))
+                            .addOnSuccessListener {
+                                // 2. Add the updated book with the new tags
+                                db.collection("users").document(userId)
+                                    .update("standardCollections.$collectionName", FieldValue.arrayUnion(updatedBook))
+                            }
+                            .addOnFailureListener {
+                                // Handle failure if needed
+                            }
+                    }
+                }
+            }
+        }
+
+        // 2. Update in custom collections
+        db.collection("users").document(userId).get().addOnSuccessListener { document ->
+            val customCollections = document.get("customCollections") as? Map<String, Map<String, Any>>
+            customCollections?.forEach { (collectionName, collectionData) ->
+                val booksInCustom = collectionData["books"] as? List<Map<String, Any>> ?: return@forEach
+                val bookInCustom = booksInCustom.find {
+                    it["title"] == book.title &&
+                            (it["authors"] as? List<*>)?.containsAll(book.authors) == true
+                }
+                if (bookInCustom != null) {
+                    val updatedBook = bookInCustom.toMutableMap()
+                    updatedBook["tags"] = tags
+                    val updatedBooks = booksInCustom.toMutableList().apply {
+                        remove(bookInCustom)
+                        add(updatedBook)
+                    }
+
+                    db.collection("users").document(userId)
+                        .update("customCollections.$collectionName.books", updatedBooks)
+                }
+            }
+        }
+    }
 
     // This function returns the total number of books to display in the RecyclerView
     override fun getItemCount(): Int = books.size

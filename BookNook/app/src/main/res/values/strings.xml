@@ -22,7 +22,7 @@
     <string name="book_added_to_collection">Book added to %1$s collection.</string>
     <string name="failed_to_add_book">Failed to add book: %1$s</string>
 
-    <string-array name = "book_sort_options">
+    <string-array name="book_sort_options">
         <item>Sort Books</item>
         <item>Title (A-Z)</item>
         <item>Title (Z-A)</item>

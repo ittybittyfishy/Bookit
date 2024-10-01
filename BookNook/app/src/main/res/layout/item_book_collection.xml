@@ -37,6 +37,15 @@
         />
 
     <LinearLayout
+        android:id="@+id/tagContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal">
+    </LinearLayout>
+
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -72,5 +81,14 @@
             android:backgroundTint="@color/transparent"
             />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/addTags"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/tag_background"
+        android:text="Add Tags"
+        android:visibility="gone"/>
 
 </LinearLayout>
