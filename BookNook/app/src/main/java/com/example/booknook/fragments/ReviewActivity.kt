@@ -40,7 +40,6 @@ class ReviewActivity : Fragment() {
         spoilerCheckbox = view.findViewById(R.id.spoilerCheckbox)
         sensitiveCheckbox = view.findViewById(R.id.sensitiveTopicsCheckbox)
         useTemplateButton = view.findViewById(R.id.useTemplateButton)
-        openSubRatings = view.findViewById(R.id.openSubRatings)
 
         // Retrieve views for displaying the book image and author details
         val bookImageView: ImageView = view.findViewById(R.id.bookImage)
