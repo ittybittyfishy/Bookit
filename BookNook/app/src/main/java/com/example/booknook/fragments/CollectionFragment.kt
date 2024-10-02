@@ -121,7 +121,8 @@ class CollectionFragment : Fragment(){
                                                 title = book["title"] as? String ?: "",
                                                 authors = book["authors"] as? List<String> ?: listOf("Unknown Author"),
                                                 imageLink = book["imageLink"] as? String ?: "",
-                                                pages = (book["pages"] as? Long ?: 0).toInt()
+                                                pages = (book["pages"] as? Long ?: 0).toInt(),
+                                                tags = book["tags"] as? List<String> ?: emptyList()
                                             )
                                         } else {
                                             null
