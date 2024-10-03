@@ -168,7 +168,8 @@ class ReviewActivity : Fragment() {
                         // Map to store book data
                         val bookData = mapOf(
                             "bookTitle" to bookTitle,
-                            "authors" to bookAuthors
+                            "authors" to bookAuthors,
+                            "bookIsbn" to bookIsbn
                         )
 
                         // Reference to the specific book's document in Firestore
