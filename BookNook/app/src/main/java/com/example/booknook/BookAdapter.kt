@@ -251,7 +251,8 @@ class BookAdapter(private val bookList: List<BookItem>,
             "title" to book.volumeInfo.title,
             "authors" to book.volumeInfo.authors,
             "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"),
-            "pages" to 0
+            "pages" to 0,
+            "tags" to emptyList<String>()
         )
 
         // Update the Firestore document

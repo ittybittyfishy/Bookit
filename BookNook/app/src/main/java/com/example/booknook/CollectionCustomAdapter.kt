@@ -25,6 +25,7 @@ class CollectionCustomAdapter(private val collections: List<CollectionCustomItem
         val collectionDes: TextView = itemView.findViewById(R.id.collectionDes)
         // Edit button
         val editButton: ImageButton = itemView.findViewById(R.id.editButton)
+
     }
 
     // This function is called when the RecyclerView needs a new ViewHolder to represent an item
