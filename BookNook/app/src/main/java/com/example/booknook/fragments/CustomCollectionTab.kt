@@ -134,8 +134,9 @@ class CustomCollectionTab : Fragment() {
             val authors = bookMap["authors"] as? List<String> ?: listOf("Unknown author")
             val imageLink = bookMap["imageLink"] as String
             val pages = (bookMap["pages"] as? Long ?: 0).toInt()
+            val tags = bookMap["tags"] as List<String> ?: emptyList()
 
-            BookItemCollection(title, authors, imageLink, pages)
+            BookItemCollection(title, authors, imageLink, pages, tags)
         }.sortedBy { it.title }
     }
 

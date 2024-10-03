@@ -5,5 +5,23 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
+    <!--Override button color in itembook.xml -->
+    <style name="CustomButton" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/button_review_template</item> <!-- Directly use light green color -->
+        <item name="android:textColor">@color/review_button_text</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
+        <!-- Custom Spinner Style -->
+        <style name="CustomSpinner" parent="Widget.AppCompat.Spinner.Underlined">
+            <item name="android:background">@drawable/spinner_rectangle</item>
+            <item name="android:layout_margin">8dp</item>
+            <item name="android:padding">8dp</item>
+            <item name="android:textColor">@color/review_button_text</item>
+            <item name="android:popupBackground">@color/custom_tag_pink</item>
+            <item name="android:textStyle">italic</item>
+        </style>
+
+
     <style name="Theme.BookNook" parent="Base.Theme.BookNook" />
 </resources>

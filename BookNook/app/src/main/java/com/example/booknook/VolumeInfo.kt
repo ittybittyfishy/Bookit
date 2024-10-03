@@ -6,8 +6,10 @@ data class VolumeInfo(
     val imageLinks: ImageLinks? = null, // Links to book cover images
     val industryIdentifiers: List<IndustryIdentifier>? = emptyList(), // List of industry identifiers (e.g., ISBN)
     val averageRating: Float? = 0.0f, // Average rating of the book
-    val categories: List<String>? = listOf("Unknown Genre") // List of genres/categories of the book
+    val categories: List<String>? = listOf("Unknown Genre"), // List of genres/categories of the book
+    val language: String = "" // Language of the book (e.g., "en" for English, "fr" for French)
 )
+
 
 
 // Example of IndustryIdentifier class to handle identifiers like ISBN

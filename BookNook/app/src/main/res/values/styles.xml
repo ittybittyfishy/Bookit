@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Custom Chip Style -->
+    <style name="CustomChipStyle" parent="Widget.MaterialComponents.Chip.Action">
+        <!-- Chip background color uses a selector -->
+        <item name="chipBackgroundColor">@color/chip_background_selector</item> <!-- Background changes with state -->
+
+
+        <!-- Text color (brown) -->
+        <item name="android:textColor">@color/review_button_text</item>
+
+        <!-- Horizontal and vertical padding for chip text -->
+        <item name="chipStartPadding">8dp</item>
+        <item name="chipEndPadding">8dp</item>
+        <item name="chipMinHeight">32dp</item>
+
+        <!-- Makes chip checkable (toggle on/off state) -->
+        <item name="chipIconEnabled">false</item>
+        <item name="closeIconEnabled">false</item>
+        <item name="android:checkable">true</item>
+    </style>
+
+</resources>

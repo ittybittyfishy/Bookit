@@ -20,6 +20,15 @@ class CreateCollectionFragment : DialogFragment() {
     private lateinit var collectionSummaryEditText: EditText
     private lateinit var createButton: Button
 
+    override fun onStart() {
+        super.onStart()
+        // Set the dialog's width and height programmatically
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,  // Set the width
+            ViewGroup.LayoutParams.WRAP_CONTENT   // Set the height
+        )
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
