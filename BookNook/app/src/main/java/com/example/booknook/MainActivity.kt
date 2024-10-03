@@ -107,8 +107,8 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         popupMenu.show()
     }
 
-    fun searchBooks(query: String, startIndex: Int, languageFilter: String? = null, callback: (List<BookItem>?) -> Unit) {
-        val call = RetrofitInstance.api.searchBooks(query, startIndex, apiKey, languageFilter)
+    fun searchBooks(query: String, startIndex: Int, languageFilter: String? = null, maxResults: Int = 40, callback: (List<BookItem>?) -> Unit) {
+        val call = RetrofitInstance.api.searchBooks(query, startIndex,maxResults, apiKey, languageFilter)
 
         call.enqueue(object : Callback<BookResponse> {
             override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
