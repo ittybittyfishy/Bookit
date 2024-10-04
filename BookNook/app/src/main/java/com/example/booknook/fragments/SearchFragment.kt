@@ -461,6 +461,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         recyclerView.scrollToPosition(0) // Scroll back to the top of the list
     }
 
+    //Veronica Nguyen
     // Callback function from the BookAdapter when a book item is clicked
     override fun onItemClick(position: Int) {
         val bookItem = bookList[position] // Get the clicked book item
