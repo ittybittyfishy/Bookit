@@ -8,6 +8,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.* // For working with UI elements (buttons, layouts, etc.)
 import android.widget.* // For working with buttons, edit texts, and more
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment // For creating a fragment in Android
 import com.example.booknook.MainActivity // Importing the MainActivity to call its functions
 import com.example.booknook.R // Importing layout resources (like activity_search_filters.xml)
@@ -54,13 +55,18 @@ class SearchFiltersFragment : Fragment() {
 
         // Initialize the spinner (dropdown) for selecting rating ranges
         val ratingSpinner = view.findViewById<Spinner>(R.id.ratingSpinner)
+
+        //arrayadapter is responsible for the data displayed in the spinner, basically populates it
         val adapter = ArrayAdapter.createFromResource(
             requireContext(),
             R.array.rating_ranges, // The array of rating ranges defined in XML
             android.R.layout.simple_spinner_item // Use a default spinner layout
         )
+
+        //this sets how the spinner is going to look when when the user taps on the spinner
+        //and sees the list of items
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        ratingSpinner.adapter = adapter // Set the adapter to the spinner so it can display the options
+        ratingSpinner.adapter = adapter // Link the adapter to the spinner so it can display the options
 
         // Get the current search query passed from other fragments or activities (if available)
         currentQuery = arguments?.getString("currentQuery")
@@ -110,7 +116,7 @@ class SearchFiltersFragment : Fragment() {
 
     // Function to fetch genres based on the current query, language filter, and rating range
     private fun fetchGenres() {
-        val handler = Handler(Looper.getMainLooper()) // Used to handle operations on the UI thread
+        val handler = Handler(Looper.getMainLooper()) // Used to handle the code execution delay
         val fetchGenresTimeout = 10000L // Set a 10-second timeout for fetching genres
 
         // Runnable to show a message if fetching genres takes too long (over 10 seconds)
@@ -144,7 +150,8 @@ class SearchFiltersFragment : Fragment() {
         val minRating = ratingRange?.first ?: 0f // Minimum rating (default 0)
         val maxRating = ratingRange?.second ?: 5f // Maximum rating (default 5)
 
-        // Call the fetchGenresForQuery method from MainActivity to get genres
+        // Call the fetchGenresForQuery method from MainActivity to get genres that match current query
+        //result passes back a set of genres
         mainActivity.fetchGenresForQuery(currentQuery ?: "", languageFilter, minRating, maxRating) { genres: Set<String>? ->
             handler.removeCallbacks(timeoutRunnable) // Remove the timeout handler since genres were fetched
             activity?.runOnUiThread { // Run the UI update on the main thread
@@ -174,6 +181,7 @@ class SearchFiltersFragment : Fragment() {
     }
 
     // Function to fetch the count of books per genre based on the current query
+    //Retrieves the mainactivity to use its method for fetching genres
     private fun fetchGenreResultsCount(onResultsFetched: (Map<String, Int>) -> Unit) {
         val mainActivity = activity as? MainActivity
         if (mainActivity == null || currentQuery.isNullOrBlank()) {
@@ -238,6 +246,8 @@ class SearchFiltersFragment : Fragment() {
                         checkBox.textSize = 18f // Set the font size
                         checkBox.tag = genre // Set the tag for identifying the checkbox later
                         checkBox.isChecked = false // By default, the checkbox is not checked
+                        checkBox.setTextColor(ContextCompat.getColor(requireContext(), R.color.sub_text_brown))
+
 
                         Log.d("SearchFiltersFragment", "Adding Checkbox for Genre: $genre with results: ${genreResultsMap[genre]}")
 
@@ -288,11 +298,11 @@ class SearchFiltersFragment : Fragment() {
     private fun performSearchWithGenres(genresPair: Pair<MutableList<String>, MutableList<String>>) {
         val (includeGenres, excludeGenres) = genresPair // Destructure the genres pair
         val searchFragment = SearchFragment() // Create a new SearchFragment to perform the search
-        val bundle = Bundle() // Bundle to pass the search parameters to the fragment
+        val bundle = Bundle() // Bundle to pass the search parameters genre, ratings, lanaguage to the fragment
 
         // Get the selected rating range from the spinner
         val selectedRatingRange = view?.findViewById<Spinner>(R.id.ratingSpinner)?.selectedItem.toString()
-        val ratingRange = parseRatingRange(selectedRatingRange)
+        val ratingRange = parseRatingRange(selectedRatingRange) //converts string into float,float pair  to check against range
 
         // Normalize the include and exclude genres (convert them to a standard format)
         val normalizedIncludeGenres = includeGenres.map { GenreUtils.normalizeGenre(it) }.toMutableList()
@@ -305,10 +315,13 @@ class SearchFiltersFragment : Fragment() {
         val languageFilter = languageMap[languageInput] ?: languageInput
 
         // Add the search parameters (genres, rating, language) to the bundle
+        //allow transferring data between fragments
         bundle.putString("currentQuery", currentQuery)
         bundle.putStringArrayList("includeGenres", ArrayList(normalizedIncludeGenres))
         bundle.putStringArrayList("excludeGenres", ArrayList(normalizedExcludeGenres))
         bundle.putString("languageFilter", languageFilter)
+
+        //pass through selected range, if not pass min and max default
         if (ratingRange != null) {
             bundle.putFloat("minRating", ratingRange.first)
             bundle.putFloat("maxRating", ratingRange.second)
@@ -320,6 +333,7 @@ class SearchFiltersFragment : Fragment() {
         // Replace the current fragment with the SearchFragment, passing the search parameters
         searchFragment.arguments = bundle
 
+        //replaces old search fragmeent with new one with the bundle stuff
         parentFragmentManager
             .beginTransaction()
             .replace(R.id.menu_container, searchFragment, "SearchFragment")
