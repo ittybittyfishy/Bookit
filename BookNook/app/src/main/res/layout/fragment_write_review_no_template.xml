@@ -135,8 +135,7 @@
                 android:scaleX="0.7"
                 android:scaleY="0.7" />
 
-            <!-- Review Input Box -->
-
+            <!-- Use review template button -->
             <Button
                 android:id="@+id/useTemplateButton"
                 android:layout_width="wrap_content"
@@ -153,7 +152,7 @@
                 android:textSize="26sp" />
 
 
-            <!-- Checkbox Options -->
+            <!-- Review Input -->
             <EditText
                 android:id="@+id/reviewInput"
                 android:layout_width="match_parent"
@@ -179,6 +178,7 @@
                 android:layout_marginTop="5dp"
                 android:orientation="vertical">
 
+                <!-- Checkbox Options -->
                 <CheckBox
                     android:id="@+id/spoilerCheckbox"
                     android:layout_width="wrap_content"
