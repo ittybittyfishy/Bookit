@@ -461,24 +461,29 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         recyclerView.scrollToPosition(0) // Scroll back to the top of the list
     }
 
-    // Callback function from the BookAdapter when a book item is clicked
+    // Veronica Nguyen
+    // Opens a book's details in another page upon clicking on it
     override fun onItemClick(position: Int) {
-        val bookItem = bookList[position] // Get the clicked book item
-        val bookDetailsFragment = BookDetailsFragment() // Create an instance of BookDetailsFragment
-        val bundle = Bundle() // Bundle to pass data to the fragment
+        val bookItem = bookList[position]
+        val bookDetailsFragment = BookDetailsFragment()
+        val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
+        // Yunjong Noh
+        // get ISBN number to manage books collection data
+        val isbn = bookItem.volumeInfo.industryIdentifiers
+            ?.find { it.type == "ISBN_13" || it.type == "ISBN_10" }
+            ?.identifier ?: "No ISBN"
 
-        // Put the book details into the bundle
+        // Adds data into the bundle
         bundle.putString("bookTitle", bookItem.volumeInfo.title)
+        // Puts authors in a string separated by commas
         bundle.putString("bookAuthor", bookItem.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")
-        bundle.putString(
-            "bookImage",
-            bookItem.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://") // Ensure image URL uses HTTPS
-        )
+        // Puts authors in a string array list to store database
+        bundle.putStringArrayList("bookAuthorsList", ArrayList(bookItem.volumeInfo.authors ?: listOf("Unknown Author")))
+        bundle.putString("bookImage", bookItem.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"))
         bundle.putFloat("bookRating", bookItem.volumeInfo.averageRating ?: 0f)
+        bundle.putString("bookIsbn", isbn)
 
-        bookDetailsFragment.arguments = bundle // Set the arguments for the fragment
-
-        // Replace the current fragment with the book details fragment
-        (activity as? MainActivity)?.replaceFragment(bookDetailsFragment, bookItem.volumeInfo.title)
+        bookDetailsFragment.arguments = bundle  // sets bookDetailsFragment's arguments to the data in bundle
+        (activity as MainActivity).replaceFragment(bookDetailsFragment, "Book Details")  // Opens a new fragment
     }
 }
