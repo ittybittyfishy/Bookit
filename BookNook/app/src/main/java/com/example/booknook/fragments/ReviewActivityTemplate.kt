@@ -93,6 +93,50 @@ class ReviewActivityTemplate : Fragment() {
         val weaknessesRatingBar = view.findViewById<RatingBar>(R.id.weaknessesRatingBar)
         val weaknessesReviewEditText = view.findViewById<EditText>(R.id.input6)
 
+        // Fetch the existing review from Firebase if review exists and populate fields
+        if (userId != null && bookIsbn != null) {
+            val db = FirebaseFirestore.getInstance()
+            val bookRef = db.collection("books").document(bookIsbn)
+
+            bookRef.collection("reviews").whereEqualTo("userId", userId).get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val reviewData = querySnapshot.documents[0].data
+
+                        // Populate the fields with the fetched data
+                        reviewEditText.setText(reviewData?.get("reviewText") as? String ?: "")
+                        ratingBar.rating = (reviewData?.get("rating") as? Double)?.toFloat() ?: 0f
+
+                        charactersCheckbox.isChecked = reviewData?.get("charactersChecked") as? Boolean ?: false
+                        charactersRatingBar.rating = (reviewData?.get("charactersRating") as? Double)?.toFloat() ?: 0f
+                        charactersReviewEditText.setText(reviewData?.get("charactersReview") as? String ?: "")
+
+                        writingCheckbox.isChecked = reviewData?.get("writingChecked") as? Boolean ?: false
+                        writingRatingBar.rating = (reviewData?.get("writingRating") as? Double)?.toFloat() ?: 0f
+                        writingReviewEditText.setText(reviewData?.get("writingReview") as? String ?: "")
+
+                        plotCheckbox.isChecked = reviewData?.get("plotChecked") as? Boolean ?: false
+                        plotRatingBar.rating = (reviewData?.get("plotRating") as? Double)?.toFloat() ?: 0f
+                        plotReviewEditText.setText(reviewData?.get("plotReview") as? String ?: "")
+
+                        themesCheckbox.isChecked = reviewData?.get("themesChecked") as? Boolean ?: false
+                        themesRatingBar.rating = (reviewData?.get("themesRating") as? Double)?.toFloat() ?: 0f
+                        themesReviewEditText.setText(reviewData?.get("themesReview") as? String ?: "")
+
+                        strengthsCheckbox.isChecked = reviewData?.get("strengthsChecked") as? Boolean ?: false
+                        strengthsRatingBar.rating = (reviewData?.get("strengthsRating") as? Double)?.toFloat() ?: 0f
+                        strengthsReviewEditText.setText(reviewData?.get("strengthsReview") as? String ?: "")
+
+                        weaknessesCheckbox.isChecked = reviewData?.get("weaknessesChecked") as? Boolean ?: false
+                        weaknessesRatingBar.rating = (reviewData?.get("weaknessesRating") as? Double)?.toFloat() ?: 0f
+                        weaknessesReviewEditText.setText(reviewData?.get("weaknessesReview") as? String ?: "")
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(activity, "Failed to load review data", Toast.LENGTH_SHORT).show()
+                }
+        }
+
         // Handle the submit button click to save the review
         submitButton.setOnClickListener {
             // Ensure focus is cleared from EditText fields before retrieving data

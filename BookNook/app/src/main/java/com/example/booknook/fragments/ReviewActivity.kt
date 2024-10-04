@@ -183,18 +183,10 @@ class ReviewActivity : Fragment() {
                                     // No existing review: Add a new review
                                     bookRef.collection("reviews").add(reviewData)
                                         .addOnSuccessListener {
-                                            Toast.makeText(
-                                                activity,
-                                                "Review saved successfully!",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(activity, "Review saved successfully!", Toast.LENGTH_SHORT).show()
                                         }
                                         .addOnFailureListener {
-                                            Toast.makeText(
-                                                activity,
-                                                "Failed to save review",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(activity, "Failed to save review", Toast.LENGTH_SHORT).show()
                                         }
                                 } else {
                                     // Update the existing review
@@ -202,27 +194,15 @@ class ReviewActivity : Fragment() {
                                     bookRef.collection("reviews").document(existingReviewId)
                                         .set(reviewData) // Update review data
                                         .addOnSuccessListener {
-                                            Toast.makeText(
-                                                activity,
-                                                "Review updated successfully!",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(activity, "Review updated successfully!", Toast.LENGTH_SHORT).show()
                                         }
                                         .addOnFailureListener {
-                                            Toast.makeText(
-                                                activity,
-                                                "Failed to update review",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(activity, "Failed to update review", Toast.LENGTH_SHORT).show()
                                         }
                                 }
                             }
                             .addOnFailureListener {
-                                Toast.makeText(
-                                    activity,
-                                    "Failed to check existing reviews",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(activity, "Failed to check existing reviews", Toast.LENGTH_SHORT).show()
                             }
                     } else {
                         Toast.makeText(activity, "Book ISBN not provided", Toast.LENGTH_SHORT).show()
