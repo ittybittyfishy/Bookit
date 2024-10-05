@@ -53,6 +53,7 @@ class ReviewActivity : Fragment() {
         // Retrieve book information passed through arguments (e.g., from previous screen)
         val bookTitle = arguments?.getString("bookTitle")
         val bookAuthor = arguments?.getString("bookAuthor")
+        val bookAuthorsList = arguments?.getStringArrayList("bookAuthorsList")
         val bookRating = arguments?.getFloat("bookRating") ?: 0f
         val bookIsbn = arguments?.getString("bookIsbn") // Use this to identify the book for the review
         val bookImage = arguments?.getString("bookImage") // Image URL passed in arguments
@@ -126,7 +127,7 @@ class ReviewActivity : Fragment() {
 
                     // Add data to the bundle
                     bundle.putString("bookTitle", bookTitle)
-                    bundle.putString("bookAuthor", bookAuthor)
+                    bundle.putStringArrayList("bookAuthorsList", bookAuthorsList)
                     bundle.putString("bookImage", bookImage)
                     bundle.putFloat("bookRating", bookRating)
                     bundle.putString("bookIsbn", bookIsbn)
@@ -254,7 +255,6 @@ class ReviewActivity : Fragment() {
                         val bookData = mapOf(
                             "bookTitle" to bookTitle,
                             "authors" to bookAuthors,
-                            "bookIsbn" to bookIsbn
                         )
 
                         // Reference to the specific book's document in Firestore

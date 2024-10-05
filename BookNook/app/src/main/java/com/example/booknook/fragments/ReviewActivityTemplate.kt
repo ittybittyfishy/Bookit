@@ -12,6 +12,7 @@ import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
 
 // Yunjong Noh
 // This fragment handles the function of writing and storing review data to Firebase (With Template Ver.)
@@ -46,6 +47,7 @@ class ReviewActivityTemplate : Fragment() {
         // Retrieve book information passed through arguments (e.g., from previous screen)
         val bookTitle = arguments?.getString("bookTitle")
         val bookAuthor = arguments?.getString("bookAuthor")
+        val bookAuthorsList = arguments?.getStringArrayList("bookAuthorsList")
         val bookRating = arguments?.getFloat("bookRating") ?: 0f
         val bookIsbn = arguments?.getString("bookIsbn") // Use this to identify the book for the review
         val bookImage = arguments?.getString("bookImage") // Image URL passed in arguments
@@ -198,7 +200,7 @@ class ReviewActivityTemplate : Fragment() {
 
                     // Adds data into the bundle
                     bundle.putString("bookTitle", bookTitle)
-                    bundle.putString("bookAuthor", bookAuthor)
+                    bundle.putStringArrayList("bookAuthorsList", bookAuthorsList)
                     bundle.putString("bookImage", bookImage)
                     bundle.putFloat("bookRating", bookRating)
                     bundle.putString("bookIsbn", bookIsbn)
@@ -304,6 +306,8 @@ class ReviewActivityTemplate : Fragment() {
         if (userId != null && bookIsbn != null) {
             // initialize Firebase Instance
             val db = FirebaseFirestore.getInstance()
+            val bookTitle = arguments?.getString("bookTitle")
+            val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
             // Create a map for review data to save into Firebase
             val reviewData = mapOf(
                 "userId" to userId,
@@ -332,8 +336,15 @@ class ReviewActivityTemplate : Fragment() {
                 "isTemplateUsed" to true
             )
 
+            // Map to store book data
+            val bookData = mapOf(
+                "bookTitle" to bookTitle,
+                "authors" to bookAuthors,
+            )
+
             // Reference to the specific book's document in the "books" collection
             val bookRef = db.collection("books").document(bookIsbn)
+            bookRef.set(bookData, SetOptions.merge())  // Updates database with book details if not in database already
 
             // Check if the user has already submitted a review by querying reviews collection with the userId
             bookRef.collection("reviews").whereEqualTo("userId", userId).get()
