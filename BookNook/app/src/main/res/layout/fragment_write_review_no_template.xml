@@ -9,15 +9,14 @@
     <!-- Scrollable content -->
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/submitReviewButton">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- CardView for Book Info (image, author name, rating, etc.) -->
+            <!-- CardView for Book Info (image, title, author name, rating, etc.) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/bookInfoCard"
                 android:layout_width="match_parent"
@@ -32,24 +31,42 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
+                    <!-- Book Image -->
                     <ImageView
                         android:id="@+id/bookImage"
                         android:layout_width="110dp"
                         android:layout_height="140dp"
                         android:layout_alignParentStart="true"
                         android:layout_marginStart="5dp"
-                        android:scaleType="centerCrop" />
+                        android:scaleType="fitCenter" />
 
+                    <!-- Book Title -->
+                    <TextView
+                        android:id="@+id/bookTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/bookImage"
+                        android:text="Before I Fall"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/star_green"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
+
+                    <!-- Author Label -->
                     <TextView
                         android:id="@+id/authors"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
+                        android:layout_below="@id/bookTitle"
                         android:layout_toEndOf="@id/bookImage"
                         android:text="Author(s):"
                         android:textSize="16sp"
                         android:textColor="@color/black" />
 
+                    <!-- Book Author -->
                     <TextView
                         android:id="@+id/bookAuthor"
                         android:layout_width="wrap_content"
@@ -64,6 +81,7 @@
                         android:maxWidth="150dp"
                         android:textSize="16sp" />
 
+                    <!-- Book Rating -->
                     <RatingBar
                         android:id="@+id/bookRating"
                         style="@style/Widget.AppCompat.RatingBar.Small"
@@ -79,6 +97,7 @@
                         android:progressTint="@color/star_green"
                         android:secondaryProgressTint="@color/star_green" />
 
+                    <!-- Rating Number -->
                     <TextView
                         android:id="@+id/ratingNumber"
                         android:layout_width="wrap_content"
@@ -86,7 +105,7 @@
                         android:layout_marginStart="8dp"
                         android:layout_toEndOf="@id/bookRating"
                         android:layout_alignBottom="@id/bookRating"
-                        android:text="4.5"
+                        android:text="(3.9)"
                         android:textSize="16sp"
                         android:textColor="@color/black" />
                 </RelativeLayout>
@@ -115,22 +134,8 @@
                 android:secondaryProgressTint="@color/star_green"
                 android:scaleX="0.7"
                 android:scaleY="0.7" />
-            <!-- button for open sub rating-->
-            <Button
-                android:id="@+id/openSubRatings"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Open Sub Ratings"
-                android:scaleX="0.55"
-                android:scaleY="0.55"
-                android:backgroundTint="@color/button_review_template"
-                android:textColor="@color/review_button_text"
-                android:textSize="25sp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="-20dp" />
 
-            <!-- Review Input Box -->
-
+            <!-- Use review template button -->
             <Button
                 android:id="@+id/useTemplateButton"
                 android:layout_width="wrap_content"
@@ -147,7 +152,7 @@
                 android:textSize="26sp" />
 
 
-            <!-- Checkbox Options -->
+            <!-- Review Input -->
             <EditText
                 android:id="@+id/reviewInput"
                 android:layout_width="match_parent"
@@ -173,6 +178,7 @@
                 android:layout_marginTop="5dp"
                 android:orientation="vertical">
 
+                <!-- Checkbox Options -->
                 <CheckBox
                     android:id="@+id/spoilerCheckbox"
                     android:layout_width="wrap_content"
