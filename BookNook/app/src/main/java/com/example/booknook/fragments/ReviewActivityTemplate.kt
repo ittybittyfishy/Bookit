@@ -137,6 +137,10 @@ class ReviewActivityTemplate : Fragment() {
                 }
         }
 
+        if (userId != null && bookIsbn != null) {
+            checkAndNavigateToCorrectFragment(userId, bookIsbn)
+        }
+
         // Handle the submit button click to save the review
         submitButton.setOnClickListener {
             // Ensure focus is cleared from EditText fields before retrieving data
@@ -185,23 +189,93 @@ class ReviewActivityTemplate : Fragment() {
 
         //Declare button that connects to XML
         removeTemplateButton.setOnClickListener {
+            if (userId != null && bookIsbn != null) {
+                // Delete the old review before switching to the template fragment
+                deleteOldReview(userId, bookIsbn) {
+                    // After deletion, prepare the data to switch to the template fragment
+                    val reviewActivityFragment = ReviewActivity()
+                    val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
 
-            // Handle requests button click
-            val reviewActivityFragment = ReviewActivity()
-            val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
-            // Adds data into the bundle
-            bundle.putString("bookTitle", bookTitle)
-            bundle.putString("bookAuthor", bookAuthor)
-            bundle.putString("bookImage", bookImage)
-            bundle.putFloat("bookRating", bookRating)
-            bundle.putString("bookIsbn", bookIsbn)
+                    // Adds data into the bundle
+                    bundle.putString("bookTitle", bookTitle)
+                    bundle.putString("bookAuthor", bookAuthor)
+                    bundle.putString("bookImage", bookImage)
+                    bundle.putFloat("bookRating", bookRating)
+                    bundle.putString("bookIsbn", bookIsbn)
 
-            reviewActivityFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
-            (activity as? MainActivity)?.replaceFragment(reviewActivityFragment, "Write a Review") // Go back to No template fragment
+                    reviewActivityFragment.arguments =
+                        bundle  // sets reviewActivityFragment's arguments to the data in bundle
+                    (activity as? MainActivity)?.replaceFragment(
+                        reviewActivityFragment,
+                        "Write a Review"
+                    ) // Go back to No template fragment
+                }
+            }
         }
 
         return view
     }
+
+    private fun checkAndNavigateToCorrectFragment(userId: String, bookIsbn: String) {
+        val db = FirebaseFirestore.getInstance()
+        val bookRef = db.collection("books").document(bookIsbn)
+
+        // Query Firestore to check if a review exists and whether it used a template
+        bookRef.collection("reviews").whereEqualTo("userId", userId).get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val existingReview = querySnapshot.documents[0].data
+                    val isTemplateUsed = existingReview?.get("isTemplateUsed") as? Boolean ?: false
+
+                    if (!isTemplateUsed) {
+                        // Navigate to the no-template fragment
+                        val reviewActivityFragment = ReviewActivity()
+                        val bundle = Bundle()
+
+                        bundle.putString("bookTitle", arguments?.getString("bookTitle"))
+                        bundle.putString("bookAuthor", arguments?.getString("bookAuthor"))
+                        bundle.putString("bookImage", arguments?.getString("bookImage"))
+                        bundle.putFloat("bookRating", arguments?.getFloat("bookRating") ?: 0f)
+                        bundle.putString("bookIsbn", bookIsbn)
+
+                        reviewActivityFragment.arguments = bundle
+                        (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review (No Template)")
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(activity, "Failed to retrieve review", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun deleteOldReview(userId: String, bookIsbn: String, onComplete: () -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val bookRef = db.collection("books").document(bookIsbn)
+
+        // Query for the existing review
+        bookRef.collection("reviews").whereEqualTo("userId", userId).get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val existingReviewId = querySnapshot.documents[0].id
+                    bookRef.collection("reviews").document(existingReviewId)
+                        .delete()
+                        .addOnSuccessListener {
+                            Toast.makeText(activity, "Old review deleted", Toast.LENGTH_SHORT).show()
+                            onComplete() // Call onComplete after deletion
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(activity, "Failed to delete old review", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    onComplete() // No existing review, proceed to the next step
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(activity, "Failed to check existing reviews", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
 
     //function for saving with Template review Data
     //Define variable types
@@ -246,7 +320,8 @@ class ReviewActivityTemplate : Fragment() {
                 "weaknessesChecked" to weaknessesChecked,
                 "weaknessesRating" to weaknessesRating.toDouble(),
                 "weaknessesReview" to weaknessesReview,
-                "timestamp" to FieldValue.serverTimestamp()
+                "timestamp" to FieldValue.serverTimestamp(),
+                "isTemplateUsed" to true
             )
 
             // Reference to the specific book's document in the "books" collection
@@ -261,8 +336,6 @@ class ReviewActivityTemplate : Fragment() {
                             .addOnSuccessListener {
                                 // Show success message and navigate back to the Home fragment
                                 Toast.makeText(activity, "Review saved successfully!", Toast.LENGTH_SHORT).show()
-                                // Optionally clear input fields here if needed before navigating back
-                                (activity as? MainActivity)?.replaceFragment(HomeFragment(), "Home")
                             }
                             .addOnFailureListener { e ->
                                 // If saving the review fails, display an error message
