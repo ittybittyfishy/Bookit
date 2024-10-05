@@ -33,7 +33,6 @@ class ProfileFragment : Fragment() {
     private lateinit var profileImage: CircleImageView
     private lateinit var uploadBannerButton: Button
     private lateinit var uploadProfileButton: Button
-    private lateinit var test: TextView
 
     // Declare ActivityResultLauncher variables for handling image picking results
     private lateinit var pickBannerImageLauncher: ActivityResultLauncher<Intent>
@@ -52,7 +51,6 @@ class ProfileFragment : Fragment() {
         profileImage = view.findViewById(R.id.profileImage)
         uploadBannerButton = view.findViewById(R.id.uploadBannerButton)
         uploadProfileButton = view.findViewById(R.id.uploadProfileButton)
-        test = view.findViewById(R.id.test)
 
         val currentUser = FirebaseAuth.getInstance().currentUser
         val userId: String? = currentUser?.uid  // Retrieves id of the current user
