@@ -203,12 +203,8 @@ class ReviewActivityTemplate : Fragment() {
                     bundle.putFloat("bookRating", bookRating)
                     bundle.putString("bookIsbn", bookIsbn)
 
-                    reviewActivityFragment.arguments =
-                        bundle  // sets reviewActivityFragment's arguments to the data in bundle
-                    (activity as? MainActivity)?.replaceFragment(
-                        reviewActivityFragment,
-                        "Write a Review"
-                    ) // Go back to No template fragment
+                    reviewActivityFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
+                    (activity as? MainActivity)?.replaceFragment(reviewActivityFragment, "Write a Review") // Go back to No template fragment
                 }
             }
         }
@@ -261,6 +257,7 @@ class ReviewActivityTemplate : Fragment() {
                         .delete()
                         .addOnSuccessListener {
                             Toast.makeText(activity, "Old review deleted", Toast.LENGTH_SHORT).show()
+                            decrementUserReviewNum(userId)  // decrements number of reviews user has written
                             onComplete() // Call onComplete after deletion
                         }
                         .addOnFailureListener {
@@ -275,6 +272,17 @@ class ReviewActivityTemplate : Fragment() {
             }
     }
 
+    // Veronica Nguyen
+    // Function to decrement user's number of reviews when a review is deleted
+    private fun decrementUserReviewNum(userId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(userId)
+
+        userRef.update("numReviews", FieldValue.increment(-1))  // decrements the field by 1
+            .addOnFailureListener {
+                Toast.makeText(activity, "Failed to update review count", Toast.LENGTH_SHORT).show()
+            }
+    }
 
 
     //function for saving with Template review Data
@@ -334,8 +342,9 @@ class ReviewActivityTemplate : Fragment() {
                         // If no review exists for this user, add a new one
                         bookRef.collection("reviews").add(reviewData)
                             .addOnSuccessListener {
-                                // Show success message and navigate back to the Home fragment
+                                // Show success message
                                 Toast.makeText(activity, "Review saved successfully!", Toast.LENGTH_SHORT).show()
+                                incrementUserReviewNum(userId)  // increments the number of reviews field
                             }
                             .addOnFailureListener { e ->
                                 // If saving the review fails, display an error message
@@ -363,5 +372,17 @@ class ReviewActivityTemplate : Fragment() {
             // If userId or bookIsbn is null, display an error message
             Toast.makeText(activity, "Book ISBN or user not provided", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    // Veronica Nguyen
+    // Function to increment user's number of reviews when a review is added
+    private fun incrementUserReviewNum(userId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(userId)
+
+        userRef.update("numReviews", FieldValue.increment(1))  // increments the field by 1
+            .addOnFailureListener {
+                Toast.makeText(activity, "Failed to update review count", Toast.LENGTH_SHORT).show()
+            }
     }
 }

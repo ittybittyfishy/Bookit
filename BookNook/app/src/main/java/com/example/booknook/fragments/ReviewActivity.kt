@@ -188,6 +188,7 @@ class ReviewActivity : Fragment() {
                         .delete()
                         .addOnSuccessListener {
                             Toast.makeText(activity, "Old review deleted", Toast.LENGTH_SHORT).show()
+                            decrementUserReviewNum(userId)
                             onComplete() // Call onComplete after deletion
                         }
                         .addOnFailureListener {
@@ -199,6 +200,18 @@ class ReviewActivity : Fragment() {
             }
             .addOnFailureListener {
                 Toast.makeText(activity, "Failed to check existing reviews", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Veronica Nguyen
+    // Function to decrement user's number of reviews when a review is deleted
+    private fun decrementUserReviewNum(userId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(userId)
+
+        userRef.update("numReviews", FieldValue.increment(-1))  // decrements the field by 1
+            .addOnFailureListener {
+                Toast.makeText(activity, "Failed to update review count", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -256,6 +269,7 @@ class ReviewActivity : Fragment() {
                                     bookRef.collection("reviews").add(reviewData)
                                         .addOnSuccessListener {
                                             Toast.makeText(activity, "Review saved successfully!", Toast.LENGTH_SHORT).show()
+                                            incrementUserReviewNum(userId)  // increments the number of reviews field
                                         }
                                         .addOnFailureListener {
                                             Toast.makeText(activity, "Failed to save review", Toast.LENGTH_SHORT).show()
@@ -284,5 +298,17 @@ class ReviewActivity : Fragment() {
                 }
             }
         }
+    }
+
+    // Veronica Nguyen
+    // Function to increment user's number of reviews when a review is added
+    private fun incrementUserReviewNum(userId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(userId)
+
+        userRef.update("numReviews", FieldValue.increment(1))  // increments the field by 1
+            .addOnFailureListener {
+                Toast.makeText(activity, "Failed to update review count", Toast.LENGTH_SHORT).show()
+            }
     }
 }
