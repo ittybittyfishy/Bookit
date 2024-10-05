@@ -141,11 +141,27 @@ class ProfileFragment : Fragment() {
             }
         }
 
+        // Function displays the number of reviews the user has
+        fun displayNumReviews(userId: String, textView: TextView) {
+            // References document of current user
+            val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+
+            userDocRef.get().addOnSuccessListener { document ->
+                // Retrieves the friends array in database
+                val numReviews = document.getLong("numReviews") ?: 0
+                // Update the TextView using the numFriends variable
+                textView.setText("$numReviews")
+            }.addOnFailureListener { e ->
+                Toast.makeText(activity, "Error getting number of reviews: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         if (userId != null) {
             // Displays all of the user's stats to the corresponding view
             // displayNumBooksRead(userId, test)
             // displayNumCollections(userId, test)
             // displayNumFriends(userId, test)
+            // displayNumReviews(userId, test)
 
         } else {
             Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
