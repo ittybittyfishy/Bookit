@@ -1,5 +1,6 @@
 package com.example.booknook.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -119,27 +120,40 @@ class ReviewActivity : Fragment() {
         //Declare button that connects to XML
         useTemplateButton.setOnClickListener {
             if (userId != null && bookIsbn != null) {
-                // Delete the old review before switching to the template fragment
-                deleteOldReview(userId, bookIsbn) {
-                    // After deletion, prepare the data to switch to the template fragment
-                    val reviewActivityTemplateFragment = ReviewActivityTemplate()
-                    val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
+                // Create a pop-up alert to confirm if user wants to delete their old review
+                val builder = AlertDialog.Builder(requireContext())
+                builder.setTitle("Delete Review")  // Sets title of alert
+                builder.setMessage("Switching to a review template will permanently delete the currently displayed review. " +
+                        "Are you sure you want to delete your old review?")  // Alert message
 
-                    // Add data to the bundle
-                    bundle.putString("bookTitle", bookTitle)
-                    bundle.putStringArrayList("bookAuthorsList", bookAuthorsList)
-                    bundle.putString("bookImage", bookImage)
-                    bundle.putFloat("bookRating", bookRating)
-                    bundle.putString("bookIsbn", bookIsbn)
+                // If user presses "Yes"
+                builder.setPositiveButton("Yes") { dialog, which ->
+                    // Delete the old review before switching to the template fragment
+                    deleteOldReview(userId, bookIsbn) {
+                        // After deletion, prepare the data to switch to the template fragment
+                        val reviewActivityTemplateFragment = ReviewActivityTemplate()
+                        val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
 
-                    reviewActivityTemplateFragment.arguments = bundle // Set arguments for the fragment
+                        // Add data to the bundle
+                        bundle.putString("bookTitle", bookTitle)
+                        bundle.putStringArrayList("bookAuthorsList", bookAuthorsList)
+                        bundle.putString("bookImage", bookImage)
+                        bundle.putFloat("bookRating", bookRating)
+                        bundle.putString("bookIsbn", bookIsbn)
 
-                    // Replace the current fragment with the template fragment
-                    (activity as MainActivity).replaceFragment(reviewActivityTemplateFragment, "Write a Review")
+                        reviewActivityTemplateFragment.arguments = bundle // Set arguments for the fragment
+
+                        // Replace the current fragment with the template fragment
+                        (activity as MainActivity).replaceFragment(reviewActivityTemplateFragment, "Write a Review")
+                    }
                 }
+                // If user presses "No"
+                builder.setNegativeButton("No") {dialog, which ->
+                    dialog.dismiss()  // Dismisses the alert and does nothing
+                }
+                builder.create().show()
             }
         }
-
         return view
     }
 
