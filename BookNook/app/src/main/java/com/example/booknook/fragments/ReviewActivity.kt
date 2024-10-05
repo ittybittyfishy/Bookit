@@ -25,6 +25,7 @@ class ReviewActivity : Fragment() {
     private lateinit var ratingBar: RatingBar
     private lateinit var spoilerCheckbox: CheckBox
     private lateinit var sensitiveCheckbox: CheckBox
+    private lateinit var useTemplateButton: Button
 
     // Called when the fragment is created
     override fun onCreateView(
@@ -40,14 +41,17 @@ class ReviewActivity : Fragment() {
         ratingBar = view.findViewById(R.id.myRatingBar)
         spoilerCheckbox = view.findViewById(R.id.spoilerCheckbox)
         sensitiveCheckbox = view.findViewById(R.id.sensitiveTopicsCheckbox)
+        useTemplateButton = view.findViewById(R.id.useTemplateButton)
 
         // Retrieve views for displaying the book image and author details
         val bookImageView: ImageView = view.findViewById(R.id.bookImage)
         val authorTextView: TextView = view.findViewById(R.id.bookAuthor)
         val bookRatingBar: RatingBar = view.findViewById(R.id.bookRating)
         val ratingNumberTextView: TextView = view.findViewById(R.id.ratingNumber)
+        val bookTitleView: TextView = view.findViewById(R.id.bookTitle)
 
         // Retrieve book information passed through arguments (e.g., from previous screen)
+        val bookTitle = arguments?.getString("bookTitle")
         val bookAuthor = arguments?.getString("bookAuthor")
         val bookRating = arguments?.getFloat("bookRating") ?: 0f
         val bookIsbn = arguments?.getString("bookIsbn") // Use this to identify the book for the review
@@ -58,6 +62,7 @@ class ReviewActivity : Fragment() {
         authorTextView.text = bookAuthor  // Display the book's author(s)
         bookRatingBar.rating = bookRating // Set rating bar with book rating
         ratingNumberTextView.text = "(${bookRating.toString()})" // Display the numeric rating
+        bookTitleView.text = bookTitle //Display the Title of book
 
         // Load the book's image using Glide (a third-party library for image loading)
         if (!bookImage.isNullOrEmpty()) {
@@ -104,6 +109,24 @@ class ReviewActivity : Fragment() {
             saveReview(reviewText, rating, hasSpoilers, hasSensitiveTopics)
         }
 
+        // Yunjong Noh
+        //Declare button that connects to XML
+        useTemplateButton.setOnClickListener {
+
+            // Handle requests button click
+            val reviewActivityTemplateFragment = ReviewActivityTemplate()
+            val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
+            // Adds data into the bundle
+            bundle.putString("bookTitle", bookTitle)
+            bundle.putString("bookAuthor", bookAuthor)
+            bundle.putString("bookImage", bookImage)
+            bundle.putFloat("bookRating", bookRating)
+            bundle.putString("bookIsbn", bookIsbn)
+
+            reviewActivityTemplateFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
+            (activity as MainActivity).replaceFragment(reviewActivityTemplateFragment, "Write a Review")  // Opens a new fragment
+        }
+
         return view
     }
 
@@ -145,7 +168,8 @@ class ReviewActivity : Fragment() {
                         // Map to store book data
                         val bookData = mapOf(
                             "bookTitle" to bookTitle,
-                            "authors" to bookAuthors
+                            "authors" to bookAuthors,
+                            "bookIsbn" to bookIsbn
                         )
 
                         // Reference to the specific book's document in Firestore
@@ -159,23 +183,10 @@ class ReviewActivity : Fragment() {
                                     // No existing review: Add a new review
                                     bookRef.collection("reviews").add(reviewData)
                                         .addOnSuccessListener {
-                                            Toast.makeText(
-                                                activity,
-                                                "Review saved successfully!",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                            // Navigate back to the Home fragment after saving
-                                            (activity as? MainActivity)?.replaceFragment(
-                                                HomeFragment(),
-                                                "Home"
-                                            )
+                                            Toast.makeText(activity, "Review saved successfully!", Toast.LENGTH_SHORT).show()
                                         }
                                         .addOnFailureListener {
-                                            Toast.makeText(
-                                                activity,
-                                                "Failed to save review",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(activity, "Failed to save review", Toast.LENGTH_SHORT).show()
                                         }
                                 } else {
                                     // Update the existing review
@@ -183,27 +194,15 @@ class ReviewActivity : Fragment() {
                                     bookRef.collection("reviews").document(existingReviewId)
                                         .set(reviewData) // Update review data
                                         .addOnSuccessListener {
-                                            Toast.makeText(
-                                                activity,
-                                                "Review updated successfully!",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(activity, "Review updated successfully!", Toast.LENGTH_SHORT).show()
                                         }
                                         .addOnFailureListener {
-                                            Toast.makeText(
-                                                activity,
-                                                "Failed to update review",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(activity, "Failed to update review", Toast.LENGTH_SHORT).show()
                                         }
                                 }
                             }
                             .addOnFailureListener {
-                                Toast.makeText(
-                                    activity,
-                                    "Failed to check existing reviews",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(activity, "Failed to check existing reviews", Toast.LENGTH_SHORT).show()
                             }
                     } else {
                         Toast.makeText(activity, "Book ISBN not provided", Toast.LENGTH_SHORT).show()
