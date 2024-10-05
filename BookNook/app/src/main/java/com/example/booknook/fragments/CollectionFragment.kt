@@ -122,7 +122,8 @@ class CollectionFragment : Fragment(){
                                                 authors = book["authors"] as? List<String> ?: listOf("Unknown Author"),
                                                 imageLink = book["imageLink"] as? String ?: "",
                                                 pages = (book["pages"] as? Long ?: 0).toInt(),
-                                                tags = book["tags"] as? List<String> ?: emptyList()
+                                                tags = book["tags"] as? List<String> ?: emptyList(),
+                                                genres = book["genres"] as? List<String> ?: listOf("Unknown Genre")  // Veronica Nguyen
                                             )
                                         } else {
                                             null

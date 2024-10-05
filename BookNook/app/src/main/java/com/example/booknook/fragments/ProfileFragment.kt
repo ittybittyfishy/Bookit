@@ -158,10 +158,10 @@ class ProfileFragment : Fragment() {
 
         if (userId != null) {
             // Displays all of the user's stats to the corresponding view
-            // displayNumBooksRead(userId, test)
-            // displayNumCollections(userId, test)
-            // displayNumFriends(userId, test)
-            // displayNumReviews(userId, test)
+//             displayNumBooksRead(userId, test)
+//             displayNumCollections(userId, test)
+//             displayNumFriends(userId, test)
+//             displayNumReviews(userId, test)
 
         } else {
             Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
