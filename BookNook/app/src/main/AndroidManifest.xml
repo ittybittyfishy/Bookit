@@ -41,9 +41,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity> <!-- Closing tag for Login activity -->
+
         <activity
             android:name=".MainActivity"
-            android:exported="true"></activity>
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan">
+        </activity>
+
     </application>
 
 </manifest>
