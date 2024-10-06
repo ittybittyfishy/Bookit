@@ -20,6 +20,7 @@ import com.example.booknook.BookItem
 import com.example.booknook.R.*
 import com.google.firebase.auth.FirebaseAuth
 import android.content.Context
+import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
@@ -27,6 +28,7 @@ import android.widget.Toast
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import java.util.Locale
 
 
 // Veronica Nguyen
@@ -166,11 +168,17 @@ class BookDetailsFragment : Fragment() {
             val bookTitle = arguments?.getString("bookTitle")
             val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
 
-            if (bookIsbn.isNullOrEmpty()) {
-                // Creates a new document for the book and uses Firestore ID if it doesn't have an ISBN
-                val newBookRef = db.collection("books").document()
-                bookIsbn = newBookRef.id // Use the Firestore ID as the unique identifier for the book
+            // If the book has no ISBN, create a unique document ID using the title and authors of the book
+            if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {
+                // Creates title part by replacing all whitespaces with underscores, and making it lowercase
+                val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT) ?: "unknown_title"
+                // Creates authors part by combining authors, replacing all whitespaces with underscores, and making it lowercase
+                val authorsId = bookAuthors?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
+                bookIsbn = "$titleId-$authorsId" // Update bookIsbn with new Id
             }
+
+            // Reference to the specific book's document
+            val bookRef = db.collection("books").document(bookIsbn)
 
             // Get the user's username from database
             db.collection("users").document(userId).get().addOnSuccessListener { document ->
@@ -191,9 +199,6 @@ class BookDetailsFragment : Fragment() {
                         "authors" to bookAuthors
                     )
 
-                    // Reference to the specific book's document (ISBN or Firestore ID)
-                    val bookRef = db.collection("books").document(bookIsbn)
-
                     bookRef.set(bookData, SetOptions.merge())  // Updates database with book details if not in database already
 
                     // Check if the user has already submitted a summary
@@ -203,18 +208,10 @@ class BookDetailsFragment : Fragment() {
                                 // Add a new summary if one doesn't exist
                                 bookRef.collection("summaries").add(summaryData)
                                     .addOnSuccessListener {
-                                        Toast.makeText(
-                                            activity,
-                                            "Summary saved successfully",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast.makeText(activity, "Summary saved successfully", Toast.LENGTH_SHORT).show()
                                     }
                                     .addOnFailureListener {
-                                        Toast.makeText(
-                                            activity,
-                                            "Failed to save summary",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast.makeText(activity, "Failed to save summary", Toast.LENGTH_SHORT).show()
                                     }
                             } else {
                                 // Updates the existing summary
@@ -222,27 +219,15 @@ class BookDetailsFragment : Fragment() {
                                 bookRef.collection("summaries").document(existingSummaryId)
                                     .set(summaryData) // Update summary data
                                     .addOnSuccessListener {
-                                        Toast.makeText(
-                                            activity,
-                                            "Summary updated successfully",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast.makeText(activity, "Summary updated successfully", Toast.LENGTH_SHORT).show()
                                     }
                                     .addOnFailureListener {
-                                        Toast.makeText(
-                                            activity,
-                                            "Failed to update summary",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast.makeText(activity, "Failed to update summary", Toast.LENGTH_SHORT).show()
                                     }
                             }
                         }
                         .addOnFailureListener {
-                            Toast.makeText(
-                                activity,
-                                "Failed to check existing summaries",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(activity, "Failed to check existing summaries", Toast.LENGTH_SHORT).show()
                         }
                 } else {
                     Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
