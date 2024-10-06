@@ -99,21 +99,20 @@
                 android:text="Online"
                 android:textColor="@color/star_green"
                 android:layout_marginStart="10dp"
-                android:layout_marginEnd="210dp"
+                android:layout_marginEnd="270dp"
                 android:textSize="20sp" />
 
             <!-- Button to collapse/expand online friends -->
-            <Button
+            <ImageButton
                 android:id="@+id/collapse_online_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Collapse"
-                android:textColor="@color/icon_color"
-                android:backgroundTint="@color/star_green"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_gravity="center"
                 android:padding="8dp"
-                android:layout_marginTop="8dp"
-                android:textSize="18sp"/>
+                android:layout_marginTop="12dp"
+                android:backgroundTint="@color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/collapse_button"/>
         </LinearLayout>
 
         <!-- Recycler view displays online friends -->
@@ -139,23 +138,22 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginEnd="210dp"
+                android:layout_marginEnd="270dp"
                 android:text="Offline"
                 android:textColor="@color/star_green"
                 android:textSize="20sp" />
 
             <!-- Button to collapse/expand offline friends -->
-            <Button
+            <ImageButton
                 android:id="@+id/collapse_offline_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Collapse"
-                android:textColor="@color/icon_color"
-                android:backgroundTint="@color/star_green"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_gravity="center"
                 android:padding="8dp"
-                android:layout_marginTop="8dp"
-                android:textSize="18sp"/>
+                android:layout_marginTop="12dp"
+                android:backgroundTint="@color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/collapse_button"/>
 
         </LinearLayout>
 
