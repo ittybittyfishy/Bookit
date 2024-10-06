@@ -86,8 +86,9 @@ class ProfileFragment : Fragment() {
             pickImageFromGallery(PICK_PROFILE_IMAGE)
         }
 
-        // Function displays the number of books the user has read
-        fun displayNumBooksRead(userId: String, textView: TextView) {
+        // Veronica Nguyen
+        // Function updates the number of books the user has read
+        fun updateNumBooksRead(userId: String) {
             // References document of current user
             val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
 
@@ -98,15 +99,23 @@ class ProfileFragment : Fragment() {
                     val finishedBooks = standardCollections?.get("Finished") as? List<*>
                     // Finds the size of the array to determine number of books read
                     val numBooksRead = finishedBooks?.size ?: 0
-                    // Update the TextView  using the numBooksRead variable
-                     textView.setText("$numBooksRead")
-                }.addOnFailureListener { e ->
-                    Toast.makeText(activity, "Error getting number of books read: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
+
+                    // Updates the numBooksRead field in database
+                    userDocRef.update("numBooksRead", numBooksRead)
+                        .addOnSuccessListener {
+                            // Update text view here
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(activity, "Error updating number of books read", Toast.LENGTH_SHORT).show()
+                        }
+            }.addOnFailureListener { e ->
+                Toast.makeText(activity, "Error getting number of books read: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        // Function displays the number of custom collections a user has
-        fun displayNumCollections(userId: String, textView: TextView) {
+        // Veronica Nguyen
+        // Function updates the number of custom collections a user has
+        fun updateNumCollections(userId: String) {
             // References document of current user
             val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
 
@@ -115,15 +124,23 @@ class ProfileFragment : Fragment() {
                 val customCollections = document.get("customCollections") as? Map<String, Any>
                 // Finds the size of the map to determine number of books read
                 val numCollections = customCollections?.size ?: 0
-                // Update the TextView using the numCollections variable
-                textView.setText("$numCollections")
+
+                // Updates the numCollections field in database
+                userDocRef.update("numCollections", numCollections)
+                    .addOnSuccessListener {
+                        // Update text view here
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(activity, "Error updating number of collections", Toast.LENGTH_SHORT).show()
+                    }
             }.addOnFailureListener { e ->
                 Toast.makeText(activity, "Error getting number of collections: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Function displays the number of friends the user has
-        fun displayNumFriends(userId: String, textView: TextView) {
+        // Veronica Nguyen
+        // Function updates the number of friends the user has
+        fun updateNumFriends(userId: String) {
             // References document of current user
             val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
 
@@ -132,34 +149,49 @@ class ProfileFragment : Fragment() {
                 val friends = document.get("friends") as? List<*>
                 // Finds the size of the array to determine number of friends
                 val numFriends = friends?.size ?: 0
-                // Update the TextView using the numFriends variable
-                textView.setText("$numFriends")
+
+                // Updates the numFriends field in database
+                userDocRef.update("numFriends", numFriends)
+                    .addOnSuccessListener {
+                        // Update text view here
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(activity, "Error updating number of friends", Toast.LENGTH_SHORT).show()
+                    }
             }.addOnFailureListener { e ->
                 Toast.makeText(activity, "Error getting number of friends: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Function displays the number of reviews the user has
-        fun displayNumReviews(userId: String, textView: TextView) {
+        // Veronica Nguyen
+        // Function updates the number of reviews the user has
+        fun updateNumReviews(userId: String) {
             // References document of current user
             val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
 
             userDocRef.get().addOnSuccessListener { document ->
                 // Retrieves the friends array in database
                 val numReviews = document.getLong("numReviews") ?: 0
-                // Update the TextView using the numFriends variable
-                textView.setText("$numReviews")
+
+                // Updates the numReviews field in database
+                userDocRef.update("numReviews", numReviews)
+                    .addOnSuccessListener {
+                        // Update text view here
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(activity, "Error updating number of reviews", Toast.LENGTH_SHORT).show()
+                    }
             }.addOnFailureListener { e ->
                 Toast.makeText(activity, "Error getting number of reviews: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
 
         if (userId != null) {
-            // Displays all of the user's stats to the corresponding view
-//             displayNumBooksRead(userId, test)
-//             displayNumCollections(userId, test)
-//             displayNumFriends(userId, test)
-//             displayNumReviews(userId, test)
+            // Updates the user's stats fields in database
+             updateNumBooksRead(userId)
+             updateNumCollections(userId)
+             updateNumFriends(userId)
+             updateNumReviews(userId)
 
         } else {
             Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()

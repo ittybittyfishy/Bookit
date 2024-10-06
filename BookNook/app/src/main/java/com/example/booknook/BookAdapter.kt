@@ -219,6 +219,7 @@ class BookAdapter(
                                 val selectedCollectionName = customCollectionNames[which]
                                 if (selectedCollectionName == "Remove from Custom Collections") {
                                     removeBookFromCustomCollections(userId, book, context) // Remove the book from custom collections
+                                    calculateTopGenres(userId, context)  // Calculate top genres when removing book from custom collections
                                 } else {
                                     addBookToCustomCollection(userId, book, selectedCollectionName, context) // Add the book to the selected custom collection
                                 }
@@ -292,7 +293,7 @@ class BookAdapter(
                 null
             }.addOnSuccessListener {
                 // Veronica Nguyen
-                calculateTopGenres(userId, context)  // Update top genres when removing book
+                calculateTopGenres(userId, context)  // Update top genres when removing book from standard collection
                 Toast.makeText(context, "Book removed from standard collection", Toast.LENGTH_SHORT).show()
             }.addOnFailureListener { e ->
                 Toast.makeText(context, "Failed to remove book: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -380,18 +381,18 @@ class BookAdapter(
 
                 // Gets user's custom collections
                 val customCollections = document.get("customCollections") as? Map<String, Map<String, Any>>
-                                // Loops through each custom collection
-                                customCollections?.forEach { (_, collectionData) ->  //  Ignores key parameter of lambda expression
-                                    val books = collectionData["books"] as? List<Map<String, Any>>  // Gets the books in collection
-                                    // Loops through each book in a collection
-                                    books?.forEach { book ->
-                                        val genres = book["genres"] as? List<String> ?: listOf("Unknown Genre")  // Retrieves genres from a book
-                                        // Loops through each genre of a book
-                                        genres.forEach { genre ->
-                                            if (genre != "Unknown Genre") { // Excludes "Unknown Genre" from top genres calculation
-                                                // Sets default number of a genre's occurrence to 0 and retrieves its current count
-                                                // Increments the count of that genre by 1
-                                                genreCount[genre] = genreCount.getOrDefault(genre, 0) + 1
+                    // Loops through each custom collection
+                    customCollections?.forEach { (_, collectionData) ->  //  Ignores key parameter of lambda expression
+                        val books = collectionData["books"] as? List<Map<String, Any>>  // Gets the books in collection
+                        // Loops through each book in a collection
+                        books?.forEach { book ->
+                            val genres = book["genres"] as? List<String> ?: listOf("Unknown Genre")  // Retrieves genres from a book
+                            // Loops through each genre of a book
+                            genres.forEach { genre ->
+                                if (genre != "Unknown Genre") { // Excludes "Unknown Genre" from top genres calculation
+                                    // Sets default number of a genre's occurrence to 0 and retrieves its current count
+                                    // Increments the count of that genre by 1
+                                    genreCount[genre] = genreCount.getOrDefault(genre, 0) + 1
                             }
                         }
                     }
