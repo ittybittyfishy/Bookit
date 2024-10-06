@@ -68,6 +68,8 @@ class BookAdapter(
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         holder.spinnerSelectCollection.adapter = adapter // Assign the adapter to the spinner
 
+        val genres = book.volumeInfo.categories ?: listOf("Unknown Genre")
+
         // Handle the spinner's item selection event.
         holder.spinnerSelectCollection.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
@@ -92,7 +94,8 @@ class BookAdapter(
                             book.volumeInfo.title,
                             holder.authors.text.toString(),
                             imageUrl,
-                            selectedCollection
+                            selectedCollection,
+                            genres
                         )
                     }
                 }
@@ -144,7 +147,8 @@ class BookAdapter(
         title: String,
         authors: String,
         bookImage: String?,
-        newCollectionName: String
+        newCollectionName: String,
+        genres: List<String>
     ) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid // Get current user ID
         if (userId != null) {
@@ -154,7 +158,8 @@ class BookAdapter(
             val book = hashMapOf(
                 "title" to title,
                 "authors" to authors.split(", "),
-                "imageLink" to bookImage
+                "imageLink" to bookImage,
+                "genres" to genres
             )
 
             val userDocRef = db.collection("users").document(userId) // Reference to the user's document
@@ -182,6 +187,8 @@ class BookAdapter(
                 transaction.update(userDocRef, "standardCollections.$newCollectionName", FieldValue.arrayUnion(book))
                 null
             }.addOnSuccessListener {
+                // Veronica Nguyen
+                calculateTopGenres(userId, context)  // Update top genres when adding book to default collection
                 Toast.makeText(context, context.getString(R.string.book_added_to_collection, newCollectionName), Toast.LENGTH_SHORT).show()
             }.addOnFailureListener { e ->
                 Toast.makeText(context, context.getString(R.string.failed_to_add_book, e.message), Toast.LENGTH_SHORT).show()
@@ -212,6 +219,7 @@ class BookAdapter(
                                 val selectedCollectionName = customCollectionNames[which]
                                 if (selectedCollectionName == "Remove from Custom Collections") {
                                     removeBookFromCustomCollections(userId, book, context) // Remove the book from custom collections
+                                    calculateTopGenres(userId, context)  // Calculate top genres when removing book from custom collections
                                 } else {
                                     addBookToCustomCollection(userId, book, selectedCollectionName, context) // Add the book to the selected custom collection
                                 }
@@ -238,13 +246,16 @@ class BookAdapter(
             "authors" to book.volumeInfo.authors,
             "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"),
             "pages" to 0,
-            "tags" to emptyList<String>()
+            "tags" to emptyList<String>(),
+            "genres" to (book.volumeInfo.categories ?: listOf("Unknown Genre"))
         )
 
         // Update Firestore to add the book to the custom collection.
         db.collection("users").document(userId)
             .update("customCollections.$collectionName.books", FieldValue.arrayUnion(bookData))
             .addOnSuccessListener {
+                // Veronica Nguyen
+                calculateTopGenres(userId, context)  // Update top genres when adding book to custom collection
                 Toast.makeText(context, "Book added to $collectionName", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
@@ -281,6 +292,8 @@ class BookAdapter(
                 }
                 null
             }.addOnSuccessListener {
+                // Veronica Nguyen
+                calculateTopGenres(userId, context)  // Update top genres when removing book from standard collection
                 Toast.makeText(context, "Book removed from standard collection", Toast.LENGTH_SHORT).show()
             }.addOnFailureListener { e ->
                 Toast.makeText(context, "Failed to remove book: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -339,4 +352,67 @@ class BookAdapter(
                 Toast.makeText(context, "Error loading custom collections.", Toast.LENGTH_SHORT).show()
             }
     }
+
+    // Veronica Nguyen
+    // Function to get the user's top 3 genres
+    fun calculateTopGenres(userId: String, context: Context) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users").document(userId).get()  // Gets users collection
+            .addOnSuccessListener { document ->
+                val genreCount = mutableMapOf<String, Int>() // Map to count number of times a genre appears
+
+                // Gets user's standard collections
+                val standardCollections = document.get("standardCollections") as? Map<String, List<Map<String, Any>>>
+                // Loops through each standard collection
+                standardCollections?.values?.forEach { bookList ->
+                    // Loops through each book in a collection
+                    bookList.forEach { book ->
+                        val genres = book["genres"] as? List<String> ?: listOf("Unknown Genre")  // Retrieves genres from a book
+                        // Loops through each genre of a book
+                        genres.forEach { genre ->
+                            if (genre != "Unknown Genre") { // Excludes "Unknown Genre" from top genres calculation
+                                // Sets default number of a genre's occurrence to 0 and retrieves its current count
+                                // Increments the count of that genre by 1
+                                genreCount[genre] = genreCount.getOrDefault(genre, 0) + 1
+                            }
+                        }
+                    }
+                }
+
+                // Gets user's custom collections
+                val customCollections = document.get("customCollections") as? Map<String, Map<String, Any>>
+                    // Loops through each custom collection
+                    customCollections?.forEach { (_, collectionData) ->  //  Ignores key parameter of lambda expression
+                        val books = collectionData["books"] as? List<Map<String, Any>>  // Gets the books in collection
+                        // Loops through each book in a collection
+                        books?.forEach { book ->
+                            val genres = book["genres"] as? List<String> ?: listOf("Unknown Genre")  // Retrieves genres from a book
+                            // Loops through each genre of a book
+                            genres.forEach { genre ->
+                                if (genre != "Unknown Genre") { // Excludes "Unknown Genre" from top genres calculation
+                                    // Sets default number of a genre's occurrence to 0 and retrieves its current count
+                                    // Increments the count of that genre by 1
+                                    genreCount[genre] = genreCount.getOrDefault(genre, 0) + 1
+                            }
+                        }
+                    }
+                }
+
+                // Sort genres by count in descending order and take the top 3
+                val topGenres = genreCount.entries.sortedByDescending { it.value }.take(3).map { it.key }
+
+                // Update user's topGenres field in Firestore
+                db.collection("users").document(userId).update("topGenres", topGenres)
+                    .addOnSuccessListener {
+                        Toast.makeText(context, "Top genres updated: $topGenres", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(context, "Failed to update top genres: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Failed to retrieve collections: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
 }

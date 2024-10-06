@@ -1,5 +1,6 @@
 package com.example.booknook.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,7 @@ import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
 
 // Yunjong Noh
 // This fragment handles the function of writing and storing review data to Firebase (With Template Ver.)
@@ -46,6 +48,7 @@ class ReviewActivityTemplate : Fragment() {
         // Retrieve book information passed through arguments (e.g., from previous screen)
         val bookTitle = arguments?.getString("bookTitle")
         val bookAuthor = arguments?.getString("bookAuthor")
+        val bookAuthorsList = arguments?.getStringArrayList("bookAuthorsList")
         val bookRating = arguments?.getFloat("bookRating") ?: 0f
         val bookIsbn = arguments?.getString("bookIsbn") // Use this to identify the book for the review
         val bookImage = arguments?.getString("bookImage") // Image URL passed in arguments
@@ -137,6 +140,10 @@ class ReviewActivityTemplate : Fragment() {
                 }
         }
 
+        if (userId != null && bookIsbn != null) {
+            checkAndNavigateToCorrectFragment(userId, bookIsbn)
+        }
+
         // Handle the submit button click to save the review
         submitButton.setOnClickListener {
             // Ensure focus is cleared from EditText fields before retrieving data
@@ -185,23 +192,117 @@ class ReviewActivityTemplate : Fragment() {
 
         //Declare button that connects to XML
         removeTemplateButton.setOnClickListener {
+            if (userId != null && bookIsbn != null) {
+                // Create a pop-up alert to confirm if user wants to delete their old review
+                val builder = AlertDialog.Builder(requireContext())
+                builder.setTitle("Delete Review")  // Sets title of alert
+                builder.setMessage(
+                    "Removing the template will permanently delete the currently displayed review. " +
+                            "Are you sure you want to delete your old review?"
+                )  // Alert message
 
-            // Handle requests button click
-            val reviewActivityFragment = ReviewActivity()
-            val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
-            // Adds data into the bundle
-            bundle.putString("bookTitle", bookTitle)
-            bundle.putString("bookAuthor", bookAuthor)
-            bundle.putString("bookImage", bookImage)
-            bundle.putFloat("bookRating", bookRating)
-            bundle.putString("bookIsbn", bookIsbn)
+                // If user presses "Yes"
+                builder.setPositiveButton("Yes") { dialog, which ->
+                    // Delete the old review before switching to the template fragment
+                    deleteOldReview(userId, bookIsbn) {
+                        // After deletion, prepare the data to switch to the template fragment
+                        val reviewActivityFragment = ReviewActivity()
+                        val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
 
-            reviewActivityFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
-            (activity as? MainActivity)?.replaceFragment(reviewActivityFragment, "Write a Review") // Go back to No template fragment
+                        // Adds data into the bundle
+                        bundle.putString("bookTitle", bookTitle)
+                        bundle.putStringArrayList("bookAuthorsList", bookAuthorsList)
+                        bundle.putString("bookImage", bookImage)
+                        bundle.putFloat("bookRating", bookRating)
+                        bundle.putString("bookIsbn", bookIsbn)
+
+                        reviewActivityFragment.arguments =
+                            bundle  // sets reviewActivityFragment's arguments to the data in bundle
+                        (activity as? MainActivity)?.replaceFragment(reviewActivityFragment, "Write a Review") // Go back to No template fragment
+                    }
+                }
+                // If user presses "No"
+                builder.setNegativeButton("No") { dialog, which ->
+                    dialog.dismiss()  // Dismisses the alert ad does nothing
+                }
+                builder.create().show()
+            }
         }
-
         return view
     }
+
+    private fun checkAndNavigateToCorrectFragment(userId: String, bookIsbn: String) {
+        val db = FirebaseFirestore.getInstance()
+        val bookRef = db.collection("books").document(bookIsbn)
+
+        // Query Firestore to check if a review exists and whether it used a template
+        bookRef.collection("reviews").whereEqualTo("userId", userId).get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val existingReview = querySnapshot.documents[0].data
+                    val isTemplateUsed = existingReview?.get("isTemplateUsed") as? Boolean ?: false
+
+                    if (!isTemplateUsed) {
+                        // Navigate to the no-template fragment
+                        val reviewActivityFragment = ReviewActivity()
+                        val bundle = Bundle()
+
+                        bundle.putString("bookTitle", arguments?.getString("bookTitle"))
+                        bundle.putString("bookAuthor", arguments?.getString("bookAuthor"))
+                        bundle.putString("bookImage", arguments?.getString("bookImage"))
+                        bundle.putFloat("bookRating", arguments?.getFloat("bookRating") ?: 0f)
+                        bundle.putString("bookIsbn", bookIsbn)
+
+                        reviewActivityFragment.arguments = bundle
+                        (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review (No Template)")
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(activity, "Failed to retrieve review", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun deleteOldReview(userId: String, bookIsbn: String, onComplete: () -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val bookRef = db.collection("books").document(bookIsbn)
+
+        // Query for the existing review
+        bookRef.collection("reviews").whereEqualTo("userId", userId).get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val existingReviewId = querySnapshot.documents[0].id
+                    bookRef.collection("reviews").document(existingReviewId)
+                        .delete()
+                        .addOnSuccessListener {
+                            Toast.makeText(activity, "Old review deleted", Toast.LENGTH_SHORT).show()
+                            decrementUserReviewNum(userId)  // decrements number of reviews user has written
+                            onComplete() // Call onComplete after deletion
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(activity, "Failed to delete old review", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    onComplete() // No existing review, proceed to the next step
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(activity, "Failed to check existing reviews", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Veronica Nguyen
+    // Function to decrement user's number of reviews when a review is deleted
+    private fun decrementUserReviewNum(userId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(userId)
+
+        userRef.update("numReviews", FieldValue.increment(-1))  // decrements the field by 1
+            .addOnFailureListener {
+                Toast.makeText(activity, "Failed to update review count", Toast.LENGTH_SHORT).show()
+            }
+    }
+
 
     //function for saving with Template review Data
     //Define variable types
@@ -222,6 +323,8 @@ class ReviewActivityTemplate : Fragment() {
         if (userId != null && bookIsbn != null) {
             // initialize Firebase Instance
             val db = FirebaseFirestore.getInstance()
+            val bookTitle = arguments?.getString("bookTitle")
+            val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
             // Create a map for review data to save into Firebase
             val reviewData = mapOf(
                 "userId" to userId,
@@ -246,11 +349,19 @@ class ReviewActivityTemplate : Fragment() {
                 "weaknessesChecked" to weaknessesChecked,
                 "weaknessesRating" to weaknessesRating.toDouble(),
                 "weaknessesReview" to weaknessesReview,
-                "timestamp" to FieldValue.serverTimestamp()
+                "timestamp" to FieldValue.serverTimestamp(),
+                "isTemplateUsed" to true
+            )
+
+            // Map to store book data
+            val bookData = mapOf(
+                "bookTitle" to bookTitle,
+                "authors" to bookAuthors,
             )
 
             // Reference to the specific book's document in the "books" collection
             val bookRef = db.collection("books").document(bookIsbn)
+            bookRef.set(bookData, SetOptions.merge())  // Updates database with book details if not in database already
 
             // Check if the user has already submitted a review by querying reviews collection with the userId
             bookRef.collection("reviews").whereEqualTo("userId", userId).get()
@@ -259,10 +370,9 @@ class ReviewActivityTemplate : Fragment() {
                         // If no review exists for this user, add a new one
                         bookRef.collection("reviews").add(reviewData)
                             .addOnSuccessListener {
-                                // Show success message and navigate back to the Home fragment
+                                // Show success message
                                 Toast.makeText(activity, "Review saved successfully!", Toast.LENGTH_SHORT).show()
-                                // Optionally clear input fields here if needed before navigating back
-                                (activity as? MainActivity)?.replaceFragment(HomeFragment(), "Home")
+                                incrementUserReviewNum(userId)  // increments the number of reviews field
                             }
                             .addOnFailureListener { e ->
                                 // If saving the review fails, display an error message
@@ -290,5 +400,17 @@ class ReviewActivityTemplate : Fragment() {
             // If userId or bookIsbn is null, display an error message
             Toast.makeText(activity, "Book ISBN or user not provided", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    // Veronica Nguyen
+    // Function to increment user's number of reviews when a review is added
+    private fun incrementUserReviewNum(userId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(userId)
+
+        userRef.update("numReviews", FieldValue.increment(1))  // increments the field by 1
+            .addOnFailureListener {
+                Toast.makeText(activity, "Failed to update review count", Toast.LENGTH_SHORT).show()
+            }
     }
 }

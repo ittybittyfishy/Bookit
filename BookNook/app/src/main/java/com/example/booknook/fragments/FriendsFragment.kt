@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,8 +25,8 @@ class FriendsFragment : Fragment() {
     private lateinit var requestsButton: Button
     private lateinit var blockedButton: Button
     private lateinit var searchButton: Button
-    private lateinit var collapseOnlineButton: Button
-    private lateinit var collapseOfflineButton: Button
+    private lateinit var collapseOnlineButton: ImageButton
+    private lateinit var collapseOfflineButton: ImageButton
     private lateinit var searchBar: EditText
     private lateinit var db: FirebaseFirestore
     private lateinit var onlineFriendsRecyclerView: RecyclerView
@@ -80,28 +81,27 @@ class FriendsFragment : Fragment() {
         onlineFriendsRecyclerView.layoutManager = GridLayoutManager(context, 2)  // Displays online friends in 2 columns
         offlineFriendsRecyclerView.layoutManager = GridLayoutManager(context, 2)  // Displays offline friends in 2 columns
 
-        // Handles when collapse button for online friends is clicked
+        // Handles when collapse/expand button for online friends is clicked
         collapseOnlineButton.setOnClickListener {
-            if (onlineFriendsRecyclerView.visibility == View.GONE) {  // If the view is current collapsed
+            if (onlineFriendsRecyclerView.visibility == View.GONE) {  // If the view is currently collapsed
                 onlineFriendsRecyclerView.visibility = View.VISIBLE  // Make the online friends visible
-                collapseOnlineButton.text = "Collapse"  // Change text in button to "Collapse"
-            } else {
-                onlineFriendsRecyclerView.visibility = View.GONE  // If the view is currently expanded
-                collapseOnlineButton.text = "Expand"  // Change text in button to "Expand"
+                collapseOnlineButton.setImageResource(R.drawable.collapse_button)  // Show collapse button
+            } else {  // If the view is currently expanded
+                onlineFriendsRecyclerView.visibility = View.GONE  // Sets view to invisible to collapse friends
+                collapseOnlineButton.setImageResource(R.drawable.expand_button)  // Show expand button
             }
         }
 
-        // Handles when collapse button for offline friends is clicked
+        // Handles when collapse/expand button for offline friends is clicked
         collapseOfflineButton.setOnClickListener {
-            if (offlineFriendsRecyclerView.visibility == View.GONE) {  // If the view is current collapsed
+            if (offlineFriendsRecyclerView.visibility == View.GONE) {  // If the view is currently collapsed
                 offlineFriendsRecyclerView.visibility = View.VISIBLE  // Make the offline friends visible
-                collapseOfflineButton.text = "Collapse"  // Change text in button to "Collapse"
-            } else {
-                offlineFriendsRecyclerView.visibility = View.GONE  // If the view is currently expanded
-                collapseOfflineButton.text = "Expand"  // Change text in button to "Expand"
+                collapseOfflineButton.setImageResource(R.drawable.collapse_button)  // Show collapse button
+            } else {  // If the view is currently expanded
+                offlineFriendsRecyclerView.visibility = View.GONE  // Sets view to invisible to collapse friends
+                collapseOfflineButton.setImageResource(R.drawable.expand_button)  // Show expand button
             }
         }
-
         loadFriends()  // Loads the user's friends
     }
 
@@ -110,12 +110,12 @@ class FriendsFragment : Fragment() {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
         if (currentUserId != null) {
             db.collection("users").document(currentUserId)
-                .addSnapshotListener { documentSnapshot, e ->
+                .addSnapshotListener { documentSnapshot, e ->  // Lists for changes in user's document
                     if (e != null) {
                         activity?.let { context ->
                             Toast.makeText(context, "Error loading friends", Toast.LENGTH_SHORT).show()
                         }
-                        return@addSnapshotListener
+                        return@addSnapshotListener  // Returns early if there is an error
                     }
 
                     if (documentSnapshot != null && documentSnapshot.exists()) {
