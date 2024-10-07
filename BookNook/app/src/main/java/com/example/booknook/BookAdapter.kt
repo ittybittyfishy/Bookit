@@ -141,8 +141,11 @@ class BookAdapter(
         }
     }
 
-    // Method to save the book to a selected collection in Firestore.
+    // Olivia Fishbough
+    // Method to save the book to a selected standard collection in Firestore.
+    // only allows a user to save it in ONE standard collection
     private fun saveBookToCollection(
+        // Create a map of the book's details to be saved.
         context: Context,
         title: String,
         authors: String,
@@ -162,6 +165,7 @@ class BookAdapter(
                 "genres" to genres
             )
 
+            // Reference to the user's document
             val userDocRef = db.collection("users").document(userId) // Reference to the user's document
 
             // Firestore transaction to update the database.
@@ -173,10 +177,11 @@ class BookAdapter(
                     if (collection != "Select Collection" && collection != newCollectionName) {
                         val booksInCollection = snapshot.get("standardCollections.$collection") as? List<Map<String, Any>>
                         booksInCollection?.let {
+                            // Check for existing book and remove it if found. Ehat makes sure book is only in one collection
                             for (existingBook in it) {
                                 if (existingBook["title"] == title && existingBook["authors"] == authors.split(", ")) {
                                     transaction.update(userDocRef, "standardCollections.$collection", FieldValue.arrayRemove(existingBook))
-                                    break
+                                    break // Exit loop after removing the book
                                 }
                             }
                         }
@@ -185,7 +190,7 @@ class BookAdapter(
 
                 // Add the book to the new collection.
                 transaction.update(userDocRef, "standardCollections.$newCollectionName", FieldValue.arrayUnion(book))
-                null
+                null // Indicate successful transaction
             }.addOnSuccessListener {
                 // Veronica Nguyen
                 calculateTopGenres(userId, context)  // Update top genres when adding book to default collection
@@ -196,6 +201,7 @@ class BookAdapter(
         }
     }
 
+    // Olivia Fishbough
     // Method to show a dialog where the user can select a custom collection.
     private fun showCustomCollectionDialog(context: Context, book: BookItem) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
@@ -208,35 +214,43 @@ class BookAdapter(
                 .addOnSuccessListener { document ->
                     val customCollections = document.get("customCollections") as? Map<String, Any>
 
+                    // Check if there are any custom collections to display.
                     if (!customCollections.isNullOrEmpty()) {
                         // Prepare a dialog to display the custom collections.
                         val customCollectionNames = customCollections.keys.toMutableList()
                         customCollectionNames.add("Remove from Custom Collections")
 
+                        // Build and show the dialog with custom collections.
                         AlertDialog.Builder(context)
                             .setTitle("Select Custom Collection")
                             .setItems(customCollectionNames.toTypedArray()) { dialog, which ->
                                 val selectedCollectionName = customCollectionNames[which]
+                                // Check if user selected the option to remove from custom collections.
                                 if (selectedCollectionName == "Remove from Custom Collections") {
                                     removeBookFromCustomCollections(userId, book, context) // Remove the book from custom collections
                                     calculateTopGenres(userId, context)  // Calculate top genres when removing book from custom collections
                                 } else {
+                                    // Add the book to the selected custom collection.
                                     addBookToCustomCollection(userId, book, selectedCollectionName, context) // Add the book to the selected custom collection
                                 }
                             }
-                            .setNegativeButton("Cancel", null)
-                            .show()
+                            .setNegativeButton("Cancel", null) // Cancel button to dismiss the dialog
+                            .show() // Display the dialog
                     } else {
+                        // Inform the user if no custom collections are found.
                         Toast.makeText(context, "No custom collections found.", Toast.LENGTH_SHORT).show()
                     }
                 }
                 .addOnFailureListener {
+                    // Handle failure to load custom collections.
                     Toast.makeText(context, "Error loading custom collections.", Toast.LENGTH_SHORT).show()
                 }
         }
     }
 
+    // Olivia Fishbough
     // Method to add a book to a custom collection in Firestore.
+    // User can add a book to multiple collections
     private fun addBookToCustomCollection(userId: String, book: BookItem, collectionName: String, context: Context) {
         val db = FirebaseFirestore.getInstance()
 
@@ -245,7 +259,7 @@ class BookAdapter(
             "title" to book.volumeInfo.title,
             "authors" to book.volumeInfo.authors,
             "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"),
-            "pages" to 0,
+            "pages" to 0, // Initialize pages count
             "tags" to emptyList<String>(),
             "genres" to (book.volumeInfo.categories ?: listOf("Unknown Genre"))
         )
@@ -263,6 +277,7 @@ class BookAdapter(
             }
     }
 
+    // Olivia Fishbough
     // Method to remove a book from standard collections.
     private fun removeBookFromStandardCollection(
         context: Context,
@@ -274,7 +289,7 @@ class BookAdapter(
             val db = FirebaseFirestore.getInstance()
             val userDocRef = db.collection("users").document(userId)
 
-            // Firestore transaction to remove the book from collections.
+            // Firestore transaction to remove the book from collections if found
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(userDocRef)
 
@@ -284,8 +299,9 @@ class BookAdapter(
                     booksInCollection?.let {
                         for (existingBook in it) {
                             if (existingBook["title"] == title && existingBook["authors"] == authors.split(", ")) {
+                                // Remove the book from the collection.
                                 transaction.update(userDocRef, "standardCollections.$collection", FieldValue.arrayRemove(existingBook))
-                                break
+                                break // Exit loop after removing the book
                             }
                         }
                     }
@@ -301,7 +317,9 @@ class BookAdapter(
         }
     }
 
+    // Olivia Fishbough
     // Method to remove a book from custom collections.
+    // removes them from ALL collections
     private fun removeBookFromCustomCollections(userId: String, book: BookItem, context: Context) {
         val db = FirebaseFirestore.getInstance()
 
@@ -314,8 +332,9 @@ class BookAdapter(
             .addOnSuccessListener { document ->
                 val customCollections = document.get("customCollections") as? Map<String, Any>
 
+                // Check if custom collections exist before attempting to remove.
                 if (!customCollections.isNullOrEmpty()) {
-                    val batch = db.batch()
+                    val batch = db.batch() // Initialize a Firestore batch for atomic updates
 
                     // Loop through each custom collection.
                     for (collectionName in customCollections.keys) {
@@ -327,28 +346,32 @@ class BookAdapter(
                             val booksToRemove = books.filter { bookMap ->
                                 val title = bookMap["title"] as? String
                                 val authors = bookMap["authors"] as? List<String>
-                                title == bookTitle && authors == bookAuthors
+                                title == bookTitle && authors == bookAuthors // Match book by title and authors
                             }
 
-                            // Update Firestore.
+                            // For each matching book, update Firestore to remove it from the collection.
                             for (bookToRemove in booksToRemove) {
                                 batch.update(collectionRef, "customCollections.$collectionName.books", FieldValue.arrayRemove(bookToRemove))
                             }
                         }
                     }
-
+                    // Commit the batch update to Firestore, ensuring all removals happen together
                     batch.commit()
                         .addOnSuccessListener {
+                            // Notify the user when the book is successfully removed from all collections.
                             Toast.makeText(context, "Book removed from all custom collections.", Toast.LENGTH_SHORT).show()
                         }
                         .addOnFailureListener {
+                            // Notify the user if there is an issue with removing the book.
                             Toast.makeText(context, "Failed to remove book from custom collections.", Toast.LENGTH_SHORT).show()
                         }
                 } else {
+                    // Inform the user that no custom collections were found.
                     Toast.makeText(context, "No custom collections found.", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener {
+                // Handle any errors while fetching custom collections from Firestore.
                 Toast.makeText(context, "Error loading custom collections.", Toast.LENGTH_SHORT).show()
             }
     }

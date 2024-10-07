@@ -30,7 +30,9 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
         // EditText to display the book pages
         val pages: EditText = itemView.findViewById(R.id.pages)
 
+        // Contains the tags
         val tagContainer: LinearLayout = itemView.findViewById(R.id.tagContainer)
+        // Button to add tags
         val addTags: Button = itemView.findViewById(R.id.addTags)
     }
 
@@ -73,8 +75,10 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
 
         // Load tags in book item
         if (book.tags.isEmpty()) {
+            // If no tags then load a button to add tags
             holder.addTags.visibility = View.VISIBLE
         } else {
+            // if there are tags then hide the add tag button and make tags seperate objects
             holder.addTags.visibility = View.GONE
             book.tags.forEach { tag ->
                 val tagView = createTagView(tag, holder.itemView.context, book, position) // Create a custom TextView for each tag
@@ -96,6 +100,7 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
                 // Notify adapter to refresh
                 notifyItemChanged(position)
             }
+            // pulls up dialog to add tags
             addTagsDialog.show(fragmentManager, "AddTagsDialog")
         }
 
@@ -202,6 +207,7 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
         return tagView
     }
 
+    // Updates tags in firestore
     private fun updateTagsInFirestore(book: BookItemCollection, tags: List<String>) {
         val db = FirebaseFirestore.getInstance()
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
