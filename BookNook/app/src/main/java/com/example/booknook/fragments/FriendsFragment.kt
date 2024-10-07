@@ -163,7 +163,6 @@ class FriendsFragment : Fragment() {
         }
     }
 
-
     // Function to search for a user with their username
     private fun searchUser(username: String) {
         val db = FirebaseFirestore.getInstance()
@@ -200,8 +199,12 @@ class FriendsFragment : Fragment() {
                                     // User can't send a friend request to themselves
                                     Toast.makeText(activity, "Can't add yourself as friend", Toast.LENGTH_SHORT).show()
                                 } else {
-                                    // To-do: Pull up user's profile after looking up their username instead of requesting right away
-                                    sendFriendRequest(receiverId)  // calls function to send a friend request
+                                    // Pulls up user's profile after looking up their username
+                                    val friendProfileFragment = FriendProfileFragment()
+                                    val bundle = Bundle()
+                                    bundle.putString("receiverId", receiverId)
+                                    friendProfileFragment.arguments = bundle  // Sends receiver id to the friend profile fragment
+                                    (activity as MainActivity).replaceFragment(friendProfileFragment, "$userName")
                                     Toast.makeText(activity, "User found: $userName", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
@@ -213,47 +216,4 @@ class FriendsFragment : Fragment() {
                     }
             }
     }
-
-    // Function to send a friend request
-    private fun sendFriendRequest(receiverId: String) {
-        val db = FirebaseFirestore.getInstance()
-        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
-
-        if (currentUser != null) {
-            val senderId = currentUser.uid  // senderId is the current user
-            val senderRef = db.collection("users").document(senderId)
-
-            // Fetch sender's username
-            senderRef.get().addOnSuccessListener { senderDoc ->
-                val senderUsername = senderDoc?.getString("username")
-
-                if (senderUsername != null) {
-                    // creates a map of friend request details
-                    val friendRequest = hashMapOf(
-                        "senderId" to senderId,
-                        "senderUsername" to senderUsername,
-                        "receiverId" to receiverId,
-                        "status" to "pending"
-                    )
-
-                    // Update receiver's friend requests array in database
-                    db.collection("users").document(receiverId)
-                        .update("friendRequests", FieldValue.arrayUnion(friendRequest))
-                        .addOnSuccessListener {
-                            Toast.makeText(activity, "Friend request sent", Toast.LENGTH_SHORT).show()
-                        }
-                        .addOnFailureListener { e -> Toast.makeText(activity, "Failed to send friend request: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                } else {
-                    Toast.makeText(activity, "Sender username not found", Toast.LENGTH_SHORT).show()
-                }
-            }.addOnFailureListener {
-                Toast.makeText(activity, "Failed to send friend request", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-
 }
