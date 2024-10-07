@@ -44,69 +44,90 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <!-- Author(s) Text -->
-            <TextView
-                android:id="@+id/authors"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="Author(s):"
-                android:textSize="16sp"
-                app:layout_constraintStart_toEndOf="@+id/bookImage"
-                app:layout_constraintTop_toTopOf="@+id/bookImage" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-            <!-- Book Authors -->
-            <TextView
-                android:id="@+id/bookAuthor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:textColor="#A7CCAF"
-                android:maxLines="4"
-                android:ellipsize="end"
-                android:maxWidth="200dp"
-                android:textSize="16sp"
-                app:layout_constraintTop_toBottomOf="@+id/authors"
-                app:layout_constraintStart_toEndOf="@+id/bookImage" />
+                <!-- Author(s) Text -->
+                <TextView
+                    android:id="@+id/authors"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="150dp"
+                    android:text="Author(s):"
+                    android:textSize="16sp" />
 
-            <!-- Book Rating -->
-            <RatingBar
-                android:id="@+id/bookRating"
-                style="@style/Widget.AppCompat.RatingBar.Small"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:isIndicator="true"
-                android:numStars="5"
-                android:stepSize="0.5"
-                app:layout_constraintStart_toEndOf="@+id/bookImage"
-                app:layout_constraintTop_toBottomOf="@+id/bookAuthor" />
+                <!-- Book Authors -->
+                <TextView
+                    android:id="@+id/bookAuthor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="150dp"
+                    android:text="Unknown Author"
+                    android:textColor="@color/banner_green"
+                    android:maxLines="4"
+                    android:ellipsize="end"
+                    android:textSize="16sp" />
 
-            <!-- Book Rating Number -->
-            <TextView
-                android:id="@+id/ratingNumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="4.5"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                app:layout_constraintStart_toEndOf="@+id/bookRating"
-                app:layout_constraintTop_toBottomOf="@+id/bookAuthor" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-            <!-- Book Summary -->
-            <TextView
-                android:id="@+id/bookSummary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:text="Summary"
-                android:textSize="16sp"
-                app:layout_constraintStart_toEndOf="@+id/bookImage"
-                app:layout_constraintTop_toBottomOf="@+id/bookRating" />
+                    <!-- Book Rating Bar -->
+                    <RatingBar
+                        android:id="@+id/bookRating"
+                        style="@style/Widget.AppCompat.RatingBar.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:isIndicator="true"
+                        android:numStars="5"
+                        android:stepSize="0.5"
+                        android:layout_marginStart="150dp"
+                        android:layout_marginTop="4dp" />
+
+                    <!-- Book Rating Number -->
+                    <TextView
+                        android:id="@+id/ratingNumber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_alignBaseline="@id/bookRating"
+                        android:layout_alignParentEnd="true"
+                        android:text="N/A"
+                        android:textColor="@color/black"
+                        android:textSize="16sp"
+                        android:layout_toEndOf="@id/bookRating" />
+                </RelativeLayout>
+
+            </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Book Description -->
+        <TextView
+            android:id="@+id/bookDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
+            android:text="No description available"
+            android:textSize="16sp"
+            android:maxLines="6"
+            android:ellipsize="end" />
+
+        <!-- Read more button -->
+        <Button
+            android:id="@+id/readMoreButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-10dp"
+            android:text="Read More"
+            android:textSize="14sp"
+            android:textColor="@color/banner_green"
+            android:background="@android:color/transparent"
+            android:padding="0dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -115,6 +136,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
                 android:text="Tags" />
         </LinearLayout>
 
@@ -125,7 +147,7 @@
             android:orientation="horizontal"
             android:padding="16dp">
 
-            <!-- Chapters Section -->
+            <!-- Reading Status Section -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -141,9 +163,10 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/readingStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reading"
+                    android:text="No status"
                     android:textSize="16sp" />
             </LinearLayout>
 
@@ -154,7 +177,7 @@
                 android:layout_gravity="center_vertical"
                 android:background="#ddd5c6" />
 
-            <!-- Rating Section -->
+            <!-- My Rating Section -->
             <LinearLayout
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
@@ -187,18 +210,20 @@
 
                     <!-- Rating Number -->
                     <TextView
+                        android:id="@+id/myRatingNumber"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="(2.5)"
+                        android:text="N/A"
                         android:textSize="14sp" />
                 </LinearLayout>
 
                 <!-- Date Logged -->
                 <TextView
+                    android:id="@+id/ratingLoggedDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Logged on 03/21/24"
+                    android:text="You haven't rated this book"
                     android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
@@ -227,6 +252,7 @@
                 android:id="@+id/edit_summary_button"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:layout_marginTop="3dp"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="-3dp"
                 android:backgroundTint="@color/transparent"

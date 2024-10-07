@@ -38,6 +38,9 @@ class BookDetailsFragment : Fragment() {
     private lateinit var writeReviewButton: Button
     private lateinit var cancelButton: Button
     private lateinit var saveChangesButton: Button
+    private lateinit var readMoreButton: Button
+    private var isDescriptionExpanded = false  // defaults the description to not be expanded
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,6 +56,7 @@ class BookDetailsFragment : Fragment() {
         val bookImage = arguments?.getString("bookImage")
         val bookRating = arguments?.getFloat("bookRating") ?: 0f
         val isbn = arguments?.getString("bookIsbn")
+        val bookDescription = arguments?.getString("bookDescription")
         val userId = FirebaseAuth.getInstance().currentUser?.uid // Current logged-in user ID
 
         // Retrieves Ids in the fragment
@@ -61,6 +65,7 @@ class BookDetailsFragment : Fragment() {
         val imageView: ImageView = view.findViewById(R.id.bookImage)
         val bookRatingBar: RatingBar = view.findViewById(R.id.bookRating)
         val ratingNumberTextView: TextView = view.findViewById(R.id.ratingNumber)
+        val descriptionTextView: TextView = view.findViewById(R.id.bookDescription)
 
         // Calls views
         editButton = view.findViewById(R.id.edit_summary_button)
@@ -68,11 +73,13 @@ class BookDetailsFragment : Fragment() {
         cancelButton = view.findViewById(R.id.cancel_button)
         saveChangesButton = view.findViewById(R.id.save_changes_button)
         writeReviewButton = view.findViewById(R.id.write_review_button)
+        readMoreButton = view.findViewById(R.id.readMoreButton)
 
         titleTextView.text = bookTitle
         authorTextView.text = bookAuthor  // Update text with the book's author(s)
         bookRatingBar.rating = bookRating // Update stars with rating
         ratingNumberTextView.text = "(${bookRating.toString()})" // Set the rating number text
+        descriptionTextView.text = bookDescription
 
         // Update the book's image
         if (bookImage != null) {
@@ -81,6 +88,28 @@ class BookDetailsFragment : Fragment() {
                 .placeholder(drawable.placeholder_image)
                 .error(drawable.placeholder_image)
                 .into(imageView)
+        }
+
+        // Display the "Read more" button for the book description if it's too long
+        if (descriptionTextView.maxLines == 6) {
+            readMoreButton.visibility = View.VISIBLE
+        } else {
+            readMoreButton.visibility = View.GONE
+        }
+
+        // Handles click of the read more button
+        readMoreButton.setOnClickListener {
+            // If the description isn't expanded
+            if (isDescriptionExpanded) {
+                descriptionTextView.maxLines = 6  // Show only 6 lines of the description
+                descriptionTextView.ellipsize = TextUtils.TruncateAt.END  // Truncates the end and adds "..."
+                readMoreButton.text = "Read more"  // Button displays as "Read more"
+            } else {
+                descriptionTextView.maxLines = Int.MAX_VALUE  // Expands the whole description
+                descriptionTextView.ellipsize = null  // Removes ellipses
+                readMoreButton.text = "Read less"  // Button displays as "Read less"
+            }
+            isDescriptionExpanded = !isDescriptionExpanded  // Switches state of variable after it's been clicked
         }
 
         // Handles click of edit personal summary button
