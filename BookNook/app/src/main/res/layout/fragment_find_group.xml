@@ -24,6 +24,18 @@
         android:text="Search"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="120dp" />
+    <Button
+        android:id="@+id/createGroupButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:text="Create Group"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/groupList"
+        android:layout_width="match_parent"
+        android:layout_height="476dp"
+        android:layout_gravity="bottom" />
 
 
 </FrameLayout>

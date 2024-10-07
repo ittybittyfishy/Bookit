@@ -32,17 +32,17 @@
         <item>Chapter\'s Read (Descending)</item>
     </string-array>
 
-        <!-- Other resources -->
+    <!-- Other resources -->
 
-        <string-array name="rating_ranges">
-            <item>All ratings</item>
-            <item>Below 1 star</item>
-            <item>1.0 to 1.9</item>
-            <item>2.0 to 2.9</item>
-            <item>3.0 to 3.9</item>
-            <item>4.0 to 4.9</item>
-            <item>5.0 only</item>
-        </string-array>
+    <string-array name="rating_ranges">
+        <item>All ratings</item>
+        <item>Below 1 star</item>
+        <item>1.0 to 1.9</item>
+        <item>2.0 to 2.9</item>
+        <item>3.0 to 3.9</item>
+        <item>4.0 to 4.9</item>
+        <item>5.0 only</item>
+    </string-array>
 
 
 </resources>

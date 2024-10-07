@@ -123,9 +123,10 @@ class Register : AppCompatActivity() {
                             "name" to "",  // User's full name (empty for now).
                             "birthday" to null,  // User's birthday (not set yet).
                             "gender" to "",  // User's gender (empty for now).
+                            "joinedGroups" to mutableListOf<String>(),
                             "isFirstLogin" to true,  // Flag to indicate if this is the user's first login.
                             "standardCollections" to standardCollections,  // Add the default collections to the user.
-                            "customCollections" to emptyMap<String, Any>()  // Initialize custom collections as empty.
+                            "customCollections" to emptyMap<String, Any>() // Initialize custom collections as empty.
                         )
 
                         // Save the user object in Firestore under the "users" collection.

@@ -49,12 +49,14 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.firebase:firebase-auth:23.0.0")
     implementation("com.google.firebase:firebase-firestore:25.1.0")
+    implementation ("com.google.firebase:firebase-storage:21.0.1")
     implementation ("androidx.activity:activity-ktx:1.9.2")
     implementation ("androidx.fragment:fragment-ktx:1.8.3")
 
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("androidx.core:core-ktx:1.13.1")
+    implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 
     // Paging
