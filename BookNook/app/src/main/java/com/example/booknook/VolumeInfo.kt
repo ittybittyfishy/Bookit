@@ -8,7 +8,7 @@ data class VolumeInfo(
     val averageRating: Float? = 0.0f, // Average rating of the book
     val categories: List<String>? = listOf("Unknown Genre"), // List of genres/categories of the book
     val language: String = "", // Language of the book (e.g., "en" for English, "fr" for French)
-    val description: String? = null  // Book's description/synopsis
+    val description: String? = "Book description unavailable"  // Book's description/synopsis
 )
 
 

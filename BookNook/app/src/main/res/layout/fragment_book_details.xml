@@ -101,6 +101,23 @@
                         android:layout_toEndOf="@id/bookRating" />
                 </RelativeLayout>
 
+                <Spinner
+                    android:id="@+id/spinnerSelectCollection"
+                    android:layout_width="150dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/spinner_rectangle"
+                    android:layout_marginStart="150dp"
+                    android:popupBackground="@color/custom_tag_pink"/>
+
+                <Button
+                    android:id="@+id/btnAddToCustomCollection"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginStart="150dp"
+                    android:text="Add to Custom Collection"
+                    style="@style/CustomButton" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 

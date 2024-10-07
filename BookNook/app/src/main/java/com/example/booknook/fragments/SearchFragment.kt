@@ -484,6 +484,7 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         bundle.putFloat("bookRating", bookItem.volumeInfo.averageRating ?: 0f)
         bundle.putString("bookIsbn", isbn)
         bundle.putString("bookDescription", description)
+        bundle.putStringArrayList("bookGenres", ArrayList(bookItem.volumeInfo.categories ?: listOf("Unknown Genre")))
 
         bookDetailsFragment.arguments = bundle  // sets bookDetailsFragment's arguments to the data in bundle
         (activity as MainActivity).replaceFragment(bookDetailsFragment, "Book Details")  // Opens a new fragment
