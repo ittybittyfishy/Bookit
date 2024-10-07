@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:text="Search"
             android:textSize="18dp"
-            android:textColor="@color/banner_green"
+            android:textColor="@color/main_text_brown"
             android:backgroundTint="@color/transparent"/>
 
         <Button
@@ -39,46 +39,24 @@
             android:layout_height="wrap_content"
             android:text="Manage"
             android:textSize="18dp"
-            android:textColor="@color/main_text_brown"
+            android:textColor="@color/banner_green"
             android:backgroundTint="@color/transparent"/>
 
     </LinearLayout>
 
-    <LinearLayout
+    <Button
+        android:id="@+id/createGroupButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="5dp">
-
-        <EditText
-            android:id="@+id/searchEditText"
-            android:layout_width="320dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/rectangle_border_white"
-            android:elevation="7dp"
-            android:fontFamily="sans-serif-light"
-            android:hint="Search Groups"
-            android:imeOptions="actionSearch"
-            android:padding="10dp"
-            android:textColor="#8b774e"
-            android:textColorHint="#c1a37a"
-            android:textSize="18sp"
-            android:layout_gravity="center_horizontal"/>
-
-        <ImageButton
-            android:id="@+id/searchButton"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:layout_gravity="end|center_vertical"
-            android:background="@drawable/search_icon"
-            android:elevation="6dp"
-            android:layout_marginBottom="5dp"
-            android:backgroundTint="@color/banner_green"/>
-
-    </LinearLayout>
+        android:text="Create Group"
+        android:backgroundTint="@color/banner_green"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center_horizontal"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="511dp" />
+        android:layout_height="496dp"
+        android:layout_marginTop="10dp"/>
 
 </LinearLayout>
