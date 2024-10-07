@@ -3,6 +3,7 @@ package com.example.booknook.fragments
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -11,19 +12,15 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.example.booknook.R
-import de.hdodenhof.circleimageview.CircleImageView
-import java.io.IOException
-import android.graphics.BitmapFactory
-import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import de.hdodenhof.circleimageview.CircleImageView
+import java.io.IOException
 
 // Define a Fragment class for the Profile section
 class ProfileFragment : Fragment() {
@@ -38,6 +35,9 @@ class ProfileFragment : Fragment() {
     private lateinit var pickBannerImageLauncher: ActivityResultLauncher<Intent>
     private lateinit var pickProfileImageLauncher: ActivityResultLauncher<Intent>
 
+    // Declare TextView for displaying the number of collections
+    private lateinit var numCollectionsTextView: TextView
+
     // Method called to create and return the view hierarchy associated with the fragment
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,6 +51,9 @@ class ProfileFragment : Fragment() {
         profileImage = view.findViewById(R.id.profileImage)
         uploadBannerButton = view.findViewById(R.id.uploadBannerButton)
         uploadProfileButton = view.findViewById(R.id.uploadProfileButton)
+
+        // Initialize the TextView for number of collections
+        numCollectionsTextView = view.findViewById(R.id.numCollectionsTextView)
 
         val currentUser = FirebaseAuth.getInstance().currentUser
         val userId: String? = currentUser?.uid  // Retrieves id of the current user
@@ -93,21 +96,21 @@ class ProfileFragment : Fragment() {
             val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
 
             userDocRef.get().addOnSuccessListener { document ->
-                    // Retrieves the standardCollections map in database
-                    val standardCollections = document.get("standardCollections") as? Map<String, Any>
-                    //  Retrieves the "Finished" array under the map
-                    val finishedBooks = standardCollections?.get("Finished") as? List<*>
-                    // Finds the size of the array to determine number of books read
-                    val numBooksRead = finishedBooks?.size ?: 0
+                // Retrieves the standardCollections map in database
+                val standardCollections = document.get("standardCollections") as? Map<String, Any>
+                // Retrieves the "Finished" array under the map
+                val finishedBooks = standardCollections?.get("Finished") as? List<*>
+                // Finds the size of the array to determine number of books read
+                val numBooksRead = finishedBooks?.size ?: 0
 
-                    // Updates the numBooksRead field in database
-                    userDocRef.update("numBooksRead", numBooksRead)
-                        .addOnSuccessListener {
-                            // Update text view here
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(activity, "Error updating number of books read", Toast.LENGTH_SHORT).show()
-                        }
+                // Updates the numBooksRead field in database
+                userDocRef.update("numBooksRead", numBooksRead)
+                    .addOnSuccessListener {
+                        // Update text view here (if applicable)
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(activity, "Error updating number of books read", Toast.LENGTH_SHORT).show()
+                    }
             }.addOnFailureListener { e ->
                 Toast.makeText(activity, "Error getting number of books read: ${e.message}", Toast.LENGTH_SHORT).show()
             }
@@ -122,13 +125,14 @@ class ProfileFragment : Fragment() {
             userDocRef.get().addOnSuccessListener { document ->
                 // Retrieves the customCollections map in database
                 val customCollections = document.get("customCollections") as? Map<String, Any>
-                // Finds the size of the map to determine number of books read
+                // Finds the size of the map to determine number of collections
                 val numCollections = customCollections?.size ?: 0
 
                 // Updates the numCollections field in database
                 userDocRef.update("numCollections", numCollections)
                     .addOnSuccessListener {
-                        // Update text view here
+                        // Update numCollectionsTextView with the value
+                        numCollectionsTextView.text = "$numCollections"
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(activity, "Error updating number of collections", Toast.LENGTH_SHORT).show()
@@ -153,7 +157,7 @@ class ProfileFragment : Fragment() {
                 // Updates the numFriends field in database
                 userDocRef.update("numFriends", numFriends)
                     .addOnSuccessListener {
-                        // Update text view here
+                        // Update text view here (if applicable)
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(activity, "Error updating number of friends", Toast.LENGTH_SHORT).show()
@@ -170,13 +174,13 @@ class ProfileFragment : Fragment() {
             val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
 
             userDocRef.get().addOnSuccessListener { document ->
-                // Retrieves the friends array in database
+                // Retrieves the numReviews field in database
                 val numReviews = document.getLong("numReviews") ?: 0
 
                 // Updates the numReviews field in database
                 userDocRef.update("numReviews", numReviews)
                     .addOnSuccessListener {
-                        // Update text view here
+                        // Update text view here (if applicable)
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(activity, "Error updating number of reviews", Toast.LENGTH_SHORT).show()
@@ -186,13 +190,12 @@ class ProfileFragment : Fragment() {
             }
         }
 
+        // If user is authenticated, update their stats
         if (userId != null) {
-            // Updates the user's stats fields in database
-             updateNumBooksRead(userId)
-             updateNumCollections(userId)
-             updateNumFriends(userId)
-             updateNumReviews(userId)
-
+            updateNumBooksRead(userId)
+            updateNumCollections(userId)
+            updateNumFriends(userId)
+            updateNumReviews(userId)
         } else {
             Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
         }
