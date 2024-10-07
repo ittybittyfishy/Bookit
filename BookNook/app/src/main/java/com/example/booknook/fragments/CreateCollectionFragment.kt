@@ -15,11 +15,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class CreateCollectionFragment : DialogFragment() {
 
-    // Declaring variables for the EditText and Button UI elements
+    // Declaring variables to hold the text inputs and button from the layout
     private lateinit var collectionNameEditText: EditText
     private lateinit var collectionSummaryEditText: EditText
     private lateinit var createButton: Button
 
+    // This code is a dialog fragment so you need to specify how it appears on screen
     override fun onStart() {
         super.onStart()
         // Set the dialog's width and height programmatically
@@ -29,6 +30,7 @@ class CreateCollectionFragment : DialogFragment() {
         )
     }
 
+    // infalte layout xml
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -66,24 +68,29 @@ class CreateCollectionFragment : DialogFragment() {
 
     }
 
+    // This function is used to save the new collection to Firestore
     private fun createCollection(name: String, summary: String)
     {
+        // Get the ID of the current user who is logged in
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null)
         {
             val db = FirebaseFirestore.getInstance()
+            // Create a map (like a dictionary) with the collection's summary and an empty list of books
             val collectionData = hashMapOf(
-                "summary" to summary,
-                "books" to mutableListOf<String>()
+                "summary" to summary, // Add the summary of the collection
+                "books" to mutableListOf<String>() // Add the summary of the collection// Start with no books in the collection (empty list)
             )
-
+            // Update the user's document in Firestore, adding the new custom collection under their account
             db.collection("users").document(userId)
-                .update("customCollections.$name", collectionData)
+                .update("customCollections.$name", collectionData) // Add the collection using its name as a key
                 .addOnSuccessListener {
+                    // If the collection was successfully created, show a confirmation message
                     Toast.makeText(activity, "Collection created", Toast.LENGTH_SHORT).show()
                     dismiss() // Close the dialog
                 }
                 .addOnFailureListener {
+                    // If something goes wrong while creating the collection, show an error message
                     Toast.makeText(activity, "Failed to create collection", Toast.LENGTH_SHORT).show()
                 }
         }

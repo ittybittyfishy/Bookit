@@ -57,9 +57,12 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
             searchBooksWithFilters(selectedGenres, languageFilter, minRating, maxRating)
         }
 
+        // Olivia Fishbough
+        // Initialize UI elements for bottom navigation and banner text
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_navigation)
         val bannerTextView: TextView = findViewById(R.id.bannerTextView)
 
+        // Itzel Medina
         val isFirstLogin = intent.getBooleanExtra("isFirstLogin", false)
         if (isFirstLogin) {
             replaceFragment(genrePreferenceFragment, "Select Genres")
@@ -67,44 +70,52 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
             replaceFragment(homeFragment, "Home")
         }
 
+        // Olivia Fishbough
+        // Set up the bottom navigation item selection listener
         bottomNavigationView.setOnItemSelectedListener {
             when (it.itemId) {
-                R.id.home -> replaceFragment(homeFragment, "Home")
-                R.id.collections -> replaceFragment(collectionFragment, "My Books")
+                R.id.home -> replaceFragment(homeFragment, "Home") // Navigate to Home fragment
+                R.id.collections -> replaceFragment(collectionFragment, "My Books") // Navigate to My Books (collections) fragment
+                // Itzel Medina
                 R.id.search -> {
                     val bundle = Bundle()
                     bundle.putBoolean("clearSearch", true)
                     searchFragment.arguments = bundle
                     replaceFragment(searchFragment, "Search")
                 }
-                R.id.profile -> replaceFragment(profileFragment, "Profile")
-                R.id.more -> showMorePopupMenu(findViewById(R.id.more))
+                R.id.profile -> replaceFragment(profileFragment, "Profile") // Navigate to Profile fragment
+                R.id.more -> showMorePopupMenu(findViewById(R.id.more)) // Show the More options popup menu
             }
-            true
+            true // Return true to indicate the event has been handled
         }
     }
 
+    // Olivia Fishbough
+    // Function to replace the current fragment with the new one and update the banner title
     fun replaceFragment(fragment: Fragment, title: String) {
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.menu_container, fragment)
-        transaction.commit()
+        transaction.replace(R.id.menu_container, fragment) // Replace the fragment in the specified container
+        transaction.commit() // Commit the transaction
         findViewById<TextView>(R.id.bannerTextView).text = title
     }
 
+    // Olivia Fishbough
+    // Function to show a popup menu with additional options
     private fun showMorePopupMenu(view: View) {
-        val popupMenu = PopupMenu(this@MainActivity, view)
-        popupMenu.inflate(R.menu.more_menu)
+        val popupMenu = PopupMenu(this@MainActivity, view) // Create a popup menu
+        popupMenu.inflate(R.menu.more_menu) // Inflate the menu from XML
 
+        // Set a listener for menu item clicks
         popupMenu.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.friends -> replaceFragment(friendsFragment, "Friends")
-                R.id.groups -> replaceFragment(groupsFragment, "Groups")
-                R.id.achievements -> replaceFragment(achievementsFragment, "Achievements")
-                R.id.settings -> replaceFragment(settingsFragment, "Settings")
+                R.id.friends -> replaceFragment(friendsFragment, "Friends") // Navigate to Friends fragment
+                R.id.groups -> replaceFragment(groupsFragment, "Groups") // Navigate to Groups fragment
+                R.id.achievements -> replaceFragment(achievementsFragment, "Achievements") // Navigate to Achievements fragment
+                R.id.settings -> replaceFragment(settingsFragment, "Settings") // Navigate to Settings fragment
             }
-            true
+            true // Return true to indicate the event has been handled
         }
-        popupMenu.show()
+        popupMenu.show() // Show the popup menu
     }
 
     fun searchBooks(query: String, startIndex: Int, languageFilter: String? = null, maxResults: Int = 40, callback: (List<BookItem>?) -> Unit) {
