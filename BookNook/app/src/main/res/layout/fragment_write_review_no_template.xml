@@ -112,28 +112,55 @@
             </androidx.cardview.widget.CardView>
 
             <!-- My Rating Section -->
+            <!-- Itzel Medina -->
             <TextView
-                android:id="@+id/myRatingLabel"
+                android:id="@+id/ratingPromptText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="My Rating"
+                android:text="Rate it!"
                 android:layout_gravity="center_horizontal"
                 android:textSize="21sp"
                 android:textColor="@color/green_to_purple"
                 android:layout_marginTop="16dp" />
-            <RatingBar
-                android:id="@+id/myRatingBar"
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:numStars="5"
-                android:rating="0"
-                android:stepSize="0.5"
-                android:layout_marginTop="-5dp"
                 android:layout_gravity="center_horizontal"
-                android:progressTint="@color/star_green"
-                android:secondaryProgressTint="@color/star_green"
-                android:scaleX="0.7"
-                android:scaleY="0.7" />
+                android:orientation="horizontal"
+               >
+
+                <!-- RatingBar for stars -->
+                <RatingBar
+                    android:id="@+id/myRatingBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:rating="0"
+                    android:stepSize="0.5"
+                    android:progressTint="@color/star_green"
+                    android:secondaryProgressTint="@color/star_green"
+                    android:scaleX="0.7"
+                    android:scaleY="0.7"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:enabled="false" />
+
+
+                <!-- TextView to display the rating value -->
+                <TextView
+                    android:id="@+id/ratingValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginBottom="3dp"
+                    android:text="0.0"
+                    android:textSize="25sp"
+                    android:textColor="@color/star_green" />
+            </LinearLayout>
+
+
 
             <!-- Use review template button -->
             <Button
