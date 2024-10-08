@@ -119,7 +119,18 @@ class BookDetailsFragment : Fragment() {
         // Fetch existing summary if the user has already submitted one for this book
         if (userId != null && isbn != null) {
             val db = FirebaseFirestore.getInstance()
-            val bookRef = db.collection("books").document(isbn)
+
+            var bookIsbn = isbn
+            // If the book has no ISBN, create a unique document ID using the title and authors of the book
+            if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {
+                // Creates title part by replacing all whitespaces with underscores, and making it lowercase
+                val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT) ?: "unknown_title"
+                // Creates authors part by combining authors, replacing all whitespaces with underscores, and making it lowercase
+                val authorsId = bookAuthorsList?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
+                bookIsbn = "$titleId-$authorsId" // Update bookIsbn with new Id
+            }
+
+            val bookRef = db.collection("books").document(bookIsbn)
 
             // Checks if the user already submitted a summary for this book
             bookRef.collection("summaries").whereEqualTo("userId", userId).get()
