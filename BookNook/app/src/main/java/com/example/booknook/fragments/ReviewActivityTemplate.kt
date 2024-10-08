@@ -104,6 +104,7 @@ class ReviewActivityTemplate : Fragment() {
         if (userId != null && bookIsbn != null) {
             val db = FirebaseFirestore.getInstance()
 
+            // Reference to the specific book's document in the "books" collection using the book's ISBN
             val bookRef = db.collection("books").document(bookIsbn)
 
             bookRef.collection("reviews").whereEqualTo("userId", userId).get()
