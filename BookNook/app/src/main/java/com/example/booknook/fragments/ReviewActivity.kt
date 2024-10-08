@@ -65,9 +65,9 @@ class ReviewActivity : Fragment() {
         val bookAuthor = arguments?.getString("bookAuthor")
         val bookAuthorsList = arguments?.getStringArrayList("bookAuthorsList")
         val bookRating = arguments?.getFloat("bookRating") ?: 0f
-        bookIsbn = arguments?.getString("bookIsbn")
+        val bookIsbn = arguments?.getString("bookIsbn")
         val bookImage = arguments?.getString("bookImage")
-        userId = FirebaseAuth.getInstance().currentUser?.uid
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
 
         // Update UI with the book's author and rating info
         view.findViewById<TextView>(R.id.bookAuthor).text = bookAuthor
@@ -87,25 +87,30 @@ class ReviewActivity : Fragment() {
         }
 
         // Fetch existing review if the user has already submitted one for this book
-        userId?.let { uid ->
-            bookIsbn?.let { isbn ->
-                val db = FirebaseFirestore.getInstance()
-                val bookRef = db.collection("books").document(isbn)
+        if (userId != null && bookIsbn != null) {
+            val db = FirebaseFirestore.getInstance()
+            val bookRef = db.collection("books").document(bookIsbn)
 
-                bookRef.collection("reviews").whereEqualTo("userId", uid).get()
-                    .addOnSuccessListener { querySnapshot ->
-                        if (!querySnapshot.isEmpty) {
-                            val existingReview = querySnapshot.documents[0].data
-                            reviewEditText.setText(existingReview?.get("reviewText") as? String ?: "")
-                            ratingBar.rating = (existingReview?.get("rating") as? Double)?.toFloat() ?: 0f
-                            spoilerCheckbox.isChecked = existingReview?.get("hasSpoilers") as? Boolean ?: false
-                            sensitiveCheckbox.isChecked = existingReview?.get("hasSensitiveTopics") as? Boolean ?: false
-                        }
+            // Query the database to see if the user already submitted a review for this book
+            bookRef.collection("reviews").whereEqualTo("userId", userId).get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        // Populate the form fields with existing review data if a review is found
+                        val existingReview = querySnapshot.documents[0].data
+                        reviewEditText.setText(existingReview?.get("reviewText") as? String ?: "")
+                        ratingBar.rating = (existingReview?.get("rating") as? Double)?.toFloat() ?: 0f
+                        spoilerCheckbox.isChecked = existingReview?.get("hasSpoilers") as? Boolean ?: false
+                        sensitiveCheckbox.isChecked = existingReview?.get("hasSensitiveTopics") as? Boolean ?: false
                     }
-                    .addOnFailureListener {
-                        Toast.makeText(activity, "Failed to retrieve existing review", Toast.LENGTH_SHORT).show()
-                    }
-            }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(activity, "Failed to retrieve existing review", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+        // Check where the review is stored and navigate to the appropriate fragment
+        if (userId != null && bookIsbn != null) {
+            checkAndNavigateToCorrectFragment(userId, bookIsbn)
         }
 
         // Disable RatingBar and submit button initially
@@ -274,6 +279,38 @@ class ReviewActivity : Fragment() {
             }
             .addOnFailureListener {
                 Toast.makeText(activity, "Failed to check existing reviews", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun checkAndNavigateToCorrectFragment(userId: String, bookIsbn: String) {
+        val db = FirebaseFirestore.getInstance()
+        val bookRef = db.collection("books").document(bookIsbn)
+
+        // Query Firestore to check if a review exists and whether it used a template
+        bookRef.collection("reviews").whereEqualTo("userId", userId).get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val existingReview = querySnapshot.documents[0].data
+                    val isTemplateUsed = existingReview?.get("isTemplateUsed") as? Boolean ?: false
+
+                    if (isTemplateUsed) {
+                        // Navigate to the with-template fragment
+                        val reviewActivityTemplateFragment = ReviewActivityTemplate()
+                        val bundle = Bundle()
+
+                        bundle.putString("bookTitle", arguments?.getString("bookTitle"))
+                        bundle.putString("bookAuthor", arguments?.getString("bookAuthor"))
+                        bundle.putString("bookImage", arguments?.getString("bookImage"))
+                        bundle.putFloat("bookRating", arguments?.getFloat("bookRating") ?: 0f)
+                        bundle.putString("bookIsbn", bookIsbn)
+
+                        reviewActivityTemplateFragment.arguments = bundle
+                        (activity as MainActivity).replaceFragment(reviewActivityTemplateFragment, "Write a Review")
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(activity, "Failed to retrieve review", Toast.LENGTH_SHORT).show()
             }
     }
 

@@ -108,6 +108,7 @@ class ReviewActivityTemplate : Fragment() {
                 .addOnSuccessListener { querySnapshot ->
                     if (!querySnapshot.isEmpty) {
                         val reviewData = querySnapshot.documents[0].data
+                        val isTemplateUsed = reviewData?.get("isTemplateUsed") as? Boolean ?: false
 
                         // Populate the fields with the fetched data
                         reviewEditText.setText(reviewData?.get("reviewText") as? String ?: "")
@@ -136,15 +137,30 @@ class ReviewActivityTemplate : Fragment() {
                         weaknessesCheckbox.isChecked = reviewData?.get("weaknessesChecked") as? Boolean ?: false
                         weaknessesRatingBar.rating = (reviewData?.get("weaknessesRating") as? Double)?.toFloat() ?: 0f
                         weaknessesReviewEditText.setText(reviewData?.get("weaknessesReview") as? String ?: "")
+
+                        // Check if the review was created using a template
+                        if (!isTemplateUsed) {
+                            // Navigate to the no-template fragment
+                            val reviewActivityFragment = ReviewActivity()
+                            val bundle = Bundle()
+
+                            bundle.putString("bookTitle", arguments?.getString("bookTitle"))
+                            bundle.putString("bookAuthor", arguments?.getString("bookAuthor"))
+                            bundle.putString("bookImage", arguments?.getString("bookImage"))
+                            bundle.putFloat("bookRating", arguments?.getFloat("bookRating") ?: 0f)
+                            bundle.putString("bookIsbn", bookIsbn)
+
+                            reviewActivityFragment.arguments = bundle
+                            (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review")
+                        }
+                    } else {
+                        // No existing review found
+                        Toast.makeText(activity, "No review found", Toast.LENGTH_SHORT).show()
                     }
                 }
                 .addOnFailureListener {
                     Toast.makeText(activity, "Failed to load review data", Toast.LENGTH_SHORT).show()
                 }
-        }
-
-        if (userId != null && bookIsbn != null) {
-            checkAndNavigateToCorrectFragment(userId, bookIsbn)
         }
 
         // --- Itzel Medina ---
@@ -299,7 +315,7 @@ class ReviewActivityTemplate : Fragment() {
                         bundle.putString("bookIsbn", bookIsbn)
 
                         reviewActivityFragment.arguments = bundle
-                        (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review (No Template)")
+                        (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review")
                     }
                 }
             }
@@ -404,7 +420,10 @@ class ReviewActivityTemplate : Fragment() {
 
             // Reference to the specific book's document in the "books" collection
             val bookRef = db.collection("books").document(bookIsbn)
-            bookRef.set(bookData, SetOptions.merge())  // Updates database with book details if not in database already
+            bookRef.set(
+                bookData,
+                SetOptions.merge()
+            )  // Updates database with book details if not in database already
 
             // Check if the user has already submitted a review by querying reviews collection with the userId
             bookRef.collection("reviews").whereEqualTo("userId", userId).get()
@@ -414,12 +433,20 @@ class ReviewActivityTemplate : Fragment() {
                         bookRef.collection("reviews").add(reviewData)
                             .addOnSuccessListener {
                                 // Show success message
-                                Toast.makeText(activity, "Review saved successfully!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    activity,
+                                    "Review saved successfully!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 incrementUserReviewNum(userId)  // increments the number of reviews field
                             }
                             .addOnFailureListener { e ->
                                 // If saving the review fails, display an error message
-                                Toast.makeText(activity, "Failed to save review: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    activity,
+                                    "Failed to save review: ${e.localizedMessage}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                     } else {
                         // If a review already exists, update it with the new data
@@ -427,11 +454,19 @@ class ReviewActivityTemplate : Fragment() {
                         bookRef.collection("reviews").document(existingReviewId).set(reviewData)
                             .addOnSuccessListener {
                                 // Show success message for review update
-                                Toast.makeText(activity, "Review updated successfully!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    activity,
+                                    "Review updated successfully!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                             .addOnFailureListener {
                                 // If updating the review fails, display an error message
-                                Toast.makeText(activity, "Failed to update review", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    activity,
+                                    "Failed to update review",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                     }
                 }
