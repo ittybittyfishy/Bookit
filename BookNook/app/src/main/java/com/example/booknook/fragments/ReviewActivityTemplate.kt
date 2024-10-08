@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
+import java.util.Locale
 
 // Yunjong Noh
 // This fragment handles the function of writing and storing review data to Firebase (With Template Ver.)
@@ -384,6 +385,18 @@ class ReviewActivityTemplate : Fragment() {
             val db = FirebaseFirestore.getInstance()
             val bookTitle = arguments?.getString("bookTitle")
             val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
+            var bookIsbn = arguments?.getString("bookIsbn") // Use this to identify the book for the review
+
+            // If the book has no ISBN, create a unique document ID using the title and authors of the book
+            if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {
+                // Creates title part by replacing all whitespaces with underscores, and making it lowercase
+                val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT) ?: "unknown_title"
+                // Creates authors part by combining authors, replacing all whitespaces with underscores, and making it lowercase
+                val authorsId = bookAuthors?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(
+                    Locale.ROOT)
+                bookIsbn = "$titleId-$authorsId" // Update bookIsbn with new Id
+            }
+
             // Create a map for review data to save into Firebase
             val reviewData = mapOf(
                 "userId" to userId,
