@@ -379,6 +379,10 @@ class ReviewActivityTemplate : Fragment() {
         val user = FirebaseAuth.getInstance().currentUser
         val username = user?.displayName ?: "Anonymous"
 
+        // Store userId and bookIsbn in immutable local variables to avoid the smart cast issue
+        val localUserId = userId
+        val localBookIsbn = bookIsbn
+
         // Check both userId and bookIsbn are not null before proceeding
         if (userId != null && bookIsbn != null) {
             // initialize Firebase Instance

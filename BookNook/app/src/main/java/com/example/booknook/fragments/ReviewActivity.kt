@@ -214,7 +214,8 @@ class ReviewActivity : Fragment() {
         ratingPromptText.text = "My Rating"
     }
 
-    // Save review data to Firestore
+
+    // Save review data to Firestore (No Template)
     private fun saveReview(
         reviewText: String,
         rating: Float,
@@ -222,69 +223,102 @@ class ReviewActivity : Fragment() {
         hasSensitiveTopics: Boolean,
         isTemplateUsed: Boolean
     ) {
-        //Get the current user from Firebase Auth
+        // Get the current user from Firebase Auth
         val user = FirebaseAuth.getInstance().currentUser
         val username = user?.displayName ?: "Anonymous"
+        val userId = user?.uid // Current logged-in user ID
 
-        // Check both userId and bookIsbn are not null before proceeding
-        if (userId != null && bookIsbn != null) {
-            // initialize Firebase Instance
-            val db = FirebaseFirestore.getInstance()
-            val bookTitle = arguments?.getString("bookTitle")
-            val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
-            var bookIsbn =
-                arguments?.getString("bookIsbn") // Use this to identify the book for the review
+        // Ensure userId and bookIsbn are not null using let
+        userId?.let { uid ->
+            bookIsbn?.let { isbn ->
 
-            // If the book has no ISBN, create a unique document ID using the title and authors of the book
-            if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {
-                // Creates title part by replacing all whitespaces with underscores, and making it lowercase
-                val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
-                    ?: "unknown_title"
-                // Creates authors part by combining authors, replacing all whitespaces with underscores, and making it lowercase
-                val authorsId =
-                    bookAuthors?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(
-                        Locale.ROOT
-                    )
-                bookIsbn = "$titleId-$authorsId" // Update bookIsbn with new Id
-            }
-                    val reviewData = mapOf(
-                        "userId" to userId,
-                        "username" to username,
-                        "reviewText" to reviewText,
-                        "rating" to rating,
-                        "hasSpoilers" to hasSpoilers,
-                        "hasSensitiveTopics" to hasSensitiveTopics,
-                        "timestamp" to FieldValue.serverTimestamp(),
-                        "isTemplateUsed" to isTemplateUsed
-                    )
+                // Initialize Firebase Instance
+                val db = FirebaseFirestore.getInstance()
+                val bookTitle = arguments?.getString("bookTitle")
+                val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
+                var bookIsbn = isbn // Use this to identify the book for the review
 
-            val bookRef = db.collection("books").document(bookIsbn)
-            bookRef.collection("reviews").whereEqualTo("userId", userId).get()
-                .addOnSuccessListener { querySnapshot ->
-                    if (querySnapshot.isEmpty) {
-                        bookRef.collection("reviews").add(reviewData)
-                            .addOnSuccessListener {
-                                Toast.makeText(requireActivity(), "Review saved successfully!", Toast.LENGTH_SHORT).show()
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(requireActivity(), "Failed to save review: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
-                            }
-                    } else {
-                        val existingReviewId = querySnapshot.documents[0].id
-                        bookRef.collection("reviews").document(existingReviewId).set(reviewData)
-                            .addOnSuccessListener {
-                                Toast.makeText(requireActivity(), "Review updated successfully!", Toast.LENGTH_SHORT).show()
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(requireActivity(), "Failed to update review", Toast.LENGTH_SHORT).show()
-                            }
+                // If the book has no ISBN, create a unique document ID using the title and authors of the book
+                if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {
+                    // Create title part by replacing all whitespaces with underscores, and making it lowercase
+                    val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT) ?: "unknown_title"
+                    // Create authors part by combining authors, replacing all whitespaces with underscores, and making it lowercase
+                    val authorsId = bookAuthors?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
+                    bookIsbn = "$titleId-$authorsId" // Update bookIsbn with new Id
+                }
+
+                // Create a map for the review data to save into Firebase
+                val reviewData = mapOf(
+                    "userId" to uid,
+                    "username" to username,
+                    "reviewText" to reviewText,
+                    "rating" to rating,
+                    "hasSpoilers" to hasSpoilers,
+                    "hasSensitiveTopics" to hasSensitiveTopics,
+                    "timestamp" to FieldValue.serverTimestamp(),
+                    "isTemplateUsed" to isTemplateUsed // isTemplateUsed will be false for no-template reviews
+                )
+
+                // Reference to the specific book's document in the "books" collection
+                val bookRef = db.collection("books").document(bookIsbn)
+
+                // Check if the user has already submitted a review by querying reviews collection with the userId
+                bookRef.collection("reviews").whereEqualTo("userId", uid).get()
+                    .addOnSuccessListener { querySnapshot ->
+                        if (querySnapshot.isEmpty) {
+                            // If no review exists for this user, add a new one
+                            bookRef.collection("reviews").add(reviewData)
+                                .addOnSuccessListener {
+                                    // Show success message
+                                    Toast.makeText(
+                                        requireActivity(),
+                                        "Review saved successfully!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    // Increment the number of reviews field for the user
+                                    incrementUserReviewNum(uid)
+                                }
+                                .addOnFailureListener { e ->
+                                    // If saving the review fails, display an error message
+                                    Toast.makeText(
+                                        requireActivity(),
+                                        "Failed to save review: ${e.localizedMessage}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        } else {
+                            // If a review already exists, update it with the new data
+                            val existingReviewId = querySnapshot.documents[0].id
+                            bookRef.collection("reviews").document(existingReviewId).set(reviewData)
+                                .addOnSuccessListener {
+                                    // Show success message for review update
+                                    Toast.makeText(
+                                        requireActivity(),
+                                        "Review updated successfully!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                .addOnFailureListener {
+                                    // If updating the review fails, display an error message
+                                    Toast.makeText(
+                                        requireActivity(),
+                                        "Failed to update review",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        }
                     }
-                }
-                .addOnFailureListener {
-                    Toast.makeText(requireActivity(), "Failed to check existing reviews", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            Toast.makeText(requireActivity(), "Book ISBN or user not provided", Toast.LENGTH_SHORT).show()
+                    .addOnFailureListener {
+                        // If querying for the existing review fails, display an error message
+                        Toast.makeText(requireActivity(), "Failed to check existing reviews", Toast.LENGTH_SHORT).show()
+                    }
+            } ?: run {
+                // If bookIsbn is null, display an error message
+                Toast.makeText(requireActivity(), "Book ISBN not provided", Toast.LENGTH_SHORT).show()
+            }
+        } ?: run {
+            // If userId is null, display an error message
+            Toast.makeText(requireActivity(), "User not logged in", Toast.LENGTH_SHORT).show()
         }
     }
 
