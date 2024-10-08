@@ -103,13 +103,13 @@ class ReviewActivityTemplate : Fragment() {
         // Fetch the existing review from Firebase if review exists and populate fields
         if (userId != null && bookIsbn != null) {
             val db = FirebaseFirestore.getInstance()
+
             val bookRef = db.collection("books").document(bookIsbn)
 
             bookRef.collection("reviews").whereEqualTo("userId", userId).get()
                 .addOnSuccessListener { querySnapshot ->
                     if (!querySnapshot.isEmpty) {
                         val reviewData = querySnapshot.documents[0].data
-                        val isTemplateUsed = reviewData?.get("isTemplateUsed") as? Boolean ?: false
 
                         // Populate the fields with the fetched data
                         reviewEditText.setText(reviewData?.get("reviewText") as? String ?: "")
@@ -235,13 +235,13 @@ class ReviewActivityTemplate : Fragment() {
 
                 // Save all data to Firebase
                 saveReview(
-                    userId, bookIsbn, reviewText, rating,
-                    charactersChecked, charactersRating, charactersReview,
-                    writingChecked, writingRating, writingReview,
-                    plotChecked, plotRating, plotReview,
-                    themesChecked, themesRating, themesReview,
-                    strengthsChecked, strengthsRating, strengthsReview,
-                    weaknessesChecked, weaknessesRating, weaknessesReview
+                    userId, bookIsbn, reviewText, rating, charactersChecked,
+                    charactersRating, charactersReview, writingChecked,
+                    writingRating, writingReview, plotChecked,
+                    plotRating, plotReview, themesChecked,
+                    themesRating, themesReview, strengthsChecked,
+                    strengthsRating, strengthsReview, weaknessesChecked,
+                    weaknessesRating, weaknessesReview
                 )
             } else {
                 // --- Itzel Medina ---
@@ -277,8 +277,8 @@ class ReviewActivityTemplate : Fragment() {
                         bundle.putFloat("bookRating", bookRating)
                         bundle.putString("bookIsbn", bookIsbn)
 
-                        reviewActivityFragment.arguments =
-                            bundle  // sets reviewActivityFragment's arguments to the data in bundle
+                        // sets reviewActivityFragment's arguments to the data in bundle
+                        reviewActivityFragment.arguments = bundle
                         (activity as? MainActivity)?.replaceFragment(reviewActivityFragment, "Write a Review") // Go back to No template fragment
                     }
                 }
@@ -308,15 +308,18 @@ class ReviewActivityTemplate : Fragment() {
         // Query Firestore to check if a review exists and whether it used a template
         bookRef.collection("reviews").whereEqualTo("userId", userId).get()
             .addOnSuccessListener { querySnapshot ->
+                // If a review exists for this user
                 if (!querySnapshot.isEmpty) {
                     val existingReview = querySnapshot.documents[0].data
                     val isTemplateUsed = existingReview?.get("isTemplateUsed") as? Boolean ?: false
 
+                    // If the review does not use a template
                     if (!isTemplateUsed) {
                         // Navigate to the no-template fragment
                         val reviewActivityFragment = ReviewActivity()
                         val bundle = Bundle()
 
+                        //retrieve book's data
                         bundle.putString("bookTitle", arguments?.getString("bookTitle"))
                         bundle.putString("bookAuthor", arguments?.getString("bookAuthor"))
                         bundle.putString("bookImage", arguments?.getString("bookImage"))
@@ -333,9 +336,22 @@ class ReviewActivityTemplate : Fragment() {
             }
     }
 
+    //Deletion of review with temp
     private fun deleteOldReview(userId: String, bookIsbn: String, onComplete: () -> Unit) {
         val db = FirebaseFirestore.getInstance()
-        val bookRef = db.collection("books").document(bookIsbn)
+
+        // Generate unique document ID if the book does not have an ISBN
+        var isbnToCheck = bookIsbn
+        if (isbnToCheck.isNullOrEmpty() || isbnToCheck == "No ISBN") {
+            val bookTitle = arguments?.getString("bookTitle")
+            val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
+            val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT) ?: "unknown_title"
+            val authorsId = bookAuthors?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
+            isbnToCheck = "$titleId-$authorsId" // Create bookId based on the title and authors
+        }
+
+        // Check if a review exists in Firestore and whether a template was used
+        val bookRef = db.collection("books").document(isbnToCheck)
 
         // Query for the existing review
         bookRef.collection("reviews").whereEqualTo("userId", userId).get()
@@ -346,7 +362,7 @@ class ReviewActivityTemplate : Fragment() {
                         .delete()
                         .addOnSuccessListener {
                             Toast.makeText(activity, "Old review deleted", Toast.LENGTH_SHORT).show()
-                            decrementUserReviewNum(userId)  // decrements number of reviews user has written
+                            decrementUserReviewNum(userId)  // Decrease the user's review count
                             onComplete() // Call onComplete after deletion
                         }
                         .addOnFailureListener {
@@ -363,16 +379,17 @@ class ReviewActivityTemplate : Fragment() {
 
     // Function for saving with Template review Data
     private fun saveReview(
-        userId: String?, bookIsbn: String?, reviewText: String, rating: Float,
-        charactersChecked: Boolean, charactersRating: Float, charactersReview: String,
-        writingChecked: Boolean, writingRating: Float, writingReview: String,
-        plotChecked: Boolean, plotRating: Float, plotReview: String,
-        themesChecked: Boolean, themesRating: Float, themesReview: String,
-        strengthsChecked: Boolean, strengthsRating: Float, strengthsReview: String,
-        weaknessesChecked: Boolean, weaknessesRating: Float, weaknessesReview: String
+        userId: String?, bookIsbn: String?, reviewText: String, rating: Float, charactersChecked: Boolean,
+        charactersRating: Float, charactersReview: String, writingChecked: Boolean,
+        writingRating: Float, writingReview: String, plotChecked: Boolean,
+        plotRating: Float, plotReview: String, themesChecked: Boolean,
+        themesRating: Float, themesReview: String, strengthsChecked: Boolean,
+        strengthsRating: Float, strengthsReview: String, weaknessesChecked: Boolean,
+        weaknessesRating: Float, weaknessesReview: String
     ) {
         //Get the current user from Firebase Auth
         val user = FirebaseAuth.getInstance().currentUser
+        val userId = user?.uid // Current logged-in user ID
 
         // Check both userId and bookIsbn are not null before proceeding
         if (userId != null) {
@@ -380,8 +397,7 @@ class ReviewActivityTemplate : Fragment() {
             val db = FirebaseFirestore.getInstance()
             val bookTitle = arguments?.getString("bookTitle")
             val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
-            var bookIsbn =
-                arguments?.getString("bookIsbn") // Use this to identify the book for the review
+            var bookIsbn = arguments?.getString("bookIsbn") // Use this to identify the book for the review
 
             // If the book has no ISBN, create a unique document ID using the title and authors of the book
             if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {

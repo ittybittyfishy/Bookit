@@ -76,7 +76,7 @@ class ReviewActivity : Fragment() {
         view.findViewById<TextView>(R.id.ratingNumber).text = "(${bookRating})"
         view.findViewById<TextView>(R.id.bookTitle).text = bookTitle
 
-        // Load the book's image using Glide
+        // Load the book's image using Glide (Glide helps to call cache of image)
         val bookImageView = view.findViewById<ImageView>(R.id.bookImage)
         if (!bookImage.isNullOrEmpty()) {
             Glide.with(this)
@@ -90,7 +90,18 @@ class ReviewActivity : Fragment() {
         // Fetch existing review if the user has already submitted one for this book
         if (userId != null && bookIsbn != null) {
             val db = FirebaseFirestore.getInstance()
-            val bookRef = db.collection("books").document(bookIsbn)
+
+            // For books without ISBN, generate a unique bookIsbn
+            var isbnToCheck = bookIsbn
+            if (isbnToCheck.isNullOrEmpty() || isbnToCheck == "No ISBN") {
+                val bookTitle = arguments?.getString("bookTitle")
+                val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
+                val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT) ?: "unknown_title"
+                val authorsId = bookAuthors?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
+                isbnToCheck = "$titleId-$authorsId" // Generate a unique bookIsbn based on the title and authors
+            }
+            // Check if a review exists in Firestore and whether a template was used
+            val bookRef = db.collection("books").document(isbnToCheck)
 
             // Query the database to see if the user already submitted a review for this book
             bookRef.collection("reviews").whereEqualTo("userId", userId).get()
@@ -214,25 +225,38 @@ class ReviewActivity : Fragment() {
 
     private fun checkAndNavigateToCorrectFragment(userId: String, bookIsbn: String) {
         val db = FirebaseFirestore.getInstance()
-        val bookRef = db.collection("books").document(bookIsbn)
 
-        // Query Firestore to check if a review exists and whether it used a template
+        // If the book does not have an ISBN, generate a unique document ID
+        var isbnToCheck = bookIsbn
+        if (isbnToCheck.isNullOrEmpty() || isbnToCheck == "No ISBN") {
+            val bookTitle = arguments?.getString("bookTitle")
+            val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
+            val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT) ?: "unknown_title"
+            val authorsId = bookAuthors?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
+            isbnToCheck = "$titleId-$authorsId" // Generate a unique bookId based on the title and authors
+        }
+
+        // Check if a review exists in Firestore and whether a template was used
+        val bookRef = db.collection("books").document(isbnToCheck)
         bookRef.collection("reviews").whereEqualTo("userId", userId).get()
             .addOnSuccessListener { querySnapshot ->
+                // If a review exists for this user
                 if (!querySnapshot.isEmpty) {
                     val existingReview = querySnapshot.documents[0].data
                     val isTemplateUsed = existingReview?.get("isTemplateUsed") as? Boolean ?: false
 
+                    // If the review does not use a template
                     if (isTemplateUsed) {
-                        // Navigate to the with-template fragment
+                        // Navigate to the fragment that uses a template for the review
                         val reviewActivityTemplateFragment = ReviewActivityTemplate()
                         val bundle = Bundle()
 
+                        //retrieve book's data
                         bundle.putString("bookTitle", arguments?.getString("bookTitle"))
                         bundle.putString("bookAuthor", arguments?.getString("bookAuthor"))
                         bundle.putString("bookImage", arguments?.getString("bookImage"))
                         bundle.putFloat("bookRating", arguments?.getFloat("bookRating") ?: 0f)
-                        bundle.putString("bookIsbn", bookIsbn)
+                        bundle.putString("bookIsbn", isbnToCheck)
 
                         reviewActivityTemplateFragment.arguments = bundle
                         (activity as MainActivity).replaceFragment(
@@ -243,34 +267,46 @@ class ReviewActivity : Fragment() {
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(activity, "Failed to retrieve review", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, "Failed to retrieve review.", Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun deleteOldReview(userId: String, bookIsbn: String, onComplete: () -> Unit) {
+    //Deletion of review no temp (even no-isbn)
+    private fun deleteOldReview(userId: String, bookIsbn: String?, onComplete: () -> Unit) {
         val db = FirebaseFirestore.getInstance()
-        val bookRef = db.collection("books").document(bookIsbn)
 
+        // Generate unique document ID if the book does not have an ISBN
+        var isbnToCheck = bookIsbn
+        if (isbnToCheck.isNullOrEmpty() || isbnToCheck == "No ISBN") {
+            val bookTitle = arguments?.getString("bookTitle")
+            val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
+            val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT) ?: "unknown_title"
+            val authorsId = bookAuthors?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
+            isbnToCheck = "$titleId-$authorsId" // Create bookId based on the title and authors
+        }
+
+        val bookRef = db.collection("books").document(isbnToCheck)
+
+        // Delete the old review
         bookRef.collection("reviews").whereEqualTo("userId", userId).get()
             .addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
                     val existingReviewId = querySnapshot.documents[0].id
                     bookRef.collection("reviews").document(existingReviewId).delete()
                         .addOnSuccessListener {
-                            Toast.makeText(activity, "Old review deleted", Toast.LENGTH_SHORT).show()
-                            decrementUserReviewNum(userId)
+                            Toast.makeText(activity, "Old review deleted.", Toast.LENGTH_SHORT).show()
+                            decrementUserReviewNum(userId) // Decrease the user's review count
                             onComplete()
                         }
                         .addOnFailureListener {
-                            Toast.makeText(activity, "Failed to delete old review", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(activity, "Failed to delete review.", Toast.LENGTH_SHORT).show()
                         }
                 } else {
-                    onComplete()
+                    onComplete() // If no review exists, just complete
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(activity, "Failed to check existing reviews", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(activity, "Failed to retrieve reviews.", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -329,6 +365,7 @@ class ReviewActivity : Fragment() {
                             "authors" to bookAuthors,
                         )
 
+                        // Reference to the specific book's document in the "books" collection using the book's ISBN
                         val bookRef = db.collection("books").document(bookIsbn)
                         bookRef.set(bookData, SetOptions.merge())  // Updates database with book details if not in database already
 
