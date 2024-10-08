@@ -4,21 +4,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.GroupsFragment"
-    android:background="@color/background_tan">
+    android:background="@color/background_tan"
+    android:padding="20dp">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+   <LinearLayout
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_gravity="center_horizontal"
+       android:orientation="horizontal"
+       android:layout_marginTop="10dp">
+
+       <Button
+           android:id="@+id/findGroups"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="Search"
+           android:textSize="18dp"
+           android:textColor="@color/main_text_brown"
+           android:backgroundTint="@color/transparent"/>
+
+       <Button
+           android:id="@+id/myGroups"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="My Groups"
+           android:textSize="18dp"
+           android:textColor="@color/banner_green"
+           android:backgroundTint="@color/transparent"/>
+
+       <Button
+           android:id="@+id/manageGroups"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="Manage"
+           android:textSize="18dp"
+           android:textColor="@color/main_text_brown"
+           android:backgroundTint="@color/transparent"/>
+
+   </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
-
-    <Button
-        android:id="@+id/findGroups"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Search for Groups"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="60dp"
-        android:backgroundTint="@color/banner_green"/>
+        android:layout_height="559dp"
+        android:layout_marginTop="70dp" />
 
 </FrameLayout>

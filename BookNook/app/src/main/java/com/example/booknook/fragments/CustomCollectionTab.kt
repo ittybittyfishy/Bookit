@@ -24,6 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class CustomCollectionTab : Fragment() {
 
+    // Declare UI elements
     private lateinit var overviewButton: Button
     private lateinit var makeCollectionButton: Button
     private lateinit var db: FirebaseFirestore
@@ -33,25 +34,30 @@ class CustomCollectionTab : Fragment() {
     private lateinit var customCollectionAdapter: CollectionCustomAdapter
     private lateinit var sortSpinner: Spinner
 
-
+    // Called when the fragment's view is being created
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_custom_collection_tab, container, false)
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance()
 
-        // Set up RecyclerView and Adapter (initialize adapter only once)
+        // Setup RecyclerView with a LinearLayoutManager (vertical scrolling)
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(activity)
+
+        // Initialize the collection adapter with the collection list (empty at first)
         customCollectionAdapter = CollectionCustomAdapter(customCollectionList)  // Initialize with mutable list
         recyclerView.adapter = customCollectionAdapter
 
+        // Return the view to be displayed
         return view
     }
 
+    // Called after the view is created and UI elements are initialized
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -60,67 +66,79 @@ class CustomCollectionTab : Fragment() {
         makeCollectionButton = view.findViewById(R.id.make_collection_button)
         sortSpinner = view.findViewById(R.id.sortBooks)
 
-        // Set listeners
+        // Set click listener to switch to the overview (standard collections)
         overviewButton.setOnClickListener {
             val collectionFragment = CollectionFragment()
             (activity as MainActivity).replaceFragment(collectionFragment, "My Books")
         }
 
+        // Set click listener to open a dialog for creating a new custom collection
         makeCollectionButton.setOnClickListener {
             val createCollection = CreateCollectionFragment()
             createCollection.show(parentFragmentManager, "CreateCollectionDialog")
         }
 
-        // Setup spinner listener (do this once, outside of data fetching)
+        // Setup sorting spinner
         setupSortSpinner()
 
         // Fetch the custom collections
         fetchCustomCollections()
     }
 
+    // Setup the spinner for sorting options and handle the selection event
     private fun setupSortSpinner() {
         sortSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                // When an option is selected, get the selected sort option as a string
                 val selectedSortOption = parent.getItemAtPosition(position).toString()
+                // Sort books in custom collections based on selection
                 sortBooks(selectedSortOption)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
-                // No-op
+                // No action if nothing is selected
             }
         }
     }
 
+    // Function to fetch custom collections from Firestore
     private fun fetchCustomCollections() {
         userId?.let {
+            // Access the user's document in the "users" collection
             db.collection("users").document(it)
                 .addSnapshotListener { documentSnapshot, error ->
+                    // Handle errors during data retrieval
                     if (error != null) {
                         Log.e("CustomCollectionTab", "Listen failed: ${error.message}")
                         return@addSnapshotListener
                     }
-
+                    // If data is retrieved successfully, process the document snapshot
                     documentSnapshot?.let { doc ->
                         if (doc.exists()) {
+                            // Get the custom collections from Firestore (as a map of collections)
                             val customCollections = doc.get("customCollections") as? Map<String, Map<String, Any>>
+                            // If collections exist, map them to the local list
                             customCollections?.let {
-                                // Map Firestore data to your local model
+                                // Convert each Firestore collection entry to a CollectionCustomItem
                                 val collectionList = customCollections.map { entry ->
                                     val collectionName = entry.key
                                     val collectionData = entry.value
                                     val summary = collectionData["summary"] as? String ?: ""
 
-                                    // Convert books data from Firestore
+
+                                    // Get the list of books in the collection from Firestore
                                     val booksData = collectionData["books"] as? List<Map<String, Any>> ?: listOf()
                                     val books = mapBooks(booksData)
 
+                                    // Return a CollectionCustomItem for this collection
                                     CollectionCustomItem(collectionName, books, summary)
                                 }
 
-                                // Update the data in the adapter and notify the changes
+                                // Clear the existing custom collections and add the new list (sorted by collection name)
                                 customCollectionList.clear()  // Clear existing list
                                 customCollectionList.addAll(collectionList.sortedBy { it.collectionName }) // Sort the list
-                                customCollectionAdapter.notifyDataSetChanged()  // Notify adapter of changes
+                                // Notify the adapter that the data has changed so it can refresh the UI
+                                customCollectionAdapter.notifyDataSetChanged()
                             }
                         }
                     }
@@ -128,31 +146,40 @@ class CustomCollectionTab : Fragment() {
         } ?: Log.e("CustomCollectionTab", "User ID is null, unable to fetch collections")
     }
 
+    // Function to map book data from Firestore into a list of BookItemCollection objects
     private fun mapBooks(booksData: List<Map<String, Any>>): List<BookItemCollection> {
         return booksData.map { bookMap ->
-            val title = bookMap["title"] as? String ?: "Unknown title"
-            val authors = bookMap["authors"] as? List<String> ?: listOf("Unknown author")
-            val imageLink = bookMap["imageLink"] as String
-            val pages = (bookMap["pages"] as? Long ?: 0).toInt()
-            val tags = bookMap["tags"] as List<String> ?: emptyList()
-            val genres = bookMap["genres"] as? List<String> ?: listOf("Unknown genre")
+            val title = bookMap["title"] as? String ?: "Unknown title" // Book title (default to "Unknown title" if null)
+            val authors = bookMap["authors"] as? List<String> ?: listOf("Unknown author") // Authors (default to "Unknown author")
+            val imageLink = bookMap["imageLink"] as String // URL for the book's image
+            val pages = (bookMap["pages"] as? Long ?: 0).toInt() // Number of pages or chapters (default to 0
+            val tags = bookMap["tags"] as List<String> ?: emptyList() // Tags associated with the book (default to empty)
+            val genres = bookMap["genres"] as? List<String> ?: listOf("Unknown genre") // Genres (default to "Unknown genre")
 
+            // Return a BookItemCollection object with the mapped data
             BookItemCollection(title, authors, imageLink, pages, tags, genres)
-        }.sortedBy { it.title }
+        }.sortedBy { it.title } // Sort books alphabetically by title
     }
 
+    // Function to sort books within each custom collection based on the selected option
     private fun sortBooks(sortOption: String) {
+        // Iterate over each custom collection and apply sorting
         customCollectionList.forEach { collection ->
             collection.books = when (sortOption) {
+                // Sort books by title (A-Z or Z-A)
                 "Title (A-Z)" -> collection.books.sortedBy { it.title }
                 "Title (Z-A)" -> collection.books.sortedByDescending { it.title }
+                // Sort books by the first author (A-Z or Z-A)
                 "Author (A-Z)" -> collection.books.sortedBy { it.authors.firstOrNull() ?: "Unknown Author" }
                 "Author (Z-A)" -> collection.books.sortedByDescending { it.authors.firstOrNull() ?: "Unknown Author" }
+                // Sort books by the number of chapters/pages read (ascending or descending)
                 "Chapter's Read (Ascending)" -> collection.books.sortedBy { it.pages }
                 "Chapter's Read (Descending)" -> collection.books.sortedByDescending { it.pages }
+                // Default case (no sorting applied)
                 else -> collection.books
             }
         }
+        // Notify the adapter that the sorted data has changed, so the UI can be updated
         customCollectionAdapter.notifyDataSetChanged()  // Notify adapter after sorting
     }
 }

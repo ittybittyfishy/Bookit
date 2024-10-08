@@ -12,6 +12,7 @@ import com.example.booknook.R
 class GroupsFragment : Fragment() {
 
     lateinit var findGroups: Button
+    lateinit var manageGroups: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,12 +27,19 @@ class GroupsFragment : Fragment() {
 
         // initalize buttons
         findGroups = view.findViewById(R.id.findGroups)
+        manageGroups = view.findViewById(R.id.manageGroups)
 
         // set listener
         findGroups.setOnClickListener()
         {
             val findGroupFragment = FindGroupFragment()
-            (activity as MainActivity).replaceFragment(findGroupFragment, "Find Group")
+            (activity as MainActivity).replaceFragment(findGroupFragment, "Find Groups")
+        }
+
+        manageGroups.setOnClickListener()
+        {
+            val manageGroupFragment = ManageGroupsFragment()
+            (activity as MainActivity).replaceFragment(manageGroupFragment, "Manage Groups")
         }
     }
 }

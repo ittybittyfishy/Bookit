@@ -21,6 +21,8 @@
     <string name="genres">Genres: %1$s</string>
     <string name="book_added_to_collection">Book added to %1$s collection.</string>
     <string name="failed_to_add_book">Failed to add book: %1$s</string>
+    <string name="underlined_rate_it"><u>Rate it!</u></string>
+
 
     <string-array name="book_sort_options">
         <item>Sort Books</item>
@@ -32,17 +34,17 @@
         <item>Chapter\'s Read (Descending)</item>
     </string-array>
 
-        <!-- Other resources -->
+    <!-- Other resources -->
 
-        <string-array name="rating_ranges">
-            <item>All ratings</item>
-            <item>Below 1 star</item>
-            <item>1.0 to 1.9</item>
-            <item>2.0 to 2.9</item>
-            <item>3.0 to 3.9</item>
-            <item>4.0 to 4.9</item>
-            <item>5.0 only</item>
-        </string-array>
+    <string-array name="rating_ranges">
+        <item>All ratings</item>
+        <item>Below 1 star</item>
+        <item>1.0 to 1.9</item>
+        <item>2.0 to 2.9</item>
+        <item>3.0 to 3.9</item>
+        <item>4.0 to 4.9</item>
+        <item>5.0 only</item>
+    </string-array>
 
 
 </resources>

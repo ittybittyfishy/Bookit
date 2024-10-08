@@ -76,7 +76,7 @@ class CollectionFragment : Fragment(){
 
         }
 
-        // initalize spinner
+        // initalize spinner for sorting options
         sortSpinner = view.findViewById(R.id.sortBooks)
 
         // Fetch the user's collections and books from Firestore
@@ -84,38 +84,41 @@ class CollectionFragment : Fragment(){
 
     }
 
+    // Set up the sort spinner with selection listener
     private fun setupSortSpinner() {
         // Set listener for spinner selection
         sortSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val selectedSortOption = parent.getItemAtPosition(position).toString()
-                sortBooks(selectedSortOption)
+                val selectedSortOption = parent.getItemAtPosition(position).toString() // Get the selected sort option
+                sortBooks(selectedSortOption) // Call the sorting function
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
-                // No-op
+                // No action needed if nothing is selected
             }
         }
     }
 
-    // function to get users collection
+    // Function to fetch user's collections from Firestore
     private fun fetchCollectionsAndBooks() {
         userId?.let { uid ->
+            // Fetch user document from Firestore
             db.collection("users").document(uid).get()
                 .addOnSuccessListener { document ->
                     if (document != null) {
                         val standardCollections = document.get("standardCollections") as? Map<String, Any>
                         if (standardCollections != null) {
-                            collectionList.clear()
+                            collectionList.clear() // Clear previous data
 
                             // Define the desired order
                             val desiredOrder = listOf("Want to Read", "Reading", "Finished", "Dropped")
 
                             // Loop through collections in desired order
                             for (name in desiredOrder) {
-                                val books = standardCollections[name]
+                                val books = standardCollections[name] // Get books for each collection
                                 if (books is List<*>) {
                                     val bookItems = books.mapNotNull { book ->
+                                        // Create BookItemCollection objects from the fetched data
                                         if (book is Map<*, *>) {
                                             BookItemCollection(
                                                 title = book["title"] as? String ?: "",
@@ -126,13 +129,13 @@ class CollectionFragment : Fragment(){
                                                 genres = book["genres"] as? List<String> ?: listOf("Unknown Genre")  // Veronica Nguyen
                                             )
                                         } else {
-                                            null
+                                            null // Return null if not a valid Map
                                         }
                                     }
-                                    collectionList.add(CollectionItem(name, bookItems))
+                                    collectionList.add(CollectionItem(name, bookItems)) // Add collection item to the list
                                 }
                             }
-
+                            // Notify the adapter to update the UI
                             collectionAdapter.notifyDataSetChanged()
 
                             // Set up the spinner after the data is fetched
@@ -142,7 +145,7 @@ class CollectionFragment : Fragment(){
                     }
                 }
                 .addOnFailureListener { exception ->
-                    Log.d("CollectionFragment", "get failed with ", exception)
+                    Log.d("CollectionFragment", "get failed with ", exception) // Log failure to fetch data
                 }
         }
     }
@@ -150,6 +153,7 @@ class CollectionFragment : Fragment(){
     // Function to sort the books based on the selected option
     private fun sortBooks(sortOption: String) {
         for (collectionBook in collectionList) {
+            // Sort books based on the selected sorting option
             collectionBook.books = when (sortOption) {
                 "Title (A-Z)" -> collectionBook.books.sortedBy { it.title }
                 "Title (Z-A)" -> collectionBook.books.sortedByDescending { it.title }

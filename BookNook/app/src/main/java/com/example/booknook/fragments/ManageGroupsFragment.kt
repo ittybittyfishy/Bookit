@@ -6,43 +6,42 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.Toast
-import androidx.fragment.app.DialogFragment
 import com.example.booknook.MainActivity
 import com.example.booknook.R
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
-class FindGroupFragment  : Fragment() {
 
-    // Declaring variables for the EditText and Button UI elements
-    private lateinit var searchEdit: EditText
-    private lateinit var searchButton: ImageButton
+class ManageGroupsFragment : Fragment() {
 
     // navigation buttons
-    private lateinit var myGroups:  Button
-    private lateinit var manage: Button
+    private lateinit var myGroups: Button
+    private lateinit var findGroups: Button
+
+    // page UI elements
+    private lateinit var createGroup: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_find_group, container, false)
+        return inflater.inflate(R.layout.fragment_manage_groups, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // Page UI elements
-        searchEdit = view.findViewById(R.id.searchEditText)
-        searchButton = view.findViewById(R.id.searchButton)
+        createGroup = view.findViewById(R.id.createGroupButton)
+
+        createGroup.setOnClickListener()
+        {
+            val createGroupDialog = CreateGroupFragment()
+            createGroupDialog.show(childFragmentManager, "CreateGroupDialog")
+        }
 
         // navigation buttons
         myGroups = view.findViewById(R.id.myGroups)
-        manage = view.findViewById(R.id.manageGroups)
+        findGroups = view.findViewById(R.id.findGroups)
 
         myGroups.setOnClickListener()
         {
@@ -50,12 +49,11 @@ class FindGroupFragment  : Fragment() {
             (activity as MainActivity).replaceFragment(groupsFragment, "My Groups")
         }
 
-        manage.setOnClickListener()
+        findGroups.setOnClickListener()
         {
-            val manageGroupsFragment = ManageGroupsFragment()
-            (activity as MainActivity).replaceFragment(manageGroupsFragment, "Manage Groups")
+            val findGroupsFragment = FindGroupFragment()
+            (activity as MainActivity).replaceFragment(findGroupsFragment, "Find Groups")
         }
 
     }
-
 }

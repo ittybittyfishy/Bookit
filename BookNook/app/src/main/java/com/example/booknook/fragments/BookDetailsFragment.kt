@@ -1,5 +1,6 @@
 package com.example.booknook.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.text.TextUtils
 import androidx.fragment.app.Fragment
@@ -22,9 +23,15 @@ import com.google.firebase.auth.FirebaseAuth
 import android.content.Context
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import android.widget.Spinner
 import android.widget.Toast
+import com.example.booknook.ImageLinks
+import com.example.booknook.IndustryIdentifier
+import com.example.booknook.VolumeInfo
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -38,6 +45,10 @@ class BookDetailsFragment : Fragment() {
     private lateinit var writeReviewButton: Button
     private lateinit var cancelButton: Button
     private lateinit var saveChangesButton: Button
+    private lateinit var readMoreButton: Button
+    private var isDescriptionExpanded = false  // defaults the description to not be expanded
+    // List of predefined collections that users can assign books to.
+    private val standardCollections = listOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped", "Remove")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,6 +64,8 @@ class BookDetailsFragment : Fragment() {
         val bookImage = arguments?.getString("bookImage")
         val bookRating = arguments?.getFloat("bookRating") ?: 0f
         val isbn = arguments?.getString("bookIsbn")
+        val bookDescription = arguments?.getString("bookDescription")
+        val bookGenres = arguments?.getStringArrayList("bookGenres")
         val userId = FirebaseAuth.getInstance().currentUser?.uid // Current logged-in user ID
 
         // Retrieves Ids in the fragment
@@ -61,6 +74,9 @@ class BookDetailsFragment : Fragment() {
         val imageView: ImageView = view.findViewById(R.id.bookImage)
         val bookRatingBar: RatingBar = view.findViewById(R.id.bookRating)
         val ratingNumberTextView: TextView = view.findViewById(R.id.ratingNumber)
+        val spinnerSelectCollection: Spinner = view.findViewById(R.id.spinnerSelectCollection)
+        val btnAddToCustomCollection: Button = view.findViewById(R.id.btnAddToCustomCollection)
+        val descriptionTextView: TextView = view.findViewById(R.id.bookDescription)
 
         // Calls views
         editButton = view.findViewById(R.id.edit_summary_button)
@@ -68,11 +84,13 @@ class BookDetailsFragment : Fragment() {
         cancelButton = view.findViewById(R.id.cancel_button)
         saveChangesButton = view.findViewById(R.id.save_changes_button)
         writeReviewButton = view.findViewById(R.id.write_review_button)
+        readMoreButton = view.findViewById(R.id.readMoreButton)
 
         titleTextView.text = bookTitle
         authorTextView.text = bookAuthor  // Update text with the book's author(s)
         bookRatingBar.rating = bookRating // Update stars with rating
         ratingNumberTextView.text = "(${bookRating.toString()})" // Set the rating number text
+        descriptionTextView.text = bookDescription
 
         // Update the book's image
         if (bookImage != null) {
@@ -81,6 +99,91 @@ class BookDetailsFragment : Fragment() {
                 .placeholder(drawable.placeholder_image)
                 .error(drawable.placeholder_image)
                 .into(imageView)
+        }
+
+        // Set up the ArrayAdapter for the spinner
+        val collectionAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            standardCollections
+        )
+        collectionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerSelectCollection.adapter = collectionAdapter
+
+        // Handle spinner item selection
+        spinnerSelectCollection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                if (position == 5) {
+                    if (bookTitle != null) {
+                        if (bookAuthor != null) {
+                            removeBookFromStandardCollection(requireContext(), bookTitle, bookAuthor)
+                        }
+                    }
+                } else if (position != 0) {
+                    val selectedCollection = standardCollections[position]
+                    if (bookTitle != null) {
+                        if (bookAuthor != null) {
+                            if (bookGenres != null) {
+                                saveBookToCollection(
+                                    requireContext(),
+                                    bookTitle,
+                                    bookAuthor,
+                                    bookImage,
+                                    selectedCollection,
+                                    bookGenres
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // Handle case when nothing is selected if necessary
+            }
+        }
+
+        // Create VolumeInfo object from the data
+        val volumeInfo = bookTitle?.let {
+            VolumeInfo(
+                title = it,
+                authors = bookAuthorsList,
+                categories = bookGenres,
+                imageLinks = bookImage?.let { ImageLinks(it) }
+            )
+        }
+
+        // Create a BookItem object
+        val bookId = arguments?.getString("bookId") ?: "Unknown ID" // You can adjust this based on your data source
+        val book = volumeInfo?.let { BookItem(id = bookId, volumeInfo = it) }
+
+        // Handle the "Add to Custom Collection" button click event.
+        btnAddToCustomCollection.setOnClickListener {
+            if (book != null) {
+                showCustomCollectionDialog(requireContext(), book)
+            } // Show a dialog to select custom collection
+        }
+
+        // Display the "Read more" button for the book description if it's too long
+        if (descriptionTextView.maxLines == 6) {
+            readMoreButton.visibility = View.VISIBLE
+        } else {
+            readMoreButton.visibility = View.GONE
+        }
+
+        // Handles click of the read more button
+        readMoreButton.setOnClickListener {
+            // If the description isn't expanded
+            if (isDescriptionExpanded) {
+                descriptionTextView.maxLines = 6  // Show only 6 lines of the description
+                descriptionTextView.ellipsize = TextUtils.TruncateAt.END  // Truncates the end and adds "..."
+                readMoreButton.text = "Read more"  // Button displays as "Read more"
+            } else {
+                descriptionTextView.maxLines = Int.MAX_VALUE  // Expands the whole description
+                descriptionTextView.ellipsize = null  // Removes ellipses
+                readMoreButton.text = "Read less"  // Button displays as "Read less"
+            }
+            isDescriptionExpanded = !isDescriptionExpanded  // Switches state of variable after it's been clicked
         }
 
         // Handles click of edit personal summary button
@@ -166,6 +269,281 @@ class BookDetailsFragment : Fragment() {
         }
 
         return view
+    }
+
+    // Method to save the book to a selected collection in Firestore.
+    private fun saveBookToCollection(
+        context: Context,
+        title: String,
+        authors: String,
+        bookImage: String?,
+        newCollectionName: String,
+        genres: List<String>
+    ) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid // Get current user ID
+        if (userId != null) {
+            val db = FirebaseFirestore.getInstance() // Reference to Firestore
+
+            // Create a map of the book's details to be saved.
+            val book = hashMapOf(
+                "title" to title,
+                "authors" to authors.split(", "),
+                "imageLink" to bookImage,
+                "genres" to genres
+            )
+
+            val userDocRef = db.collection("users").document(userId) // Reference to the user's document
+
+            // Firestore transaction to update the database.
+            db.runTransaction { transaction ->
+                val snapshot = transaction.get(userDocRef) // Get current document
+
+                // Loop through standard collections and remove the book from old collections.
+                for (collection in standardCollections) {
+                    if (collection != "Select Collection" && collection != newCollectionName) {
+                        val booksInCollection = snapshot.get("standardCollections.$collection") as? List<Map<String, Any>>
+                        booksInCollection?.let {
+                            for (existingBook in it) {
+                                if (existingBook["title"] == title && existingBook["authors"] == authors.split(", ")) {
+                                    transaction.update(userDocRef, "standardCollections.$collection", FieldValue.arrayRemove(existingBook))
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Add the book to the new collection.
+                transaction.update(userDocRef, "standardCollections.$newCollectionName", FieldValue.arrayUnion(book))
+                null
+            }.addOnSuccessListener {
+                // Veronica Nguyen
+                calculateTopGenres(userId, context)  // Update top genres when adding book to default collection
+                Toast.makeText(context, context.getString(R.string.book_added_to_collection, newCollectionName), Toast.LENGTH_SHORT).show()
+            }.addOnFailureListener { e ->
+                Toast.makeText(context, context.getString(R.string.failed_to_add_book, e.message), Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // Method to remove a book from standard collections.
+    private fun removeBookFromStandardCollection(
+        context: Context,
+        title: String,
+        authors: String
+    ) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val db = FirebaseFirestore.getInstance()
+            val userDocRef = db.collection("users").document(userId)
+
+            // Firestore transaction to remove the book from collections.
+            db.runTransaction { transaction ->
+                val snapshot = transaction.get(userDocRef)
+
+                // Loop through the standard collections and remove the book.
+                for (collection in listOf("Reading", "Finished", "Want to Read", "Dropped")) {
+                    val booksInCollection = snapshot.get("standardCollections.$collection") as? List<Map<String, Any>>
+                    booksInCollection?.let {
+                        for (existingBook in it) {
+                            if (existingBook["title"] == title && existingBook["authors"] == authors.split(", ")) {
+                                transaction.update(userDocRef, "standardCollections.$collection", FieldValue.arrayRemove(existingBook))
+                                break
+                            }
+                        }
+                    }
+                }
+                null
+            }.addOnSuccessListener {
+                // Veronica Nguyen
+                calculateTopGenres(userId, context)  // Update top genres when removing book from standard collection
+                Toast.makeText(context, "Book removed from standard collection", Toast.LENGTH_SHORT).show()
+            }.addOnFailureListener { e ->
+                Toast.makeText(context, "Failed to remove book: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // Method to add a book to a custom collection in Firestore.
+    private fun addBookToCustomCollection(userId: String, book: BookItem, collectionName: String, context: Context) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Prepare book data for the collection.
+        val bookData = hashMapOf(
+            "title" to book.volumeInfo.title,
+            "authors" to book.volumeInfo.authors,
+            "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"),
+            "pages" to 0,
+            "tags" to emptyList<String>(),
+            "genres" to (book.volumeInfo.categories ?: listOf("Unknown Genre"))
+        )
+
+        // Update Firestore to add the book to the custom collection.
+        db.collection("users").document(userId)
+            .update("customCollections.$collectionName.books", FieldValue.arrayUnion(bookData))
+            .addOnSuccessListener {
+                // Veronica Nguyen
+                calculateTopGenres(userId, context)  // Update top genres when adding book to custom collection
+                Toast.makeText(context, "Book added to $collectionName", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Failed to add book to $collectionName", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Method to remove a book from custom collections.
+    private fun removeBookFromCustomCollections(userId: String, book: BookItem, context: Context) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Get book title and authors for comparison.
+        val bookTitle = book.volumeInfo.title
+        val bookAuthors = book.volumeInfo.authors
+
+        // Fetch custom collections and remove the book from all of them.
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                val customCollections = document.get("customCollections") as? Map<String, Any>
+
+                if (!customCollections.isNullOrEmpty()) {
+                    val batch = db.batch()
+
+                    // Loop through each custom collection.
+                    for (collectionName in customCollections.keys) {
+                        val collectionRef = db.collection("users").document(userId)
+                        val books = (customCollections[collectionName] as? Map<String, Any>)?.get("books") as? List<Map<String, Any>>
+
+                        // Filter and remove the matching book from each collection.
+                        if (!books.isNullOrEmpty()) {
+                            val booksToRemove = books.filter { bookMap ->
+                                val title = bookMap["title"] as? String
+                                val authors = bookMap["authors"] as? List<String>
+                                title == bookTitle && authors == bookAuthors
+                            }
+
+                            // Update Firestore.
+                            for (bookToRemove in booksToRemove) {
+                                batch.update(collectionRef, "customCollections.$collectionName.books", FieldValue.arrayRemove(bookToRemove))
+                            }
+                        }
+                    }
+
+                    batch.commit()
+                        .addOnSuccessListener {
+                            Toast.makeText(context, "Book removed from all custom collections.", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "Failed to remove book from custom collections.", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    Toast.makeText(context, "No custom collections found.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Error loading custom collections.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Method to show a dialog where the user can select a custom collection.
+    private fun showCustomCollectionDialog(context: Context, book: BookItem) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userId != null) {
+            val db = FirebaseFirestore.getInstance()
+
+            // Fetch the user's custom collections from Firestore.
+            db.collection("users").document(userId).get()
+                .addOnSuccessListener { document ->
+                    val customCollections = document.get("customCollections") as? Map<String, Any>
+
+                    if (!customCollections.isNullOrEmpty()) {
+                        // Prepare a dialog to display the custom collections.
+                        val customCollectionNames = customCollections.keys.toMutableList()
+                        customCollectionNames.add("Remove from Custom Collections")
+
+                        AlertDialog.Builder(context)
+                            .setTitle("Select Custom Collection")
+                            .setItems(customCollectionNames.toTypedArray()) { dialog, which ->
+                                val selectedCollectionName = customCollectionNames[which]
+                                if (selectedCollectionName == "Remove from Custom Collections") {
+                                    removeBookFromCustomCollections(userId, book, context) // Remove the book from custom collections
+                                    calculateTopGenres(userId, context)  // Calculate top genres when removing book from custom collections
+                                } else {
+                                    addBookToCustomCollection(userId, book, selectedCollectionName, context) // Add the book to the selected custom collection
+                                }
+                            }
+                            .setNegativeButton("Cancel", null)
+                            .show()
+                    } else {
+                        Toast.makeText(context, "No custom collections found.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(context, "Error loading custom collections.", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
+    // Veronica Nguyen
+    // Function to get the user's top 3 genres
+    fun calculateTopGenres(userId: String, context: Context) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users").document(userId).get()  // Gets users collection
+            .addOnSuccessListener { document ->
+                val genreCount = mutableMapOf<String, Int>() // Map to count number of times a genre appears
+
+                // Gets user's standard collections
+                val standardCollections = document.get("standardCollections") as? Map<String, List<Map<String, Any>>>
+                // Loops through each standard collection
+                standardCollections?.values?.forEach { bookList ->
+                    // Loops through each book in a collection
+                    bookList.forEach { book ->
+                        val genres = book["genres"] as? List<String> ?: listOf("Unknown Genre")  // Retrieves genres from a book
+                        // Loops through each genre of a book
+                        genres.forEach { genre ->
+                            if (genre != "Unknown Genre") { // Excludes "Unknown Genre" from top genres calculation
+                                // Sets default number of a genre's occurrence to 0 and retrieves its current count
+                                // Increments the count of that genre by 1
+                                genreCount[genre] = genreCount.getOrDefault(genre, 0) + 1
+                            }
+                        }
+                    }
+                }
+
+                // Gets user's custom collections
+                val customCollections = document.get("customCollections") as? Map<String, Map<String, Any>>
+                // Loops through each custom collection
+                customCollections?.forEach { (_, collectionData) ->  //  Ignores key parameter of lambda expression
+                    val books = collectionData["books"] as? List<Map<String, Any>>  // Gets the books in collection
+                    // Loops through each book in a collection
+                    books?.forEach { book ->
+                        val genres = book["genres"] as? List<String> ?: listOf("Unknown Genre")  // Retrieves genres from a book
+                        // Loops through each genre of a book
+                        genres.forEach { genre ->
+                            if (genre != "Unknown Genre") { // Excludes "Unknown Genre" from top genres calculation
+                                // Sets default number of a genre's occurrence to 0 and retrieves its current count
+                                // Increments the count of that genre by 1
+                                genreCount[genre] = genreCount.getOrDefault(genre, 0) + 1
+                            }
+                        }
+                    }
+                }
+
+                // Sort genres by count in descending order and take the top 3
+                val topGenres = genreCount.entries.sortedByDescending { it.value }.take(3).map { it.key }
+
+                // Update user's topGenres field in Firestore
+                db.collection("users").document(userId).update("topGenres", topGenres)
+                    .addOnSuccessListener {
+                        Toast.makeText(context, "Top genres updated: $topGenres", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(context, "Failed to update top genres: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+
+                    .addOnFailureListener { e ->
+                        Toast.makeText(context, "Failed to retrieve collections: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
     }
 
     // Function to save the personal summary into databases

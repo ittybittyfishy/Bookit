@@ -24,6 +24,8 @@ class ReviewActivityTemplate : Fragment() {
     private lateinit var reviewEditText: EditText
     private lateinit var ratingBar: RatingBar
     private lateinit var removeTemplateButton: Button
+    private lateinit var ratingPromptText: TextView  // TextView for "Rate it!"
+    private var userRating: Float? = null  // Start with null to indicate no rating
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +39,7 @@ class ReviewActivityTemplate : Fragment() {
         reviewEditText = view.findViewById(R.id.reviewInput)
         ratingBar = view.findViewById(R.id.myRatingBar)
         removeTemplateButton = view.findViewById(R.id.removeTemplateButton)
+        ratingPromptText = view.findViewById(R.id.myRatingLabel)  // Initialize the "Rate it!" TextView
 
         // Retrieve views for displaying the book image and author details
         val bookImageView: ImageView = view.findViewById(R.id.bookImage)
@@ -58,7 +61,7 @@ class ReviewActivityTemplate : Fragment() {
         authorTextView.text = bookAuthor  // Display the book's author(s)
         bookRatingBar.rating = bookRating // Set rating bar with book rating
         ratingNumberTextView.text = "(${bookRating.toString()})" // Display the numeric rating
-        bookTitleView.text = bookTitle //Display the Title of book
+        bookTitleView.text = bookTitle // Display the Title of book
 
         // Load the book's image using Glide (a third-party library for image loading)
         if (!bookImage.isNullOrEmpty()) {
@@ -144,51 +147,84 @@ class ReviewActivityTemplate : Fragment() {
             checkAndNavigateToCorrectFragment(userId, bookIsbn)
         }
 
+        // --- Itzel Medina ---
+        // Disable RatingBar initially, but keep submit button always enabled
+        ratingBar.isEnabled = false
+        submitButton.isEnabled = true  // Always keep the submit button enabled
+
+        // Activate RatingBar when "Rate it!" prompt is clicked
+        ratingPromptText.setOnClickListener { activateRatingBar() }
+
+
+        //Itzel Medina
+        // Reference to the rating value TextView
+        val ratingValueTextView = view.findViewById<TextView>(R.id.ratingValue)
+
+        // Handle RatingBar changes
+        ratingBar.setOnRatingBarChangeListener { _, rating, _ ->
+            if (rating > 0) {
+                userRating = rating
+                ratingPromptText.text = "My Rating"
+                ratingValueTextView.text = String.format("%.1f", rating)  // Update rating value text
+            } else {
+                userRating = null
+                ratingPromptText.text = "Rate it!"
+                ratingValueTextView.text = "0.0"  // Reset rating value text
+            }
+        }
+
         // Handle the submit button click to save the review
         submitButton.setOnClickListener {
-            // Ensure focus is cleared from EditText fields before retrieving data
-            view.clearFocus()
+            if (userRating != null) {
+                // Ensure focus is cleared from EditText fields before retrieving data
+                view.clearFocus()
 
-            // Capture the main review text and rating
-            val reviewText = reviewEditText.text.toString()
-            val rating = ratingBar.rating
+                // Capture the main review text and rating
+                val reviewText = reviewEditText.text.toString()
+                val rating = userRating ?: 0f
 
-            // Capture sub-ratings only when the button is clicked
-            val charactersChecked = charactersCheckbox.isChecked
-            val charactersRating = charactersRatingBar.rating
-            val charactersReview = charactersReviewEditText.text.toString()
+                // Capture sub-ratings only when the button is clicked
+                val charactersChecked = charactersCheckbox.isChecked
+                val charactersRating = charactersRatingBar.rating
+                val charactersReview = charactersReviewEditText.text.toString()
 
-            val writingChecked = writingCheckbox.isChecked
-            val writingRating = writingRatingBar.rating
-            val writingReview = writingReviewEditText.text.toString()
+                val writingChecked = writingCheckbox.isChecked
+                val writingRating = writingRatingBar.rating
+                val writingReview = writingReviewEditText.text.toString()
 
-            val plotChecked = plotCheckbox.isChecked
-            val plotRating = plotRatingBar.rating
-            val plotReview = plotReviewEditText.text.toString()
+                val plotChecked = plotCheckbox.isChecked
+                val plotRating = plotRatingBar.rating
+                val plotReview = plotReviewEditText.text.toString()
 
-            val themesChecked = themesCheckbox.isChecked
-            val themesRating = themesRatingBar.rating
-            val themesReview = themesReviewEditText.text.toString()
+                val themesChecked = themesCheckbox.isChecked
+                val themesRating = themesRatingBar.rating
+                val themesReview = themesReviewEditText.text.toString()
 
-            val strengthsChecked = strengthsCheckbox.isChecked
-            val strengthsRating = strengthsRatingBar.rating
-            val strengthsReview = strengthsReviewEditText.text.toString()
+                val strengthsChecked = strengthsCheckbox.isChecked
+                val strengthsRating = strengthsRatingBar.rating
+                val strengthsReview = strengthsReviewEditText.text.toString()
 
-            val weaknessesChecked = weaknessesCheckbox.isChecked
-            val weaknessesRating = weaknessesRatingBar.rating
-            val weaknessesReview = weaknessesReviewEditText.text.toString()
+                val weaknessesChecked = weaknessesCheckbox.isChecked
+                val weaknessesRating = weaknessesRatingBar.rating
+                val weaknessesReview = weaknessesReviewEditText.text.toString()
 
-            // Save all data to Firebase
-            saveReview(
-                userId, bookIsbn, reviewText, rating,
-                charactersChecked, charactersRating, charactersReview,
-                writingChecked, writingRating, writingReview,
-                plotChecked, plotRating, plotReview,
-                themesChecked, themesRating, themesReview,
-                strengthsChecked, strengthsRating, strengthsReview,
-                weaknessesChecked, weaknessesRating, weaknessesReview
-            )
+                // Save all data to Firebase
+                saveReview(
+                    userId, bookIsbn, reviewText, rating,
+                    charactersChecked, charactersRating, charactersReview,
+                    writingChecked, writingRating, writingReview,
+                    plotChecked, plotRating, plotReview,
+                    themesChecked, themesRating, themesReview,
+                    strengthsChecked, strengthsRating, strengthsReview,
+                    weaknessesChecked, weaknessesRating, weaknessesReview
+                )
+            } else {
+                // --- Itzel Medina ---
+                // Display a toast if the user tries to submit without a rating
+                Toast.makeText(activity, "You must rate the book before submitting a review!", Toast.LENGTH_SHORT).show()
+            }
         }
+
 
         //Declare button that connects to XML
         removeTemplateButton.setOnClickListener {
@@ -229,6 +265,15 @@ class ReviewActivityTemplate : Fragment() {
             }
         }
         return view
+    }
+
+    // Itzel Medina
+    // Function to activate the RatingBar
+    fun activateRatingBar() {
+        ratingBar.isEnabled = true
+        ratingBar.rating = 0f
+        userRating = 0f
+        ratingPromptText.text = "My Rating"
     }
 
     private fun checkAndNavigateToCorrectFragment(userId: String, bookIsbn: String) {
@@ -303,9 +348,7 @@ class ReviewActivityTemplate : Fragment() {
             }
     }
 
-
-    //function for saving with Template review Data
-    //Define variable types
+    // Function for saving with Template review Data
     private fun saveReview(
         userId: String?, bookIsbn: String?, reviewText: String, rating: Float,
         charactersChecked: Boolean, charactersRating: Float, charactersReview: String,

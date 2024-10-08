@@ -112,15 +112,29 @@
             </androidx.cardview.widget.CardView>
 
             <!-- My Rating Section -->
-            <TextView
-                android:id="@+id/myRatingLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="My Rating"
-                android:layout_gravity="center_horizontal"
-                android:textSize="21sp"
-                android:textColor="@color/green_to_purple"
-                android:layout_marginTop="16dp" />
+            <!--Itzel Medina -->
+
+        <TextView
+            android:id="@+id/myRatingLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/underlined_rate_it"
+            android:layout_gravity="center_horizontal"
+            android:textSize="21sp"
+            android:textColor="@color/white"
+            android:background="@drawable/rectangle_border"
+            android:backgroundTint="@color/custom_tag_pink"
+            android:padding="5dp"
+            android:layout_marginTop="20dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp">
+
 
             <!-- User Rating Bar -->
             <RatingBar
@@ -135,7 +149,25 @@
                 android:progressTint="@color/star_green"
                 android:secondaryProgressTint="@color/star_green"
                 android:scaleX="0.7"
-                android:scaleY="0.7" />
+                android:scaleY="0.7"
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:enabled="false" />
+
+            <!-- Itzel Medina -->
+            <!-- Rating Value TextView -->
+            <TextView
+                android:id="@+id/ratingValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="4dp"
+                android:text="0.0"
+                android:textSize="25sp"
+                android:textColor="@color/star_green" />
+
+            </LinearLayout>
 
             <!-- Review Input Box -->
             <EditText

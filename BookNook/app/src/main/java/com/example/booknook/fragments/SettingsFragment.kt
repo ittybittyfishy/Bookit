@@ -13,7 +13,6 @@ import android.content.Intent
 import android.widget.Switch
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.booknook.Account
 import com.example.booknook.MainActivity
 import com.example.booknook.Register
 import android.content.res.Configuration
@@ -83,6 +82,8 @@ class SettingsFragment : Fragment() {
                 Log.e("SignOut", "User is null, unable to sign out")
             }
         }
+
+        // Yun
         // function to turn on and off dark mode
         darkModeSwitch.isChecked = isDarkThemeOn()
 
@@ -97,6 +98,7 @@ class SettingsFragment : Fragment() {
 
     }
 
+    // Yun
     private fun isDarkThemeOn(): Boolean {
         return (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
     }
