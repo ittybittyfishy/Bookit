@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
+import java.util.Locale
 
 // Yunjong Noh
 // This fragment handles the function of writing and storing review data to Firebase (With Template Ver.)
@@ -102,6 +103,8 @@ class ReviewActivityTemplate : Fragment() {
         // Fetch the existing review from Firebase if review exists and populate fields
         if (userId != null && bookIsbn != null) {
             val db = FirebaseFirestore.getInstance()
+
+            // Reference to the specific book's document in the "books" collection using the book's ISBN
             val bookRef = db.collection("books").document(bookIsbn)
 
             bookRef.collection("reviews").whereEqualTo("userId", userId).get()
@@ -113,36 +116,59 @@ class ReviewActivityTemplate : Fragment() {
                         reviewEditText.setText(reviewData?.get("reviewText") as? String ?: "")
                         ratingBar.rating = (reviewData?.get("rating") as? Double)?.toFloat() ?: 0f
 
-                        charactersCheckbox.isChecked = reviewData?.get("charactersChecked") as? Boolean ?: false
-                        charactersRatingBar.rating = (reviewData?.get("charactersRating") as? Double)?.toFloat() ?: 0f
-                        charactersReviewEditText.setText(reviewData?.get("charactersReview") as? String ?: "")
+                        charactersCheckbox.isChecked =
+                            reviewData?.get("charactersChecked") as? Boolean ?: false
+                        charactersRatingBar.rating =
+                            (reviewData?.get("charactersRating") as? Double)?.toFloat() ?: 0f
+                        charactersReviewEditText.setText(
+                            reviewData?.get("charactersReview") as? String ?: ""
+                        )
 
-                        writingCheckbox.isChecked = reviewData?.get("writingChecked") as? Boolean ?: false
-                        writingRatingBar.rating = (reviewData?.get("writingRating") as? Double)?.toFloat() ?: 0f
-                        writingReviewEditText.setText(reviewData?.get("writingReview") as? String ?: "")
+                        writingCheckbox.isChecked =
+                            reviewData?.get("writingChecked") as? Boolean ?: false
+                        writingRatingBar.rating =
+                            (reviewData?.get("writingRating") as? Double)?.toFloat() ?: 0f
+                        writingReviewEditText.setText(
+                            reviewData?.get("writingReview") as? String ?: ""
+                        )
 
                         plotCheckbox.isChecked = reviewData?.get("plotChecked") as? Boolean ?: false
-                        plotRatingBar.rating = (reviewData?.get("plotRating") as? Double)?.toFloat() ?: 0f
+                        plotRatingBar.rating =
+                            (reviewData?.get("plotRating") as? Double)?.toFloat() ?: 0f
                         plotReviewEditText.setText(reviewData?.get("plotReview") as? String ?: "")
 
-                        themesCheckbox.isChecked = reviewData?.get("themesChecked") as? Boolean ?: false
-                        themesRatingBar.rating = (reviewData?.get("themesRating") as? Double)?.toFloat() ?: 0f
-                        themesReviewEditText.setText(reviewData?.get("themesReview") as? String ?: "")
+                        themesCheckbox.isChecked =
+                            reviewData?.get("themesChecked") as? Boolean ?: false
+                        themesRatingBar.rating =
+                            (reviewData?.get("themesRating") as? Double)?.toFloat() ?: 0f
+                        themesReviewEditText.setText(
+                            reviewData?.get("themesReview") as? String ?: ""
+                        )
 
-                        strengthsCheckbox.isChecked = reviewData?.get("strengthsChecked") as? Boolean ?: false
-                        strengthsRatingBar.rating = (reviewData?.get("strengthsRating") as? Double)?.toFloat() ?: 0f
-                        strengthsReviewEditText.setText(reviewData?.get("strengthsReview") as? String ?: "")
+                        strengthsCheckbox.isChecked =
+                            reviewData?.get("strengthsChecked") as? Boolean ?: false
+                        strengthsRatingBar.rating =
+                            (reviewData?.get("strengthsRating") as? Double)?.toFloat() ?: 0f
+                        strengthsReviewEditText.setText(
+                            reviewData?.get("strengthsReview") as? String ?: ""
+                        )
 
-                        weaknessesCheckbox.isChecked = reviewData?.get("weaknessesChecked") as? Boolean ?: false
-                        weaknessesRatingBar.rating = (reviewData?.get("weaknessesRating") as? Double)?.toFloat() ?: 0f
-                        weaknessesReviewEditText.setText(reviewData?.get("weaknessesReview") as? String ?: "")
+                        weaknessesCheckbox.isChecked =
+                            reviewData?.get("weaknessesChecked") as? Boolean ?: false
+                        weaknessesRatingBar.rating =
+                            (reviewData?.get("weaknessesRating") as? Double)?.toFloat() ?: 0f
+                        weaknessesReviewEditText.setText(
+                            reviewData?.get("weaknessesReview") as? String ?: ""
+                        )
+
                     }
                 }
                 .addOnFailureListener {
-                    Toast.makeText(activity, "Failed to load review data", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(activity, "Failed to load review data", Toast.LENGTH_SHORT).show()
                 }
         }
 
+        // Check where the review is stored and navigate to the appropriate fragment
         if (userId != null && bookIsbn != null) {
             checkAndNavigateToCorrectFragment(userId, bookIsbn)
         }
@@ -210,13 +236,13 @@ class ReviewActivityTemplate : Fragment() {
 
                 // Save all data to Firebase
                 saveReview(
-                    userId, bookIsbn, reviewText, rating,
-                    charactersChecked, charactersRating, charactersReview,
-                    writingChecked, writingRating, writingReview,
-                    plotChecked, plotRating, plotReview,
-                    themesChecked, themesRating, themesReview,
-                    strengthsChecked, strengthsRating, strengthsReview,
-                    weaknessesChecked, weaknessesRating, weaknessesReview
+                    userId, bookIsbn, reviewText, rating, charactersChecked,
+                    charactersRating, charactersReview, writingChecked,
+                    writingRating, writingReview, plotChecked,
+                    plotRating, plotReview, themesChecked,
+                    themesRating, themesReview, strengthsChecked,
+                    strengthsRating, strengthsReview, weaknessesChecked,
+                    weaknessesRating, weaknessesReview
                 )
             } else {
                 // --- Itzel Medina ---
@@ -252,8 +278,8 @@ class ReviewActivityTemplate : Fragment() {
                         bundle.putFloat("bookRating", bookRating)
                         bundle.putString("bookIsbn", bookIsbn)
 
-                        reviewActivityFragment.arguments =
-                            bundle  // sets reviewActivityFragment's arguments to the data in bundle
+                        // sets reviewActivityFragment's arguments to the data in bundle
+                        reviewActivityFragment.arguments = bundle
                         (activity as? MainActivity)?.replaceFragment(reviewActivityFragment, "Write a Review") // Go back to No template fragment
                     }
                 }
@@ -283,15 +309,18 @@ class ReviewActivityTemplate : Fragment() {
         // Query Firestore to check if a review exists and whether it used a template
         bookRef.collection("reviews").whereEqualTo("userId", userId).get()
             .addOnSuccessListener { querySnapshot ->
+                // If a review exists for this user
                 if (!querySnapshot.isEmpty) {
                     val existingReview = querySnapshot.documents[0].data
                     val isTemplateUsed = existingReview?.get("isTemplateUsed") as? Boolean ?: false
 
+                    // If the review does not use a template
                     if (!isTemplateUsed) {
                         // Navigate to the no-template fragment
                         val reviewActivityFragment = ReviewActivity()
                         val bundle = Bundle()
 
+                        //retrieve book's data
                         bundle.putString("bookTitle", arguments?.getString("bookTitle"))
                         bundle.putString("bookAuthor", arguments?.getString("bookAuthor"))
                         bundle.putString("bookImage", arguments?.getString("bookImage"))
@@ -299,7 +328,7 @@ class ReviewActivityTemplate : Fragment() {
                         bundle.putString("bookIsbn", bookIsbn)
 
                         reviewActivityFragment.arguments = bundle
-                        (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review (No Template)")
+                        (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review")
                     }
                 }
             }
@@ -308,9 +337,22 @@ class ReviewActivityTemplate : Fragment() {
             }
     }
 
+    //Deletion of review with temp
     private fun deleteOldReview(userId: String, bookIsbn: String, onComplete: () -> Unit) {
         val db = FirebaseFirestore.getInstance()
-        val bookRef = db.collection("books").document(bookIsbn)
+
+        // Generate unique document ID if the book does not have an ISBN
+        var isbnToCheck = bookIsbn
+        if (isbnToCheck.isNullOrEmpty() || isbnToCheck == "No ISBN") {
+            val bookTitle = arguments?.getString("bookTitle")
+            val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
+            val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT) ?: "unknown_title"
+            val authorsId = bookAuthors?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
+            isbnToCheck = "$titleId-$authorsId" // Create bookId based on the title and authors
+        }
+
+        // Check if a review exists in Firestore and whether a template was used
+        val bookRef = db.collection("books").document(isbnToCheck)
 
         // Query for the existing review
         bookRef.collection("reviews").whereEqualTo("userId", userId).get()
@@ -321,7 +363,7 @@ class ReviewActivityTemplate : Fragment() {
                         .delete()
                         .addOnSuccessListener {
                             Toast.makeText(activity, "Old review deleted", Toast.LENGTH_SHORT).show()
-                            decrementUserReviewNum(userId)  // decrements number of reviews user has written
+                            decrementUserReviewNum(userId)  // Decrease the user's review count
                             onComplete() // Call onComplete after deletion
                         }
                         .addOnFailureListener {
@@ -336,6 +378,150 @@ class ReviewActivityTemplate : Fragment() {
             }
     }
 
+    // Function for saving with Template review Data
+    private fun saveReview(
+        userId: String?, bookIsbn: String?, reviewText: String, rating: Float, charactersChecked: Boolean,
+        charactersRating: Float, charactersReview: String, writingChecked: Boolean,
+        writingRating: Float, writingReview: String, plotChecked: Boolean,
+        plotRating: Float, plotReview: String, themesChecked: Boolean,
+        themesRating: Float, themesReview: String, strengthsChecked: Boolean,
+        strengthsRating: Float, strengthsReview: String, weaknessesChecked: Boolean,
+        weaknessesRating: Float, weaknessesReview: String
+    ) {
+        //Get the current user from Firebase Auth
+        val user = FirebaseAuth.getInstance().currentUser
+        val userId = user?.uid // Current logged-in user ID
+
+        // Check both userId and bookIsbn are not null before proceeding
+        if (userId != null) {
+            // initialize Firebase Instance
+            val db = FirebaseFirestore.getInstance()
+            val bookTitle = arguments?.getString("bookTitle")
+            val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
+            var bookIsbn = arguments?.getString("bookIsbn") // Use this to identify the book for the review
+
+            // If the book has no ISBN, create a unique document ID using the title and authors of the book
+            if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {
+                // Creates title part by replacing all whitespaces with underscores, and making it lowercase
+                val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
+                    ?: "unknown_title"
+                // Creates authors part by combining authors, replacing all whitespaces with underscores, and making it lowercase
+                val authorsId =
+                    bookAuthors?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(
+                        Locale.ROOT
+                    )
+                bookIsbn = "$titleId-$authorsId" // Update bookIsbn with new Id
+            }
+
+            // Get the user's username from database
+            db.collection("users").document(userId).get().addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val username = document.getString("username") // Get username if exists
+
+                    // Create a map for review data to save into Firebase
+                    val reviewData = mapOf(
+                        "userId" to userId,
+                        "username" to username,
+                        "reviewText" to reviewText,
+                        "rating" to rating.toDouble(),
+                        "charactersChecked" to charactersChecked,
+                        "charactersRating" to charactersRating.toDouble(),
+                        "charactersReview" to charactersReview,
+                        "writingChecked" to writingChecked,
+                        "writingRating" to writingRating.toDouble(),
+                        "writingReview" to writingReview,
+                        "plotChecked" to plotChecked,
+                        "plotRating" to plotRating.toDouble(),
+                        "plotReview" to plotReview,
+                        "themesChecked" to themesChecked,
+                        "themesRating" to themesRating.toDouble(),
+                        "themesReview" to themesReview,
+                        "strengthsChecked" to strengthsChecked,
+                        "strengthsRating" to strengthsRating.toDouble(),
+                        "strengthsReview" to strengthsReview,
+                        "weaknessesChecked" to weaknessesChecked,
+                        "weaknessesRating" to weaknessesRating.toDouble(),
+                        "weaknessesReview" to weaknessesReview,
+                        "timestamp" to FieldValue.serverTimestamp(),
+                        "isTemplateUsed" to true
+                    )
+
+                    // Map to store book data
+                    val bookData = mapOf(
+                        "bookTitle" to bookTitle,
+                        "authors" to bookAuthors,
+                    )
+
+                    // Reference to the specific book's document in the "books" collection
+                    val bookRef = db.collection("books").document(bookIsbn)
+                    bookRef.set(
+                        bookData,
+                        SetOptions.merge()
+                    )  // Updates database with book details if not in database already
+
+                    // Check if the user has already submitted a review by querying reviews collection with the userId
+                    bookRef.collection("reviews").whereEqualTo("userId", userId).get()
+                        .addOnSuccessListener { querySnapshot ->
+                            if (querySnapshot.isEmpty) {
+                                // If no review exists for this user, add a new one
+                                bookRef.collection("reviews").add(reviewData)
+                                    .addOnSuccessListener {
+                                        // Show success message
+                                        Toast.makeText(
+                                            activity,
+                                            "Review saved successfully!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        incrementUserReviewNum(userId)  // increments the number of reviews field
+                                    }
+                                    .addOnFailureListener { e ->
+                                        // If saving the review fails, display an error message
+                                        Toast.makeText(
+                                            activity,
+                                            "Failed to save review: ${e.localizedMessage}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                            } else {
+                                // If a review already exists, update it with the new data
+                                val existingReviewId = querySnapshot.documents[0].id
+                                bookRef.collection("reviews").document(existingReviewId)
+                                    .set(reviewData)
+                                    .addOnSuccessListener {
+                                        // Show success message for review update
+                                        Toast.makeText(
+                                            activity,
+                                            "Review updated successfully!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                    .addOnFailureListener {
+                                        // If updating the review fails, display an error message
+                                        Toast.makeText(
+                                            activity,
+                                            "Failed to update review",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                            }
+                        }
+                        .addOnFailureListener {
+                            // If querying for the existing review fails, display an error message
+                            Toast.makeText(
+                                activity,
+                                "Failed to check existing reviews",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                } else {
+                    // If userId or bookIsbn is null, display an error message
+                    Toast.makeText(activity, "Book ISBN or user not provided", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        }
+    }
+
     // Veronica Nguyen
     // Function to decrement user's number of reviews when a review is deleted
     private fun decrementUserReviewNum(userId: String) {
@@ -346,103 +532,6 @@ class ReviewActivityTemplate : Fragment() {
             .addOnFailureListener {
                 Toast.makeText(activity, "Failed to update review count", Toast.LENGTH_SHORT).show()
             }
-    }
-
-    // Function for saving with Template review Data
-    private fun saveReview(
-        userId: String?, bookIsbn: String?, reviewText: String, rating: Float,
-        charactersChecked: Boolean, charactersRating: Float, charactersReview: String,
-        writingChecked: Boolean, writingRating: Float, writingReview: String,
-        plotChecked: Boolean, plotRating: Float, plotReview: String,
-        themesChecked: Boolean, themesRating: Float, themesReview: String,
-        strengthsChecked: Boolean, strengthsRating: Float, strengthsReview: String,
-        weaknessesChecked: Boolean, weaknessesRating: Float, weaknessesReview: String
-    ) {
-        //Get the current user from Firebase Auth
-        val user = FirebaseAuth.getInstance().currentUser
-        val username = user?.displayName ?: "Anonymous"
-
-        // Check both userId and bookIsbn are not null before proceeding
-        if (userId != null && bookIsbn != null) {
-            // initialize Firebase Instance
-            val db = FirebaseFirestore.getInstance()
-            val bookTitle = arguments?.getString("bookTitle")
-            val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
-            // Create a map for review data to save into Firebase
-            val reviewData = mapOf(
-                "userId" to userId,
-                "username" to username,
-                "reviewText" to reviewText,
-                "rating" to rating.toDouble(),
-                "charactersChecked" to charactersChecked,
-                "charactersRating" to charactersRating.toDouble(),
-                "charactersReview" to charactersReview,
-                "writingChecked" to writingChecked,
-                "writingRating" to writingRating.toDouble(),
-                "writingReview" to writingReview,
-                "plotChecked" to plotChecked,
-                "plotRating" to plotRating.toDouble(),
-                "plotReview" to plotReview,
-                "themesChecked" to themesChecked,
-                "themesRating" to themesRating.toDouble(),
-                "themesReview" to themesReview,
-                "strengthsChecked" to strengthsChecked,
-                "strengthsRating" to strengthsRating.toDouble(),
-                "strengthsReview" to strengthsReview,
-                "weaknessesChecked" to weaknessesChecked,
-                "weaknessesRating" to weaknessesRating.toDouble(),
-                "weaknessesReview" to weaknessesReview,
-                "timestamp" to FieldValue.serverTimestamp(),
-                "isTemplateUsed" to true
-            )
-
-            // Map to store book data
-            val bookData = mapOf(
-                "bookTitle" to bookTitle,
-                "authors" to bookAuthors,
-            )
-
-            // Reference to the specific book's document in the "books" collection
-            val bookRef = db.collection("books").document(bookIsbn)
-            bookRef.set(bookData, SetOptions.merge())  // Updates database with book details if not in database already
-
-            // Check if the user has already submitted a review by querying reviews collection with the userId
-            bookRef.collection("reviews").whereEqualTo("userId", userId).get()
-                .addOnSuccessListener { querySnapshot ->
-                    if (querySnapshot.isEmpty) {
-                        // If no review exists for this user, add a new one
-                        bookRef.collection("reviews").add(reviewData)
-                            .addOnSuccessListener {
-                                // Show success message
-                                Toast.makeText(activity, "Review saved successfully!", Toast.LENGTH_SHORT).show()
-                                incrementUserReviewNum(userId)  // increments the number of reviews field
-                            }
-                            .addOnFailureListener { e ->
-                                // If saving the review fails, display an error message
-                                Toast.makeText(activity, "Failed to save review: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
-                            }
-                    } else {
-                        // If a review already exists, update it with the new data
-                        val existingReviewId = querySnapshot.documents[0].id
-                        bookRef.collection("reviews").document(existingReviewId).set(reviewData)
-                            .addOnSuccessListener {
-                                // Show success message for review update
-                                Toast.makeText(activity, "Review updated successfully!", Toast.LENGTH_SHORT).show()
-                            }
-                            .addOnFailureListener {
-                                // If updating the review fails, display an error message
-                                Toast.makeText(activity, "Failed to update review", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                }
-                .addOnFailureListener {
-                    // If querying for the existing review fails, display an error message
-                    Toast.makeText(activity, "Failed to check existing reviews", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            // If userId or bookIsbn is null, display an error message
-            Toast.makeText(activity, "Book ISBN or user not provided", Toast.LENGTH_SHORT).show()
-        }
     }
 
     // Veronica Nguyen
