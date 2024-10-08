@@ -83,6 +83,8 @@ class SettingsFragment : Fragment() {
                 Log.e("SignOut", "User is null, unable to sign out")
             }
         }
+
+        // Yunjong Noh
         // function to turn on and off dark mode
         darkModeSwitch.isChecked = isDarkThemeOn()
 
@@ -96,7 +98,7 @@ class SettingsFragment : Fragment() {
         }
 
     }
-
+    // checking whether the theme mode is currently on Darkmode or not.
     private fun isDarkThemeOn(): Boolean {
         return (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
     }
