@@ -20,7 +20,7 @@ import com.example.booknook.utils.GenreUtils // Utility class for genre-related 
 class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
     // Declare UI components that will be used in the fragment
-    private lateinit var searchButton: Button // Button to initiate a search
+    private lateinit var searchButton: ImageButton // Button to initiate a search
     private lateinit var searchEditText: EditText // Text input for search queries
     private lateinit var filtersButton: Button // Button to open filter options
     private lateinit var sortByButton: Button // Button to open sort options

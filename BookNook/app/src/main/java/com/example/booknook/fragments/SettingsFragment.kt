@@ -22,7 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class SettingsFragment : Fragment() {
 
     lateinit var accountButton: Button
-    lateinit var notificationButton: Button
+    lateinit var updateGenre: Button
     lateinit var signOutButton: Button
     //Declare darkmode component
     lateinit var darkModeSwitch: Switch
@@ -42,7 +42,7 @@ class SettingsFragment : Fragment() {
 
         // Initialize buttons
         accountButton = view.findViewById(R.id.account_button)
-        notificationButton = view.findViewById(R.id.notification_button)
+        updateGenre = view.findViewById(R.id.updateTags)
         signOutButton = view.findViewById(R.id.sign_out)
         darkModeSwitch = view.findViewById(R.id.darkModeSwitch)
         auth = FirebaseAuth.getInstance()
@@ -54,11 +54,12 @@ class SettingsFragment : Fragment() {
             (activity as MainActivity).replaceFragment(accountFragment, "Account")
         }
 
-        notificationButton.setOnClickListener {
-            // Handle account button click
-            val notificationFragment = NotificationFragment()
-            (activity as MainActivity).replaceFragment(notificationFragment, "Notifications")
+        updateGenre.setOnClickListener {
+            // Show the EditGenrePreferenceFragment
+            val editGenres = EditGenrePreferenceFragment()
+            editGenres.show(parentFragmentManager, "EditGenresDialog")
         }
+
 
         signOutButton.setOnClickListener {
             // Handle sign out button click
@@ -102,4 +103,5 @@ class SettingsFragment : Fragment() {
     private fun isDarkThemeOn(): Boolean {
         return (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
     }
+
 }
