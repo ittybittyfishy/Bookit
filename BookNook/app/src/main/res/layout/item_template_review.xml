@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="8dp"
+    android:background="?android:attr/selectableItemBackground"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Username and Timestamp Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="4dp">
+
+            <!-- Username -->
+            <TextView
+                android:id="@+id/tvUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Username"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Timestamp -->
+            <TextView
+                android:id="@+id/tvTimestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2 days ago"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Overall RatingBar -->
+        <RatingBar
+            android:id="@+id/overallRatingBar"
+            style="?android:attr/ratingBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:stepSize="0.5"
+            android:isIndicator="true"
+            android:rating="4.5" />
+
+        <!-- Overall Review Text -->
+        <TextView
+            android:id="@+id/tvOverallReviewText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Overall review text. This is the user's overall opinion of the book."
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:paddingTop="8dp" />
+
+        <!-- Ratings and Reviews for Specific Aspects -->
+
+        <!-- Characters Rating & Review -->
+        <TextView
+            android:id="@+id/tvCharactersHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Characters"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <RatingBar
+                android:id="@+id/charactersRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.5" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvCharactersReview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Characters review text"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:paddingTop="4dp"
+            android:visibility="gone" />
+
+        <!-- Writing Rating & Review -->
+        <TextView
+            android:id="@+id/tvWritingHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Writing"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <RatingBar
+                android:id="@+id/writingRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.0" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvWritingReview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Writing review text"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:paddingTop="4dp"
+            android:visibility="gone" />
+
+        <!-- Plot Rating & Review -->
+        <TextView
+            android:id="@+id/tvPlotHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Plot"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <RatingBar
+                android:id="@+id/plotRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="3.5" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvPlotReview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Plot review text"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:paddingTop="4dp"
+            android:visibility="gone" />
+
+        <!-- Themes Rating & Review -->
+        <TextView
+            android:id="@+id/tvThemesHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Themes"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <RatingBar
+                android:id="@+id/themesRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.5" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvThemesReview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Themes review text"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:paddingTop="4dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

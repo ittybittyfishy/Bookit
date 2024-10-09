@@ -29,8 +29,13 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.ImageLinks
 import com.example.booknook.IndustryIdentifier
+import com.example.booknook.Review
+import com.example.booknook.ReviewsAdapter
+import com.example.booknook.TemplateReview
 import com.example.booknook.VolumeInfo
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -255,6 +260,11 @@ class BookDetailsFragment : Fragment() {
 
             reviewActivityFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
             (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review")  // Opens a new fragment
+        }
+
+        // Check if the ISBN is not null and then fetch reviews
+        isbn?.let {
+            fetchReviews(it)  // Call the fetchReviews method and pass the ISBN
         }
 
         return view
@@ -615,6 +625,38 @@ class BookDetailsFragment : Fragment() {
         // Doesn't allow user to click on box after saving changes
         personalSummary.isFocusable = false
         personalSummary.isFocusableInTouchMode = false
+    }
+
+    private fun fetchReviews(isbn: String) {
+        val reviewsRef = FirebaseFirestore.getInstance()
+            .collection("books")
+            .document(isbn)
+            .collection("reviews")
+
+        reviewsRef.get()
+            .addOnSuccessListener { documents ->
+                val reviewsList = mutableListOf<Any>()
+                for (document in documents) {
+                    val isTemplateUsed = document.getBoolean("isTemplateUsed") ?: false
+                    if (isTemplateUsed) {
+                        val templateReview = document.toObject(TemplateReview::class.java)
+                        reviewsList.add(templateReview)
+                    } else {
+                        val review = document.toObject(Review::class.java)
+                        reviewsList.add(review)
+                    }
+                }
+                setupRecyclerView(reviewsList)
+            }
+            .addOnFailureListener { exception ->
+                Log.e("BookDetailsFragment", "Error fetching reviews", exception)
+            }
+    }
+
+    private fun setupRecyclerView(reviews: List<Any>) {
+        val recyclerView = view?.findViewById<RecyclerView>(R.id.reviewsRecyclerView)
+        recyclerView?.layoutManager = LinearLayoutManager(context)
+        recyclerView?.adapter = ReviewsAdapter(reviews)
     }
 
 }
