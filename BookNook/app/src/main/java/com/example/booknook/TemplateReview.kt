@@ -1,7 +1,8 @@
 package com.example.booknook
-
 import java.util.Date
 
+//Yunjong Noh
+// Data class to hold with-template review information
 data class TemplateReview(
     val userId: String = "",
     val username: String = "",
