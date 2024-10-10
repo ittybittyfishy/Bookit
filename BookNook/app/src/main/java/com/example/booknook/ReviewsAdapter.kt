@@ -39,77 +39,99 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
 
     // ViewHolder for regular reviews
     class ReviewViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val tvUsername: TextView = itemView.findViewById(R.id.tvUsername)
-        private val tvReviewText: TextView = itemView.findViewById(R.id.tvReviewText)
+        private val username: TextView = itemView.findViewById(R.id.Username)
+        private val reviewText: TextView = itemView.findViewById(R.id.ReviewText)
         private val ratingBar: RatingBar = itemView.findViewById(R.id.ratingBar)
-        private val tvTimestamp: TextView = itemView.findViewById(R.id.tvTimestamp)
+        private val timestamp: TextView = itemView.findViewById(R.id.Timestamp)
 
         fun bind(review: Review) {
-            tvUsername.text = review.username
-            tvReviewText.text = review.reviewText
+            username.text = review.username
+            reviewText.text = review.reviewText
             ratingBar.rating = review.rating.toFloat()
-            tvTimestamp.text =
+            timestamp.text =
                 review.timestamp.toString() // Assuming you have a timestamp field in the Review class
         }
     }
 
     class TemplateReviewViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val tvUsername: TextView = itemView.findViewById(R.id.tvUsername)
-        private val tvOverallReviewText: TextView = itemView.findViewById(R.id.tvOverallReviewText)
+        private val username: TextView = itemView.findViewById(R.id.Username)
+        private val overallReviewText: TextView = itemView.findViewById(R.id.OverallReviewText)
         private val overallRatingBar: RatingBar = itemView.findViewById(R.id.overallRatingBar)
-        private val tvCharactersReview: TextView = itemView.findViewById(R.id.tvCharactersReview)
+        private val charactersReview: TextView = itemView.findViewById(R.id.CharactersReview)
         private val charactersRatingBar: RatingBar = itemView.findViewById(R.id.charactersRatingBar)
-        private val tvWritingReview: TextView = itemView.findViewById(R.id.tvWritingReview)
+        private val writingReview: TextView = itemView.findViewById(R.id.WritingReview)
         private val writingRatingBar: RatingBar = itemView.findViewById(R.id.writingRatingBar)
-        private val tvPlotReview: TextView = itemView.findViewById(R.id.tvPlotReview)
+        private val plotReview: TextView = itemView.findViewById(R.id.PlotReview)
         private val plotRatingBar: RatingBar = itemView.findViewById(R.id.plotRatingBar)
-        private val tvThemesReview: TextView = itemView.findViewById(R.id.tvThemesReview)
+        private val themesReview: TextView = itemView.findViewById(R.id.ThemesReview)
         private val themesRatingBar: RatingBar = itemView.findViewById(R.id.themesRatingBar)
-        private val tvTimestamp: TextView = itemView.findViewById(R.id.tvTimestamp)
+        private val strengthsReview: TextView = itemView.findViewById(R.id.StrengthsReview)
+        private val strengthsRatingBar: RatingBar = itemView.findViewById(R.id.strengthsRatingBar)
+        private val weaknessesReview: TextView = itemView.findViewById(R.id.WeaknessesReview)
+        private val weaknessesRatingBar: RatingBar = itemView.findViewById(R.id.weaknessesRatingBar)
+        private val timestamp: TextView = itemView.findViewById(R.id.Timestamp)
 
         fun bind(templateReview: TemplateReview) {
-            tvUsername.text = templateReview.username
-            tvOverallReviewText.text = templateReview.reviewText
+            username.text = templateReview.username
+            overallReviewText.text = templateReview.reviewText
             overallRatingBar.rating = templateReview.rating.toFloat()
 
             // Characters section
             if (templateReview.charactersReview?.isNotEmpty() == true) {
-                tvCharactersReview.text = templateReview.charactersReview
+                charactersReview.text = templateReview.charactersReview
                 charactersRatingBar.rating = templateReview.charactersRating.toFloat()
-                tvCharactersReview.visibility = View.VISIBLE
+                charactersReview.visibility = View.VISIBLE
             } else {
-                tvCharactersReview.visibility = View.GONE
+                charactersReview.visibility = View.GONE
             }
 
             // Writing section
             if (templateReview.writingReview?.isNotEmpty() == true) {
-                tvWritingReview.text = templateReview.writingReview
+                writingReview.text = templateReview.writingReview
                 writingRatingBar.rating = templateReview.writingRating.toFloat()
-                tvWritingReview.visibility = View.VISIBLE
+                writingReview.visibility = View.VISIBLE
             } else {
-                tvWritingReview.visibility = View.GONE
+                writingReview.visibility = View.GONE
             }
 
             // Plot section
             if (templateReview.plotReview?.isNotEmpty() == true) {
-                tvPlotReview.text = templateReview.plotReview
+                plotReview.text = templateReview.plotReview
                 plotRatingBar.rating = templateReview.plotRating.toFloat()
-                tvPlotReview.visibility = View.VISIBLE
+                plotReview.visibility = View.VISIBLE
             } else {
-                tvPlotReview.visibility = View.GONE
+                plotReview.visibility = View.GONE
             }
 
             // Themes section
             if (templateReview.themesReview?.isNotEmpty() == true) {
-                tvThemesReview.text = templateReview.themesReview
+                themesReview.text = templateReview.themesReview
                 themesRatingBar.rating = templateReview.themesRating.toFloat()
-                tvThemesReview.visibility = View.VISIBLE
+                themesReview.visibility = View.VISIBLE
             } else {
-                tvThemesReview.visibility = View.GONE
+                themesReview.visibility = View.GONE
+            }
+
+            // Strengths section
+            if (templateReview.themesReview?.isNotEmpty() == true) {
+                strengthsReview.text = templateReview.strengthsReview
+                strengthsRatingBar.rating = templateReview.strengthsRating.toFloat()
+                strengthsReview.visibility = View.VISIBLE
+            } else {
+                strengthsReview.visibility = View.GONE
+            }
+
+            // Weaknesses section
+            if (templateReview.themesReview?.isNotEmpty() == true) {
+                weaknessesReview.text = templateReview.weaknessesReview
+                weaknessesRatingBar.rating = templateReview.weaknessesRating.toFloat()
+                weaknessesReview.visibility = View.VISIBLE
+            } else {
+                weaknessesReview.visibility = View.GONE
             }
 
             // Set timestamp
-            tvTimestamp.text = templateReview.timestamp.toString()
+            timestamp.text = templateReview.timestamp.toString()
         }
     }
 
