@@ -69,22 +69,29 @@ class EditGenrePreferenceFragment : DialogFragment() {
         // Retrieve the user's existing genre preferences from Firestore
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
+            // Access Firestore instance
             val db = FirebaseFirestore.getInstance()
+            // Retrieve the user's document from the "users" collection
             db.collection("users").document(userId).get()
                 .addOnSuccessListener { document ->
+                    // Get the existing genre preferences from Firestore, defaulting to an empty list if none
                     val existingGenres = document.get("genrePreferences") as? List<String> ?: emptyList()
-                    // Pre-check the chips that match the existing genres
+                    // Loop through the ChipGroup to pre-select the chips that match existing genres
                     for (i in 0 until chipGroup.childCount) {
+                        // Get each chip from the ChipGroup
                         val chip = chipGroup.getChildAt(i) as? Chip
+                        // If the chip is not null and its text matches an existing genre, mark it as checked
                         if (chip != null && existingGenres.contains(chip.text.toString())) {
                             chip.isChecked = true
                         }
                     }
                 }
                 .addOnFailureListener {
+                    // Display a failure message if there was an issue retrieving the preferences
                     Toast.makeText(requireContext(), "Failed to load preferences", Toast.LENGTH_SHORT).show()
                 }
         } else {
+            // Show an error message if the user is not logged in
             Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
         }
     }
@@ -99,30 +106,35 @@ class EditGenrePreferenceFragment : DialogFragment() {
             db.collection("users").document(userId)
                 .update(mapOf("genrePreferences" to selectedGenres, "isFirstLogin" to false))
                 .addOnSuccessListener {
-                    // Show a success message
+                    // Display a success message once the preferences are saved
                     Toast.makeText(activity, "Preferences saved", Toast.LENGTH_SHORT).show()
-                    // Optionally, navigate to HomeFragment or refresh the UI
                     dismiss()  // Close the dialog after saving
                 }
                 .addOnFailureListener { e ->
-                    // Show a failure message
+                    // Error retrieving genres
                     Log.e("EditGenrePreferenceFragment", "Error saving preferences: ${e.message}")
                     Toast.makeText(activity, "Failed to save preferences", Toast.LENGTH_SHORT).show()
                 }
         } else {
+            // user not logged in
             Toast.makeText(activity, "User not logged in", Toast.LENGTH_SHORT).show()
         }
     }
 
     // Method to retrieve selected genres from the ChipGroup
     private fun getSelectedTags(chipGroup: ChipGroup): List<String> {
+        // Initialize a list to store the selected tags
         val selectedTags = mutableListOf<String>()
+        // Loop through each child view in the ChipGroup
         for (i in 0 until chipGroup.childCount) {
+            // Get each chip from the ChipGroup
             val chip = chipGroup.getChildAt(i) as? Chip
+            // If the chip is checked, add its text to the selected tags list
             if (chip?.isChecked == true) {
                 selectedTags.add(chip.text.toString())
             }
         }
+        // Return the list of selected tags
         return selectedTags
     }
 }

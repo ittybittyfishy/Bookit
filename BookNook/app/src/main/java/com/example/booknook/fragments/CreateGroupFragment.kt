@@ -87,7 +87,7 @@ class CreateGroupFragment : DialogFragment() {
         }
 
         uploadImageButton.setOnClickListener {
-            // Trigger the image selection process (using gallery or file picker)
+            // Trigger the image selection process
             openImagePicker()
         }
 

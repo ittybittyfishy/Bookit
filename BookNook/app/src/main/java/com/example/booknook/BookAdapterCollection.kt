@@ -136,11 +136,11 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
                             (it["authors"] as? List<*>)?.containsAll(book.authors) == true
                     }
                     if (bookInCollection != null) {
-                        // Remove the old book
+                        // Remove the old book page values
                         db.collection("users").document(userId)
                             .update("standardCollections.$collectionName", FieldValue.arrayRemove(bookInCollection))
 
-                        // Modify pages and re-add the book
+                        // Modify pages
                         val updatedBook = (bookInCollection as Map<String, Any>).toMutableMap()
                         updatedBook["pages"] = newPages
                         db.collection("users").document(userId)
@@ -161,7 +161,7 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
                             (it["authors"] as? List<*>)?.containsAll(book.authors) == true
                 }
                 if (bookInCustom != null) {
-                    // Remove the old book and update the pages
+                    // update the pages
                     val updatedBook = bookInCustom.toMutableMap()
                     updatedBook["pages"] = newPages
                     val updatedBooks = booksInCustom.toMutableList().apply {

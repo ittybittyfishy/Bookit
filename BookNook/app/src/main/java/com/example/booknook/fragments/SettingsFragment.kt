@@ -62,26 +62,9 @@ class SettingsFragment : Fragment() {
 
 
         signOutButton.setOnClickListener {
-            // Handle sign out button click
-            val user = auth.currentUser
-            if (user != null) {
-                val userId = user.uid
-                FirebaseFirestore.getInstance().collection("users").document(userId)
-                    .update("isOnline", false)  // Updates the user's status to offline when they sign out
-                    .addOnSuccessListener {
-                        auth.signOut()
-                        val intent = Intent(activity, Login::class.java)
-                        startActivity(intent)
-                        Toast.makeText(requireContext(), "You have been logged out", Toast.LENGTH_SHORT).show()
-                        activity?.finish()
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("SignOut", "Error updating Firestore: ${e.message}")
-                        Toast.makeText(requireContext(), "Error logging out. Please try again.", Toast.LENGTH_SHORT).show()
-                    }
-            } else {
-                Log.e("SignOut", "User is null, unable to sign out")
-            }
+            // Show the ConfirmSignOutFragment
+            val confirmSignout = ConfirmSignoutFragment()
+            confirmSignout.show(parentFragmentManager, "ConfirmSignOutDialog")
         }
 
         // Yun
