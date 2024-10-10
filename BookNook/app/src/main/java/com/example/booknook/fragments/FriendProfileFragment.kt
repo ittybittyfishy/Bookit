@@ -22,8 +22,6 @@ class FriendProfileFragment : Fragment() {
     // Declare variables for UI elements
     private lateinit var bannerImage: ImageView
     private lateinit var profileImage: CircleImageView
-    private lateinit var uploadBannerButton: Button
-    private lateinit var uploadProfileButton: Button
     private lateinit var addFriendButton: Button
 
     // Declare TextView for displaying the number of collections
@@ -38,7 +36,6 @@ class FriendProfileFragment : Fragment() {
         val view = inflater.inflate(R.layout.friend_profile, container, false)
 
         val receiverId = arguments?.getString("receiverId")  // Receives receiverId from friends fragment
-
         addFriendButton = view.findViewById(R.id.addFriendButton)
 
         // Handles click of add friend button
@@ -50,6 +47,15 @@ class FriendProfileFragment : Fragment() {
             }
         }
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
+        val receiverId = arguments?.getString("receiverId")  // Retrieves the receiver's id from friends fragment arguments
+        addFriendButton = view.findViewById(R.id.addFriendButton)  // Calls view for the Add Friend Button
+
     }
 
     // Function to send a friend request
