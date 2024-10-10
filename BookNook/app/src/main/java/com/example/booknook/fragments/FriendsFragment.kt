@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.auth.User
 
 class FriendsFragment : Fragment() {
 
@@ -169,11 +170,11 @@ class FriendsFragment : Fragment() {
 
     // Function to navigate to the friend's profile when clicking on them
     private fun openFriendProfile(selectedFriend: Friend) {
-        val friendProfileFragment = FriendProfileFragment()
+        val userProfileFragment = UserProfileFragment()
         val bundle = Bundle()
         bundle.putString("receiverId", selectedFriend.friendId)
-        friendProfileFragment.arguments = bundle
-        (activity as MainActivity).replaceFragment(friendProfileFragment, "${selectedFriend.friendUsername}")
+        userProfileFragment.arguments = bundle
+        (activity as MainActivity).replaceFragment(userProfileFragment, "${selectedFriend.friendUsername}")
     }
 
     // Function to search for a user with their username
