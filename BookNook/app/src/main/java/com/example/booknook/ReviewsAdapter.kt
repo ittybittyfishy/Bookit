@@ -59,6 +59,14 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
         private val overallRatingBar: RatingBar = itemView.findViewById(R.id.overallRatingBar)
         private val charactersReview: TextView = itemView.findViewById(R.id.CharactersReview)
         private val charactersRatingBar: RatingBar = itemView.findViewById(R.id.charactersRatingBar)
+
+        private val charactersHeading: TextView = itemView.findViewById(R.id.CharactersHeading)
+        private val writingHeading: TextView = itemView.findViewById(R.id.WritingHeading)
+        private val plotHeading: TextView = itemView.findViewById(R.id.PlotHeading)
+        private val themesHeading: TextView = itemView.findViewById(R.id.ThemesHeading)
+        private val strengthsHeading: TextView = itemView.findViewById(R.id.StrengthsHeading)
+        private val weaknessesHeading: TextView = itemView.findViewById(R.id.WeaknessesHeading)
+
         private val writingReview: TextView = itemView.findViewById(R.id.WritingReview)
         private val writingRatingBar: RatingBar = itemView.findViewById(R.id.writingRatingBar)
         private val plotReview: TextView = itemView.findViewById(R.id.PlotReview)
@@ -77,56 +85,87 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             overallRatingBar.rating = templateReview.rating.toFloat()
 
             // Characters section
-            if (templateReview.charactersReview?.isNotEmpty() == true) {
+            if (!templateReview.charactersReview.isNullOrEmpty()) {
+                charactersHeading.visibility = View.VISIBLE  // Show the header
+                charactersRatingBar.visibility = View.VISIBLE  // Show the rating bar
+                charactersReview.visibility = View.VISIBLE  // Show the review text
+
                 charactersReview.text = templateReview.charactersReview
                 charactersRatingBar.rating = templateReview.charactersRating.toFloat()
-                charactersReview.visibility = View.VISIBLE
             } else {
+                // Hide the section if no data exists
+                charactersHeading.visibility = View.GONE
+                charactersRatingBar.visibility = View.GONE
                 charactersReview.visibility = View.GONE
             }
 
             // Writing section
-            if (templateReview.writingReview?.isNotEmpty() == true) {
+            if (!templateReview.writingReview.isNullOrEmpty()) {
+                writingHeading.visibility = View.VISIBLE
+                writingRatingBar.visibility = View.VISIBLE
+                writingReview.visibility = View.VISIBLE
+
                 writingReview.text = templateReview.writingReview
                 writingRatingBar.rating = templateReview.writingRating.toFloat()
-                writingReview.visibility = View.VISIBLE
             } else {
+                writingHeading.visibility = View.GONE
+                writingRatingBar.visibility = View.GONE
                 writingReview.visibility = View.GONE
             }
 
             // Plot section
-            if (templateReview.plotReview?.isNotEmpty() == true) {
+            if (!templateReview.plotReview.isNullOrEmpty()) {
+                plotHeading.visibility = View.VISIBLE
+                plotRatingBar.visibility = View.VISIBLE
+                plotReview.visibility = View.VISIBLE
+
                 plotReview.text = templateReview.plotReview
                 plotRatingBar.rating = templateReview.plotRating.toFloat()
-                plotReview.visibility = View.VISIBLE
             } else {
+                plotHeading.visibility = View.GONE
+                plotRatingBar.visibility = View.GONE
                 plotReview.visibility = View.GONE
             }
 
             // Themes section
-            if (templateReview.themesReview?.isNotEmpty() == true) {
+            if (!templateReview.themesReview.isNullOrEmpty()) {
+                themesHeading.visibility = View.VISIBLE
+                themesRatingBar.visibility = View.VISIBLE
+                themesReview.visibility = View.VISIBLE
+
                 themesReview.text = templateReview.themesReview
                 themesRatingBar.rating = templateReview.themesRating.toFloat()
-                themesReview.visibility = View.VISIBLE
             } else {
+                themesHeading.visibility = View.GONE
+                themesRatingBar.visibility = View.GONE
                 themesReview.visibility = View.GONE
             }
 
             // Strengths section
-            if (templateReview.themesReview?.isNotEmpty() == true) {
+            if (!templateReview.strengthsReview.isNullOrEmpty()) {
+                strengthsHeading.visibility = View.VISIBLE
+                strengthsRatingBar.visibility = View.VISIBLE
+                strengthsReview.visibility = View.VISIBLE
+
                 strengthsReview.text = templateReview.strengthsReview
                 strengthsRatingBar.rating = templateReview.strengthsRating.toFloat()
-                strengthsReview.visibility = View.VISIBLE
             } else {
+                strengthsHeading.visibility = View.GONE
+                strengthsRatingBar.visibility = View.GONE
                 strengthsReview.visibility = View.GONE
             }
 
             // Weaknesses section
-            if (templateReview.themesReview?.isNotEmpty() == true) {
+            if (!templateReview.weaknessesReview.isNullOrEmpty()) {
+                weaknessesHeading.visibility = View.VISIBLE
+                weaknessesRatingBar.visibility = View.VISIBLE
+                weaknessesReview.visibility = View.VISIBLE
+
                 weaknessesReview.text = templateReview.weaknessesReview
                 weaknessesRatingBar.rating = templateReview.weaknessesRating.toFloat()
-                weaknessesReview.visibility = View.VISIBLE
             } else {
+                weaknessesHeading.visibility = View.GONE
+                weaknessesRatingBar.visibility = View.GONE
                 weaknessesReview.visibility = View.GONE
             }
 
