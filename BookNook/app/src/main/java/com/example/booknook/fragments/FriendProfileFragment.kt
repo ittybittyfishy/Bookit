@@ -38,7 +38,6 @@ class FriendProfileFragment : Fragment() {
         val view = inflater.inflate(R.layout.friend_profile, container, false)
 
         val receiverId = arguments?.getString("receiverId")  // Receives receiverId from friends fragment
-
         addFriendButton = view.findViewById(R.id.addFriendButton)
 
         // Handles click of add friend button
@@ -50,6 +49,38 @@ class FriendProfileFragment : Fragment() {
             }
         }
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
+        val receiverId = arguments?.getString("receiverId")  // Retrieves the receiver's id from friends fragment arguments
+        addFriendButton = view.findViewById(R.id.addFriendButton)  // Calls view for the Add Friend Button
+
+        if (currentUser != null && receiverId != null) {
+            val db = FirebaseFirestore.getInstance()
+            val currentUserRef = db.collection("users").document(currentUser.uid)  // Gets current user's document
+
+            currentUserRef.get().addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    // Gets the friends list of the user
+                    val friendsList = document.get("friends") as? List<Map<String, Any>>
+
+                    // Goes through each friend id to check if the user is already friends
+                    val isFriend = friendsList?.any { friend ->
+                        friend["friendId"] == receiverId
+                    } ?: false
+
+                    // If the user is already friends with them
+                    if (isFriend) {
+                        addFriendButton.visibility = View.GONE  // Hide the "Add Friend" button
+                    }
+                }
+            }.addOnFailureListener {
+                Toast.makeText(activity, "Failed to check friend status", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     // Function to send a friend request
