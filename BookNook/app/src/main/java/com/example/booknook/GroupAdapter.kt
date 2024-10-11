@@ -3,6 +3,7 @@ package com.example.booknook
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +23,10 @@ class GroupAdapter(
         val groupInfo: TextView = itemView.findViewById(R.id.groupInfoText)
         val tagsChipGroup: ChipGroup = itemView.findViewById(R.id.tagsChipGroup)
         val bannerImageView: ImageView = itemView.findViewById(R.id.groupBannerImage)
+        val editGroup: ImageButton = itemView.findViewById(R.id.editGroup)
+
+        // user id
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
 
 
         fun bind(groupItem: GroupItem, clickListener: (GroupItem) -> Unit) {
@@ -54,6 +59,16 @@ class GroupAdapter(
             // Handle item clicks
             itemView.setOnClickListener {
                 clickListener(groupItem)
+            }
+
+            // Load edit button if group belongs to user
+            if (groupItem.createdBy == userId) {
+                // If no tags then load a button to add tags
+                editGroup.visibility = View.VISIBLE
+            }
+            else
+            {
+                editGroup.visibility = View.GONE
             }
 
         }

@@ -27,8 +27,6 @@ class GroupsFragment : Fragment() {
     private lateinit var groupAdapter: GroupAdapter
     private val groupList = mutableListOf<GroupItem>()
 
-    private var storeUsername: String? = null
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -44,7 +42,7 @@ class GroupsFragment : Fragment() {
         findGroups = view.findViewById(R.id.findGroups)
         manageGroups = view.findViewById(R.id.manageGroups)
 
-        //
+        // Recycler View
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
         groupAdapter = GroupAdapter(groupList) { groupItem ->
