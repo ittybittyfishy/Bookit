@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import de.hdodenhof.circleimageview.CircleImageView
 import java.io.IOException
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 // Define a Fragment class for the Profile section
 class ProfileFragment : Fragment() {
@@ -190,12 +193,51 @@ class ProfileFragment : Fragment() {
             }
         }
 
+        // Veronica Nguyen
+        // Function updates the average rating of the user
+        fun updateAverageRating(userId: String) {
+            val db = FirebaseFirestore.getInstance()
+            val userDocRef = db.collection("users").document(userId)
+
+            // Accesses all collections named "reviews" in database
+            db.collectionGroup("reviews")
+                .whereEqualTo("userId", userId)  // Finds all documents with the user's id (current user)
+                .get()
+                .addOnSuccessListener { documents ->
+                    // Gets all of the user's ratings under reviews
+                    val userRatings = documents.mapNotNull { it.getDouble("rating") }
+                    if (userRatings.isNotEmpty()) {
+                        // Gets the sum of all of the ratings
+                        val ratingsTotalSum = userRatings.sum()
+                        // Calculates the user's average rating
+                        val averageRating = ratingsTotalSum / userRatings.size
+                        // Rounds the average rating to two decimal places
+                        val roundedAverageRating = BigDecimal(averageRating).setScale(2, RoundingMode.HALF_UP).toDouble()
+
+                        // Updates the averageRating field in database
+                        userDocRef.update("averageRating", roundedAverageRating)
+                            .addOnSuccessListener {
+                                // Update text view here (if applicable)
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(activity, "Error updating average rating", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(activity, "No ratings found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(activity, "Error getting user ratings", Toast.LENGTH_SHORT).show()
+                }
+        }
+
         // If user is authenticated, update their stats
         if (userId != null) {
             updateNumBooksRead(userId)
             updateNumCollections(userId)
             updateNumFriends(userId)
             updateNumReviews(userId)
+            updateAverageRating(userId)
         } else {
             Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
         }
