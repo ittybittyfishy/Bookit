@@ -45,7 +45,26 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- RatingBar for overall rating display -->
+    <!-- Container for the each template content -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:visibility="visible">
+
+        <!-- Overall Review Heading -->
+        <TextView
+            android:id="@+id/OverallReviewHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Overall"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp"
+            android:visibility="gone" />
+
+        <!-- RatingBar for overall -->
         <RatingBar
             android:id="@+id/ratingBar"
             style="?android:attr/ratingBarStyleSmall"
@@ -54,7 +73,10 @@
             android:numStars="5"
             android:stepSize="0.5"
             android:isIndicator="true"
-            android:rating="4.5" />
+            android:rating="4.5"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
 
         <!-- Review Text content for overall -->
         <TextView

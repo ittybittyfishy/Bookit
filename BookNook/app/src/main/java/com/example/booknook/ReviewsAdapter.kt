@@ -51,6 +51,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
         private val reviewText: TextView = itemView.findViewById(R.id.ReviewText)
         private val ratingBar: RatingBar = itemView.findViewById(R.id.ratingBar)
         private val timestamp: TextView = itemView.findViewById(R.id.Timestamp)
+        private val overallReviewHeading: TextView = itemView.findViewById(R.id.OverallReviewHeading)
 
         // binds the data from no-template Review object to the UI elements in the ViewHolder.
         fun bind(review: Review) {
@@ -58,6 +59,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             reviewText.text = review.reviewText // Set review text
             ratingBar.rating = review.rating.toFloat() // Set rating
             timestamp.text = review.timestamp.toString() // Set timestamp
+            overallReviewHeading.visibility = View.VISIBLE // Show "Overall" heading
         }
     }
 
@@ -69,6 +71,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
         private val username: TextView = itemView.findViewById(R.id.Username)
         private val overallReviewText: TextView = itemView.findViewById(R.id.OverallReviewText)
         private val overallRatingBar: RatingBar = itemView.findViewById(R.id.overallRatingBar)
+        private val overallReviewHeading: TextView = itemView.findViewById(R.id.OverallReviewHeading)
 
         private val charactersReview: TextView = itemView.findViewById(R.id.CharactersReview)
         private val charactersRatingBar: RatingBar = itemView.findViewById(R.id.charactersRatingBar)
@@ -101,6 +104,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             username.text = templateReview.username // Set username
             overallReviewText.text = templateReview.reviewText // Set overall review text
             overallRatingBar.rating = templateReview.rating.toFloat() // Set overall rating
+            overallReviewHeading.visibility = View.VISIBLE // Show "Overall" heading
 
             // Characters section
             if (!templateReview.charactersReview.isNullOrEmpty()) {
