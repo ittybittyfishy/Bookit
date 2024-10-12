@@ -23,4 +23,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Timestamp" />
+
+    <!-- 답글 입력 필드 -->
+    <EditText
+        android:id="@+id/replyInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Write a reply..." />
+
+    <Button
+        android:id="@+id/postReplyButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reply" />
 </LinearLayout>
+

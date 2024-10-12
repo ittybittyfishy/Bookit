@@ -57,6 +57,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 
     // Paging

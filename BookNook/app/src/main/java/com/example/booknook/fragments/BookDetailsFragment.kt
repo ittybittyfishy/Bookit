@@ -641,35 +641,34 @@ class BookDetailsFragment : Fragment() {
     //Yunjong Noh
     // Function to fetch reviews for a specific book from Firestore using its ISBN
     private fun fetchReviews(isbn: String) {
-        //Refers to Firestore database, targeting books, document for isbn,
-        // and review's sub-collection within the book document.
         val reviewsRef = FirebaseFirestore.getInstance()
             .collection("books")
             .document(isbn)
             .collection("reviews")
 
-        // Asynchronously get all documents in the "reviews" sub-collection
         reviewsRef.get()
             .addOnSuccessListener { documents ->
-                // Mutable list to store reviews (both with-template and no-template Review objects)
                 val reviewsList = mutableListOf<Any>()
-                // Iterates over each document fetched from Firestore
                 for (document in documents) {
-                    // Check if the review uses a template by looking at the "isTemplateUsed" field
                     val isTemplateUsed = document.getBoolean("isTemplateUsed") ?: false
-                    // If the template was used, map the document to the TemplateReview data class
                     if (isTemplateUsed) {
-                        val templateReview = document.toObject(TemplateReview::class.java)
-                        reviewsList.add(templateReview) // Add the no-template object to the list
+                        val templateReview = document.toObject(TemplateReview::class.java).copy(
+                            reviewId = document.id,
+                            isbn = isbn
+                        )
+                        reviewsList.add(templateReview)
+                        Log.d("fetchReviews", "Fetched TemplateReview - ISBN: $isbn, ReviewID: ${document.id}")
                     } else {
-                        val review = document.toObject(Review::class.java)
-                        reviewsList.add(review) // Add the no-template object to the list
+                        val review = document.toObject(Review::class.java).copy(
+                            reviewId = document.id,
+                            isbn = isbn
+                        )
+                        reviewsList.add(review)
+                        Log.d("fetchReviews", "Fetched Review - ISBN: $isbn, ReviewID: ${document.id}")
                     }
                 }
-                // After processing all documents, pass the reviews list to the setupRecyclerView function
                 setupRecyclerView(reviewsList)
             }
-            // Exception handler will made, while fetching reviews
             .addOnFailureListener { exception ->
                 Log.e("BookDetailsFragment", "Error fetching reviews", exception)
             }

@@ -85,24 +85,24 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
         }
 
         private fun loadComments(review: Review) {
-            val commentsAdapter = CommentsAdapter(listOf())
+            val commentsAdapter = CommentsAdapter(listOf())  // Initialize empty adapter
             commentsRecyclerView.adapter = commentsAdapter
             commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
 
-            // Check if bookId and reviewId are valid
-            val bookId = review.bookId.ifEmpty { return } // bookId가 비어있으면 함수 종료
-            val reviewId = review.reviewId.ifEmpty { return } // reviewId가 비어있으면 함수 종료
+            val isbn = review.isbn.ifEmpty { return }  // Check for valid bookId
+            val reviewId = review.reviewId.ifEmpty { return }  // Check for valid reviewId
 
+            // Fetch comments from Firestore
             FirebaseFirestore.getInstance()
                 .collection("books")
-                .document(bookId)
+                .document(isbn)
                 .collection("reviews")
                 .document(reviewId)
                 .collection("comments")
                 .get()
                 .addOnSuccessListener { documents ->
                     val comments = documents.map { it.toObject(Comment::class.java) }
-                    commentsAdapter.updateComments(comments)
+                    commentsAdapter.updateComments(comments)  // Update adapter with new comments
                 }
                 .addOnFailureListener { exception ->
                     Log.e("ReviewViewHolder", "Error loading comments", exception)
@@ -110,41 +110,60 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
         }
 
         private fun postComment(review: Review, commentText: String) {
-            val comment = Comment(
-                userId = FirebaseAuth.getInstance().currentUser?.uid ?: "",
-                username = FirebaseAuth.getInstance().currentUser?.displayName ?: "Anonymous",
-                text = commentText,
-                timestamp = Date()
-            )
+            val user = FirebaseAuth.getInstance().currentUser
+            val userId = user?.uid ?: ""
 
-            val bookId = review.bookId
-            val reviewId = review.reviewId
-
-            // Check if bookId and reviewId are valid
-            if (bookId.isEmpty()) {
-                Log.e("ReviewViewHolder", "Invalid bookId")
-                return  // Invalid bookId
-            }
-
-            if (reviewId.isEmpty()) {
-                Log.e("ReviewViewHolder", "Invalid reviewId")
-                return  // Invalid reviewId
-            }
-
-            // Add the comment to Firestore
+            // Firestore에서 사용자 이름을 가져오기
             FirebaseFirestore.getInstance()
-                .collection("books")
-                .document(bookId)
-                .collection("reviews")
-                .document(reviewId)
-                .collection("comments")
-                .add(comment)
-                .addOnSuccessListener {
-                    commentInput.text.clear()  // Clear input field after posting
-                    loadComments(review)  // Reload comments after posting
+                .collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    // Firestore에서 username 필드를 가져오고, 없으면 "Anonymous"로 설정
+                    val username = document.getString("username") ?: "Anonymous"
+
+                    // 댓글 객체 생성
+                    val comment = Comment(
+                        userId = userId,
+                        username = username,  // Firestore에서 가져온 사용자 이름
+                        text = commentText,
+                        timestamp = Date()
+                    )
+
+                    val isbn = review.isbn
+                    val reviewId = review.reviewId
+
+                    // isbn과 reviewId가 유효하지 않은 경우 처리
+                    if (isbn.isEmpty()) {
+                        Log.e("ReviewViewHolder", "Invalid bookId")
+                        return@addOnSuccessListener
+                    }
+
+                    if (reviewId.isEmpty()) {
+                        Log.e("ReviewViewHolder", "Invalid reviewId")
+                        return@addOnSuccessListener
+                    }
+
+                    // Firestore에 댓글 추가
+                    FirebaseFirestore.getInstance()
+                        .collection("books")
+                        .document(isbn)
+                        .collection("reviews")
+                        .document(reviewId)
+                        .collection("comments")
+                        .add(comment)
+                        .addOnSuccessListener {
+                            // 댓글 입력 필드 초기화
+                            commentInput.text.clear()
+                            // 댓글 다시 로드
+                            loadComments(review)
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.e("ReviewViewHolder", "Error posting comment", exception)
+                        }
                 }
                 .addOnFailureListener { exception ->
-                    Log.e("ReviewViewHolder", "Error posting comment", exception)
+                    Log.e("postComment", "Error fetching user info", exception)
                 }
         }
     }
@@ -300,13 +319,14 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             commentsRecyclerView.adapter = commentsAdapter
             commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
 
-            // Check if bookId and reviewId are valid
-            val bookId = templateReview.bookId.ifEmpty { return } // bookId가 비어있으면 함수 종료
+            // Check if isbn and reviewId are valid
+            val isbn = templateReview.isbn.ifEmpty { return } // isbn가 비어있으면 함수 종료
             val reviewId = templateReview.reviewId.ifEmpty { return } // reviewId가 비어있으면 함수 종료
+
 
             FirebaseFirestore.getInstance()
                 .collection("books")
-                .document(bookId)
+                .document(isbn)
                 .collection("reviews")
                 .document(reviewId)
                 .collection("comments")
@@ -321,50 +341,66 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
         }
 
         private fun postComment(templateReview: TemplateReview, commentText: String) {
-            // Create a comment object
-            val comment = Comment(
-                userId = FirebaseAuth.getInstance().currentUser?.uid ?: "",
-                username = FirebaseAuth.getInstance().currentUser?.displayName ?: "Anonymous",
-                text = commentText,
-                timestamp = Date()
-            )
+            val user = FirebaseAuth.getInstance().currentUser
+            val userId = user?.uid ?: ""
 
-            // Get the bookId and reviewId from the templateReview object
-            val bookId = templateReview.bookId
-            val reviewId = templateReview.reviewId
+            // Firestore에서 사용자 이름 가져오기
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    // Firestore에서 username 필드를 가져옴, 없으면 "Anonymous" 사용
+                    val username = document.getString("username") ?: "Anonymous"
 
-            // Validate the bookId and reviewId
-            if (bookId.isNullOrEmpty()) {
-                Log.e("TemplateReviewViewHolder", "Invalid bookId: $bookId")
-                return  // Invalid bookId
-            }
+                    // 댓글 객체 생성
+                    val comment = Comment(
+                        userId = userId,
+                        username = username,  // Firestore에서 가져온 사용자 이름
+                        text = commentText,
+                        timestamp = Date()
+                    )
 
-            if (reviewId.isNullOrEmpty()) {
-                Log.e("TemplateReviewViewHolder", "Invalid reviewId: $reviewId")
-                return  // Invalid reviewId
-            }
+                    // Get the bookId and reviewId from the templateReview object
+                    val isbn = templateReview.isbn
+                    val reviewId = templateReview.reviewId
 
-            // Create document references for the book and review
-            val firestore = FirebaseFirestore.getInstance()
-            val bookDocumentReference = firestore.collection("books").document(bookId)
-            val reviewDocumentReference = bookDocumentReference.collection("reviews").document(reviewId)
+                    // Validate the bookId and reviewId
+                    if (isbn.isNullOrEmpty()) {
+                        Log.e("TemplateReviewViewHolder", "Invalid bookId: $isbn")
+                        return@addOnSuccessListener  // Invalid bookId
+                    }
 
-            // Add the comment to the Firestore database under the specific review
-            reviewDocumentReference.collection("comments")
-                .add(comment)
-                .addOnSuccessListener {
-                    // Clear the comment input field after posting
-                    commentInput.text.clear()
+                    if (reviewId.isNullOrEmpty()) {
+                        Log.e("TemplateReviewViewHolder", "Invalid reviewId: $reviewId")
+                        return@addOnSuccessListener  // Invalid reviewId
+                    }
 
-                    // Reload comments after posting
-                    loadComments(templateReview)
+                    // Create document references for the book and review
+                    val firestore = FirebaseFirestore.getInstance()
+                    val bookDocumentReference = firestore.collection("books").document(isbn)
+                    val reviewDocumentReference = bookDocumentReference.collection("reviews").document(reviewId)
 
-                    // Log success message
-                    Log.d("TemplateReviewViewHolder", "Comment posted successfully")
+                    // Add the comment to the Firestore database under the specific review
+                    reviewDocumentReference.collection("comments")
+                        .add(comment)
+                        .addOnSuccessListener {
+                            // Clear the comment input field after posting
+                            commentInput.text.clear()
+
+                            // Reload comments after posting
+                            loadComments(templateReview)
+
+                            // Log success message
+                            Log.d("TemplateReviewViewHolder", "Comment posted successfully")
+                        }
+                        .addOnFailureListener { exception ->
+                            // Log error message in case of failure
+                            Log.e("TemplateReviewViewHolder", "Error posting comment", exception)
+                        }
                 }
                 .addOnFailureListener { exception ->
-                    // Log error message in case of failure
-                    Log.e("TemplateReviewViewHolder", "Error posting comment", exception)
+                    Log.e("postComment", "Error fetching user info", exception)
                 }
         }
     }
