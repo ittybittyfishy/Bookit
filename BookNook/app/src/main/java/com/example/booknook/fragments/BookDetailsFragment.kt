@@ -31,6 +31,7 @@ import android.widget.Spinner
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.booknook.Comment
 import com.example.booknook.ImageLinks
 import com.example.booknook.IndustryIdentifier
 import com.example.booknook.Review
@@ -658,6 +659,8 @@ class BookDetailsFragment : Fragment() {
                         )
                         reviewsList.add(templateReview)
                         Log.d("fetchReviews", "Fetched TemplateReview - ISBN: $isbn, ReviewID: ${document.id}")
+                        // Fetch comments for the template review
+                        fetchComments(isbn, document.id)
                     } else {
                         val review = document.toObject(Review::class.java).copy(
                             reviewId = document.id,
@@ -665,6 +668,8 @@ class BookDetailsFragment : Fragment() {
                         )
                         reviewsList.add(review)
                         Log.d("fetchReviews", "Fetched Review - ISBN: $isbn, ReviewID: ${document.id}")
+                        // Fetch comments for the regular review
+                        fetchComments(isbn, document.id)
                     }
                 }
                 setupRecyclerView(reviewsList)
@@ -673,6 +678,29 @@ class BookDetailsFragment : Fragment() {
                 Log.e("BookDetailsFragment", "Error fetching reviews", exception)
             }
     }
+
+    private fun fetchComments(isbn: String, reviewId: String) {
+        val commentsRef = FirebaseFirestore.getInstance()
+            .collection("books")
+            .document(isbn)
+            .collection("reviews")
+            .document(reviewId)
+            .collection("comments")
+
+        commentsRef.get()
+            .addOnSuccessListener { documents ->
+                val commentsList = mutableListOf<Comment>()
+                for (document in documents) {
+                    val comment = document.toObject(Comment::class.java)
+                    commentsList.add(comment)
+                }
+                // Optionally update the UI or store the comments
+            }
+            .addOnFailureListener { exception ->
+                Log.e("fetchComments", "Error fetching comments", exception)
+            }
+    }
+
     // Yunjong Noh
     // Function to set up the RecyclerView and bind it with the fetched reviews
     private fun setupRecyclerView(reviews: List<Any>) {

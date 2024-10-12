@@ -24,7 +24,13 @@
         android:layout_height="wrap_content"
         android:text="Timestamp" />
 
-    <!-- 답글 입력 필드 -->
+    <!-- RecyclerView for replies -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/repliesRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Reply input field -->
     <EditText
         android:id="@+id/replyInput"
         android:layout_width="match_parent"
@@ -35,6 +41,6 @@
         android:id="@+id/postReplyButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Reply" />
+        android:text="Post Reply" />
 </LinearLayout>
 

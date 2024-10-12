@@ -15,45 +15,41 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Date
 
 //Yunjong Noh
-// This is the adapter class for the RecyclerView, responsible for managing and displaying
-// Either with-template or no-template is using appropriate ViewHolders
+// Adapter class to manage no-template and with-template reviews
 class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     // Determines the type of view to display based on whether the review uses a template
     override fun getItemViewType(position: Int): Int {
         return if (reviews[position] is TemplateReview) {
-            R.layout.item_template_review // Returns layout for with-template reviews
+            R.layout.item_template_review // Layout for with-template reviews
         } else {
-            R.layout.item_review // Returns layout for no-temp reviews
+            R.layout.item_review // Layout for no-template reviews
         }
     }
 
-    // Creates and returns the appropriate ViewHolder based on the type of review
+    // Creates the appropriate ViewHolder based on the type of review
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
         return if (viewType == R.layout.item_template_review) {
-            TemplateReviewViewHolder(view) // Inflate item_template_Review.xml layout
+            TemplateReviewViewHolder(view)
         } else {
-            ReviewViewHolder(view) // Inflate item_review.xml layout
+            ReviewViewHolder(view)
         }
     }
 
-    // Binds the data to the corresponding ViewHolder
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = reviews[position]
         if (holder is TemplateReviewViewHolder) {
-            holder.bind(item as TemplateReview) // Bind with-template review data
+            holder.bind(item as TemplateReview)
         } else if (holder is ReviewViewHolder) {
-            holder.bind(item as Review) // Bind no-template review data
+            holder.bind(item as Review)
         }
     }
 
-    override fun getItemCount() = reviews.size // Returns total number of reviews
+    override fun getItemCount() = reviews.size
 
     // ViewHolder for no-template reviews
     class ReviewViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        // Defines all UI elements (overall data(username, review, etc.), timestamp)
         private val username: TextView = itemView.findViewById(R.id.Username)
         private val reviewText: TextView = itemView.findViewById(R.id.ReviewText)
         private val ratingBar: RatingBar = itemView.findViewById(R.id.ratingBar)
@@ -65,17 +61,18 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
         private val commentInput: EditText = itemView.findViewById(R.id.commentInput)
         private val postCommentButton: Button = itemView.findViewById(R.id.postCommentButton)
 
-        // binds the data from no-template Review object to the UI elements in the ViewHolder.
+        // Binds data from the review object to the UI elements
         fun bind(review: Review) {
-            username.text = review.username // Set username
-            reviewText.text = review.reviewText // Set review text
-            ratingBar.rating = review.rating.toFloat() // Set rating
-            timestamp.text = review.timestamp.toString() // Set timestamp
-            overallReviewHeading.visibility = View.VISIBLE // Show "Overall" heading
+            username.text = review.username
+            reviewText.text = review.reviewText
+            ratingBar.rating = review.rating.toFloat()
+            timestamp.text = review.timestamp.toString()
+            overallReviewHeading.visibility = View.VISIBLE
 
-            // Load existing comments from Firestore
+            // Load existing comments
             loadComments(review)
 
+            // Post a new comment
             postCommentButton.setOnClickListener {
                 val commentText = commentInput.text.toString()
                 if (commentText.isNotBlank()) {
@@ -85,14 +82,13 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
         }
 
         private fun loadComments(review: Review) {
-            val commentsAdapter = CommentsAdapter(listOf())  // Initialize empty adapter
+            val commentsAdapter = CommentsAdapter(listOf())
             commentsRecyclerView.adapter = commentsAdapter
             commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
 
-            val isbn = review.isbn.ifEmpty { return }  // Check for valid bookId
-            val reviewId = review.reviewId.ifEmpty { return }  // Check for valid reviewId
+            val isbn = review.isbn
+            val reviewId = review.reviewId
 
-            // Fetch comments from Firestore
             FirebaseFirestore.getInstance()
                 .collection("books")
                 .document(isbn)
@@ -102,7 +98,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 .get()
                 .addOnSuccessListener { documents ->
                     val comments = documents.map { it.toObject(Comment::class.java) }
-                    commentsAdapter.updateComments(comments)  // Update adapter with new comments
+                    commentsAdapter.updateComments(comments)
                 }
                 .addOnFailureListener { exception ->
                     Log.e("ReviewViewHolder", "Error loading comments", exception)
@@ -113,19 +109,16 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             val user = FirebaseAuth.getInstance().currentUser
             val userId = user?.uid ?: ""
 
-            // Firestore에서 사용자 이름을 가져오기
             FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(userId)
                 .get()
                 .addOnSuccessListener { document ->
-                    // Firestore에서 username 필드를 가져오고, 없으면 "Anonymous"로 설정
                     val username = document.getString("username") ?: "Anonymous"
 
-                    // 댓글 객체 생성
                     val comment = Comment(
                         userId = userId,
-                        username = username,  // Firestore에서 가져온 사용자 이름
+                        username = username,
                         text = commentText,
                         timestamp = Date()
                     )
@@ -133,18 +126,11 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                     val isbn = review.isbn
                     val reviewId = review.reviewId
 
-                    // isbn과 reviewId가 유효하지 않은 경우 처리
-                    if (isbn.isEmpty()) {
-                        Log.e("ReviewViewHolder", "Invalid bookId")
+                    if (isbn.isEmpty() || reviewId.isEmpty()) {
+                        Log.e("ReviewViewHolder", "Invalid bookId or reviewId")
                         return@addOnSuccessListener
                     }
 
-                    if (reviewId.isEmpty()) {
-                        Log.e("ReviewViewHolder", "Invalid reviewId")
-                        return@addOnSuccessListener
-                    }
-
-                    // Firestore에 댓글 추가
                     FirebaseFirestore.getInstance()
                         .collection("books")
                         .document(isbn)
@@ -153,9 +139,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                         .collection("comments")
                         .add(comment)
                         .addOnSuccessListener {
-                            // 댓글 입력 필드 초기화
                             commentInput.text.clear()
-                            // 댓글 다시 로드
                             loadComments(review)
                         }
                         .addOnFailureListener { exception ->
@@ -170,9 +154,6 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
 
     // ViewHolder for with-template reviews
     class TemplateReviewViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        // Defines all UI elements
-        // Overall data, Characters, Writing, Plot, Themes, Strengths, Weaknesses, timestamp
         private val username: TextView = itemView.findViewById(R.id.Username)
         private val overallReviewText: TextView = itemView.findViewById(R.id.OverallReviewText)
         private val overallRatingBar: RatingBar = itemView.findViewById(R.id.overallRatingBar)
@@ -208,29 +189,25 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
         private val commentInput: EditText = itemView.findViewById(R.id.commentInput)
         private val postCommentButton: Button = itemView.findViewById(R.id.postCommentButton)
 
-        // binds the data from with-template Review object to the UI elements in the ViewHolder.
         fun bind(templateReview: TemplateReview) {
-            username.text = templateReview.username // Set username
-            overallReviewText.text = templateReview.reviewText // Set overall review text
-            overallRatingBar.rating = templateReview.rating.toFloat() // Set overall rating
-            overallReviewHeading.visibility = View.VISIBLE // Show "Overall" heading
+            username.text = templateReview.username
+            overallReviewText.text = templateReview.reviewText
+            overallRatingBar.rating = templateReview.rating.toFloat()
+            overallReviewHeading.visibility = View.VISIBLE
 
-            // Characters section
             if (!templateReview.charactersReview.isNullOrEmpty()) {
-                charactersHeading.visibility = View.VISIBLE  // Show the header
-                charactersRatingBar.visibility = View.VISIBLE  // Show the rating bar
-                charactersReview.visibility = View.VISIBLE  // Show the review text
+                charactersHeading.visibility = View.VISIBLE
+                charactersRatingBar.visibility = View.VISIBLE
+                charactersReview.visibility = View.VISIBLE
 
-                charactersReview.text = templateReview.charactersReview // Set characters review text
-                charactersRatingBar.rating = templateReview.charactersRating.toFloat() // Set characters rating
+                charactersReview.text = templateReview.charactersReview
+                charactersRatingBar.rating = templateReview.charactersRating.toFloat()
             } else {
-                // Hide the section if no data exists
                 charactersHeading.visibility = View.GONE
                 charactersRatingBar.visibility = View.GONE
                 charactersReview.visibility = View.GONE
             }
 
-            // Writing section
             if (!templateReview.writingReview.isNullOrEmpty()) {
                 writingHeading.visibility = View.VISIBLE
                 writingRatingBar.visibility = View.VISIBLE
@@ -244,7 +221,6 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 writingReview.visibility = View.GONE
             }
 
-            // Plot section
             if (!templateReview.plotReview.isNullOrEmpty()) {
                 plotHeading.visibility = View.VISIBLE
                 plotRatingBar.visibility = View.VISIBLE
@@ -258,7 +234,6 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 plotReview.visibility = View.GONE
             }
 
-            // Themes section
             if (!templateReview.themesReview.isNullOrEmpty()) {
                 themesHeading.visibility = View.VISIBLE
                 themesRatingBar.visibility = View.VISIBLE
@@ -272,7 +247,6 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 themesReview.visibility = View.GONE
             }
 
-            // Strengths section
             if (!templateReview.strengthsReview.isNullOrEmpty()) {
                 strengthsHeading.visibility = View.VISIBLE
                 strengthsRatingBar.visibility = View.VISIBLE
@@ -286,7 +260,6 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 strengthsReview.visibility = View.GONE
             }
 
-            // Weaknesses section
             if (!templateReview.weaknessesReview.isNullOrEmpty()) {
                 weaknessesHeading.visibility = View.VISIBLE
                 weaknessesRatingBar.visibility = View.VISIBLE
@@ -300,10 +273,8 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 weaknessesReview.visibility = View.GONE
             }
 
-            // Set timestamp
             timestamp.text = templateReview.timestamp.toString()
 
-            // Load existing comments
             loadComments(templateReview)
 
             postCommentButton.setOnClickListener {
@@ -319,10 +290,8 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             commentsRecyclerView.adapter = commentsAdapter
             commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
 
-            // Check if isbn and reviewId are valid
-            val isbn = templateReview.isbn.ifEmpty { return } // isbn가 비어있으면 함수 종료
-            val reviewId = templateReview.reviewId.ifEmpty { return } // reviewId가 비어있으면 함수 종료
-
+            val isbn = templateReview.isbn
+            val reviewId = templateReview.reviewId
 
             FirebaseFirestore.getInstance()
                 .collection("books")
@@ -344,58 +313,40 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             val user = FirebaseAuth.getInstance().currentUser
             val userId = user?.uid ?: ""
 
-            // Firestore에서 사용자 이름 가져오기
             FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(userId)
                 .get()
                 .addOnSuccessListener { document ->
-                    // Firestore에서 username 필드를 가져옴, 없으면 "Anonymous" 사용
                     val username = document.getString("username") ?: "Anonymous"
 
-                    // 댓글 객체 생성
                     val comment = Comment(
                         userId = userId,
-                        username = username,  // Firestore에서 가져온 사용자 이름
+                        username = username,
                         text = commentText,
                         timestamp = Date()
                     )
 
-                    // Get the bookId and reviewId from the templateReview object
                     val isbn = templateReview.isbn
                     val reviewId = templateReview.reviewId
 
-                    // Validate the bookId and reviewId
-                    if (isbn.isNullOrEmpty()) {
-                        Log.e("TemplateReviewViewHolder", "Invalid bookId: $isbn")
-                        return@addOnSuccessListener  // Invalid bookId
+                    if (isbn.isEmpty() || reviewId.isEmpty()) {
+                        Log.e("TemplateReviewViewHolder", "Invalid bookId or reviewId")
+                        return@addOnSuccessListener
                     }
 
-                    if (reviewId.isNullOrEmpty()) {
-                        Log.e("TemplateReviewViewHolder", "Invalid reviewId: $reviewId")
-                        return@addOnSuccessListener  // Invalid reviewId
-                    }
-
-                    // Create document references for the book and review
-                    val firestore = FirebaseFirestore.getInstance()
-                    val bookDocumentReference = firestore.collection("books").document(isbn)
-                    val reviewDocumentReference = bookDocumentReference.collection("reviews").document(reviewId)
-
-                    // Add the comment to the Firestore database under the specific review
-                    reviewDocumentReference.collection("comments")
+                    FirebaseFirestore.getInstance()
+                        .collection("books")
+                        .document(isbn)
+                        .collection("reviews")
+                        .document(reviewId)
+                        .collection("comments")
                         .add(comment)
                         .addOnSuccessListener {
-                            // Clear the comment input field after posting
                             commentInput.text.clear()
-
-                            // Reload comments after posting
                             loadComments(templateReview)
-
-                            // Log success message
-                            Log.d("TemplateReviewViewHolder", "Comment posted successfully")
                         }
                         .addOnFailureListener { exception ->
-                            // Log error message in case of failure
                             Log.e("TemplateReviewViewHolder", "Error posting comment", exception)
                         }
                 }
