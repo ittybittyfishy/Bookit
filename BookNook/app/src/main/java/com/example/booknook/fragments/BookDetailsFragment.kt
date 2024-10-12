@@ -34,6 +34,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.Comment
 import com.example.booknook.ImageLinks
 import com.example.booknook.IndustryIdentifier
+import com.example.booknook.Reply
 import com.example.booknook.Review
 import com.example.booknook.ReviewsAdapter
 import com.example.booknook.TemplateReview
@@ -698,6 +699,32 @@ class BookDetailsFragment : Fragment() {
             }
             .addOnFailureListener { exception ->
                 Log.e("fetchComments", "Error fetching comments", exception)
+            }
+    }
+
+    private fun fetchReplies(isbn: String, reviewId: String, commentId: String, comment: Comment) {
+        val repliesRef = FirebaseFirestore.getInstance()
+            .collection("books")
+            .document(isbn)
+            .collection("reviews")
+            .document(reviewId)
+            .collection("comments")
+            .document(commentId)
+            .collection("replies")
+
+        repliesRef.get()
+            .addOnSuccessListener { documents ->
+                val repliesList = mutableListOf<Reply>()
+                for (document in documents) {
+                    val reply = document.toObject(Reply::class.java)
+                    repliesList.add(reply)
+                }
+                // Link the replies back to the parent comment
+                comment.replies = repliesList  // This requires Comment class to be mutable
+                // You may want to notify the adapter here if necessary
+            }
+            .addOnFailureListener { exception ->
+                Log.e("fetchReplies", "Error fetching replies", exception)
             }
     }
 

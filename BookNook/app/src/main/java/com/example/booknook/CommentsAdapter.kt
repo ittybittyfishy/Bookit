@@ -76,11 +76,11 @@ class CommentsAdapter(private var comments: List<Comment>) : RecyclerView.Adapte
                             .document(reviewId)
                             .collection("comments")
                             .document(commentId)
-                            .update("replies", FieldValue.arrayUnion(reply))  // 댓글의 replies 리스트에 답글 추가
+                            .update("replies", FieldValue.arrayUnion(reply))
                             .addOnSuccessListener {
                                 Log.d("postReply", "Reply added successfully")
-                                replyInput.text.clear() // Clear the input after posting
-                                loadReply(comment) // Reload replies to update UI
+                                replyInput.text.clear()
+                                loadReply(comment) // 이 부분에서 답글을 다시 로드
                             }
                             .addOnFailureListener { exception ->
                                 Log.e("postReply", "Error adding reply", exception)
@@ -97,7 +97,7 @@ class CommentsAdapter(private var comments: List<Comment>) : RecyclerView.Adapte
         }
 
         private fun loadReply(comment: Comment) {
-            val repliesAdapter = RepliesAdapter(listOf())  // Initialize empty adapter
+            val repliesAdapter = RepliesAdapter(listOf())
             repliesRecyclerView.adapter = repliesAdapter
             repliesRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
 
@@ -105,9 +105,7 @@ class CommentsAdapter(private var comments: List<Comment>) : RecyclerView.Adapte
             val reviewId = comment.reviewId
             val commentId = comment.commentId
 
-            // Check if isbn, reviewId, and commentId are valid
             if (isbn.isNotEmpty() && reviewId.isNotEmpty() && commentId.isNotEmpty()) {
-                // Fetch replies from Firestore
                 FirebaseFirestore.getInstance()
                     .collection("books")
                     .document(isbn)
@@ -115,11 +113,12 @@ class CommentsAdapter(private var comments: List<Comment>) : RecyclerView.Adapte
                     .document(reviewId)
                     .collection("comments")
                     .document(commentId)
-                    .collection("replies")  // Firestore replies collection
+                    .collection("replies")
                     .get()
                     .addOnSuccessListener { documents ->
                         val replies = documents.map { it.toObject(Reply::class.java) }
-                        repliesAdapter.updateReplies(replies)  // Update adapter with new replies
+                        repliesAdapter.updateReplies(replies)
+
                     }
                     .addOnFailureListener { exception ->
                         Log.e("loadReply", "Error loading replies", exception)
@@ -158,7 +157,7 @@ class CommentsAdapter(private var comments: List<Comment>) : RecyclerView.Adapte
 
         fun updateReplies(newReplies: List<Reply>) {
             replies = newReplies
-            notifyDataSetChanged()
+            notifyDataSetChanged()  // 데이터가 변경되었음을 RecyclerView에 알립니다.
         }
     }
 

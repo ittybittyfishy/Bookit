@@ -97,11 +97,21 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 .collection("comments")
                 .get()
                 .addOnSuccessListener { documents ->
-                    val comments = documents.map { it.toObject(Comment::class.java) }
+                    val comments = documents.map { doc ->
+                        Comment(
+                            userId = doc.getString("userId") ?: "",
+                            username = doc.getString("username") ?: "Anonymous",
+                            text = doc.getString("text") ?: "",
+                            timestamp = doc.getDate("timestamp") ?: Date(),
+                            isbn = isbn,                 // ISBN을 전달
+                            reviewId = reviewId,         // 리뷰 ID를 전달
+                            commentId = doc.id           // Firestore에서 생성된 문서 ID를 사용
+                        )
+                    }
                     commentsAdapter.updateComments(comments)
                 }
                 .addOnFailureListener { exception ->
-                    Log.e("ReviewViewHolder", "Error loading comments", exception)
+                    Log.e("ReviewViewHolder", "댓글 로드 중 오류 발생", exception)
                 }
         }
 
@@ -109,6 +119,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             val user = FirebaseAuth.getInstance().currentUser
             val userId = user?.uid ?: ""
 
+            // 사용자 정보를 가져와서 댓글 생성
             FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(userId)
@@ -120,26 +131,25 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                         userId = userId,
                         username = username,
                         text = commentText,
-                        timestamp = Date()
+                        timestamp = Date(),
+                        isbn = review.isbn,
+                        reviewId = review.reviewId
                     )
 
                     val isbn = review.isbn
                     val reviewId = review.reviewId
 
-                    if (isbn.isEmpty() || reviewId.isEmpty()) {
-                        Log.e("ReviewViewHolder", "Invalid bookId or reviewId")
-                        return@addOnSuccessListener
-                    }
-
+                    // Firestore에 댓글 추가
                     FirebaseFirestore.getInstance()
                         .collection("books")
                         .document(isbn)
                         .collection("reviews")
                         .document(reviewId)
                         .collection("comments")
-                        .add(comment)
+                        .add(comment) // Firestore가 자동으로 commentId를 생성합니다.
                         .addOnSuccessListener {
                             commentInput.text.clear()
+                            // 댓글 추가 후 UI 업데이트
                             loadComments(review)
                         }
                         .addOnFailureListener { exception ->
