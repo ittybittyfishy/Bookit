@@ -28,18 +28,6 @@
                 android:scaleType="centerCrop" />
 
 
-            <!-- Button to upload profile banner -->
-            <Button
-                android:id="@+id/uploadBannerButton"
-                android:layout_width="120dp"
-                android:layout_height="35dp"
-                android:layout_gravity="start|top"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:textSize="10dp"
-                android:background="#9D00FF"
-                android:text="Upload Banner" />
-
             <!-- Circular Profile Image -->
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/profileImage"
@@ -49,19 +37,36 @@
                 android:layout_marginTop="55dp"
                 android:src="@android:color/holo_green_dark" />
 
-            <!-- Button to upload profile image -->
+            <!-- Add Friend Button to the right of the profile image -->
+            <!-- Add Friend Button -->
             <Button
-                android:id="@+id/uploadProfileButton"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_alignEnd="@id/profileImage"
-                android:layout_marginTop="65dp"
-                android:layout_marginRight="18dp"
-                android:background="#FF5722"
-                android:text="✎"
-                android:textSize="15dp"
-                android:padding="0dp"
-                android:paddingBottom="0dp" />
+                android:id="@+id/addFriendButton"
+                android:layout_width="100dp"
+                android:layout_height="35dp"
+                android:layout_toEndOf="@id/profileImage"
+                android:layout_marginStart="-1dp"
+                android:layout_centerVertical="true"
+                android:layout_alignTop="@id/profileImage"
+                android:layout_marginTop="80dp"
+                android:background="@color/username_rectangle"
+                android:text="Add Friend"
+                android:textColor="#FFFFFF" />
+
+            <!-- Three Dots ImageButton -->
+            <ImageButton
+                android:id="@+id/threeDotsButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_toEndOf="@id/addFriendButton"
+                android:layout_alignTop="@id/addFriendButton"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/threedots"
+                android:background="@null"
+                android:contentDescription="Options"
+                android:scaleType="centerInside"
+                android:adjustViewBounds="true" />
+
+
 
             <!-- First Rounded Rectangle below the profile picture -->
             <TextView
@@ -106,8 +111,7 @@
                 android:layout_marginTop="1dp" />
 
             <!-- Fourth Rounded Rectangle (EditText) with icons -->
-            <!-- Fourth Rounded Rectangle (EditText) with icons -->
-            <!-- Fourth Rounded Rectangle (EditText) with icons -->
+
             <LinearLayout
                 android:id="@+id/rectangle4_container"
                 android:layout_width="match_parent"
@@ -129,28 +133,17 @@
                 <!-- EditText -->
                 <EditText
                     android:id="@+id/rectangle4"
-                    android:layout_width="0dp"
+                    android:layout_width="324dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginRight="30dp"
                     android:layout_weight="1"
                     android:background="@drawable/rounded_rectangle_2"
-                    android:hint="Enter your favorite book quote"
-                    android:padding="10dp"
+                    android:cursorVisible="false"
                     android:enabled="false"
                     android:focusable="false"
-                    android:cursorVisible="false"
-                    android:imeOptions="actionDone" />
-
-                <!-- Right Icon as ImageButton -->
-                <ImageButton
-                    android:id="@+id/pencil1"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="15dp"
-                    android:src="@drawable/pencil"
-                    app:tint="@color/sub_text_brown"
-                    android:background="@null"
-                    android:scaleType="centerInside" />
+                    android:hint="Enter your favorite book quote"
+                    android:imeOptions="actionDone"
+                    android:padding="10dp" />
 
 
             </LinearLayout>
@@ -180,6 +173,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginRight="30dp"
                     android:background="@drawable/rounded_rectangle_2"
                     android:hint="Enter your favorite book character"
                     android:padding="10dp"
@@ -187,18 +181,6 @@
                     android:focusable="false"
                     android:cursorVisible="false"
                     android:imeOptions="actionDone" />
-
-                <!-- Right Icon as ImageButton -->
-                <ImageButton
-                    android:id="@+id/pencil2"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="15dp"
-                    android:src="@drawable/pencil"
-                    app:tint="@color/sub_text_brown"
-                    android:background="@null"
-                    android:scaleType="centerInside" />
 
 
             </LinearLayout>
