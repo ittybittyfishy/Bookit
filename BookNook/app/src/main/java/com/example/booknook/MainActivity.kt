@@ -39,6 +39,9 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
     private lateinit var bookAdapter: BookAdapter
     private lateinit var recyclerView: RecyclerView
 
+    private lateinit var userUsername: TextView
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -69,6 +72,7 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         } else {
             replaceFragment(homeFragment, "Home")
         }
+
 
         // Olivia Fishbough
         // Set up the bottom navigation item selection listener

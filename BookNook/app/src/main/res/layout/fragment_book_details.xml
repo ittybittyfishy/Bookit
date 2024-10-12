@@ -336,7 +336,7 @@
                 android:padding="0dp"
                 android:visibility="gone"/>
         </RelativeLayout>
-
+        <!-- Yunjong Noh -->
         <!-- User Review Section Title -->
         <TextView
             android:id="@+id/userReviewTitle"
@@ -358,5 +358,15 @@
             android:text="Write a Review"
             android:backgroundTint="@color/green_to_purple"
             android:textSize="14sp"/>
+
+
+        <!-- Yunjong Noh -->
+        <!-- RecycleView for "Comment & Reply" -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/reviewsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"/>
+
     </LinearLayout>
 </ScrollView>

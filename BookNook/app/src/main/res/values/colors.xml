@@ -20,6 +20,7 @@
     <color name="app_background">#FFF8F1</color>
     <color name="tag_background">#CBC3E3</color>
     <color name="tag_text">#392A48</color>
+    <color name="username_rectangle">#D9D9D9</color>
 
 
     <color name="light_green">#A7CCAF</color> <!-- Example light green color -->
