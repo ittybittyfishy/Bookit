@@ -1,51 +1,95 @@
 package com.example.booknook.fragments
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
+import android.view.*
+import android.widget.*
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import de.hdodenhof.circleimageview.CircleImageView
+import androidx.appcompat.widget.PopupMenu
+import com.google.firebase.firestore.FieldValue
+
 
 class FriendProfileFragment : Fragment() {
 
-    // Declare variables for UI elements
+    // UI elements
     private lateinit var bannerImage: ImageView
     private lateinit var profileImage: CircleImageView
     private lateinit var addFriendButton: Button
+    private lateinit var userUsername: TextView
+    private lateinit var quoteEditText: EditText
+    private lateinit var characterEditText: EditText
 
-    // Declare TextView for displaying the number of collections
-    private lateinit var numCollectionsTextView: TextView
+    // Firebase instances
+    private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+    private val currentUserId = auth.currentUser?.uid
 
-    // Method called to create and return the view hierarchy associated with the fragment
+    // Friend's user ID (to be passed as an argument)
+    private var friendUserId: String? = null
+
+    //block user menu
+    private lateinit var threeDotsButton: ImageButton
+
+
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Retrieve the friend's user ID from the arguments
+        friendUserId = arguments?.getString(ARG_FRIEND_USER_ID)
+        if (friendUserId == null) {
+            Toast.makeText(activity, "Friend user ID not provided", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.popBackStack()
+            return
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.friend_profile, container, false)
+        val view = inflater.inflate(R.layout.fragment_profile_friend, container, false)
 
-        val receiverId = arguments?.getString("receiverId")  // Receives receiverId from friends fragment
+        // Initialize UI elements
+        bannerImage = view.findViewById(R.id.bannerImage)
+        profileImage = view.findViewById(R.id.profileImage)
         addFriendButton = view.findViewById(R.id.addFriendButton)
+        userUsername = view.findViewById(R.id.userUsername)
+        quoteEditText = view.findViewById(R.id.rectangle4)
+        characterEditText = view.findViewById(R.id.rectangle5)
 
-        // Handles click of add friend button
+        //block user menu
+        threeDotsButton = view.findViewById(R.id.threeDotsButton)
+
+        threeDotsButton.setOnClickListener { view ->
+            showPopupMenu(view)
+        }
+
+
+
+        // Disable editing on EditTexts
+        quoteEditText.isEnabled = false
+        characterEditText.isEnabled = false
+
+        // Load friend's data
+        if (friendUserId != null) {
+            loadFriendData(friendUserId!!)
+        } else {
+            Toast.makeText(activity, "Friend user ID not provided", Toast.LENGTH_SHORT).show()
+        }
+
+        // Set up Add Friend button
         addFriendButton.setOnClickListener {
-            if (receiverId != null) {
-                addFriendButton.text = "Pending"
-                addFriendButton.isClickable = false
-                sendFriendRequest(receiverId)  // Calls function to send a friend request
+            friendUserId?.let { friendId ->
+                toggleFriendshipStatus(friendId)
             }
         }
+
         return view
     }
 
@@ -90,12 +134,128 @@ class FriendProfileFragment : Fragment() {
                         }
                 } else {
                     Toast.makeText(activity, "Sender username not found", Toast.LENGTH_SHORT).show()
+    private fun showPopupMenu(view: View) {
+        val popup = PopupMenu(requireContext(), view)
+        popup.menuInflater.inflate(R.menu.menu_block_user, popup.menu)
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_block_user -> {
+                    //block user function goes here
+                    true
                 }
-            }.addOnFailureListener {
-                Toast.makeText(activity, "Failed to send friend request", Toast.LENGTH_SHORT).show()
+                else -> false
             }
-        } else {
-            Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
+        }
+        popup.show()
+    }
+
+
+
+    private fun loadFriendData(friendId: String) {
+        val userDocRef = firestore.collection("users").document(friendId)
+        userDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val username = document.getString("username")
+                    val favoriteQuote = document.getString("favoriteQuote") ?: ""
+                    val favoriteCharacter = document.getString("favoriteCharacter") ?: ""
+                    val profileImageUrl = document.getString("profileImageUrl")
+                    val bannerImageUrl = document.getString("bannerImageUrl")
+
+                    // Set the username and other data to the views
+                    userUsername.text = username ?: "No Username"
+                    quoteEditText.setText(favoriteQuote)
+                    characterEditText.setText(favoriteCharacter)
+
+                    // Load images using Glide
+                    if (!profileImageUrl.isNullOrEmpty()) {
+                        Glide.with(this)
+                            .load(profileImageUrl)
+                            .into(profileImage)
+                    }
+
+                    if (!bannerImageUrl.isNullOrEmpty()) {
+                        Glide.with(this)
+                            .load(bannerImageUrl)
+                            .into(bannerImage)
+                    }
+
+                    // Check if the current user is already friends with this user
+                    checkFriendshipStatus(friendId)
+                } else {
+                    Toast.makeText(activity, "User does not exist", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(activity, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun checkFriendshipStatus(friendId: String) {
+        if (currentUserId == null) return
+
+        val currentUserDocRef = firestore.collection("users").document(currentUserId)
+        currentUserDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val friends = document.get("friends") as? List<*>
+                    if (friends != null && friends.contains(friendId)) {
+                        // Already friends
+                        addFriendButton.text = "Remove Friend"
+                    } else {
+                        // Not friends
+                        addFriendButton.text = "Add Friend"
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(activity, "Error checking friendship status: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun toggleFriendshipStatus(friendId: String) {
+        if (currentUserId == null) return
+
+        val currentUserDocRef = firestore.collection("users").document(currentUserId)
+
+        currentUserDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val friends = document.get("friends") as? MutableList<String> ?: mutableListOf()
+
+                    if (friends.contains(friendId)) {
+                        // Remove friend
+                        friends.remove(friendId)
+                        currentUserDocRef.update("friends", friends)
+                            .addOnSuccessListener {
+                                addFriendButton.text = "Add Friend"
+                                Toast.makeText(activity, "Friend removed", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        // Add friend
+                        friends.add(friendId)
+                        currentUserDocRef.update("friends", friends)
+                            .addOnSuccessListener {
+                                addFriendButton.text = "Remove Friend"
+                                Toast.makeText(activity, "Friend added", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(activity, "Error updating friendship status: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    companion object {
+        private const val ARG_FRIEND_USER_ID = "friendUserId"
+
+        fun newInstance(friendUserId: String): FriendProfileFragment {
+            val fragment = FriendProfileFragment()
+            val args = Bundle()
+            args.putString(ARG_FRIEND_USER_ID, friendUserId)
+            fragment.arguments = args
+            return fragment
         }
     }
 }
