@@ -20,7 +20,7 @@ import com.example.booknook.utils.GenreUtils // Utility class for genre-related 
 class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
 
     // Declare UI components that will be used in the fragment
-    private lateinit var searchButton: Button // Button to initiate a search
+    private lateinit var searchButton: ImageButton // Button to initiate a search
     private lateinit var searchEditText: EditText // Text input for search queries
     private lateinit var filtersButton: Button // Button to open filter options
     private lateinit var sortByButton: Button // Button to open sort options
@@ -265,100 +265,103 @@ class SearchFragment : Fragment(), BookAdapter.RecyclerViewEvent {
         }
     }
 
-    // Function to load books from the API based on the query and filters
+    // Function to load books based on search query and various filters
     private fun loadBooks(query: String, onBooksLoaded: (() -> Unit)? = null) {
-        if (isLoading) return // Prevent multiple simultaneous loads
+        // Prevent further calls if a book search is already in progress
+        if (isLoading) return
 
-        isLoading = true // Set the loading flag to true
-        // Prepare local variables for filters to pass to the API
-        val localLanguageFilter = languageFilter ?: "" // Use empty string if no language filter
-        val localMaxRating = maxRating // Local copy of max rating
-        val localMinRating = minRating // Local copy of min rating
+        // Set loading status to true
+        isLoading = true
 
-        // Normalize genres to ensure consistent formatting
+        // Local copies of the filter parameters to ensure they don't change mid-execution
+        val localLanguageFilter = languageFilter ?: "" // Language filter or an empty string if null
+        val localMaxRating = maxRating // Maximum rating filter
+        val localMinRating = minRating // Minimum rating filter
+
+        // Normalize the genre filters (map included and excluded genres)
         val localIncludeGenres = includeGenres.map { GenreUtils.normalizeGenre(it) }.toSet()
         val localExcludeGenres = excludeGenres.map { GenreUtils.normalizeGenre(it) }.toSet()
 
-        // Log the current search parameters for debugging purposes
+        // Debugging logs to track filter values
         Log.d("SearchFragment", "Search Query: $query")
         Log.d("SearchFragment", "Include Genres: $localIncludeGenres")
         Log.d("SearchFragment", "Exclude Genres: $localExcludeGenres")
         Log.d("SearchFragment", "Language Filter: $localLanguageFilter")
         Log.d("SearchFragment", "Rating Range: $localMinRating - $localMaxRating")
-        Log.d("SearchFragment", "Start Index: $startIndex") // Track the start index
+        Log.d("SearchFragment", "Start Index: $startIndex") // Track start index for pagination
 
-        // Get a reference to the MainActivity to call its searchBooks function
+        // Get the activity as MainActivity to access its methods, or stop if it's null
         val mainActivity = activity as? MainActivity
-        if (mainActivity == null) { // Check if MainActivity is available
-            isLoading = false // Reset the loading flag
-            onBooksLoaded?.invoke() // Call the callback if provided
-            return
+        if (mainActivity == null) {
+            isLoading = false // Set loading status to false
+            onBooksLoaded?.invoke() // Invoke the callback if provided
+            return // Exit the function if activity is null
         }
 
-        // Call the searchBooks function from MainActivity to fetch books
-        mainActivity.searchBooks(
-            query, // The search query
-            startIndex, // The start index for pagination
-            localLanguageFilter.takeIf { it.isNotBlank() } // Pass language filter if it's not blank
-        ) { books: List<BookItem>? ->
-            isLoading = false // Reset the loading flag
+        // Pass the language filter and startIndex for pagination when searching books
+        mainActivity.searchBooks(query, startIndex, localLanguageFilter.takeIf { it.isNotBlank() }) { books: List<BookItem>? ->
+            isLoading = false // Reset loading status after search results are returned
 
-            if (books != null) { // Check if books were successfully fetched
-                // Log each book's title and genres for debugging
+            // If books are returned
+            if (books != null) {
+                // Log each book's title and genres
                 books.forEach { book ->
                     Log.d("SearchFragment", "Book Title: ${book.volumeInfo.title}, Genres: ${book.volumeInfo.categories?.joinToString(", ") ?: "No genres"}")
                 }
 
-                // Filter the fetched books based on the applied filters
+                // Filter the books based on genre and rating criteria
                 val filteredBooks = books.filter { book ->
-                    // Get the genres of the current book, normalize them, and convert to a set
+                    // Normalize and collect the genres of the book
                     val bookGenres = book.volumeInfo.categories?.flatMap { category ->
                         category.split("/", "&").map { GenreUtils.normalizeGenre(it) }
                     }?.toSet() ?: emptySet()
 
-                    // Get the rating of the book, defaulting to 0 if not available
+                    // Check if the book's rating falls within the range
                     val rating = book.volumeInfo.averageRating ?: 0f
-                    // Check if the rating is within the specified range
                     val ratingInRange = rating in localMinRating..localMaxRating
 
-                    // Check if the book's genres match the include genres
+                    // Check if the book contains any of the included genres
                     val genreIncluded = if (localIncludeGenres.isNotEmpty()) {
                         bookGenres.any { genre -> localIncludeGenres.contains(genre) }
-                    } else true // If no include genres, consider it as true
+                    } else true
 
-                    // Check if the book's genres do not match the exclude genres
+                    // Ensure the book doesn't contain any excluded genres
                     val genreExcluded = if (localExcludeGenres.isNotEmpty()) {
                         bookGenres.none { genre -> localExcludeGenres.contains(genre) }
-                    } else true // If no exclude genres, consider it as true
+                    } else true
 
-                    // The book is included if it matches both genre and rating filters
+                    // Return true if the book matches all criteria
                     genreIncluded && genreExcluded && ratingInRange
                 }
 
-                startIndex += books.size // Update the start index for the next pagination call
+                // Update the startIndex to load more books in the next search call
+                startIndex += books.size
 
-                if (filteredBooks.isNotEmpty()) { // If there are books after filtering
-                    bookList.addAll(filteredBooks) // Add them to the book list
-                    sortBooks(currentSortCriteria) // Sort the books based on current criteria
-                    updateNoResultsVisibility(false) // Hide the "No results" message
+                // If there are filtered books, add them to the bookList and sort the list
+                if (filteredBooks.isNotEmpty()) {
+                    bookList.addAll(filteredBooks)
+                    sortBooks(currentSortCriteria) // Sort books based on the current sorting criteria
+                    updateNoResultsVisibility(false) // Hide 'no results' message
                 } else {
-                    // If no books are found after filtering and it's the first batch
+                    // If no books found after filtering, show 'no results' message
                     if (startIndex == books.size) {
                         Log.d("SearchFragment", "No books found after filtering.")
-                        updateNoResultsVisibility(true) // Show the "No results" message
+                        updateNoResultsVisibility(true)
                     }
                 }
             } else {
-                // If no books were returned from the API and it's the first batch
+                // If no books were returned at all, show 'no results' message for the first page
                 if (startIndex == 0) {
                     Log.d("SearchFragment", "No books returned from search.")
-                    updateNoResultsVisibility(true) // Show the "No results" message
+                    updateNoResultsVisibility(true)
                 }
             }
 
-            onBooksLoaded?.invoke() // Call the callback if provided
+            // Invoke the callback function if provided, to notify that loading is complete
+            onBooksLoaded?.invoke()
         }
     }
+
 
     // Function to navigate to the filters fragment where users can set search filters
     private fun navigateToFilters() {

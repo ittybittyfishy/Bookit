@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-// adapter handles displaying the list of book collections in a RecyclerView
+// adapter handles displaying the list of book collections in a RecyclerView FOR STANDARD COLLECTIONS
 class CollectionAdapter(private val collections: List<CollectionItem>) : RecyclerView.Adapter<CollectionAdapter.CollectionViewHolder>()
 {
     // ViewHolder class that holds the views for each item in the RecyclerView

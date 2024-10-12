@@ -6,7 +6,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.FriendRequestAdapter.FriendRequestViewHolder
 
-class FriendAdapter(private val friends: List<Friend>
+class FriendAdapter(private val friends: List<Friend>,
+    private val onFriendClick: (Friend) -> Unit
 ) : RecyclerView.Adapter<FriendAdapter.FriendViewHolder>(){
 
     class FriendViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -24,6 +25,11 @@ class FriendAdapter(private val friends: List<Friend>
     override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
         val friend = friends[position]
         holder.username.text = friend.friendUsername  // Sets username text
+
+        // Allows user to click on each of their friends
+        holder.itemView.setOnClickListener {
+            onFriendClick(friend)
+        }
     }
 
     override fun getItemCount(): Int = friends.size  // returns number of items in friends list

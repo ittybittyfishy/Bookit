@@ -29,8 +29,13 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.ImageLinks
 import com.example.booknook.IndustryIdentifier
+import com.example.booknook.Review
+import com.example.booknook.ReviewsAdapter
+import com.example.booknook.TemplateReview
 import com.example.booknook.VolumeInfo
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -222,7 +227,18 @@ class BookDetailsFragment : Fragment() {
         // Fetch existing summary if the user has already submitted one for this book
         if (userId != null && isbn != null) {
             val db = FirebaseFirestore.getInstance()
-            val bookRef = db.collection("books").document(isbn)
+
+            var bookIsbn = isbn
+            // If the book has no ISBN, create a unique document ID using the title and authors of the book
+            if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {
+                // Creates title part by replacing all whitespaces with underscores, and making it lowercase
+                val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT) ?: "unknown_title"
+                // Creates authors part by combining authors, replacing all whitespaces with underscores, and making it lowercase
+                val authorsId = bookAuthorsList?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
+                bookIsbn = "$titleId-$authorsId" // Update bookIsbn with new Id
+            }
+
+            val bookRef = db.collection("books").document(bookIsbn)
 
             // Checks if the user already submitted a summary for this book
             bookRef.collection("summaries").whereEqualTo("userId", userId).get()
@@ -255,6 +271,11 @@ class BookDetailsFragment : Fragment() {
 
             reviewActivityFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
             (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review")  // Opens a new fragment
+        }
+        //Yunjong Noh
+        // Check if the ISBN is not null("?" statement) and then fetch reviews
+        isbn?.let {
+            fetchReviews(it)  // Call the fetchReviews method and pass the ISBN
         }
 
         return view
@@ -615,6 +636,53 @@ class BookDetailsFragment : Fragment() {
         // Doesn't allow user to click on box after saving changes
         personalSummary.isFocusable = false
         personalSummary.isFocusableInTouchMode = false
+    }
+
+    //Yunjong Noh
+    // Function to fetch reviews for a specific book from Firestore using its ISBN
+    private fun fetchReviews(isbn: String) {
+        //Refers to Firestore database, targeting books, document for isbn,
+        // and review's sub-collection within the book document.
+        val reviewsRef = FirebaseFirestore.getInstance()
+            .collection("books")
+            .document(isbn)
+            .collection("reviews")
+
+        // Asynchronously get all documents in the "reviews" sub-collection
+        reviewsRef.get()
+            .addOnSuccessListener { documents ->
+                // Mutable list to store reviews (both with-template and no-template Review objects)
+                val reviewsList = mutableListOf<Any>()
+                // Iterates over each document fetched from Firestore
+                for (document in documents) {
+                    // Check if the review uses a template by looking at the "isTemplateUsed" field
+                    val isTemplateUsed = document.getBoolean("isTemplateUsed") ?: false
+                    // If the template was used, map the document to the TemplateReview data class
+                    if (isTemplateUsed) {
+                        val templateReview = document.toObject(TemplateReview::class.java)
+                        reviewsList.add(templateReview) // Add the no-template object to the list
+                    } else {
+                        val review = document.toObject(Review::class.java)
+                        reviewsList.add(review) // Add the no-template object to the list
+                    }
+                }
+                // After processing all documents, pass the reviews list to the setupRecyclerView function
+                setupRecyclerView(reviewsList)
+            }
+            // Exception handler will made, while fetching reviews
+            .addOnFailureListener { exception ->
+                Log.e("BookDetailsFragment", "Error fetching reviews", exception)
+            }
+    }
+    // Yunjong Noh
+    // Function to set up the RecyclerView and bind it with the fetched reviews
+    private fun setupRecyclerView(reviews: List<Any>) {
+        // Defines UI element of RecycleView
+        val recyclerView = view?.findViewById<RecyclerView>(R.id.reviewsRecyclerView)
+        // Set up the RecyclerView to use a vertical LinearLayoutManager
+        recyclerView?.layoutManager = LinearLayoutManager(context)
+        // Set the adapter to show fetched reviews in RecycleViewer
+        recyclerView?.adapter = ReviewsAdapter(reviews)
     }
 
 }

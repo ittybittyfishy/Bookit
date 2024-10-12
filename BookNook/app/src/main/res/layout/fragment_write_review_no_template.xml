@@ -117,11 +117,18 @@
                 android:id="@+id/ratingPromptText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Rate it!"
+                android:text="@string/underlined_rate_it"
                 android:layout_gravity="center_horizontal"
-                android:textSize="21sp"
-                android:textColor="@color/green_to_purple"
-                android:layout_marginTop="16dp" />
+                android:textSize="20sp"
+                android:textColor="@color/white"
+                android:background="@drawable/rectangle_border"
+                android:backgroundTint="@color/custom_tag_pink"
+                android:padding="8dp"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                />
+
+
 
             <LinearLayout
                 android:layout_width="wrap_content"
