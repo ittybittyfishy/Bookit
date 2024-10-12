@@ -312,6 +312,7 @@ class ProfileFragment : Fragment() {
         // Update view here using "topGenres" field in database
     }
 
+    // Veronica Nguyen
     // Function updates the number of books the user has read
     private fun updateNumBooksRead(userId: String) {
         // References document of current user
