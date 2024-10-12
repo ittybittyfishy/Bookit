@@ -1,7 +1,6 @@
 package com.example.booknook.fragments
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -10,27 +9,18 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.*
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide  // Add this import for image loading
 import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage  // Import Firebase Storage
 import de.hdodenhof.circleimageview.CircleImageView
-import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.math.BigDecimal
-import java.math.RoundingMode
 
 // Define a Fragment class for the Profile section
 class ProfileFragment : Fragment() {
@@ -47,26 +37,6 @@ class ProfileFragment : Fragment() {
 
     // Declare TextView for displaying the number of collections
     private lateinit var numCollectionsTextView: TextView
-
-    // Main user username
-    private lateinit var userUsername: TextView
-
-    // Declare variables for the EditText fields and ImageButtons
-    private lateinit var quoteEditText: EditText
-    private lateinit var characterEditText: EditText
-    private lateinit var pencilButton1: ImageButton
-    private lateinit var pencilButton2: ImageButton
-
-    // Variables to store original hint texts
-    private var originalQuoteHint: CharSequence? = null
-    private var originalCharacterHint: CharSequence? = null
-
-    // Firebase instances
-    private val storage = FirebaseStorage.getInstance()
-    private val firestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
-    private val currentUser = auth.currentUser
-    private val userId = currentUser?.uid  // Retrieves ID of the current user
 
     // Method called to create and return the view hierarchy associated with the fragment
     override fun onCreateView(
@@ -85,44 +55,28 @@ class ProfileFragment : Fragment() {
         // Initialize the TextView for number of collections
         numCollectionsTextView = view.findViewById(R.id.numCollectionsTextView)
 
-        // Initialize text view for the main user username
-        userUsername = view.findViewById(R.id.userUsername)
-
-        // Initialize EditText fields and ImageButtons for favorite quote/character
-        quoteEditText = view.findViewById(R.id.rectangle4)
-        characterEditText = view.findViewById(R.id.rectangle5)
-        pencilButton1 = view.findViewById(R.id.pencil1)
-        pencilButton2 = view.findViewById(R.id.pencil2)
-
-        // Store original hint texts
-        originalQuoteHint = quoteEditText.hint
-        originalCharacterHint = characterEditText.hint
-
-        // Disable editing on the EditText fields initially
-        disableEditing(quoteEditText, pencilButton1)
-        disableEditing(characterEditText, pencilButton2)
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val userId: String? = currentUser?.uid  // Retrieves id of the current user
 
         // Register ActivityResultLauncher for picking banner image
-        pickBannerImageLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == Activity.RESULT_OK) {
-                    val data: Intent? = result.data
-                    if (data != null) {
-                        handleImageResult(data, PICK_BANNER_IMAGE)
-                    }
+        pickBannerImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                if (data != null) {
+                    handleImageResult(data, PICK_BANNER_IMAGE)
                 }
             }
+        }
 
         // Register ActivityResultLauncher for picking profile image
-        pickProfileImageLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == Activity.RESULT_OK) {
-                    val data: Intent? = result.data
-                    if (data != null) {
-                        handleImageResult(data, PICK_PROFILE_IMAGE)
-                    }
+        pickProfileImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                if (data != null) {
+                    handleImageResult(data, PICK_PROFILE_IMAGE)
                 }
             }
+        }
 
         // Set click listeners to handle button clicks
         uploadBannerButton.setOnClickListener {
@@ -135,94 +89,113 @@ class ProfileFragment : Fragment() {
             pickImageFromGallery(PICK_PROFILE_IMAGE)
         }
 
-        // Set click listeners for the pencil icons to enable editing
-        // Handle click on the first pencil icon (Quote)
-        pencilButton1.setOnClickListener {
-            if (!quoteEditText.isEnabled) {
-                // Enable editing and change icon to save
-                enableEditing(quoteEditText, pencilButton1)
-            } else {
-                // Disable editing, save data, and change icon back to pencil
-                disableEditing(quoteEditText, pencilButton1)
-                saveQuoteToFirestore(quoteEditText.text.toString())
+        // Veronica Nguyen
+        // Function updates the number of books the user has read
+        fun updateNumBooksRead(userId: String) {
+            // References document of current user
+            val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+
+            userDocRef.get().addOnSuccessListener { document ->
+                // Retrieves the standardCollections map in database
+                val standardCollections = document.get("standardCollections") as? Map<String, Any>
+                // Retrieves the "Finished" array under the map
+                val finishedBooks = standardCollections?.get("Finished") as? List<*>
+                // Finds the size of the array to determine number of books read
+                val numBooksRead = finishedBooks?.size ?: 0
+
+                // Updates the numBooksRead field in database
+                userDocRef.update("numBooksRead", numBooksRead)
+                    .addOnSuccessListener {
+                        // Update text view here (if applicable)
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(activity, "Error updating number of books read", Toast.LENGTH_SHORT).show()
+                    }
+            }.addOnFailureListener { e ->
+                Toast.makeText(activity, "Error getting number of books read: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Handle click on the second pencil icon (Character)
-        pencilButton2.setOnClickListener {
-            if (!characterEditText.isEnabled) {
-                enableEditing(characterEditText, pencilButton2)
-            } else {
-                disableEditing(characterEditText, pencilButton2)
-                saveCharacterToFirestore(characterEditText.text.toString())
+        // Veronica Nguyen
+        // Function updates the number of custom collections a user has
+        fun updateNumCollections(userId: String) {
+            // References document of current user
+            val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+
+            userDocRef.get().addOnSuccessListener { document ->
+                // Retrieves the customCollections map in database
+                val customCollections = document.get("customCollections") as? Map<String, Any>
+                // Finds the size of the map to determine number of collections
+                val numCollections = customCollections?.size ?: 0
+
+                // Updates the numCollections field in database
+                userDocRef.update("numCollections", numCollections)
+                    .addOnSuccessListener {
+                        // Update numCollectionsTextView with the value
+                        numCollectionsTextView.text = "$numCollections"
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(activity, "Error updating number of collections", Toast.LENGTH_SHORT).show()
+                    }
+            }.addOnFailureListener { e ->
+                Toast.makeText(activity, "Error getting number of collections: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Set OnEditorActionListener for the EditTexts to handle 'Done' action
-        quoteEditText.setOnEditorActionListener { _, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_DONE || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
-                disableEditing(quoteEditText, pencilButton1)
-                saveQuoteToFirestore(quoteEditText.text.toString())
-                true
-            } else {
-                false
+        // Veronica Nguyen
+        // Function updates the number of friends the user has
+        fun updateNumFriends(userId: String) {
+            // References document of current user
+            val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+
+            userDocRef.get().addOnSuccessListener { document ->
+                // Retrieves the friends array in database
+                val friends = document.get("friends") as? List<*>
+                // Finds the size of the array to determine number of friends
+                val numFriends = friends?.size ?: 0
+
+                // Updates the numFriends field in database
+                userDocRef.update("numFriends", numFriends)
+                    .addOnSuccessListener {
+                        // Update text view here (if applicable)
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(activity, "Error updating number of friends", Toast.LENGTH_SHORT).show()
+                    }
+            }.addOnFailureListener { e ->
+                Toast.makeText(activity, "Error getting number of friends: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
 
-        characterEditText.setOnEditorActionListener { _, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_DONE || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
-                disableEditing(characterEditText, pencilButton2)
-                saveCharacterToFirestore(characterEditText.text.toString())
-                true
-            } else {
-                false
+        // Veronica Nguyen
+        // Function updates the number of reviews the user has
+        fun updateNumReviews(userId: String) {
+            // References document of current user
+            val userDocRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+
+            userDocRef.get().addOnSuccessListener { document ->
+                // Retrieves the numReviews field in database
+                val numReviews = document.getLong("numReviews") ?: 0
+
+                // Updates the numReviews field in database
+                userDocRef.update("numReviews", numReviews)
+                    .addOnSuccessListener {
+                        // Update text view here (if applicable)
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(activity, "Error updating number of reviews", Toast.LENGTH_SHORT).show()
+                    }
+            }.addOnFailureListener { e ->
+                Toast.makeText(activity, "Error getting number of reviews: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
 
         // If user is authenticated, update their stats
         if (userId != null) {
             updateNumBooksRead(userId)
-            updateFavoriteTag(userId)
             updateNumCollections(userId)
-            updateAverageRating(userId)
-            updateNumReviews(userId)
             updateNumFriends(userId)
-
-            // Retrieve the username and other data from Firestore
-            val userDocRef = firestore.collection("users").document(userId)
-            userDocRef.get()
-                .addOnSuccessListener { document ->
-                    if (document != null && document.exists()) {
-                        val username = document.getString("username")
-                        val favoriteQuote = document.getString("favoriteQuote") ?: ""
-                        val favoriteCharacter = document.getString("favoriteCharacter") ?: ""
-                        val profileImageUrl = document.getString("profileImageUrl")
-                        val bannerImageUrl = document.getString("bannerImageUrl")
-
-                        // Set the username and other data to the TextViews
-                        userUsername.text = username ?: "No Username"
-                        quoteEditText.setText(favoriteQuote)
-                        characterEditText.setText(favoriteCharacter)
-
-                        // Load images from Firebase Storage using Glide
-                        if (!profileImageUrl.isNullOrEmpty()) {
-                            Glide.with(this)
-                                .load(profileImageUrl)
-                                .into(profileImage)
-                        }
-
-                        if (!bannerImageUrl.isNullOrEmpty()) {
-                            Glide.with(this)
-                                .load(bannerImageUrl)
-                                .into(bannerImage)
-                        }
-                    } else {
-                        Toast.makeText(activity, "User document does not exist", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(activity, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
+            updateNumReviews(userId)
         } else {
             Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
         }
@@ -230,290 +203,6 @@ class ProfileFragment : Fragment() {
         // Return the created view
         return view
     }
-
-    // Function to enable editing on an EditText and change icon to save
-    private fun enableEditing(editText: EditText, imageButton: ImageButton) {
-        // Enable editing
-        editText.isEnabled = true
-        editText.isFocusable = true
-        editText.isFocusableInTouchMode = true
-        editText.isCursorVisible = true
-        editText.requestFocus()
-
-        // Remove hint text
-        editText.hint = null
-
-        // Show the keyboard
-        val imm = requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
-
-        // Change pencil icon to save icon
-        imageButton.setImageResource(R.drawable.save) // Ensure you have 'save' icon in drawable
-    }
-
-    // Function to disable editing on an EditText and change icon back to pencil
-    private fun disableEditing(editText: EditText, imageButton: ImageButton) {
-        // Disable editing
-        editText.isEnabled = false
-        editText.isFocusable = false
-        editText.isFocusableInTouchMode = false
-        editText.isCursorVisible = false
-
-        // Restore hint text if field is empty
-        if (editText.text.isEmpty()) {
-            if (editText == quoteEditText) {
-                editText.hint = originalQuoteHint
-            } else if (editText == characterEditText) {
-                editText.hint = originalCharacterHint
-            }
-        }
-
-        // Hide the keyboard
-        val imm = requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(editText.windowToken, 0)
-
-        // Change save icon back to pencil icon
-        imageButton.setImageResource(R.drawable.pencil) // Ensure you have 'pencil' icon in drawable
-    }
-
-    // Function to save favorite quote to Firestore
-    private fun saveQuoteToFirestore(quote: String) {
-        if (userId != null) {
-            val userDocRef = firestore.collection("users").document(userId)
-            userDocRef.update("favoriteQuote", quote)
-                .addOnSuccessListener {
-                    Toast.makeText(activity, "Favorite quote saved", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(activity, "Error saving favorite quote: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // Function to save favorite character to Firestore
-    private fun saveCharacterToFirestore(character: String) {
-        if (userId != null) {
-            val userDocRef = firestore.collection("users").document(userId)
-            userDocRef.update("favoriteCharacter", character)
-                .addOnSuccessListener {
-                    Toast.makeText(activity, "Favorite character saved", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(activity, "Error saving favorite character: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun updateTopGenres(userId: String) {
-        // Update view here using "topGenres" field in database
-    }
-
-    // Function updates the number of books the user has read
-    private fun updateNumBooksRead(userId: String) {
-        // References document of current user
-        val userDocRef = firestore.collection("users").document(userId)
-
-        userDocRef.get().addOnSuccessListener { document ->
-            // Retrieves the standardCollections map in database
-            val standardCollections = document.get("standardCollections") as? Map<String, Any>
-            // Retrieves the "Finished" array under the map
-            val finishedBooks = standardCollections?.get("Finished") as? List<*>
-            // Finds the size of the array to determine number of books read
-            val numBooksRead = finishedBooks?.size ?: 0
-
-            // Updates the numBooksRead field in database
-            userDocRef.update("numBooksRead", numBooksRead)
-                .addOnSuccessListener {
-                    // Update text view here (if applicable)
-                }
-                .addOnFailureListener {
-                    Toast.makeText(activity, "Error updating number of books read", Toast.LENGTH_SHORT).show()
-                }
-        }.addOnFailureListener { e ->
-            Toast.makeText(activity, "Error getting number of books read: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // Veronica Nguyen
-    // Function to get the user's favorite tag
-    private fun updateFavoriteTag(userId: String) {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("users").document(userId).get()  // Gets users collection
-            .addOnSuccessListener { document ->
-                val tagCount = mutableMapOf<String, Int>() // Map to count number of times a tag appears
-
-                // Gets user's standard collections
-                val standardCollections = document.get("standardCollections") as? Map<String, List<Map<String, Any>>>
-                // Loops through each standard collection
-                standardCollections?.values?.forEach { bookList ->
-                    // Loops through each book in a collection
-                    bookList.forEach { book ->
-                        val tags = book["tags"] as? List<String> ?: listOf()  // Retrieves tags from a book
-                        // Loops through each tag of a book
-                        tags.forEach { tag ->
-                            // Increments the count of that tag by 1
-                            tagCount[tag] = tagCount.getOrDefault(tag, 0) + 1
-                        }
-                    }
-                }
-
-                // Gets user's custom collections
-                val customCollections = document.get("customCollections") as? Map<String, Map<String, Any>>
-                // Loops through each custom collection
-                customCollections?.forEach { (_, collectionData) ->  //  Ignores key parameter of lambda expression
-                    val books = collectionData["books"] as? List<Map<String, Any>>  // Gets the books in collection
-                    // Loops through each book in a collection
-                    books?.forEach { book ->
-                        val tags = book["tags"] as? List<String> ?: listOf()  // Retrieves tags from a book
-                        // Loops through each tag of a book
-                        tags.forEach { tag ->
-                            // Increments the count of that tag by 1
-                            tagCount[tag] = tagCount.getOrDefault(tag, 0) + 1
-                        }
-                    }
-                }
-
-                // Sort tags by count in descending order and take the most frequent one
-                val favoriteTag = tagCount.entries.maxByOrNull { it.value }?.key
-
-                // Update user's favoriteTag field in Firestore
-                db.collection("users").document(userId).update("favoriteTag", favoriteTag)
-                    .addOnSuccessListener {
-                        // Update text view here
-
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(context, "Failed to update favorite tag: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-
-                    .addOnFailureListener { e ->
-                        Toast.makeText(context, "Failed to retrieve collections: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-            }
-    }
-
-    // Veronica Nguyen
-    // Function updates the number of groups the user is in
-    private fun updateNumGroups(userId: String) {
-        // To-do
-    }
-
-    // Veronica Nguyen
-    // Function updates the number of custom collections a user has
-    private fun updateNumCollections(userId: String) {
-        // References document of current user
-        val userDocRef = firestore.collection("users").document(userId)
-
-        userDocRef.get().addOnSuccessListener { document ->
-            // Retrieves the customCollections map in database
-            val customCollections = document.get("customCollections") as? Map<String, Any>
-            // Finds the size of the map to determine number of collections
-            val numCollections = customCollections?.size ?: 0
-
-            // Updates the numCollections field in database
-            userDocRef.update("numCollections", numCollections)
-                .addOnSuccessListener {
-                    // Update numCollectionsTextView with the value
-                    numCollectionsTextView.text = "$numCollections"
-                }
-                .addOnFailureListener {
-                    Toast.makeText(activity, "Error updating number of collections", Toast.LENGTH_SHORT).show()
-                }
-        }.addOnFailureListener { e ->
-            Toast.makeText(activity, "Error getting number of collections: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // Veronica Nguyen
-    // Function updates the average rating of the user
-    fun updateAverageRating(userId: String) {
-        val db = FirebaseFirestore.getInstance()
-        val userDocRef = db.collection("users").document(userId)
-
-        // Accesses all collections named "reviews" in database
-        db.collectionGroup("reviews")
-            .whereEqualTo("userId", userId)  // Finds all documents with the user's id (current user)
-            .get()
-            .addOnSuccessListener { documents ->
-                // Gets all of the user's ratings under reviews
-                val userRatings = documents.mapNotNull { it.getDouble("rating") }
-                if (userRatings.isNotEmpty()) {
-                    // Gets the sum of all of the ratings
-                    val ratingsTotalSum = userRatings.sum()
-                    // Calculates the user's average rating
-                    val averageRating = ratingsTotalSum / userRatings.size
-                    // Rounds the average rating to two decimal places
-                    val roundedAverageRating = BigDecimal(averageRating).setScale(2, RoundingMode.HALF_UP).toDouble()
-
-                    // Updates the averageRating field in database
-                    userDocRef.update("averageRating", roundedAverageRating)
-                        .addOnSuccessListener {
-                            // Update text view here (if applicable)
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(activity, "Error updating average rating", Toast.LENGTH_SHORT).show()
-                        }
-                } else {
-                    Toast.makeText(activity, "No ratings found", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(activity, "Error getting user ratings", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    // Veronica Nguyen
-    // Function updates the number of reviews the user has
-    private fun updateNumReviews(userId: String) {
-        // References document of current user
-        val userDocRef = firestore.collection("users").document(userId)
-
-        userDocRef.get().addOnSuccessListener { document ->
-            // Retrieves the numReviews field in database
-            val numReviews = document.getLong("numReviews") ?: 0
-
-            // Updates the numReviews field in database
-            userDocRef.update("numReviews", numReviews)
-                .addOnSuccessListener {
-                    // Update text view here (if applicable)
-                }
-                .addOnFailureListener {
-                    Toast.makeText(activity, "Error updating number of reviews", Toast.LENGTH_SHORT).show()
-                }
-        }.addOnFailureListener { e ->
-            Toast.makeText(activity, "Error getting number of reviews: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // Veronica Nguyen
-    // Function updates the number of friends the user has
-    private fun updateNumFriends(userId: String) {
-        // References document of current user
-        val userDocRef = firestore.collection("users").document(userId)
-
-        userDocRef.get().addOnSuccessListener { document ->
-            // Retrieves the friends array in database
-            val friends = document.get("friends") as? List<*>
-            // Finds the size of the array to determine number of friends
-            val numFriends = friends?.size ?: 0
-
-            // Updates the numFriends field in database
-            userDocRef.update("numFriends", numFriends)
-                .addOnSuccessListener {
-                    // Update text view here (if applicable)
-                }
-                .addOnFailureListener {
-                    Toast.makeText(activity, "Error updating number of friends", Toast.LENGTH_SHORT).show()
-                }
-        }.addOnFailureListener { e ->
-            Toast.makeText(activity, "Error getting number of friends: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
 
     // Method to open the gallery and pick an image
     private fun pickImageFromGallery(requestCode: Int) {
@@ -532,74 +221,25 @@ class ProfileFragment : Fragment() {
         val selectedImageUri: Uri? = data.data
         try {
             selectedImageUri?.let { uri ->
-                // Upload the image to Firebase Storage
-                uploadImageToFirebaseStorage(uri, requestCode)
+                val bitmap: Bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    // Use ImageDecoder for API 28 and above
+                    ImageDecoder.decodeBitmap(ImageDecoder.createSource(requireActivity().contentResolver, uri))
+                } else {
+                    // Fallback to method for older API levels
+                    requireActivity().contentResolver.openInputStream(uri)?.use { inputStream ->
+                        BitmapFactory.decodeStream(inputStream)
+                    } ?: throw IOException("Unable to open input stream for URI")
+                }
+                // Set the bitmap to the appropriate ImageView based on the request code
+                when (requestCode) {
+                    PICK_BANNER_IMAGE -> bannerImage.setImageBitmap(bitmap)
+                    PICK_PROFILE_IMAGE -> profileImage.setImageBitmap(bitmap)
+                }
             }
         } catch (e: Exception) {
             // Handle exceptions and show a toast message if loading the image fails
             e.printStackTrace()
             Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // Method to upload image to Firebase Storage
-    private fun uploadImageToFirebaseStorage(imageUri: Uri, requestCode: Int) {
-        val storageRef = storage.reference
-
-        // Create a reference to the file you want to upload
-        val imageRef = storageRef.child("profileImages/${userId}_${if (requestCode == PICK_PROFILE_IMAGE) "profile" else "banner"}.jpg")
-
-        // Get the bitmap from the URI
-        val bitmap: Bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            ImageDecoder.decodeBitmap(ImageDecoder.createSource(requireActivity().contentResolver, imageUri))
-        } else {
-            MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, imageUri)
-        }
-
-        // Compress the bitmap and convert it to bytes
-        val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        val data = baos.toByteArray()
-
-        // Upload the bytes to Firebase Storage
-        val uploadTask = imageRef.putBytes(data)
-        uploadTask.addOnSuccessListener {
-            // Get the download URL
-            imageRef.downloadUrl.addOnSuccessListener { uri ->
-                // Save the download URL to Firestore
-                saveImageUrlToFirestore(uri.toString(), requestCode)
-
-                // Load the image into the appropriate ImageView
-                if (requestCode == PICK_PROFILE_IMAGE) {
-                    Glide.with(this)
-                        .load(uri.toString())
-                        .into(profileImage)
-                } else if (requestCode == PICK_BANNER_IMAGE) {
-                    Glide.with(this)
-                        .load(uri.toString())
-                        .into(bannerImage)
-                }
-
-                Toast.makeText(requireContext(), "Image uploaded successfully", Toast.LENGTH_SHORT).show()
-            }
-        }.addOnFailureListener { e ->
-            Toast.makeText(requireContext(), "Failed to upload image: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // Method to save image URL to Firestore
-    private fun saveImageUrlToFirestore(imageUrl: String, requestCode: Int) {
-        if (userId != null) {
-            val userDocRef = firestore.collection("users").document(userId)
-            val field = if (requestCode == PICK_PROFILE_IMAGE) "profileImageUrl" else "bannerImageUrl"
-            val data = mapOf(field to imageUrl)
-            userDocRef.update(data)
-                .addOnSuccessListener {
-                    // Image URL saved successfully
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(requireContext(), "Failed to save image URL: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
         }
     }
 
