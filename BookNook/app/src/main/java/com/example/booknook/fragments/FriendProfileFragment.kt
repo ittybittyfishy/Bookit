@@ -41,7 +41,7 @@ class FriendProfileFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         // Retrieve the friend's user ID from the arguments
-        friendUserId = arguments?.getString(ARG_FRIEND_USER_ID)
+        friendUserId = arguments?.getString("receiverId")
         if (friendUserId == null) {
             Toast.makeText(activity, "Friend user ID not provided", Toast.LENGTH_SHORT).show()
             parentFragmentManager.popBackStack()
@@ -70,8 +70,6 @@ class FriendProfileFragment : Fragment() {
             showPopupMenu(view)
         }
 
-
-
         // Disable editing on EditTexts
         quoteEditText.isEnabled = false
         characterEditText.isEnabled = false
@@ -81,6 +79,12 @@ class FriendProfileFragment : Fragment() {
             loadFriendData(friendUserId!!)
         } else {
             Toast.makeText(activity, "Friend user ID not provided", Toast.LENGTH_SHORT).show()
+        }
+
+
+        // Load initial friend status
+        friendUserId?.let { friendId ->
+            checkFriendshipStatus(friendId)  // Check the initial status
         }
 
         // Set up Add Friend button
@@ -128,12 +132,47 @@ class FriendProfileFragment : Fragment() {
                     db.collection("users").document(receiverId)
                         .update("friendRequests", FieldValue.arrayUnion(friendRequest))
                         .addOnSuccessListener {
-                            Toast.makeText(activity, "Friend request sent", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(activity, "Friend request sent", Toast.LENGTH_SHORT)
+                                .show()
                         }
-                        .addOnFailureListener { e -> Toast.makeText(activity, "Failed to send friend request: ${e.message}", Toast.LENGTH_SHORT).show()
+                        .addOnFailureListener { e ->
+                            Toast.makeText(activity, "Failed to send friend request: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                 } else {
                     Toast.makeText(activity, "Sender username not found", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    // Function to remove a friend
+    private fun removeFriend(receiverId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
+
+        val currentUserRef = currentUserId?.let { db.collection("users").document(it) }
+        if (currentUserRef != null) {
+            // Deletes the friend from the current user's database
+            currentUserRef.update("friends", FieldValue.arrayRemove(friendUserId))
+                .addOnSuccessListener {
+                    val friendRef = friendUserId?.let { it1 -> db.collection("users").document(it1) }
+                    if (friendRef != null) {
+                        // Deletes the friend from the other user's database
+                        friendRef.update("friends", FieldValue.arrayRemove(currentUserId))
+                            .addOnSuccessListener {
+                                Toast.makeText(activity, "Friend removed", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(activity, "Failed to remove friend", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(activity, "Failed to remove friend", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
     private fun showPopupMenu(view: View) {
         val popup = PopupMenu(requireContext(), view)
         popup.menuInflater.inflate(R.menu.menu_block_user, popup.menu)
@@ -225,7 +264,7 @@ class FriendProfileFragment : Fragment() {
 
                     if (friends.contains(friendId)) {
                         // Remove friend
-                        friends.remove(friendId)
+                        removeFriend(friendId)
                         currentUserDocRef.update("friends", friends)
                             .addOnSuccessListener {
                                 addFriendButton.text = "Add Friend"
@@ -233,7 +272,7 @@ class FriendProfileFragment : Fragment() {
                             }
                     } else {
                         // Add friend
-                        friends.add(friendId)
+                        sendFriendRequest(friendId)
                         currentUserDocRef.update("friends", friends)
                             .addOnSuccessListener {
                                 addFriendButton.text = "Remove Friend"
