@@ -21,5 +21,7 @@ data class TemplateReview(
     val weaknessesRating: Double = 0.0,
     val weaknessesReview: String? = "",
     val timestamp: Date? = null,
-    val isTemplateUsed: Boolean = true
+    val isTemplateUsed: Boolean = true,
+    val bookId: String = "",   // 해당 리뷰가 속한 책의 ID
+    val reviewId: String = ""  // 각 리뷰의 고유 ID
 )
