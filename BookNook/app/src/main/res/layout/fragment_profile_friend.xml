@@ -50,7 +50,6 @@
                 android:layout_marginTop="80dp"
                 android:background="@color/rounded_rectangle"
                 android:text="Add Friend"
-                android:textSize="10dp"
                 android:textColor="#FFFFFF" />
 
             <!-- Three Dots ImageButton -->
