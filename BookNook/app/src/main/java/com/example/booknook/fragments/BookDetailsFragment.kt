@@ -186,6 +186,7 @@ class BookDetailsFragment : Fragment() {
             isDescriptionExpanded = !isDescriptionExpanded  // Switches state of variable after it's been clicked
         }
 
+        // Veronica Nguyen
         // Handles click of edit personal summary button
         editButton.setOnClickListener {
             // Allows user to now type in box
@@ -201,6 +202,7 @@ class BookDetailsFragment : Fragment() {
             saveChangesButton.visibility = View.VISIBLE
         }
 
+        // Veronica Nguyen
         // Handles click of cancel button
         cancelButton.setOnClickListener {
             personalSummary.isFocusable = false
@@ -209,6 +211,7 @@ class BookDetailsFragment : Fragment() {
             saveChangesButton.visibility = View.GONE
         }
 
+        // Veronica Nguyen
         // Handles click of save changes button
         saveChangesButton.setOnClickListener {
             val summaryText = personalSummary.text.toString()
@@ -219,6 +222,7 @@ class BookDetailsFragment : Fragment() {
             saveChangesButton.visibility = View.GONE
         }
 
+        // Veronica Nguyen
         // Fetch existing summary if the user has already submitted one for this book
         if (userId != null && isbn != null) {
             val db = FirebaseFirestore.getInstance()
@@ -546,6 +550,7 @@ class BookDetailsFragment : Fragment() {
             }
     }
 
+    // Veronica Nguyen
     // Function to save the personal summary into databases
     private fun saveSummary(summaryText: String) {
         val user = FirebaseAuth.getInstance().currentUser // Gets current user
