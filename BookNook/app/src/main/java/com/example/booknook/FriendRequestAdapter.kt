@@ -1,4 +1,5 @@
 package com.example.booknook
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,6 +8,8 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.booknook.fragments.FriendProfileFragment
+import com.example.booknook.fragments.UserProfileFragment
 
 class FriendRequestAdapter(private val friendRequests: List<FriendRequest>,
     private val onAcceptClick: (FriendRequest) -> Unit,
@@ -32,6 +35,16 @@ class FriendRequestAdapter(private val friendRequests: List<FriendRequest>,
     override fun onBindViewHolder(holder: FriendRequestViewHolder, position: Int) {
         val friendRequest = friendRequests[position]
         holder.username.text = friendRequest.username  // Sets username text
+
+        // Allows user to click on each of their requests
+        holder.itemView.setOnClickListener {
+            val userProfileFragment = UserProfileFragment()
+            val bundle = Bundle().apply {
+                putString("receiverId", friendRequest.receiverId)  // Pass the receiver's id into the bundle
+            }
+            userProfileFragment.arguments = bundle  // Set the arguments to the bundle
+            (holder.itemView.context as MainActivity).replaceFragment(userProfileFragment, "${friendRequest.username}")
+        }
 
         // Setting up click listeners for accept and reject buttons
         holder.acceptButton.setOnClickListener {

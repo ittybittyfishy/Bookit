@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.SettingsFragment">
+    tools:context=".fragments.SettingsFragment"
+    android:orientation="vertical">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -13,21 +14,21 @@
         android:layout_height="wrap_content"
         android:textColor="@color/main_text_brown"
         android:textStyle="bold"
+        android:layout_marginTop="70dp"
         android:background="@color/transparent"
-        android:layout_marginTop="100dp"
         android:text="Account"
         android:textSize="30dp"/>
 
     <Button
-        android:id="@+id/notification_button"
-        android:layout_width="wrap_content"
+        android:id="@+id/updateTags"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Update Tag Preference"
+        android:backgroundTint="@color/transparent"
         android:textColor="@color/main_text_brown"
         android:textStyle="bold"
-        android:background="@color/transparent"
-        android:layout_marginTop="150dp"
-        android:text="Notification"
-        android:textSize="30dp"/>
+        android:textSize="30dp"
+        android:gravity="start"/>
 
     <Button
         android:id="@+id/sign_out"
@@ -36,22 +37,21 @@
         android:textColor="@color/main_text_brown"
         android:textStyle="bold"
         android:background="@color/transparent"
-        android:layout_marginTop="200dp"
         android:text="Sign Out"
         android:textSize="30dp"/>
+
     <!-- Yunjong Noh -->
     <!-- Toogle switch to turn on and off dark mode -->
     <Switch
         android:id="@+id/darkModeSwitch"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:textColor="@color/main_text_brown"
         android:textStyle="bold"
         android:background="@color/transparent"
-        android:layout_marginTop="255dp"
         android:text="   Dark Mode"
         android:checked="false"
         android:textSize="30dp"/>
 
 
-</FrameLayout>
+</LinearLayout>

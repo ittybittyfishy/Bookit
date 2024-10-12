@@ -39,6 +39,9 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
     private lateinit var bookAdapter: BookAdapter
     private lateinit var recyclerView: RecyclerView
 
+    private lateinit var userUsername: TextView
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -69,6 +72,7 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         } else {
             replaceFragment(homeFragment, "Home")
         }
+
 
         // Olivia Fishbough
         // Set up the bottom navigation item selection listener
@@ -119,98 +123,113 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
     }
 
     fun searchBooks(query: String, startIndex: Int, languageFilter: String? = null, maxResults: Int = 40, callback: (List<BookItem>?) -> Unit) {
-        val call = RetrofitInstance.api.searchBooks(query, startIndex,maxResults, apiKey, languageFilter)
+        // API call to search books using RetrofitInstance
+        val call = RetrofitInstance.api.searchBooks(query, startIndex, maxResults, apiKey, languageFilter)
 
+        // Enqueue the API call to run asynchronously
         call.enqueue(object : Callback<BookResponse> {
             override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
                 // Log the HTTP response code
                 Log.d("API Response", "Response Code: ${response.code()}")
 
-                // Log the headers
+                // Log the headers from the API response
                 Log.d("API Response", "Headers: ${response.headers()}")
 
                 if (response.isSuccessful) {
                     // Log the response body (book items)
                     Log.d("API Response", "Response Body: ${response.body()}")
 
-                    // Proceed with the successful response
+                    // Pass the book items to the callback
                     callback(response.body()?.items)
                 } else {
-                    // Log the error message from the server
+                    // Log the error message in case of a failed response
                     Log.e("API Error", "Error Body: ${response.errorBody()?.string()}")
-                    callback(null)
+                    callback(null) // Return null if the response was not successful
                 }
             }
 
             override fun onFailure(call: Call<BookResponse>, t: Throwable) {
-                // Log the failure reason
+                // Log the failure reason if the API call fails
                 Log.e("API Failure", "Failure Message: ${t.message}")
                 t.printStackTrace()
-                callback(null)
+                callback(null) // Return null on failure
             }
         })
     }
 
-
     fun fetchGenresForQuery(query: String, language: String?, minRating: Float, maxRating: Float, callback: (Set<String>?) -> Unit) {
-        val availableGenres = mutableSetOf<String>()
-        var booksFetched = 0
-        var startIndexForGenres = 0
-        val totalBooksToFetch = 50 // Adjust this as needed for performance
+        val availableGenres = mutableSetOf<String>() // Set to hold unique genres
+        var booksFetched = 0 // Counter for fetched books
+        var startIndexForGenres = 0 // Tracks pagination index for fetching books
+        val totalBooksToFetch = 50 // Adjust the total books to fetch based on performance needs
 
+        // Recursive function to fetch books in batches
         fun fetchNextBatch() {
             searchBooks(query, startIndexForGenres, language) { books ->
                 if (books != null && books.isNotEmpty()) {
+                    // Iterate over the fetched books and filter them by rating
                     books.forEach { book ->
                         val rating = book.volumeInfo.averageRating ?: 0f
                         if (rating in minRating..maxRating) {
+                            // Split categories and normalize genres before adding them to the set
                             val genres = book.volumeInfo.categories?.flatMap { category ->
                                 category.split("/", "&").map { GenreUtils.normalizeGenre(it) }
                             } ?: emptyList()
-                            availableGenres.addAll(genres)
+                            availableGenres.addAll(genres) // Add genres to the set
                         }
                     }
-                    booksFetched += books.size
-                    startIndexForGenres += books.size
+                    booksFetched += books.size // Update the counter for fetched books
+                    startIndexForGenres += books.size // Move to the next batch
                     if (booksFetched < totalBooksToFetch && books.isNotEmpty()) {
-                        fetchNextBatch() // Continue fetching more books
+                        fetchNextBatch() // Continue fetching more books if needed
                     } else {
-                        callback(availableGenres) // Return the available genres after all filters
+                        callback(availableGenres) // Return the available genres after all fetching is done
                     }
                 } else {
+                    // Return the genres even if no books are found in the batch
                     callback(availableGenres)
                 }
             }
         }
 
-        fetchNextBatch()
+        fetchNextBatch() // Start fetching the first batch
     }
 
     fun searchBooksWithFilters(genres: List<String>?, language: String?, minRating: Float, maxRating: Float) {
-        val query = "some search query"
+        val query = "some search query" // Modify this query as needed
 
+        // Call searchBooks to fetch books with the given query and language filter
         searchBooks(query, 0, language) { bookItems ->
             val filteredBooks = bookItems?.filter { book ->
+                // Extract and normalize genres from the book's categories
                 val bookGenres = book.volumeInfo.categories?.flatMap { category ->
                     category.split("/", "&").map { GenreUtils.normalizeGenre(it) }
                 } ?: emptyList()
+
+                // Get the book's rating or set it to 0 if not available
                 val rating = book.volumeInfo.averageRating ?: 0f
 
+                // Normalize the input genres to match against the book's genres
                 val normalizedInputGenres = genres?.map { GenreUtils.normalizeGenre(it) } ?: emptyList()
 
+                // Determine if the book's genres match the input genres (if any)
                 val genreMatch = normalizedInputGenres.isEmpty() || normalizedInputGenres.any { genre ->
                     bookGenres.contains(genre)
                 }
 
+                // Check if the book's rating is within the specified range
                 val ratingInRange = rating in minRating..maxRating
 
+                // Return true if both genre match and rating range conditions are satisfied
                 genreMatch && ratingInRange
             }
 
+            // Clear the current book list and add the filtered books
             bookList.clear()
             filteredBooks?.let { bookList.addAll(it) }
-            bookAdapter.notifyDataSetChanged()
+            bookAdapter.notifyDataSetChanged() // Notify the adapter of data changes
 
+            // Show a message if no books matched the filters
             if (filteredBooks.isNullOrEmpty()) {
                 Toast.makeText(this, "No books found matching the filters.", Toast.LENGTH_SHORT).show()
             }
@@ -218,15 +237,17 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
     }
 
     fun sortBooks(criteria: String) {
+        // Sort the book list based on the specified criteria
         when (criteria) {
-            "high_rating" -> bookList.sortByDescending { it.volumeInfo.averageRating ?: 0f }
-            "low_rating" -> bookList.sortBy { it.volumeInfo.averageRating ?: 0f }
-            "title_az" -> bookList.sortBy { it.volumeInfo.title ?: "" }
-            "title_za" -> bookList.sortByDescending { it.volumeInfo.title ?: "" }
-            "author" -> bookList.sortBy { it.volumeInfo.authors?.firstOrNull() ?: "" }
+            "high_rating" -> bookList.sortByDescending { it.volumeInfo.averageRating ?: 0f } // Sort by highest rating
+            "low_rating" -> bookList.sortBy { it.volumeInfo.averageRating ?: 0f } // Sort by lowest rating
+            "title_az" -> bookList.sortBy { it.volumeInfo.title ?: "" } // Sort by title A-Z
+            "title_za" -> bookList.sortByDescending { it.volumeInfo.title ?: "" } // Sort by title Z-A
+            "author" -> bookList.sortBy { it.volumeInfo.authors?.firstOrNull() ?: "" } // Sort by author's name
         }
-        bookAdapter.notifyDataSetChanged()
+        bookAdapter.notifyDataSetChanged() // Notify the adapter of data changes after sorting
     }
+
 
     override fun onResume() {
         super.onResume()

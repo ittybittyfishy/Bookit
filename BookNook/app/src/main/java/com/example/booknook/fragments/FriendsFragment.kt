@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.auth.User
 
 class FriendsFragment : Fragment() {
 
@@ -149,9 +150,13 @@ class FriendsFragment : Fragment() {
                                             offlineFriends.add(friendInfo)
                                         }
 
-                                        // Update recycler views of each list
-                                        onlineFriendsRecyclerView.adapter = FriendAdapter(onlineFriends)
-                                        offlineFriendsRecyclerView.adapter = FriendAdapter(offlineFriends)
+                                        // Update recycler views of each list and allows navigation to friend's profile
+                                        onlineFriendsRecyclerView.adapter = FriendAdapter(onlineFriends) { selectedFriend ->
+                                            openFriendProfile(selectedFriend)
+                                        }
+                                        offlineFriendsRecyclerView.adapter = FriendAdapter(offlineFriends) { selectedFriend ->
+                                            openFriendProfile(selectedFriend)
+                                        }
                                     }
                                     .addOnFailureListener {
                                         Toast.makeText(activity, "Error loading friend data", Toast.LENGTH_SHORT).show()
@@ -161,6 +166,15 @@ class FriendsFragment : Fragment() {
                     }
                 }
         }
+    }
+
+    // Function to navigate to the friend's profile when clicking on them
+    private fun openFriendProfile(selectedFriend: Friend) {
+        val userProfileFragment = FriendProfileFragment()
+        val bundle = Bundle()
+        bundle.putString("receiverId", selectedFriend.friendId)
+        userProfileFragment.arguments = bundle
+        (activity as MainActivity).replaceFragment(userProfileFragment, "Profile")
     }
 
     // Function to search for a user with their username

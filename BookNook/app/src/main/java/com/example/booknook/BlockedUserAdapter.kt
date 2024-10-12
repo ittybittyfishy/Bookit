@@ -1,10 +1,12 @@
 package com.example.booknook
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.FriendRequestAdapter.FriendRequestViewHolder
+import com.example.booknook.fragments.UserProfileFragment
 
 class BlockedUserAdapter(private val blockedUsers: List<BlockedUser>
 ) : RecyclerView.Adapter<BlockedUserAdapter.BlockedUserViewHolder>(){
@@ -25,6 +27,16 @@ class BlockedUserAdapter(private val blockedUsers: List<BlockedUser>
     override fun onBindViewHolder(holder: BlockedUserViewHolder, position: Int) {
         val blockedUser = blockedUsers[position]
         holder.username.text = blockedUser.blockedUsername  // Sets username text
+
+        // Allows user to click on each of their blocked users
+        holder.itemView.setOnClickListener {
+            val userProfileFragment = UserProfileFragment()
+            val bundle = Bundle().apply {
+                putString("receiverId", blockedUser.blockedUserId)  // Pass the blocked user's id into the bundle
+            }
+            userProfileFragment.arguments = bundle  // Set the arguments to the bundle
+            (holder.itemView.context as MainActivity).replaceFragment(userProfileFragment, "${blockedUser.blockedUsername}")
+        }
     }
 
     override fun getItemCount(): Int = blockedUsers.size  // returns number of items in blocked users list
