@@ -1,491 +1,564 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.ProfileFragment">
 
-    <!-- Banner with dark grey color -->
-    <ImageView
-        android:id="@+id/bannerImage"
-        android:layout_width="match_parent"
-        android:layout_height="160dp"
-        android:background="#A9A9A9"
-        android:layout_gravity="top"
-        android:scaleType="centerCrop" />
-
-    <!-- RelativeLayout to contain the profile picture and button -->
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="60dp">
-
-        <!-- Circular Profile Image -->
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/profileImage"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="16dp"
-            android:src="@android:color/holo_green_dark" />
+        android:orientation="vertical">
 
 
-        <!-- First Rounded Rectangle below the profile picture -->
-        <View
-            android:id="@+id/rectangle1"
-            android:layout_width="55dp"
-            android:layout_height="25dp"
-            android:background="@drawable/rounded_rectangle_1"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="85dp" />
-
-        <!-- Second Rounded Rectangle below the first rectangle -->
-        <View
-            android:id="@+id/rectangle2"
-            android:layout_width="150dp"
-            android:layout_height="30dp"
-            android:background="@drawable/rounded_rectangle_2"
-            android:layout_below="@id/rectangle1"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="0dp" />
-
-        <!-- Third Rounded Rectangle below the second rectangle -->
-        <View
-            android:id="@+id/rectangle3"
-            android:layout_width="150dp"
-            android:layout_height="30dp"
-            android:background="@drawable/rounded_rectangle_3"
-            android:layout_below="@id/rectangle2"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="3dp" />
-
-        <!-- Fourth Rounded Rectangle (EditText) with icon -->
+        <!-- RelativeLayout to contain the profile picture and buttons -->
         <RelativeLayout
-            android:id="@+id/rectangle4_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/rectangle3"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
+
+            <!-- Banner with dark grey color -->
             <ImageView
-                android:id="@+id/icon1"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_centerVertical="true"
-                android:src="@drawable/quote_icon"
-                android:layout_marginEnd="8dp" />
+                android:id="@+id/bannerImage"
+                android:layout_width="match_parent"
+                android:layout_height="130dp"
+                android:background="#A9A9A9"
+                android:scaleType="centerCrop" />
 
-            <EditText
-                android:id="@+id/rectangle4"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/icon1"
+
+            <!-- Circular Profile Image -->
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profileImage"
+                android:layout_width="150dp"
+                android:layout_height="120dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="55dp"
+                android:src="@android:color/holo_green_dark" />
+
+            <!-- Add Friend Button to the right of the profile image -->
+            <!-- Add Friend Button -->
+            <Button
+                android:id="@+id/removeFriendButton"
+                android:layout_width="100dp"
+                android:layout_height="35dp"
+                android:layout_toEndOf="@id/profileImage"
+                android:layout_marginStart="-1dp"
+                android:layout_centerVertical="true"
+                android:layout_alignTop="@id/profileImage"
+                android:layout_marginTop="80dp"
+                android:background="@color/username_rectangle"
+                android:text="Remove Friend"
+                android:textSize="10dp"
+                android:textColor="#FFFFFF" />
+
+            <!-- Three Dots ImageButton -->
+            <ImageButton
+                android:id="@+id/threeDotsButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_toEndOf="@id/removeFriendButton"
+                android:layout_alignTop="@id/removeFriendButton"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/threedots"
+                android:background="@null"
+                android:contentDescription="Options"
+                android:scaleType="centerInside"
+                android:adjustViewBounds="true" />
+
+
+
+            <!-- First Rounded Rectangle below the profile picture -->
+            <TextView
+                android:id="@+id/rectangle1"
+                android:layout_width="60dp"
+                android:layout_height="25dp"
+                android:gravity="center"
+                android:background="@drawable/rounded_rectangle_1"
+                android:text="LVL.80"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/profileImage"
+                android:layout_marginTop="-20dp" />
+
+            <!-- Second Rounded Rectangle below the first rectangle -->
+            <TextView
+                android:id="@+id/userUsername"
+                android:layout_width="140dp"
+                android:layout_height="30dp"
                 android:background="@drawable/rounded_rectangle_2"
-                android:layout_marginEnd="30dp"
-                android:hint="Enter text here"
-                android:padding="10dp" />
+                android:text="Username"
+                android:gravity="center"
+                android:textSize="18dp"
+                android:layout_below="@id/rectangle1"
+                android:layout_centerHorizontal="true"
+                android:backgroundTint="@color/username_rectangle"
+                android:textColor="@color/sub_text_brown"
+                android:layout_marginTop="1dp" />
+
+            <!-- Third Rounded Rectangle below the second rectangle -->
+            <TextView
+                android:id="@+id/rectangle3"
+                android:layout_width="150dp"
+                android:layout_height="30dp"
+                android:background="@drawable/rounded_rectangle_3"
+                android:backgroundTint="@color/custom_tag_pink"
+                android:textSize="18dp"
+                android:gravity="center"
+                android:text="Experience title"
+                android:textColor="@color/sub_text_brown"
+                android:layout_below="@id/userUsername"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="1dp" />
+
+            <!-- Fourth Rounded Rectangle (EditText) with icons -->
+
+            <LinearLayout
+                android:id="@+id/rectangle4_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/rectangle3"
+                android:layout_marginTop="15dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Left Icon -->
+                <ImageView
+                    android:id="@+id/icon1"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:src="@drawable/quote_icon" />
+
+                <!-- EditText -->
+                <EditText
+                    android:id="@+id/rectangle4"
+                    android:layout_width="324dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="30dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/rounded_rectangle_2"
+                    android:cursorVisible="false"
+                    android:enabled="false"
+                    android:focusable="false"
+                    android:hint="Enter your favorite book quote"
+                    android:imeOptions="actionDone"
+                    android:padding="10dp" />
+
+
+            </LinearLayout>
+
+            <!-- Fifth Rounded Rectangle (EditText) with icons -->
+            <LinearLayout
+                android:id="@+id/rectangle5_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/rectangle4_container"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Left Icon -->
+                <ImageView
+                    android:id="@+id/icon2"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:src="@drawable/mr_blobby" />
+
+                <!-- EditText -->
+                <EditText
+                    android:id="@+id/rectangle5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginRight="30dp"
+                    android:background="@drawable/rounded_rectangle_2"
+                    android:hint="Enter your favorite book character"
+                    android:padding="10dp"
+                    android:enabled="false"
+                    android:focusable="false"
+                    android:cursorVisible="false"
+                    android:imeOptions="actionDone" />
+
+
+            </LinearLayout>
+
+
         </RelativeLayout>
 
-        <!-- Fifth Rounded Rectangle (EditText) with icon positioned correctly below rectangle4_container -->
-        <RelativeLayout
-            android:id="@+id/rectangle5_container"
-            android:layout_width="wrap_content"
+        <GridLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/rectangle4_container"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp">
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="3dp"
+            android:columnCount="5"
+            android:padding="20dp"
+            android:rowCount="20">
 
-            <ImageView
-                android:id="@+id/icon2"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_centerVertical="true"
-                android:src="@drawable/mr_blobby"
-                android:layout_marginEnd="8dp" />
-
-            <EditText
-                android:id="@+id/rectangle5"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/icon2"
-                android:background="@drawable/rounded_rectangle_2"
-                android:layout_marginEnd="35dp"
-                android:hint="Enter text here"
-                android:padding="10dp" />
-        </RelativeLayout>
-
-    </RelativeLayout>
-
-    <GridLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="160dp"
-        android:layout_marginRight="10dp"
-        android:columnCount="5"
-        android:padding="20dp"
-        android:rowCount="20">
-
-        <!-- First row -->
-        <!-- Favorite Genre -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/genre"
-                app:tint="@color/light_green" />
-
-            <TextView
+            <!-- First row -->
+            <!-- Favorite Genre -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Favorite Genre"
-                android:textColor="@color/sub_text_brown"
-                android:textSize="14sp" />
+                android:layout_margin="8dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <TextView
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/genre"
+                    app:tint="@color/light_green" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Favorite Genre"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Tags"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="80dp"
+                android:layout_margin="8dp"
+                android:layout_marginLeft="10dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="100dp"
+                    android:background="#d0d0d0" />
+
+            </LinearLayout>
+
+
+            <!-- Books Read -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Horror, Fiction, Sci-fi"
-                android:textColor="@color/sub_text_brown"
-                android:textSize="12sp" />
-        </LinearLayout>
+                android:layout_margin="8dp"
+                android:layout_marginLeft="15dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="80dp"
-            android:layout_margin="8dp"
-            android:layout_marginLeft="10dp"
-            android:gravity="center"
-            android:orientation="vertical">
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/readbook"
+                    app:tint="@color/light_green"
+                    />
 
-            <View
-                android:layout_width="3dp"
-                android:layout_height="100dp"
-                android:background="#d0d0d0" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Books Read"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="14sp" />
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="80dp"
+                android:layout_margin="8dp"
+                android:layout_marginLeft="12dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
-        <!-- Books Read -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_marginLeft="15dp"
-            android:gravity="center"
-            android:orientation="vertical">
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="100dp"
+                    android:background="#d0d0d0" />
 
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/readbook"
-                app:tint="@color/light_green"
-                />
+            </LinearLayout>
 
-            <TextView
+            <!-- Favorite Tag -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Books Read"
-                android:textColor="@color/sub_text_brown"
-                android:textSize="14sp" />
+                android:layout_margin="14dp"
+                android:layout_marginLeft="10dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <TextView
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/tag"
+                    app:tint="@color/light_green"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Favorite Tag"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tags"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Second row and third row should follow similar pattern -->
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="18"
-                android:textSize="12sp" />
-        </LinearLayout>
+                android:layout_margin="12dp"
+                android:layout_marginLeft="25dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="80dp"
-            android:layout_margin="8dp"
-            android:layout_marginLeft="12dp"
-            android:gravity="center"
-            android:orientation="vertical">
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/level"
+                    app:tint="@color/light_green"
+                    />
 
-            <View
-                android:layout_width="3dp"
-                android:layout_height="100dp"
-                android:background="#d0d0d0" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="placeholder"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="14sp" />
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="placeholder"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
-        <!-- Favorite Tag -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="14dp"
-            android:layout_marginLeft="10dp"
-            android:gravity="center"
-            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="80dp"
+                android:layout_margin="8dp"
+                android:layout_marginLeft="10dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/tag"
-                app:tint="@color/light_green"/>
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="100dp"
+                    android:background="#d0d0d0" />
 
-            <TextView
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Favorite Tag"
-                android:textColor="@color/sub_text_brown"
-                android:textSize="14sp" />
+                android:layout_margin="12dp"
+                android:layout_marginLeft="27dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <TextView
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/people"
+                    app:tint="@color/light_green"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Groups"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="80dp"
+                android:layout_margin="8dp"
+                android:layout_marginLeft="12dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="100dp"
+                    android:background="#d0d0d0" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Rainy-day"
-                android:textSize="12sp" />
-        </LinearLayout>
+                android:layout_margin="12dp"
+                android:layout_marginLeft="10dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
-        <!-- Second row and third row should follow similar pattern -->
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/book"
+                    app:tint="@color/light_green"/>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:layout_marginLeft="25dp"
-            android:gravity="center"
-            android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Collections"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="14sp" />
 
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/level"
-                app:tint="@color/light_green"
-                />
+                <TextView
+                    android:id="@+id/numCollectionsTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="placeholder"
-                android:textColor="@color/sub_text_brown"
-                android:textSize="14sp" />
+                android:layout_margin="8dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <TextView
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/rate"
+                    app:tint="@color/light_green"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Average rating"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="80dp"
+                android:layout_margin="8dp"
+                android:layout_marginLeft="10dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="100dp"
+                    android:background="#d0d0d0" />
+
+            </LinearLayout>
+
+
+            <!-- Books Read -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="placeholder"
-                android:textSize="12sp" />
-        </LinearLayout>
+                android:layout_margin="8dp"
+                android:layout_marginLeft="27dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="80dp"
-            android:layout_margin="8dp"
-            android:layout_marginLeft="10dp"
-            android:gravity="center"
-            android:orientation="vertical">
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/review"
+                    app:tint="@color/light_green"
+                    />
 
-            <View
-                android:layout_width="3dp"
-                android:layout_height="100dp"
-                android:background="#d0d0d0" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reviews"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="14sp" />
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:layout_marginLeft="27dp"
-            android:gravity="center"
-            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="80dp"
+                android:layout_margin="8dp"
+                android:layout_marginLeft="12dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/people"
-                app:tint="@color/light_green"
-                />
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="100dp"
+                    android:background="#d0d0d0" />
 
-            <TextView
+            </LinearLayout>
+
+            <!-- Favorite Tag -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Groups"
-                android:textColor="@color/sub_text_brown"
-                android:textSize="14sp" />
+                android:layout_margin="8dp"
+                android:layout_marginLeft="11dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="18"
-                android:textSize="12sp" />
-        </LinearLayout>
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/friends"
+                    app:tint="@color/light_green"
+                    />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="80dp"
-            android:layout_margin="8dp"
-            android:layout_marginLeft="12dp"
-            android:gravity="center"
-            android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Friends"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="14sp" />
 
-            <View
-                android:layout_width="3dp"
-                android:layout_height="100dp"
-                android:background="#d0d0d0" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:layout_marginLeft="10dp"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/book"
-                app:tint="@color/light_green"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Collections"
-                android:textColor="@color/sub_text_brown"
-                android:textSize="14sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="18"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/rate"
-                app:tint="@color/light_green"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Average rating"
-                android:textColor="@color/sub_text_brown"
-                android:textSize="14sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Horror, Fiction, Sci-fi"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="80dp"
-            android:layout_margin="8dp"
-            android:layout_marginLeft="10dp"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <View
-                android:layout_width="3dp"
-                android:layout_height="100dp"
-                android:background="#d0d0d0" />
-
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
 
-        <!-- Books Read -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_marginLeft="27dp"
-            android:gravity="center"
-            android:orientation="vertical">
+        </GridLayout>
 
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/review"
-                app:tint="@color/light_green"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Reviews"
-                android:textColor="@color/sub_text_brown"
-                android:textSize="14sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="18"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="80dp"
-            android:layout_margin="8dp"
-            android:layout_marginLeft="12dp"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <View
-                android:layout_width="3dp"
-                android:layout_height="100dp"
-                android:background="#d0d0d0" />
-
-        </LinearLayout>
-
-        <!-- Favorite Tag -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_marginLeft="11dp"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/friends"
-                app:tint="@color/light_green"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Favorite Tag"
-                android:textColor="@color/sub_text_brown"
-                android:textSize="14sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rainy-day"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-
-    </GridLayout>
-
-</FrameLayout>
+    </LinearLayout>
+</ScrollView>
