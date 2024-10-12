@@ -40,7 +40,7 @@
             <!-- Add Friend Button to the right of the profile image -->
             <!-- Add Friend Button -->
             <Button
-                android:id="@+id/removeFriendButton"
+                android:id="@+id/addFriendButton"
                 android:layout_width="100dp"
                 android:layout_height="35dp"
                 android:layout_toEndOf="@id/profileImage"
@@ -49,7 +49,7 @@
                 android:layout_alignTop="@id/profileImage"
                 android:layout_marginTop="80dp"
                 android:background="@color/username_rectangle"
-                android:text="Remove Friend"
+                android:text="Add Friend"
                 android:textSize="10dp"
                 android:textColor="#FFFFFF" />
 
@@ -58,8 +58,8 @@
                 android:id="@+id/threeDotsButton"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_toEndOf="@id/removeFriendButton"
-                android:layout_alignTop="@id/removeFriendButton"
+                android:layout_toEndOf="@id/addFriendButton"
+                android:layout_alignTop="@id/addFriendButton"
                 android:layout_marginStart="8dp"
                 android:src="@drawable/threedots"
                 android:background="@null"
