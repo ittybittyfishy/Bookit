@@ -32,6 +32,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.Comment
+import com.example.booknook.CommentsAdapter
 import com.example.booknook.ImageLinks
 import com.example.booknook.IndustryIdentifier
 import com.example.booknook.Reply
@@ -692,39 +693,16 @@ class BookDetailsFragment : Fragment() {
             .addOnSuccessListener { documents ->
                 val commentsList = mutableListOf<Comment>()
                 for (document in documents) {
-                    val comment = document.toObject(Comment::class.java)
+                    val comment = document.toObject(Comment::class.java).apply {
+                        commentId = document.id // 댓글 ID 추가
+                    }
                     commentsList.add(comment)
                 }
-                // Optionally update the UI or store the comments
+                // 댓글 목록을 UI에 업데이트
+                setupCommentsRecyclerView(commentsList)
             }
             .addOnFailureListener { exception ->
                 Log.e("fetchComments", "Error fetching comments", exception)
-            }
-    }
-
-    private fun fetchReplies(isbn: String, reviewId: String, commentId: String, comment: Comment) {
-        val repliesRef = FirebaseFirestore.getInstance()
-            .collection("books")
-            .document(isbn)
-            .collection("reviews")
-            .document(reviewId)
-            .collection("comments")
-            .document(commentId)
-            .collection("replies")
-
-        repliesRef.get()
-            .addOnSuccessListener { documents ->
-                val repliesList = mutableListOf<Reply>()
-                for (document in documents) {
-                    val reply = document.toObject(Reply::class.java)
-                    repliesList.add(reply)
-                }
-                // Link the replies back to the parent comment
-                comment.replies = repliesList  // This requires Comment class to be mutable
-                // You may want to notify the adapter here if necessary
-            }
-            .addOnFailureListener { exception ->
-                Log.e("fetchReplies", "Error fetching replies", exception)
             }
     }
 
@@ -737,6 +715,13 @@ class BookDetailsFragment : Fragment() {
         recyclerView?.layoutManager = LinearLayoutManager(context)
         // Set the adapter to show fetched reviews in RecycleViewer
         recyclerView?.adapter = ReviewsAdapter(reviews)
+    }
+
+    private fun setupCommentsRecyclerView(comments: List<Comment>) {
+        val recyclerView = view?.findViewById<RecyclerView>(R.id.commentsRecyclerView)
+        val commentsAdapter = CommentsAdapter(comments)
+        recyclerView?.layoutManager = LinearLayoutManager(context)
+        recyclerView?.adapter = commentsAdapter
     }
 
 }

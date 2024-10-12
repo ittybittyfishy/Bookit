@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="8dp"
-    android:layout_marginStart="32dp"> <!-- 들여쓰기를 위해 margin 설정 -->
+    android:layout_marginStart="32dp">
 
     <!-- Username of the reply author -->
     <TextView
@@ -12,19 +12,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:text="Reply Username" />
+        android:text="Reply Username"
+        android:textColor="@android:color/holo_blue_dark" /> <!-- 사용자 이름 색상 강조 -->
 
     <!-- Reply content -->
     <TextView
         android:id="@+id/replyText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Reply text" />
+        android:text="Reply text"
+        android:textColor="@android:color/black" /> <!-- 기본 색상 설정 -->
 
     <!-- Reply timestamp -->
     <TextView
         android:id="@+id/replyTimestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Timestamp" />
+        android:text="Timestamp"
+        android:textColor="@android:color/darker_gray" /> <!-- 타임스탬프 색상 변경 -->
 </LinearLayout>
