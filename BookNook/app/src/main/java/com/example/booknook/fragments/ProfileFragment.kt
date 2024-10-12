@@ -25,7 +25,6 @@ import de.hdodenhof.circleimageview.CircleImageView
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
-//working version
 // Define a Fragment class for the Profile section
 class ProfileFragment : Fragment() {
 

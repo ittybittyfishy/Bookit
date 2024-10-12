@@ -48,7 +48,7 @@
                 android:layout_centerVertical="true"
                 android:layout_alignTop="@id/profileImage"
                 android:layout_marginTop="80dp"
-                android:background="@color/rounded_rectangle"
+                android:background="@color/username_rectangle"
                 android:text="Add Friend"
                 android:textColor="#FFFFFF" />
 
@@ -91,7 +91,7 @@
                 android:textSize="18dp"
                 android:layout_below="@id/rectangle1"
                 android:layout_centerHorizontal="true"
-                android:backgroundTint="@color/rounded_rectangle"
+                android:backgroundTint="@color/username_rectangle"
                 android:textColor="@color/sub_text_brown"
                 android:layout_marginTop="1dp" />
 
