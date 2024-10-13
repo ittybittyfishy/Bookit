@@ -73,11 +73,9 @@ class CreateGroupFragment : DialogFragment() {
             } else {
                 if (selectedBannerUri != null) {
                     createGroup(groupNameStr, isPrivate, selectedTags, selectedBannerUri)
-                    dismiss()
                 } else {
                     // If no banner image is selected, create the group without it
                     createGroup(groupNameStr, isPrivate, selectedTags)
-                    dismiss()
                 }
             }
         }
@@ -111,6 +109,7 @@ class CreateGroupFragment : DialogFragment() {
                         bannerRef.downloadUrl.addOnSuccessListener { uri ->
                             val bannerImgUrl = uri.toString()
                             createGroupInFirestore(groupName, isPrivate, userId, tags, bannerImgUrl, db)
+                            dismiss()
                         }.addOnFailureListener { e ->
                             Log.w("CreateGroup", "Error getting banner image URL: ${e.message}")
                         }
