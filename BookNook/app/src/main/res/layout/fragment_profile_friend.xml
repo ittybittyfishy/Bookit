@@ -37,22 +37,6 @@
                 android:layout_marginTop="55dp"
                 android:src="@android:color/holo_green_dark" />
 
-            <!-- Add Friend Button to the right of the profile image -->
-            <!-- Add Friend Button -->
-            <Button
-                android:id="@+id/addFriendButton"
-                android:layout_width="100dp"
-                android:layout_height="35dp"
-                android:layout_toEndOf="@id/profileImage"
-                android:layout_marginStart="-1dp"
-                android:layout_centerVertical="true"
-                android:layout_alignTop="@id/profileImage"
-                android:layout_marginTop="80dp"
-                android:background="@color/username_rectangle"
-                android:text="Add Friend"
-                android:textSize="10dp"
-                android:textColor="#FFFFFF" />
-
             <!-- Three Dots ImageButton -->
             <ImageButton
                 android:id="@+id/threeDotsButton"
@@ -67,6 +51,14 @@
                 android:scaleType="centerInside"
                 android:adjustViewBounds="true" />
 
+
+            <!-- Block User Menu Item -->
+                <Button
+                    android:id="@+id/action_block_user"
+                    android:layout_width="100dp"
+                    android:layout_height="30dp"
+                    android:title="Block user"
+                    android:showAsAction="never" />
 
 
             <!-- First Rounded Rectangle below the profile picture -->
@@ -112,7 +104,8 @@
                 android:layout_marginTop="1dp" />
 
             <!-- Fourth Rounded Rectangle (EditText) with icons -->
-
+            <!-- Fourth Rounded Rectangle (EditText) with icons -->
+            <!-- Fourth Rounded Rectangle (EditText) with icons -->
             <LinearLayout
                 android:id="@+id/rectangle4_container"
                 android:layout_width="match_parent"
@@ -134,17 +127,28 @@
                 <!-- EditText -->
                 <EditText
                     android:id="@+id/rectangle4"
-                    android:layout_width="324dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="30dp"
                     android:layout_weight="1"
                     android:background="@drawable/rounded_rectangle_2"
-                    android:cursorVisible="false"
+                    android:hint="Enter your favorite book quote"
+                    android:padding="10dp"
                     android:enabled="false"
                     android:focusable="false"
-                    android:hint="Enter your favorite book quote"
-                    android:imeOptions="actionDone"
-                    android:padding="10dp" />
+                    android:cursorVisible="false"
+                    android:imeOptions="actionDone" />
+
+                <!-- Right Icon as ImageButton -->
+                <ImageButton
+                    android:id="@+id/pencil1"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="15dp"
+                    android:src="@drawable/pencil"
+                    app:tint="@color/sub_text_brown"
+                    android:background="@null"
+                    android:scaleType="centerInside" />
 
 
             </LinearLayout>
@@ -174,7 +178,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginRight="30dp"
                     android:background="@drawable/rounded_rectangle_2"
                     android:hint="Enter your favorite book character"
                     android:padding="10dp"
@@ -182,6 +185,18 @@
                     android:focusable="false"
                     android:cursorVisible="false"
                     android:imeOptions="actionDone" />
+
+                <!-- Right Icon as ImageButton -->
+                <ImageButton
+                    android:id="@+id/pencil2"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="15dp"
+                    android:src="@drawable/pencil"
+                    app:tint="@color/sub_text_brown"
+                    android:background="@null"
+                    android:scaleType="centerInside" />
 
 
             </LinearLayout>
