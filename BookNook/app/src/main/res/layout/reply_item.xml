@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Yunjong Noh -->
+<!-- Reply fragment to reply for a comment -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -13,7 +15,7 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:text="Reply Username"
-        android:textColor="@android:color/holo_blue_dark" /> <!-- 사용자 이름 색상 강조 -->
+        android:textColor="@android:color/holo_blue_dark" /> <!-- hightlight username -->
 
     <!-- Reply content -->
     <TextView
@@ -21,7 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Reply text"
-        android:textColor="@android:color/black" /> <!-- 기본 색상 설정 -->
+        android:textColor="@android:color/black" />
 
     <!-- Reply timestamp -->
     <TextView
@@ -29,5 +31,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Timestamp"
-        android:textColor="@android:color/darker_gray" /> <!-- 타임스탬프 색상 변경 -->
+        android:textColor="@android:color/darker_gray" />
 </LinearLayout>

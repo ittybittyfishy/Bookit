@@ -641,26 +641,29 @@ class BookDetailsFragment : Fragment() {
         personalSummary.isFocusableInTouchMode = false
     }
 
-    //Yunjong Noh
+    // Yunjong Noh
     // Function to fetch reviews for a specific book from Firestore using its ISBN
     private fun fetchReviews(isbn: String) {
+        // Reference to the reviews collection of the specified book in Firestore
         val reviewsRef = FirebaseFirestore.getInstance()
             .collection("books")
             .document(isbn)
             .collection("reviews")
 
+        // Fetch all reviews for the specified book
         reviewsRef.get()
             .addOnSuccessListener { documents ->
                 val reviewsList = mutableListOf<Any>()
                 for (document in documents) {
                     val isTemplateUsed = document.getBoolean("isTemplateUsed") ?: false
                     if (isTemplateUsed) {
+                        // Convert the document to a TemplateReview object and copy relevant fields
                         val templateReview = document.toObject(TemplateReview::class.java).copy(
-                            reviewId = document.id,
-                            isbn = isbn
+                            reviewId = document.id, // Set the review ID
+                            isbn = isbn // Set the ISBN
                         )
-                        reviewsList.add(templateReview)
-                        Log.d("fetchReviews", "Fetched TemplateReview - ISBN: $isbn, ReviewID: ${document.id}")
+                        reviewsList.add(templateReview) // Add the template review to the list
+                        Log.d("fetchReviews", "Fetched TemplateReview - ISBN: $isbn, ReviewID: ${document.id}") // Log the fetched template review
                         // Fetch comments for the template review
                         fetchComments(isbn, document.id)
                     } else {
@@ -669,19 +672,22 @@ class BookDetailsFragment : Fragment() {
                             isbn = isbn
                         )
                         reviewsList.add(review)
-                        Log.d("fetchReviews", "Fetched Review - ISBN: $isbn, ReviewID: ${document.id}")
+                        Log.d("fetchReviews", "Fetched Review - ISBN: $isbn, ReviewID: ${document.id}") // Log the fetched regular review
                         // Fetch comments for the regular review
                         fetchComments(isbn, document.id)
                     }
                 }
-                setupRecyclerView(reviewsList)
+                setupRecyclerView(reviewsList) // Set up the RecyclerView with the fetched reviews
             }
             .addOnFailureListener { exception ->
                 Log.e("BookDetailsFragment", "Error fetching reviews", exception)
             }
     }
 
+    // Yunjong Noh
+    // Function to fetch comments for a specific review from Firestore
     private fun fetchComments(isbn: String, reviewId: String) {
+        // Reference to the comments collection for the specified review in Firestore
         val commentsRef = FirebaseFirestore.getInstance()
             .collection("books")
             .document(isbn)
@@ -689,17 +695,19 @@ class BookDetailsFragment : Fragment() {
             .document(reviewId)
             .collection("comments")
 
+        // Fetch all comments for the specified review
         commentsRef.get()
             .addOnSuccessListener { documents ->
                 val commentsList = mutableListOf<Comment>()
-                for (document in documents) {
+                for (document in documents) { // Iterate through each comment document
+                    // Convert the document to a Comment object and add the comment ID
                     val comment = document.toObject(Comment::class.java).apply {
-                        commentId = document.id // 댓글 ID 추가
+                        commentId = document.id // Add the comment ID
                     }
-                    commentsList.add(comment)
+                    commentsList.add(comment) // Add the comment to the list
                 }
-                // 댓글 목록을 UI에 업데이트
-                setupCommentsRecyclerView(commentsList)
+                // Update the UI with the comments list
+                setupCommentsRecyclerView(commentsList) // Set up the RecyclerView for comments
             }
             .addOnFailureListener { exception ->
                 Log.e("fetchComments", "Error fetching comments", exception)
@@ -709,18 +717,24 @@ class BookDetailsFragment : Fragment() {
     // Yunjong Noh
     // Function to set up the RecyclerView and bind it with the fetched reviews
     private fun setupRecyclerView(reviews: List<Any>) {
-        // Defines UI element of RecycleView
+        // Find the RecyclerView UI element in the layout
         val recyclerView = view?.findViewById<RecyclerView>(R.id.reviewsRecyclerView)
         // Set up the RecyclerView to use a vertical LinearLayoutManager
         recyclerView?.layoutManager = LinearLayoutManager(context)
-        // Set the adapter to show fetched reviews in RecycleViewer
-        recyclerView?.adapter = ReviewsAdapter(reviews)
+        // Set the adapter to show fetched reviews in the RecyclerView
+        recyclerView?.adapter = ReviewsAdapter(reviews) // Bind the reviews to the adapter
     }
 
+    // Yunjong Noh
+    // Function to set up the RecyclerView for comments
     private fun setupCommentsRecyclerView(comments: List<Comment>) {
+        // Find the RecyclerView UI element for comments
         val recyclerView = view?.findViewById<RecyclerView>(R.id.commentsRecyclerView)
+        // Create an adapter for the comments
         val commentsAdapter = CommentsAdapter(comments)
+        // Set the layout manager for the comments RecyclerView
         recyclerView?.layoutManager = LinearLayoutManager(context)
+        // Bind the comments to the adapter
         recyclerView?.adapter = commentsAdapter
     }
 

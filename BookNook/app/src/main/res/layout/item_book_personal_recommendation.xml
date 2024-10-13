@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Yunjong Noh -->
+<!-- Book Cover Image with placeholder for personal recommendation-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
@@ -14,7 +16,7 @@
         android:layout_height="200dp"
         android:layout_gravity="center"
         android:scaleType="fitXY"
-        android:src="@drawable/placeholder_image" />  <!-- Add your placeholder here -->
+        android:src="@drawable/placeholder_image" />
 
 
     <!-- Book Title -->

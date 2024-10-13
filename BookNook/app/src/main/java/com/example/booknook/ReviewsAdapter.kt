@@ -337,38 +337,47 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
 
 
     }
-
+    //Yunjong Noh
     // ViewHolder for with-template reviews
     class TemplateReviewViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+        // Views for displaying user information
         private val username: TextView = itemView.findViewById(R.id.Username)
         private val overallReviewText: TextView = itemView.findViewById(R.id.OverallReviewText)
         private val overallRatingBar: RatingBar = itemView.findViewById(R.id.overallRatingBar)
         private val overallReviewHeading: TextView = itemView.findViewById(R.id.OverallReviewHeading)
 
+        // Views for displaying character reviews
         private val charactersReview: TextView = itemView.findViewById(R.id.CharactersReview)
         private val charactersRatingBar: RatingBar = itemView.findViewById(R.id.charactersRatingBar)
         private val charactersHeading: TextView = itemView.findViewById(R.id.CharactersHeading)
 
+        // Views for displaying writing reviews
         private val writingReview: TextView = itemView.findViewById(R.id.WritingReview)
         private val writingRatingBar: RatingBar = itemView.findViewById(R.id.writingRatingBar)
         private val writingHeading: TextView = itemView.findViewById(R.id.WritingHeading)
 
+        // Views for displaying plot reviews
         private val plotReview: TextView = itemView.findViewById(R.id.PlotReview)
         private val plotRatingBar: RatingBar = itemView.findViewById(R.id.plotRatingBar)
         private val plotHeading: TextView = itemView.findViewById(R.id.PlotHeading)
 
+        // Views for displaying themes reviews
         private val themesReview: TextView = itemView.findViewById(R.id.ThemesReview)
         private val themesRatingBar: RatingBar = itemView.findViewById(R.id.themesRatingBar)
         private val themesHeading: TextView = itemView.findViewById(R.id.ThemesHeading)
 
+        // Views for displaying strengths reviews
         private val strengthsReview: TextView = itemView.findViewById(R.id.StrengthsReview)
         private val strengthsRatingBar: RatingBar = itemView.findViewById(R.id.strengthsRatingBar)
         private val strengthsHeading: TextView = itemView.findViewById(R.id.StrengthsHeading)
 
+        // Views for displaying weaknesses reviews
         private val weaknessesReview: TextView = itemView.findViewById(R.id.WeaknessesReview)
         private val weaknessesRatingBar: RatingBar = itemView.findViewById(R.id.weaknessesRatingBar)
         private val weaknessesHeading: TextView = itemView.findViewById(R.id.WeaknessesHeading)
 
+        // View for displaying the timestamp of the review
         private val timestamp: TextView = itemView.findViewById(R.id.Timestamp)
 
         // Comment-related views
@@ -382,8 +391,9 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
         private val likeCount: TextView = itemView.findViewById(R.id.likeCount)
         private val dislikeCount: TextView = itemView.findViewById(R.id.dislikeCount)
 
-
+        // Bind the templateReview data to the views
         fun bind(templateReview: TemplateReview) {
+            // Set username and overall review details
             username.text = templateReview.username
             overallReviewText.text = templateReview.reviewText
             overallRatingBar.rating = templateReview.rating.toFloat()
@@ -403,6 +413,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             likeButton.setOnClickListener { handleLike(templateReview, userId) }
             dislikeButton.setOnClickListener { handleDislike(templateReview, userId) }
 
+            // Set visibility and text for characters review if available
             if (!templateReview.charactersReview.isNullOrEmpty()) {
                 charactersHeading.visibility = View.VISIBLE
                 charactersRatingBar.visibility = View.VISIBLE
@@ -416,6 +427,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 charactersReview.visibility = View.GONE
             }
 
+            // Set visibility and text for writing review if available
             if (!templateReview.writingReview.isNullOrEmpty()) {
                 writingHeading.visibility = View.VISIBLE
                 writingRatingBar.visibility = View.VISIBLE
@@ -429,6 +441,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 writingReview.visibility = View.GONE
             }
 
+            // Set visibility and text for plot review if available
             if (!templateReview.plotReview.isNullOrEmpty()) {
                 plotHeading.visibility = View.VISIBLE
                 plotRatingBar.visibility = View.VISIBLE
@@ -442,6 +455,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 plotReview.visibility = View.GONE
             }
 
+            // Set visibility and text for themes review if available
             if (!templateReview.themesReview.isNullOrEmpty()) {
                 themesHeading.visibility = View.VISIBLE
                 themesRatingBar.visibility = View.VISIBLE
@@ -455,6 +469,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 themesReview.visibility = View.GONE
             }
 
+            // Set visibility and text for strengths review if available
             if (!templateReview.strengthsReview.isNullOrEmpty()) {
                 strengthsHeading.visibility = View.VISIBLE
                 strengthsRatingBar.visibility = View.VISIBLE
@@ -468,6 +483,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 strengthsReview.visibility = View.GONE
             }
 
+            // Set visibility and text for weaknesses review if available
             if (!templateReview.weaknessesReview.isNullOrEmpty()) {
                 weaknessesHeading.visibility = View.VISIBLE
                 weaknessesRatingBar.visibility = View.VISIBLE
@@ -481,11 +497,13 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 weaknessesReview.visibility = View.GONE
             }
 
+            // Set the timestamp of the review
             timestamp.text = templateReview.timestamp.toString()
 
+            // Load comments for this review
             loadComments(templateReview)
 
-            // Post a new comment
+            // Post a new comment when the button is clicked
             postCommentButton.setOnClickListener {
                 val commentText = commentInput.text.toString()
                 if (commentText.isNotBlank()) {
@@ -494,10 +512,12 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             }
         }
 
+        // Check if the user has reacted to the review
         private fun checkUserReaction(templateReview: TemplateReview, userId: String?) {
             if (userId != null) {
                 val db = FirebaseFirestore.getInstance()
 
+                // Check if the user has liked the review
                 db.collection("books")
                     .document(templateReview.isbn)
                     .collection("reviews")
@@ -512,6 +532,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                         Log.e("TemplateReviewViewHolder", "Error checking like status", exception)
                     }
 
+                // Check if the user has disliked the review
                 db.collection("books")
                     .document(templateReview.isbn)
                     .collection("reviews")
@@ -528,10 +549,12 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             }
         }
 
+        // Handle like button action
         private fun handleLike(templateReview: TemplateReview, userId: String?) {
             if (userId != null) {
                 val db = FirebaseFirestore.getInstance()
 
+                // Check if the user has already liked the review
                 db.collection("books")
                     .document(templateReview.isbn)
                     .collection("reviews")
@@ -576,10 +599,12 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             }
         }
 
+        // Handle dislike button action
         private fun handleDislike(templateReview: TemplateReview, userId: String?) {
             if (userId != null) {
                 val db = FirebaseFirestore.getInstance()
 
+                // Check if the user has already disliked the review
                 db.collection("books")
                     .document(templateReview.isbn)
                     .collection("reviews")
@@ -624,6 +649,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             }
         }
 
+        // Load comments for the review
         private fun loadComments(templateReview: TemplateReview) {
             val commentsAdapter = CommentsAdapter(listOf())
             commentsRecyclerView.adapter = commentsAdapter
@@ -632,6 +658,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             val isbn = templateReview.isbn
             val reviewId = templateReview.reviewId
 
+            // Fetch comments from Firestore
             FirebaseFirestore.getInstance()
                 .collection("books")
                 .document(isbn)
@@ -651,17 +678,19 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                             commentId = doc.id
                         )
                     }
-                    commentsAdapter.updateComments(comments)
+                    commentsAdapter.updateComments(comments) // Update the adapter with new comments
                 }
                 .addOnFailureListener { exception ->
                     Log.e("TemplateReviewViewHolder", "Error loading comments", exception)
                 }
         }
 
+        // Post a new comment
         private fun postComment(templateReview: TemplateReview, commentText: String) {
             val user = FirebaseAuth.getInstance().currentUser
             val userId = user?.uid ?: ""
 
+            // Fetch user info to get username
             FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(userId)
@@ -669,6 +698,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 .addOnSuccessListener { document ->
                     val username = document.getString("username") ?: "Anonymous"
 
+                    // Create a new Comment object
                     val comment = Comment(
                         userId = userId,
                         username = username,
@@ -679,11 +709,13 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                     val isbn = templateReview.isbn
                     val reviewId = templateReview.reviewId
 
+                    // Ensure valid ISBN and reviewId
                     if (isbn.isEmpty() || reviewId.isEmpty()) {
                         Log.e("TemplateReviewViewHolder", "Invalid bookId or reviewId")
                         return@addOnSuccessListener
                     }
 
+                    // Add the comment to Firestore
                     FirebaseFirestore.getInstance()
                         .collection("books")
                         .document(isbn)
@@ -692,8 +724,8 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                         .collection("comments")
                         .add(comment)
                         .addOnSuccessListener {
-                            commentInput.text.clear()
-                            loadComments(templateReview)
+                            commentInput.text.clear() // Clear the input field
+                            loadComments(templateReview) // Reload comments after posting
                         }
                         .addOnFailureListener { exception ->
                             Log.e("TemplateReviewViewHolder", "Error posting comment", exception)
@@ -704,14 +736,14 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 }
         }
 
+        // Update the review document in Firestore with new like/dislike counts
         private fun updateReviewInFirestore(templateReview: TemplateReview) {
-            // Update likes and dislikes in Firestore
             val db = FirebaseFirestore.getInstance()
             db.collection("books")
-                .document(templateReview.isbn) // Use templateReview here
+                .document(templateReview.isbn) // Use templateReview ISBN
                 .collection("reviews")
-                .document(templateReview.reviewId) // Use templateReview here
-                .update("likes", templateReview.likes, "dislikes", templateReview.dislikes) // Use templateReview here
+                .document(templateReview.reviewId) // Use templateReview reviewId
+                .update("likes", templateReview.likes, "dislikes", templateReview.dislikes) // Update counts
                 .addOnSuccessListener {
                     Log.d("TemplateReviewViewHolder", "Review updated successfully")
                 }
@@ -719,6 +751,5 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                     Log.e("TemplateReviewViewHolder", "Error updating review", e)
                 }
         }
-
     }
 }
