@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -61,6 +62,51 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
         private val commentInput: EditText = itemView.findViewById(R.id.commentInput)
         private val postCommentButton: Button = itemView.findViewById(R.id.postCommentButton)
 
+        // Likes and Dislikes views
+        private val likeButton: ImageButton = itemView.findViewById(R.id.likeButton)
+        private val dislikeButton: ImageButton = itemView.findViewById(R.id.dislikeButton)
+        private val likeCount: TextView = itemView.findViewById(R.id.likeCount)
+        private val dislikeCount: TextView = itemView.findViewById(R.id.dislikeCount)
+
+        private fun checkUserReaction(review: Review, userId: String?) {
+            if (userId != null) {
+                val db = FirebaseFirestore.getInstance()
+
+                // Check if the user has already liked the review
+                db.collection("books")
+                    .document(review.isbn)
+                    .collection("reviews")
+                    .document(review.reviewId)
+                    .collection("likes")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            likeButton.isEnabled = false // Disable like button if already liked
+                        } else {
+                            likeButton.isEnabled = true // Enable like button if not liked
+                        }
+                    }
+
+                // Check if the user has already disliked the review
+                db.collection("books")
+                    .document(review.isbn)
+                    .collection("reviews")
+                    .document(review.reviewId)
+                    .collection("dislikes")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            dislikeButton.isEnabled = false // Disable dislike button if already disliked
+                        } else {
+                            dislikeButton.isEnabled = true // Enable dislike button if not disliked
+                        }
+                    }
+            }
+        }
+
+
         // Binds data from the review object to the UI elements
         fun bind(review: Review) {
             username.text = review.username
@@ -68,6 +114,19 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             ratingBar.rating = review.rating.toFloat()
             timestamp.text = review.timestamp.toString()
             overallReviewHeading.visibility = View.VISIBLE
+
+            // Update like and dislike counts
+            likeCount.text = review.likes.toString()
+            dislikeCount.text = review.dislikes.toString()
+
+            // Check user interaction status for likes and dislikes
+            val userId = FirebaseAuth.getInstance().currentUser?.uid
+            checkUserReaction(review, userId)
+
+            // Handle like and dislike button actions
+            likeButton.setOnClickListener { handleLike(review, userId) }
+            dislikeButton.setOnClickListener { handleDislike(review, userId) }
+
 
             // Load existing comments
             loadComments(review)
@@ -80,6 +139,105 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 }
             }
         }
+
+        private fun handleLike(review: Review, userId: String?) {
+            if (userId != null) {
+                val db = FirebaseFirestore.getInstance()
+
+                db.collection("books")
+                    .document(review.isbn)
+                    .collection("reviews")
+                    .document(review.reviewId)
+                    .collection("likes")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            // User already liked, remove like
+                            db.collection("books")
+                                .document(review.isbn)
+                                .collection("reviews")
+                                .document(review.reviewId)
+                                .collection("likes")
+                                .document(userId)
+                                .delete() // Remove like
+                                .addOnSuccessListener {
+                                    review.likes--
+                                    updateReviewInFirestore(review)
+                                    likeCount.text = review.likes.toString()
+                                }
+                        } else {
+                            // User hasn't liked yet, add like
+                            db.collection("books")
+                                .document(review.isbn)
+                                .collection("reviews")
+                                .document(review.reviewId)
+                                .collection("likes")
+                                .document(userId)
+                                .set(mapOf("timestamp" to Date())) // Add the like
+                                .addOnSuccessListener {
+                                    review.likes++
+                                    updateReviewInFirestore(review)
+                                    likeCount.text = review.likes.toString()
+                                }
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("ReviewViewHolder", "Error checking like status", exception)
+                    }
+            }
+        }
+
+        private fun handleDislike(review: Review, userId: String?) {
+            if (userId != null) {
+                val db = FirebaseFirestore.getInstance()
+
+                db.collection("books")
+                    .document(review.isbn)
+                    .collection("reviews")
+                    .document(review.reviewId)
+                    .collection("dislikes")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            // User already disliked, remove dislike
+                            db.collection("books")
+                                .document(review.isbn)
+                                .collection("reviews")
+                                .document(review.reviewId)
+                                .collection("dislikes")
+                                .document(userId)
+                                .delete() // Remove dislike
+                                .addOnSuccessListener {
+                                    review.dislikes--
+                                    updateReviewInFirestore(review)
+                                    dislikeCount.text = review.dislikes.toString()
+                                }
+                        } else {
+                            // User hasn't disliked yet, add dislike
+                            db.collection("books")
+                                .document(review.isbn)
+                                .collection("reviews")
+                                .document(review.reviewId)
+                                .collection("dislikes")
+                                .document(userId)
+                                .set(mapOf("timestamp" to Date())) // Add the dislike
+                                .addOnSuccessListener {
+                                    review.dislikes++
+                                    updateReviewInFirestore(review)
+                                    dislikeCount.text = review.dislikes.toString()
+                                }
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("ReviewViewHolder", "Error checking dislike status", exception)
+                    }
+            }
+        }
+
+
+
 
         private fun loadComments(review: Review) {
             val commentsAdapter = CommentsAdapter(listOf())
@@ -160,6 +318,24 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                     Log.e("postComment", "Error fetching user info", exception)
                 }
         }
+
+        private fun updateReviewInFirestore(review: Review) {
+            // Update likes and dislikes in Firestore
+            val db = FirebaseFirestore.getInstance()
+            db.collection("books")
+                .document(review.isbn)
+                .collection("reviews")
+                .document(review.reviewId)
+                .update("likes", review.likes, "dislikes", review.dislikes)
+                .addOnSuccessListener {
+                    Log.d("ReviewViewHolder", "Review updated successfully")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("ReviewViewHolder", "Error updating review", e)
+                }
+        }
+
+
     }
 
     // ViewHolder for with-template reviews
@@ -195,15 +371,37 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
 
         private val timestamp: TextView = itemView.findViewById(R.id.Timestamp)
 
+        // Comment-related views
         private val commentsRecyclerView: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
         private val commentInput: EditText = itemView.findViewById(R.id.commentInput)
         private val postCommentButton: Button = itemView.findViewById(R.id.postCommentButton)
+
+        // Likes and dislikes views
+        private val likeButton: ImageButton = itemView.findViewById(R.id.likeButton)
+        private val dislikeButton: ImageButton = itemView.findViewById(R.id.dislikeButton)
+        private val likeCount: TextView = itemView.findViewById(R.id.likeCount)
+        private val dislikeCount: TextView = itemView.findViewById(R.id.dislikeCount)
+
 
         fun bind(templateReview: TemplateReview) {
             username.text = templateReview.username
             overallReviewText.text = templateReview.reviewText
             overallRatingBar.rating = templateReview.rating.toFloat()
             overallReviewHeading.visibility = View.VISIBLE
+            likeCount.text = templateReview.likes.toString()
+            dislikeCount.text = templateReview.dislikes.toString()
+
+            // Update like and dislike counts
+            likeCount.text = templateReview.likes.toString()
+            dislikeCount.text = templateReview.dislikes.toString()
+
+            // Check user interaction status for likes and dislikes
+            val userId = FirebaseAuth.getInstance().currentUser?.uid
+            checkUserReaction(templateReview, userId)
+
+            // Handle like and dislike button actions
+            likeButton.setOnClickListener { handleLike(templateReview, userId) }
+            dislikeButton.setOnClickListener { handleDislike(templateReview, userId) }
 
             if (!templateReview.charactersReview.isNullOrEmpty()) {
                 charactersHeading.visibility = View.VISIBLE
@@ -287,11 +485,142 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
 
             loadComments(templateReview)
 
+            // Post a new comment
             postCommentButton.setOnClickListener {
                 val commentText = commentInput.text.toString()
                 if (commentText.isNotBlank()) {
                     postComment(templateReview, commentText)
                 }
+            }
+        }
+
+        private fun checkUserReaction(templateReview: TemplateReview, userId: String?) {
+            if (userId != null) {
+                val db = FirebaseFirestore.getInstance()
+
+                db.collection("books")
+                    .document(templateReview.isbn)
+                    .collection("reviews")
+                    .document(templateReview.reviewId)
+                    .collection("likes")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        likeButton.isEnabled = !document.exists() // Disable if already liked
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("TemplateReviewViewHolder", "Error checking like status", exception)
+                    }
+
+                db.collection("books")
+                    .document(templateReview.isbn)
+                    .collection("reviews")
+                    .document(templateReview.reviewId)
+                    .collection("dislikes")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        dislikeButton.isEnabled = !document.exists() // Disable if already disliked
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("TemplateReviewViewHolder", "Error checking dislike status", exception)
+                    }
+            }
+        }
+
+        private fun handleLike(templateReview: TemplateReview, userId: String?) {
+            if (userId != null) {
+                val db = FirebaseFirestore.getInstance()
+
+                db.collection("books")
+                    .document(templateReview.isbn)
+                    .collection("reviews")
+                    .document(templateReview.reviewId)
+                    .collection("likes")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            // User already liked, remove like
+                            db.collection("books")
+                                .document(templateReview.isbn)
+                                .collection("reviews")
+                                .document(templateReview.reviewId)
+                                .collection("likes")
+                                .document(userId)
+                                .delete() // Remove like
+                                .addOnSuccessListener {
+                                    templateReview.likes--
+                                    updateReviewInFirestore(templateReview)
+                                    likeCount.text = templateReview.likes.toString()
+                                }
+                        } else {
+                            // User hasn't liked yet, add like
+                            db.collection("books")
+                                .document(templateReview.isbn)
+                                .collection("reviews")
+                                .document(templateReview.reviewId)
+                                .collection("likes")
+                                .document(userId)
+                                .set(mapOf("timestamp" to Date())) // Add the like
+                                .addOnSuccessListener {
+                                    templateReview.likes++
+                                    updateReviewInFirestore(templateReview)
+                                    likeCount.text = templateReview.likes.toString()
+                                }
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("TemplateReviewViewHolder", "Error checking like status", exception)
+                    }
+            }
+        }
+
+        private fun handleDislike(templateReview: TemplateReview, userId: String?) {
+            if (userId != null) {
+                val db = FirebaseFirestore.getInstance()
+
+                db.collection("books")
+                    .document(templateReview.isbn)
+                    .collection("reviews")
+                    .document(templateReview.reviewId)
+                    .collection("dislikes")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            // User already disliked, remove dislike
+                            db.collection("books")
+                                .document(templateReview.isbn)
+                                .collection("reviews")
+                                .document(templateReview.reviewId)
+                                .collection("dislikes")
+                                .document(userId)
+                                .delete() // Remove dislike
+                                .addOnSuccessListener {
+                                    templateReview.dislikes--
+                                    updateReviewInFirestore(templateReview)
+                                    dislikeCount.text = templateReview.dislikes.toString()
+                                }
+                        } else {
+                            // User hasn't disliked yet, add dislike
+                            db.collection("books")
+                                .document(templateReview.isbn)
+                                .collection("reviews")
+                                .document(templateReview.reviewId)
+                                .collection("dislikes")
+                                .document(userId)
+                                .set(mapOf("timestamp" to Date())) // Add the dislike
+                                .addOnSuccessListener {
+                                    templateReview.dislikes++
+                                    updateReviewInFirestore(templateReview)
+                                    dislikeCount.text = templateReview.dislikes.toString()
+                                }
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("TemplateReviewViewHolder", "Error checking dislike status", exception)
+                    }
             }
         }
 
@@ -311,7 +640,17 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 .collection("comments")
                 .get()
                 .addOnSuccessListener { documents ->
-                    val comments = documents.map { it.toObject(Comment::class.java) }
+                    val comments = documents.map { doc ->
+                        Comment(
+                            userId = doc.getString("userId") ?: "",
+                            username = doc.getString("username") ?: "Anonymous",
+                            text = doc.getString("text") ?: "",
+                            timestamp = doc.getDate("timestamp") ?: Date(),
+                            isbn = isbn,
+                            reviewId = reviewId,
+                            commentId = doc.id
+                        )
+                    }
                     commentsAdapter.updateComments(comments)
                 }
                 .addOnFailureListener { exception ->
@@ -364,5 +703,22 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                     Log.e("postComment", "Error fetching user info", exception)
                 }
         }
+
+        private fun updateReviewInFirestore(templateReview: TemplateReview) {
+            // Update likes and dislikes in Firestore
+            val db = FirebaseFirestore.getInstance()
+            db.collection("books")
+                .document(templateReview.isbn) // Use templateReview here
+                .collection("reviews")
+                .document(templateReview.reviewId) // Use templateReview here
+                .update("likes", templateReview.likes, "dislikes", templateReview.dislikes) // Use templateReview here
+                .addOnSuccessListener {
+                    Log.d("TemplateReviewViewHolder", "Review updated successfully")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("TemplateReviewViewHolder", "Error updating review", e)
+                }
+        }
+
     }
 }

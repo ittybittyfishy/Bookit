@@ -45,40 +45,73 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-    <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Overall Review Heading -->
-        <TextView
-            android:id="@+id/OverallReviewHeading"
-            android:layout_width="wrap_content"
+        <!-- Likes and Dislikes Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Overall"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <!-- RatingBar for overall -->
-        <RatingBar
-            android:id="@+id/overallRatingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
+            <ImageButton
+                android:id="@+id/likeButton"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_like" />
+
+            <TextView
+                android:id="@+id/likeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="16dp" />
+
+            <ImageButton
+                android:id="@+id/dislikeButton"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_dislike" />
+
+            <TextView
+                android:id="@+id/dislikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="4dp" />
+        </LinearLayout>
+
+        <!-- Overall Review Heading and Rating -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:rating="4.5"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp" />
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-        <!-- Review Text content for overall -->
+            <TextView
+                android:id="@+id/OverallReviewHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Overall"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <RatingBar
+                android:id="@+id/overallRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:rating="4.5"
+                android:stepSize="0.5" />
+        </LinearLayout>
+
+        <!-- Overall Review Text -->
         <TextView
             android:id="@+id/OverallReviewText"
             android:layout_width="match_parent"
@@ -88,30 +121,25 @@
             android:textSize="14sp"
             android:paddingTop="8dp" />
 
-
-        <!-- Ratings and Reviews for Each Template Parts -->
+        <!-- Ratings and Reviews for Each Template Part -->
         <!-- 1. Characters Rating & Review -->
-
-    <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Characters Heading -->
-        <TextView
-            android:id="@+id/CharactersHeading"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Characters"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-            <!-- Characters RatingBar -->
+            <TextView
+                android:id="@+id/CharactersHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Characters"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
             <RatingBar
                 android:id="@+id/charactersRatingBar"
                 style="?android:attr/ratingBarStyleSmall"
@@ -125,7 +153,6 @@
                 android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <!-- Characters Review TextView -->
         <TextView
             android:id="@+id/CharactersReview"
             android:layout_width="match_parent"
@@ -137,41 +164,36 @@
             android:visibility="gone" />
 
         <!-- 2. Writing Rating & Review -->
-
-        <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Writing Heading -->
-        <TextView
-            android:id="@+id/WritingHeading"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Writing"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-        <!-- Writing RatingBar -->
-        <RatingBar
-            android:id="@+id/writingRatingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:rating="4.5"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp" />
+            <TextView
+                android:id="@+id/WritingHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Writing"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <RatingBar
+                android:id="@+id/writingRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.5"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <!-- Writing Review TextView -->
         <TextView
             android:id="@+id/WritingReview"
             android:layout_width="match_parent"
@@ -183,41 +205,36 @@
             android:visibility="gone" />
 
         <!-- 3. Plot Rating & Review -->
-
-        <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Plot Heading -->
-        <TextView
-            android:id="@+id/PlotHeading"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Plot"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-        <!-- Plot RatingBar -->
-        <RatingBar
-            android:id="@+id/plotRatingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:rating="4.5"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp" />
+            <TextView
+                android:id="@+id/PlotHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Plot"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <RatingBar
+                android:id="@+id/plotRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.5"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <!-- Plot Review TextView -->
         <TextView
             android:id="@+id/PlotReview"
             android:layout_width="match_parent"
@@ -229,41 +246,36 @@
             android:visibility="gone" />
 
         <!-- 4. Themes Rating & Review -->
-
-    <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Themes Heading -->
-        <TextView
-            android:id="@+id/ThemesHeading"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Themes"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-        <!-- Themes RatingBar -->
-        <RatingBar
-            android:id="@+id/themesRatingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:rating="4.5"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp" />
+            <TextView
+                android:id="@+id/ThemesHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Themes"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <RatingBar
+                android:id="@+id/themesRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.5"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <!-- Themes Review TextView -->
         <TextView
             android:id="@+id/ThemesReview"
             android:layout_width="match_parent"
@@ -275,41 +287,36 @@
             android:visibility="gone" />
 
         <!-- 5. Strengths Rating & Review -->
-
-    <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Strengths Heading -->
-        <TextView
-            android:id="@+id/StrengthsHeading"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Strengths"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-        <!-- Strengths RatingBar -->
-        <RatingBar
-            android:id="@+id/strengthsRatingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:rating="4.5"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp" />
+            <TextView
+                android:id="@+id/StrengthsHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Strengths"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <RatingBar
+                android:id="@+id/strengthsRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.5"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <!-- Strengths Review TextView -->
         <TextView
             android:id="@+id/StrengthsReview"
             android:layout_width="match_parent"
@@ -321,41 +328,36 @@
             android:visibility="gone" />
 
         <!-- 6. Weaknesses Rating & Review -->
-
-    <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Weaknesses Heading -->
-        <TextView
-            android:id="@+id/WeaknessesHeading"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Weaknesses"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-        <!-- Weaknesses RatingBar -->
-        <RatingBar
-            android:id="@+id/weaknessesRatingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:rating="4.5"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp" />
+            <TextView
+                android:id="@+id/WeaknessesHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Weaknesses"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <RatingBar
+                android:id="@+id/weaknessesRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.5"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <!-- Weaknesses Review TextView -->
         <TextView
             android:id="@+id/WeaknessesReview"
             android:layout_width="match_parent"
