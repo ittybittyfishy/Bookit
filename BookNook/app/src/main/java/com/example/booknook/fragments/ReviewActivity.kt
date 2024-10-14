@@ -139,13 +139,12 @@ class ReviewActivity : Fragment() {
         //Itzel Medina
         // Handle RatingBar changes
         ratingBar.setOnRatingBarChangeListener { _, rating, _ ->
-            if (rating > 0) {
-                userRating = rating
+            userRating = rating
+            if (rating >= 0) {
                 ratingPromptText.text = "My Rating"
                 ratingValue.text = rating.toString()  // Update the TextView with the current rating
                 submitButton.isEnabled = true
             } else {
-                userRating = null
                 ratingPromptText.text = "Rate it!"
                 ratingValue.text = "0.0"  // Reset the TextView if rating is zero
                 submitButton.isEnabled = false

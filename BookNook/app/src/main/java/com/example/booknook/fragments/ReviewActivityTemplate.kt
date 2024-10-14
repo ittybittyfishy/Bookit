@@ -188,22 +188,20 @@ class ReviewActivityTemplate : Fragment() {
 
         // Handle RatingBar changes
         ratingBar.setOnRatingBarChangeListener { _, rating, _ ->
+            userRating = rating
             if (rating > 0) {
-                userRating = rating
                 ratingPromptText.text = "My Rating"
                 ratingValueTextView.text = String.format("%.1f", rating)  // Update rating value text
             } else {
-                userRating = null
-                ratingPromptText.text = "Rate it!"
                 ratingValueTextView.text = "0.0"  // Reset rating value text
             }
         }
 
         // Handle the submit button click to save the review
+        // Ensure focus is cleared from EditText fields before retrieving data
         submitButton.setOnClickListener {
+            view.clearFocus()
             if (userRating != null) {
-                // Ensure focus is cleared from EditText fields before retrieving data
-                view.clearFocus()
 
                 // Capture the main review text and rating
                 val reviewText = reviewEditText.text.toString()
