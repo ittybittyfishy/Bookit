@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- Yunjong Noh-->
+<!-- Yunjong Noh -->
 <!-- CardView for the with-template review item -->
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -45,40 +45,79 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-    <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Overall Review Heading -->
-        <TextView
-            android:id="@+id/OverallReviewHeading"
-            android:layout_width="wrap_content"
+        <!-- Likes and Dislikes Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Overall"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <!-- RatingBar for overall -->
-        <RatingBar
-            android:id="@+id/overallRatingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
+            <!-- Button for liking the review -->
+            <ImageButton
+                android:id="@+id/likeButton"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_like" />
+
+            <!-- TextView to show the count of likes -->
+            <TextView
+                android:id="@+id/likeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="16dp" />
+
+            <!-- Button for disliking the review -->
+            <ImageButton
+                android:id="@+id/dislikeButton"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_dislike" />
+
+            <!-- TextView to show the count of dislikes -->
+            <TextView
+                android:id="@+id/dislikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="4dp" />
+        </LinearLayout>
+
+        <!-- Overall Review Heading and Rating -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:rating="4.5"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp" />
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-        <!-- Review Text content for overall -->
+            <!-- Heading for Overall Review, initially hidden -->
+            <TextView
+                android:id="@+id/OverallReviewHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Overall"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <!-- RatingBar for overall review rating, read-only -->
+            <RatingBar
+                android:id="@+id/overallRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:rating="4.5"
+                android:stepSize="0.5" />
+        </LinearLayout>
+
+        <!-- Overall Review Text -->
         <TextView
             android:id="@+id/OverallReviewText"
             android:layout_width="match_parent"
@@ -88,30 +127,28 @@
             android:textSize="14sp"
             android:paddingTop="8dp" />
 
+        <!-- Ratings and Reviews for Each Template Part -->
 
-        <!-- Ratings and Reviews for Each Template Parts -->
         <!-- 1. Characters Rating & Review -->
-
-    <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Characters Heading -->
-        <TextView
-            android:id="@+id/CharactersHeading"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Characters"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-            <!-- Characters RatingBar -->
+            <!-- Heading for Characters Review, initially hidden -->
+            <TextView
+                android:id="@+id/CharactersHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Characters"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <!-- RatingBar for character ratings, read-only -->
             <RatingBar
                 android:id="@+id/charactersRatingBar"
                 style="?android:attr/ratingBarStyleSmall"
@@ -125,7 +162,7 @@
                 android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <!-- Characters Review TextView -->
+        <!-- TextView for Characters Review, initially hidden -->
         <TextView
             android:id="@+id/CharactersReview"
             android:layout_width="match_parent"
@@ -137,41 +174,39 @@
             android:visibility="gone" />
 
         <!-- 2. Writing Rating & Review -->
-
-        <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Writing Heading -->
-        <TextView
-            android:id="@+id/WritingHeading"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Writing"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-        <!-- Writing RatingBar -->
-        <RatingBar
-            android:id="@+id/writingRatingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:rating="4.5"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp" />
+            <!-- Heading for Writing Review, initially hidden -->
+            <TextView
+                android:id="@+id/WritingHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Writing"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <!-- RatingBar for writing ratings, read-only -->
+            <RatingBar
+                android:id="@+id/writingRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.5"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <!-- Writing Review TextView -->
+        <!-- TextView for Writing Review, initially hidden -->
         <TextView
             android:id="@+id/WritingReview"
             android:layout_width="match_parent"
@@ -183,41 +218,39 @@
             android:visibility="gone" />
 
         <!-- 3. Plot Rating & Review -->
-
-        <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Plot Heading -->
-        <TextView
-            android:id="@+id/PlotHeading"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Plot"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-        <!-- Plot RatingBar -->
-        <RatingBar
-            android:id="@+id/plotRatingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:rating="4.5"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp" />
+            <!-- Heading for Plot Review, initially hidden -->
+            <TextView
+                android:id="@+id/PlotHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Plot"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <!-- RatingBar for plot ratings, read-only -->
+            <RatingBar
+                android:id="@+id/plotRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.5"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <!-- Plot Review TextView -->
+        <!-- TextView for Plot Review, initially hidden -->
         <TextView
             android:id="@+id/PlotReview"
             android:layout_width="match_parent"
@@ -229,41 +262,39 @@
             android:visibility="gone" />
 
         <!-- 4. Themes Rating & Review -->
-
-    <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Themes Heading -->
-        <TextView
-            android:id="@+id/ThemesHeading"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Themes"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-        <!-- Themes RatingBar -->
-        <RatingBar
-            android:id="@+id/themesRatingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:rating="4.5"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp" />
+            <!-- Heading for Themes Review, initially hidden -->
+            <TextView
+                android:id="@+id/ThemesHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Themes"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <!-- RatingBar for themes ratings, read-only -->
+            <RatingBar
+                android:id="@+id/themesRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.5"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <!-- Themes Review TextView -->
+        <!-- TextView for Themes Review, initially hidden -->
         <TextView
             android:id="@+id/ThemesReview"
             android:layout_width="match_parent"
@@ -275,97 +306,130 @@
             android:visibility="gone" />
 
         <!-- 5. Strengths Rating & Review -->
-
-    <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Strengths Heading -->
-        <TextView
-            android:id="@+id/StrengthsHeading"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Strengths"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-        <!-- Strengths RatingBar -->
-        <RatingBar
-            android:id="@+id/strengthsRatingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:rating="4.5"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp" />
+            <!-- Heading for Strengths Review, initially hidden -->
+            <TextView
+                android:id="@+id/StrengthsHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Strengths"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <!-- RatingBar for strengths ratings, read-only -->
+            <RatingBar
+                android:id="@+id/strengthsRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.5"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <!-- Strengths Review TextView -->
+        <!-- TextView for Strengths Review, initially hidden -->
         <TextView
             android:id="@+id/StrengthsReview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Themes review text"
+            android:text="Strengths review text"
             android:textColor="@android:color/black"
             android:textSize="14sp"
             android:paddingTop="4dp"
             android:visibility="gone" />
 
         <!-- 6. Weaknesses Rating & Review -->
-
-    <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Weaknesses Heading -->
-        <TextView
-            android:id="@+id/WeaknessesHeading"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Weaknesses"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
 
-        <!-- Weaknesses RatingBar -->
-        <RatingBar
-            android:id="@+id/weaknessesRatingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:rating="4.5"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp" />
+            <!-- Heading for Weaknesses Review, initially hidden -->
+            <TextView
+                android:id="@+id/WeaknessesHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Weaknesses"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <!-- RatingBar for weaknesses ratings, read-only -->
+            <RatingBar
+                android:id="@+id/weaknessesRatingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.5"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <!-- Weaknesses Review TextView -->
+        <!-- TextView for Weaknesses Review, initially hidden -->
         <TextView
             android:id="@+id/WeaknessesReview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Themes review text"
+            android:text="Weaknesses review text"
             android:textColor="@android:color/black"
             android:textSize="14sp"
             android:paddingTop="4dp"
             android:visibility="gone" />
 
+        <!-- Comments Section -->
+        <LinearLayout
+            android:id="@+id/commentsSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp">
+
+            <!-- RecyclerView for displaying comments -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/commentsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Input field for adding a comment -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+                <!-- EditText for user to type a comment -->
+                <EditText
+                    android:id="@+id/commentInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Write a comment" />
+
+                <!-- Button to post the comment -->
+                <Button
+                    android:id="@+id/postCommentButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Post" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

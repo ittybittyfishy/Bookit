@@ -31,8 +31,11 @@ import android.widget.Spinner
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.booknook.Comment
+import com.example.booknook.CommentsAdapter
 import com.example.booknook.ImageLinks
 import com.example.booknook.IndustryIdentifier
+import com.example.booknook.Reply
 import com.example.booknook.Review
 import com.example.booknook.ReviewsAdapter
 import com.example.booknook.TemplateReview
@@ -638,51 +641,101 @@ class BookDetailsFragment : Fragment() {
         personalSummary.isFocusableInTouchMode = false
     }
 
-    //Yunjong Noh
+    // Yunjong Noh
     // Function to fetch reviews for a specific book from Firestore using its ISBN
     private fun fetchReviews(isbn: String) {
-        //Refers to Firestore database, targeting books, document for isbn,
-        // and review's sub-collection within the book document.
+        // Reference to the reviews collection of the specified book in Firestore
         val reviewsRef = FirebaseFirestore.getInstance()
             .collection("books")
             .document(isbn)
             .collection("reviews")
 
-        // Asynchronously get all documents in the "reviews" sub-collection
+        // Fetch all reviews for the specified book
         reviewsRef.get()
             .addOnSuccessListener { documents ->
-                // Mutable list to store reviews (both with-template and no-template Review objects)
                 val reviewsList = mutableListOf<Any>()
-                // Iterates over each document fetched from Firestore
                 for (document in documents) {
-                    // Check if the review uses a template by looking at the "isTemplateUsed" field
                     val isTemplateUsed = document.getBoolean("isTemplateUsed") ?: false
-                    // If the template was used, map the document to the TemplateReview data class
                     if (isTemplateUsed) {
-                        val templateReview = document.toObject(TemplateReview::class.java)
-                        reviewsList.add(templateReview) // Add the no-template object to the list
+                        // Convert the document to a TemplateReview object and copy relevant fields
+                        val templateReview = document.toObject(TemplateReview::class.java).copy(
+                            reviewId = document.id, // Set the review ID
+                            isbn = isbn // Set the ISBN
+                        )
+                        reviewsList.add(templateReview) // Add the template review to the list
+                        Log.d("fetchReviews", "Fetched TemplateReview - ISBN: $isbn, ReviewID: ${document.id}") // Log the fetched template review
+                        // Fetch comments for the template review
+                        fetchComments(isbn, document.id)
                     } else {
-                        val review = document.toObject(Review::class.java)
-                        reviewsList.add(review) // Add the no-template object to the list
+                        val review = document.toObject(Review::class.java).copy(
+                            reviewId = document.id,
+                            isbn = isbn
+                        )
+                        reviewsList.add(review)
+                        Log.d("fetchReviews", "Fetched Review - ISBN: $isbn, ReviewID: ${document.id}") // Log the fetched regular review
+                        // Fetch comments for the regular review
+                        fetchComments(isbn, document.id)
                     }
                 }
-                // After processing all documents, pass the reviews list to the setupRecyclerView function
-                setupRecyclerView(reviewsList)
+                setupRecyclerView(reviewsList) // Set up the RecyclerView with the fetched reviews
             }
-            // Exception handler will made, while fetching reviews
             .addOnFailureListener { exception ->
                 Log.e("BookDetailsFragment", "Error fetching reviews", exception)
             }
     }
+
+    // Yunjong Noh
+    // Function to fetch comments for a specific review from Firestore
+    private fun fetchComments(isbn: String, reviewId: String) {
+        // Reference to the comments collection for the specified review in Firestore
+        val commentsRef = FirebaseFirestore.getInstance()
+            .collection("books")
+            .document(isbn)
+            .collection("reviews")
+            .document(reviewId)
+            .collection("comments")
+
+        // Fetch all comments for the specified review
+        commentsRef.get()
+            .addOnSuccessListener { documents ->
+                val commentsList = mutableListOf<Comment>()
+                for (document in documents) { // Iterate through each comment document
+                    // Convert the document to a Comment object and add the comment ID
+                    val comment = document.toObject(Comment::class.java).apply {
+                        commentId = document.id // Add the comment ID
+                    }
+                    commentsList.add(comment) // Add the comment to the list
+                }
+                // Update the UI with the comments list
+                setupCommentsRecyclerView(commentsList) // Set up the RecyclerView for comments
+            }
+            .addOnFailureListener { exception ->
+                Log.e("fetchComments", "Error fetching comments", exception)
+            }
+    }
+
     // Yunjong Noh
     // Function to set up the RecyclerView and bind it with the fetched reviews
     private fun setupRecyclerView(reviews: List<Any>) {
-        // Defines UI element of RecycleView
+        // Find the RecyclerView UI element in the layout
         val recyclerView = view?.findViewById<RecyclerView>(R.id.reviewsRecyclerView)
         // Set up the RecyclerView to use a vertical LinearLayoutManager
         recyclerView?.layoutManager = LinearLayoutManager(context)
-        // Set the adapter to show fetched reviews in RecycleViewer
-        recyclerView?.adapter = ReviewsAdapter(reviews)
+        // Set the adapter to show fetched reviews in the RecyclerView
+        recyclerView?.adapter = ReviewsAdapter(reviews) // Bind the reviews to the adapter
+    }
+
+    // Yunjong Noh
+    // Function to set up the RecyclerView for comments
+    private fun setupCommentsRecyclerView(comments: List<Comment>) {
+        // Find the RecyclerView UI element for comments
+        val recyclerView = view?.findViewById<RecyclerView>(R.id.commentsRecyclerView)
+        // Create an adapter for the comments
+        val commentsAdapter = CommentsAdapter(comments)
+        // Set the layout manager for the comments RecyclerView
+        recyclerView?.layoutManager = LinearLayoutManager(context)
+        // Bind the comments to the adapter
+        recyclerView?.adapter = commentsAdapter
     }
 
 }

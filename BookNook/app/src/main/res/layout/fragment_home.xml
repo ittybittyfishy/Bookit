@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.HomeFragment">
@@ -12,17 +11,15 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|top"
         android:layout_marginTop="5dp">
-f
+
         <!-- Orange rectangle with rounded corners -->
         <View
             android:layout_width="400dp"
             android:layout_height="50dp"
             android:background="@drawable/rounded_orange_rectangle"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_gravity="center_horizontal" />
 
         <!-- TextView on top of orange rectangle -->
-        <!-- Yunjong Noh -->
-        <!-- change textcolor variable for dark mode -->
         <TextView
             android:id="@+id/loggedInTextView"
             android:layout_width="match_parent"
@@ -33,11 +30,10 @@ f
             android:gravity="center"
             android:singleLine="true"
             android:textColor="@color/user_name_home"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center" />
     </FrameLayout>
-
-    <!-- Text in the middle of the screen -->
-    <!-- code for home design stuff -->
+    <!-- Yunjong Noh -->
+    <!-- Title for recommendations -->
     <TextView
         android:id="@+id/dailyRecommendationsTitle"
         android:layout_width="wrap_content"
@@ -46,7 +42,17 @@ f
         android:textColor="@color/home_pink"
         android:textSize="30sp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="54dp"/>
+        android:layout_marginTop="54dp" />
+
+    <!-- Horizontal RecyclerView for book recommendations -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewRecommendations"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:padding="16dp"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal" />
 
     <!-- Divider -->
     <View
@@ -68,5 +74,4 @@ f
         android:textColor="@color/home_pink"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="315dp" />
-
 </FrameLayout>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Yunjong Noh -->
+<!-- Book Cover Image with placeholder for personal recommendation-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:layout_gravity="center_horizontal">
+
+    <!-- Book Cover Image with placeholder -->
+    <ImageView
+        android:id="@+id/bookCoverImageView"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:scaleType="fitXY"
+        android:src="@drawable/placeholder_image" />
+
+
+    <!-- Book Title -->
+    <TextView
+        android:id="@+id/bookTitleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Book Title"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:textStyle="bold" />
+
+    <!-- Ratings and Count -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp">
+
+        <!-- Star Rating -->
+        <TextView
+            android:id="@+id/bookRatingTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(4.1)"
+            android:textSize="14sp"
+            android:layout_marginStart="4dp"
+            android:textColor="@color/green_to_purple" />
+
+        <!-- Number of Ratings -->
+        <TextView
+            android:id="@+id/bookRatingCountTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="201,593 ratings"
+            android:textSize="14sp"
+            android:layout_marginStart="6dp"
+            android:textColor="@color/black" />
+    </LinearLayout>
+
+    <!-- Like and Dislike Buttons -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="12dp">
+
+        <!-- Dislike Button -->
+        <ImageButton
+            android:id="@+id/dislikeButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_dislike"
+            android:background="@null"
+            android:layout_marginEnd="16dp" />
+
+        <!-- Like Button -->
+        <ImageButton
+            android:id="@+id/likeButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_like"
+            android:background="@null" />
+    </LinearLayout>
+</LinearLayout>

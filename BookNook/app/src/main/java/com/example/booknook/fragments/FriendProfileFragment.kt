@@ -70,8 +70,6 @@ class FriendProfileFragment : Fragment() {
             showPopupMenu(view)
         }
 
-
-
         // Disable editing on EditTexts
         quoteEditText.isEnabled = false
         characterEditText.isEnabled = false
@@ -81,6 +79,12 @@ class FriendProfileFragment : Fragment() {
             loadFriendData(friendUserId!!)
         } else {
             Toast.makeText(activity, "Friend user ID not provided", Toast.LENGTH_SHORT).show()
+        }
+
+
+        // Load initial friend status
+        friendUserId?.let { friendId ->
+            checkFriendshipStatus(friendId)  // Check the initial status
         }
 
         // Set up Add Friend button

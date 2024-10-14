@@ -21,5 +21,10 @@ data class TemplateReview(
     val weaknessesRating: Double = 0.0,
     val weaknessesReview: String? = "",
     val timestamp: Date? = null,
-    val isTemplateUsed: Boolean = true
+    val isTemplateUsed: Boolean = true,
+    val isbn: String = "",
+    val reviewId: String = "",
+    var likes: Int = 0,
+    var dislikes: Int = 0
+
 )

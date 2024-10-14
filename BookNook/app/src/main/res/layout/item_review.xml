@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- Yunjong Noh-->
+<!-- Yunjong Noh -->
 <!-- CardView for the no-template review item -->
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -45,38 +45,77 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-    <!-- Container for the each template content -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="visible">
-
-        <!-- Overall Review Heading -->
-        <TextView
-            android:id="@+id/OverallReviewHeading"
-            android:layout_width="wrap_content"
+        <!-- Like/Dislike section -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Overall"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:paddingTop="8dp">
 
-        <!-- RatingBar for overall -->
-        <RatingBar
-            android:id="@+id/ratingBar"
-            style="?android:attr/ratingBarStyleSmall"
-            android:layout_width="wrap_content"
+            <!-- Button for liking the review -->
+            <ImageButton
+                android:id="@+id/likeButton"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_like" />
+
+            <!-- TextView to show the count of likes -->
+            <TextView
+                android:id="@+id/likeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="16dp" />
+
+            <!-- Button for disliking the review -->
+            <ImageButton
+                android:id="@+id/dislikeButton"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_dislike" />
+
+            <!-- TextView to show the count of dislikes -->
+            <TextView
+                android:id="@+id/dislikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="4dp" />
+        </LinearLayout>
+
+        <!-- Container for overall review content -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:numStars="5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:rating="4.5"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="4dp" />
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="visible">
+
+            <!-- Heading for Overall Review, initially hidden -->
+            <TextView
+                android:id="@+id/OverallReviewHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Overall"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp"
+                android:visibility="gone" />
+
+            <!-- RatingBar for overall review, read-only -->
+            <RatingBar
+                android:id="@+id/ratingBar"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:isIndicator="true"
+                android:rating="4.5"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
 
         <!-- Review Text content for overall -->
         <TextView
@@ -88,7 +127,7 @@
             android:textSize="14sp"
             android:paddingTop="8dp" />
 
-        <!-- Spoiler, Sensitive Topic warning TextView, hidden default setting -->
+        <!-- Spoiler warning TextView, hidden by default -->
         <TextView
             android:id="@+id/SpoilerWarning"
             android:layout_width="wrap_content"
@@ -99,6 +138,7 @@
             android:visibility="gone"
             android:paddingTop="4dp" />
 
+        <!-- Sensitive topics warning TextView, hidden by default -->
         <TextView
             android:id="@+id/SensitiveTopicsWarning"
             android:layout_width="wrap_content"
@@ -109,6 +149,43 @@
             android:visibility="gone"
             android:paddingTop="2dp" />
 
+        <!-- Comments Section -->
+        <LinearLayout
+            android:id="@+id/commentsSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp">
+
+            <!-- RecyclerView for displaying comments -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/commentsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Input field for adding a comment -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+                <!-- EditText for user to type a comment -->
+                <EditText
+                    android:id="@+id/commentInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Write a comment" />
+
+                <!-- Button to post the comment -->
+                <Button
+                    android:id="@+id/postCommentButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Post" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Yunjong Noh -->
+<!-- Reply fragment to reply for a comment -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:layout_marginStart="32dp">
+
+    <!-- Username of the reply author -->
+    <TextView
+        android:id="@+id/replyUsername"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="Reply Username"
+        android:textColor="@android:color/holo_blue_dark" /> <!-- hightlight username -->
+
+    <!-- Reply content -->
+    <TextView
+        android:id="@+id/replyText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reply text"
+        android:textColor="@android:color/black" />
+
+    <!-- Reply timestamp -->
+    <TextView
+        android:id="@+id/replyTimestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Timestamp"
+        android:textColor="@android:color/darker_gray" />
+</LinearLayout>
