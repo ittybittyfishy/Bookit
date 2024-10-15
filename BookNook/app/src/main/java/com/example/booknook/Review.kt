@@ -8,12 +8,12 @@ data class Review(
     val username: String = "",
     val reviewText: String = "",
     val rating: Double = 0.0,
-    val hasSpoilers: Boolean = false,
-    val hasSensitiveTopics: Boolean = false,
+    val hasSpoilers: Boolean = false,  // Boolean, not referencing UI
+    val hasSensitiveTopics: Boolean = false,  // Boolean, not referencing UI
     val timestamp: Date? = null,
     val isTemplateUsed: Boolean = false,
-    val isbn: String = "",   // 해당 리뷰가 속한 책의 ID
-    val reviewId: String = "",  // 각 리뷰의 고유 ID
+    val isbn: String = "",
+    val reviewId: String = "",
     var likes: Int = 0,
     var dislikes: Int = 0
 )

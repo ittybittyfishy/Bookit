@@ -57,6 +57,10 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
         private val timestamp: TextView = itemView.findViewById(R.id.Timestamp)
         private val overallReviewHeading: TextView = itemView.findViewById(R.id.OverallReviewHeading)
 
+        // Warning views
+        private val spoilerWarning: TextView = itemView.findViewById(R.id.SpoilerWarning)
+        private val sensitiveTopicsWarning: TextView = itemView.findViewById(R.id.SensitiveTopicsWarning)
+
         // Comment-related views
         private val commentsRecyclerView: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
         private val commentInput: EditText = itemView.findViewById(R.id.commentInput)
@@ -127,6 +131,18 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             likeButton.setOnClickListener { handleLike(review, userId) }
             dislikeButton.setOnClickListener { handleDislike(review, userId) }
 
+            // Set visibility for Spoiler and Sensitive Topics warnings
+            if (review.hasSpoilers) {
+                spoilerWarning.visibility = View.VISIBLE
+            } else {
+                spoilerWarning.visibility = View.GONE
+            }
+
+            if (review.hasSensitiveTopics) {
+                sensitiveTopicsWarning.visibility = View.VISIBLE
+            } else {
+                sensitiveTopicsWarning.visibility = View.GONE
+            }
 
             // Load existing comments
             loadComments(review)

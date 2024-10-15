@@ -3,6 +3,7 @@
 <!-- Yunjong Noh -->
 <!-- CardView for the no-template review item -->
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -136,7 +137,8 @@
             android:textColor="@android:color/holo_red_dark"
             android:textSize="12sp"
             android:visibility="gone"
-            android:paddingTop="4dp" />
+            android:paddingTop="4dp"
+            tools:ignore="HardcodedText" />
 
         <!-- Sensitive topics warning TextView, hidden by default -->
         <TextView
@@ -147,7 +149,8 @@
             android:textColor="@android:color/holo_red_dark"
             android:textSize="12sp"
             android:visibility="gone"
-            android:paddingTop="2dp" />
+            android:paddingTop="2dp"
+            tools:ignore="HardcodedText" />
 
         <!-- Comments Section -->
         <LinearLayout
