@@ -144,6 +144,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             if (userId != null) {
                 val db = FirebaseFirestore.getInstance()
 
+                // Check if the user has already liked the review
                 db.collection("books")
                     .document(review.isbn)
                     .collection("reviews")
@@ -153,7 +154,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                     .get()
                     .addOnSuccessListener { document ->
                         if (document.exists()) {
-                            // User already liked, remove like
+                            // User already liked, remove like (toggle off)
                             db.collection("books")
                                 .document(review.isbn)
                                 .collection("reviews")
@@ -167,18 +168,43 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                                     likeCount.text = review.likes.toString()
                                 }
                         } else {
-                            // User hasn't liked yet, add like
+                            // User hasn't liked yet, check if they disliked first
                             db.collection("books")
                                 .document(review.isbn)
                                 .collection("reviews")
                                 .document(review.reviewId)
-                                .collection("likes")
+                                .collection("dislikes")
                                 .document(userId)
-                                .set(mapOf("timestamp" to Date())) // Add the like
-                                .addOnSuccessListener {
-                                    review.likes++
-                                    updateReviewInFirestore(review)
-                                    likeCount.text = review.likes.toString()
+                                .get()
+                                .addOnSuccessListener { dislikeDoc ->
+                                    if (dislikeDoc.exists()) {
+                                        // Remove dislike before adding like
+                                        db.collection("books")
+                                            .document(review.isbn)
+                                            .collection("reviews")
+                                            .document(review.reviewId)
+                                            .collection("dislikes")
+                                            .document(userId)
+                                            .delete() // Remove dislike
+                                            .addOnSuccessListener {
+                                                review.dislikes--
+                                                dislikeCount.text = review.dislikes.toString()
+                                            }
+                                    }
+
+                                    // Add like
+                                    db.collection("books")
+                                        .document(review.isbn)
+                                        .collection("reviews")
+                                        .document(review.reviewId)
+                                        .collection("likes")
+                                        .document(userId)
+                                        .set(mapOf("timestamp" to Date())) // Add the like
+                                        .addOnSuccessListener {
+                                            review.likes++
+                                            updateReviewInFirestore(review)
+                                            likeCount.text = review.likes.toString()
+                                        }
                                 }
                         }
                     }
@@ -192,6 +218,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             if (userId != null) {
                 val db = FirebaseFirestore.getInstance()
 
+                // Check if the user has already disliked the review
                 db.collection("books")
                     .document(review.isbn)
                     .collection("reviews")
@@ -201,7 +228,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                     .get()
                     .addOnSuccessListener { document ->
                         if (document.exists()) {
-                            // User already disliked, remove dislike
+                            // User already disliked, remove dislike (toggle off)
                             db.collection("books")
                                 .document(review.isbn)
                                 .collection("reviews")
@@ -215,18 +242,43 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                                     dislikeCount.text = review.dislikes.toString()
                                 }
                         } else {
-                            // User hasn't disliked yet, add dislike
+                            // User hasn't disliked yet, check if they liked first
                             db.collection("books")
                                 .document(review.isbn)
                                 .collection("reviews")
                                 .document(review.reviewId)
-                                .collection("dislikes")
+                                .collection("likes")
                                 .document(userId)
-                                .set(mapOf("timestamp" to Date())) // Add the dislike
-                                .addOnSuccessListener {
-                                    review.dislikes++
-                                    updateReviewInFirestore(review)
-                                    dislikeCount.text = review.dislikes.toString()
+                                .get()
+                                .addOnSuccessListener { likeDoc ->
+                                    if (likeDoc.exists()) {
+                                        // Remove like before adding dislike
+                                        db.collection("books")
+                                            .document(review.isbn)
+                                            .collection("reviews")
+                                            .document(review.reviewId)
+                                            .collection("likes")
+                                            .document(userId)
+                                            .delete() // Remove like
+                                            .addOnSuccessListener {
+                                                review.likes--
+                                                likeCount.text = review.likes.toString()
+                                            }
+                                    }
+
+                                    // Add dislike
+                                    db.collection("books")
+                                        .document(review.isbn)
+                                        .collection("reviews")
+                                        .document(review.reviewId)
+                                        .collection("dislikes")
+                                        .document(userId)
+                                        .set(mapOf("timestamp" to Date())) // Add the dislike
+                                        .addOnSuccessListener {
+                                            review.dislikes++
+                                            updateReviewInFirestore(review)
+                                            dislikeCount.text = review.dislikes.toString()
+                                        }
                                 }
                         }
                     }
@@ -549,7 +601,6 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             }
         }
 
-        // Handle like button action
         private fun handleLike(templateReview: TemplateReview, userId: String?) {
             if (userId != null) {
                 val db = FirebaseFirestore.getInstance()
@@ -564,7 +615,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                     .get()
                     .addOnSuccessListener { document ->
                         if (document.exists()) {
-                            // User already liked, remove like
+                            // User already liked, remove like (toggle off)
                             db.collection("books")
                                 .document(templateReview.isbn)
                                 .collection("reviews")
@@ -578,18 +629,43 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                                     likeCount.text = templateReview.likes.toString()
                                 }
                         } else {
-                            // User hasn't liked yet, add like
+                            // User hasn't liked yet, check if they disliked first
                             db.collection("books")
                                 .document(templateReview.isbn)
                                 .collection("reviews")
                                 .document(templateReview.reviewId)
-                                .collection("likes")
+                                .collection("dislikes")
                                 .document(userId)
-                                .set(mapOf("timestamp" to Date())) // Add the like
-                                .addOnSuccessListener {
-                                    templateReview.likes++
-                                    updateReviewInFirestore(templateReview)
-                                    likeCount.text = templateReview.likes.toString()
+                                .get()
+                                .addOnSuccessListener { dislikeDoc ->
+                                    if (dislikeDoc.exists()) {
+                                        // Remove dislike before adding like
+                                        db.collection("books")
+                                            .document(templateReview.isbn)
+                                            .collection("reviews")
+                                            .document(templateReview.reviewId)
+                                            .collection("dislikes")
+                                            .document(userId)
+                                            .delete() // Remove dislike
+                                            .addOnSuccessListener {
+                                                templateReview.dislikes--
+                                                dislikeCount.text = templateReview.dislikes.toString()
+                                            }
+                                    }
+
+                                    // Add like
+                                    db.collection("books")
+                                        .document(templateReview.isbn)
+                                        .collection("reviews")
+                                        .document(templateReview.reviewId)
+                                        .collection("likes")
+                                        .document(userId)
+                                        .set(mapOf("timestamp" to Date())) // Add the like
+                                        .addOnSuccessListener {
+                                            templateReview.likes++
+                                            updateReviewInFirestore(templateReview)
+                                            likeCount.text = templateReview.likes.toString()
+                                        }
                                 }
                         }
                     }
@@ -599,7 +675,6 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             }
         }
 
-        // Handle dislike button action
         private fun handleDislike(templateReview: TemplateReview, userId: String?) {
             if (userId != null) {
                 val db = FirebaseFirestore.getInstance()
@@ -614,7 +689,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                     .get()
                     .addOnSuccessListener { document ->
                         if (document.exists()) {
-                            // User already disliked, remove dislike
+                            // User already disliked, remove dislike (toggle off)
                             db.collection("books")
                                 .document(templateReview.isbn)
                                 .collection("reviews")
@@ -628,18 +703,43 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                                     dislikeCount.text = templateReview.dislikes.toString()
                                 }
                         } else {
-                            // User hasn't disliked yet, add dislike
+                            // User hasn't disliked yet, check if they liked first
                             db.collection("books")
                                 .document(templateReview.isbn)
                                 .collection("reviews")
                                 .document(templateReview.reviewId)
-                                .collection("dislikes")
+                                .collection("likes")
                                 .document(userId)
-                                .set(mapOf("timestamp" to Date())) // Add the dislike
-                                .addOnSuccessListener {
-                                    templateReview.dislikes++
-                                    updateReviewInFirestore(templateReview)
-                                    dislikeCount.text = templateReview.dislikes.toString()
+                                .get()
+                                .addOnSuccessListener { likeDoc ->
+                                    if (likeDoc.exists()) {
+                                        // Remove like before adding dislike
+                                        db.collection("books")
+                                            .document(templateReview.isbn)
+                                            .collection("reviews")
+                                            .document(templateReview.reviewId)
+                                            .collection("likes")
+                                            .document(userId)
+                                            .delete() // Remove like
+                                            .addOnSuccessListener {
+                                                templateReview.likes--
+                                                likeCount.text = templateReview.likes.toString()
+                                            }
+                                    }
+
+                                    // Add dislike
+                                    db.collection("books")
+                                        .document(templateReview.isbn)
+                                        .collection("reviews")
+                                        .document(templateReview.reviewId)
+                                        .collection("dislikes")
+                                        .document(userId)
+                                        .set(mapOf("timestamp" to Date())) // Add the dislike
+                                        .addOnSuccessListener {
+                                            templateReview.dislikes++
+                                            updateReviewInFirestore(templateReview)
+                                            dislikeCount.text = templateReview.dislikes.toString()
+                                        }
                                 }
                         }
                     }
