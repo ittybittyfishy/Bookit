@@ -48,8 +48,9 @@
                 android:layout_centerVertical="true"
                 android:layout_alignTop="@id/profileImage"
                 android:layout_marginTop="80dp"
-                android:background="@color/username_rectangle"
+                android:background="@color/rounded_rectangle"
                 android:text="Add Friend"
+                android:textSize="10dp"
                 android:textColor="#FFFFFF" />
 
             <!-- Three Dots ImageButton -->
@@ -91,7 +92,7 @@
                 android:textSize="18dp"
                 android:layout_below="@id/rectangle1"
                 android:layout_centerHorizontal="true"
-                android:backgroundTint="@color/username_rectangle"
+                android:backgroundTint="@color/rounded_rectangle"
                 android:textColor="@color/sub_text_brown"
                 android:layout_marginTop="1dp" />
 
