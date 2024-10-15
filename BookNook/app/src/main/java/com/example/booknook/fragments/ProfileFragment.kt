@@ -1,7 +1,6 @@
 package com.example.booknook.fragments
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -10,10 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -29,10 +24,7 @@ import com.google.firebase.storage.FirebaseStorage  // Import Firebase Storage
 import de.hdodenhof.circleimageview.CircleImageView
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.math.BigDecimal
-import java.math.RoundingMode
 
-//working version
 // Define a Fragment class for the Profile section
 class ProfileFragment : Fragment() {
 
@@ -104,26 +96,24 @@ class ProfileFragment : Fragment() {
         disableEditing(characterEditText, pencilButton2)
 
         // Register ActivityResultLauncher for picking banner image
-        pickBannerImageLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == Activity.RESULT_OK) {
-                    val data: Intent? = result.data
-                    if (data != null) {
-                        handleImageResult(data, PICK_BANNER_IMAGE)
-                    }
+        pickBannerImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                if (data != null) {
+                    handleImageResult(data, PICK_BANNER_IMAGE)
                 }
             }
+        }
 
         // Register ActivityResultLauncher for picking profile image
-        pickProfileImageLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == Activity.RESULT_OK) {
-                    val data: Intent? = result.data
-                    if (data != null) {
-                        handleImageResult(data, PICK_PROFILE_IMAGE)
-                    }
+        pickProfileImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                if (data != null) {
+                    handleImageResult(data, PICK_PROFILE_IMAGE)
                 }
             }
+        }
 
         // Set click listeners to handle button clicks
         uploadBannerButton.setOnClickListener {
@@ -183,11 +173,9 @@ class ProfileFragment : Fragment() {
         // If user is authenticated, update their stats
         if (userId != null) {
             updateNumBooksRead(userId)
-            updateFavoriteTag(userId)
             updateNumCollections(userId)
-            updateAverageRating(userId)
-            updateNumReviews(userId)
             updateNumFriends(userId)
+            updateNumReviews(userId)
 
             // Retrieve the username and other data from Firestore
             val userDocRef = firestore.collection("users").document(userId)
@@ -309,10 +297,6 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    private fun updateTopGenres(userId: String) {
-        // Update view here using "topGenres" field in database
-    }
-
     // Function updates the number of books the user has read
     private fun updateNumBooksRead(userId: String) {
         // References document of current user
@@ -339,71 +323,6 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    // Veronica Nguyen
-    // Function to get the user's favorite tag
-    private fun updateFavoriteTag(userId: String) {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("users").document(userId).get()  // Gets users collection
-            .addOnSuccessListener { document ->
-                val tagCount = mutableMapOf<String, Int>() // Map to count number of times a tag appears
-
-                // Gets user's standard collections
-                val standardCollections = document.get("standardCollections") as? Map<String, List<Map<String, Any>>>
-                // Loops through each standard collection
-                standardCollections?.values?.forEach { bookList ->
-                    // Loops through each book in a collection
-                    bookList.forEach { book ->
-                        val tags = book["tags"] as? List<String> ?: listOf()  // Retrieves tags from a book
-                        // Loops through each tag of a book
-                        tags.forEach { tag ->
-                            // Increments the count of that tag by 1
-                            tagCount[tag] = tagCount.getOrDefault(tag, 0) + 1
-                        }
-                    }
-                }
-
-                // Gets user's custom collections
-                val customCollections = document.get("customCollections") as? Map<String, Map<String, Any>>
-                // Loops through each custom collection
-                customCollections?.forEach { (_, collectionData) ->  //  Ignores key parameter of lambda expression
-                    val books = collectionData["books"] as? List<Map<String, Any>>  // Gets the books in collection
-                    // Loops through each book in a collection
-                    books?.forEach { book ->
-                        val tags = book["tags"] as? List<String> ?: listOf()  // Retrieves tags from a book
-                        // Loops through each tag of a book
-                        tags.forEach { tag ->
-                            // Increments the count of that tag by 1
-                            tagCount[tag] = tagCount.getOrDefault(tag, 0) + 1
-                        }
-                    }
-                }
-
-                // Sort tags by count in descending order and take the most frequent one
-                val favoriteTag = tagCount.entries.maxByOrNull { it.value }?.key
-
-                // Update user's favoriteTag field in Firestore
-                db.collection("users").document(userId).update("favoriteTag", favoriteTag)
-                    .addOnSuccessListener {
-                        // Update text view here
-
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(context, "Failed to update favorite tag: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-
-                    .addOnFailureListener { e ->
-                        Toast.makeText(context, "Failed to retrieve collections: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-            }
-    }
-
-    // Veronica Nguyen
-    // Function updates the number of groups the user is in
-    private fun updateNumGroups(userId: String) {
-        // To-do
-    }
-
-    // Veronica Nguyen
     // Function updates the number of custom collections a user has
     private fun updateNumCollections(userId: String) {
         // References document of current user
@@ -429,68 +348,6 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    // Veronica Nguyen
-    // Function updates the average rating of the user
-    fun updateAverageRating(userId: String) {
-        val db = FirebaseFirestore.getInstance()
-        val userDocRef = db.collection("users").document(userId)
-
-        // Accesses all collections named "reviews" in database
-        db.collectionGroup("reviews")
-            .whereEqualTo("userId", userId)  // Finds all documents with the user's id (current user)
-            .get()
-            .addOnSuccessListener { documents ->
-                // Gets all of the user's ratings under reviews
-                val userRatings = documents.mapNotNull { it.getDouble("rating") }
-                if (userRatings.isNotEmpty()) {
-                    // Gets the sum of all of the ratings
-                    val ratingsTotalSum = userRatings.sum()
-                    // Calculates the user's average rating
-                    val averageRating = ratingsTotalSum / userRatings.size
-                    // Rounds the average rating to two decimal places
-                    val roundedAverageRating = BigDecimal(averageRating).setScale(2, RoundingMode.HALF_UP).toDouble()
-
-                    // Updates the averageRating field in database
-                    userDocRef.update("averageRating", roundedAverageRating)
-                        .addOnSuccessListener {
-                            // Update text view here (if applicable)
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(activity, "Error updating average rating", Toast.LENGTH_SHORT).show()
-                        }
-                } else {
-                    Toast.makeText(activity, "No ratings found", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(activity, "Error getting user ratings", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    // Veronica Nguyen
-    // Function updates the number of reviews the user has
-    private fun updateNumReviews(userId: String) {
-        // References document of current user
-        val userDocRef = firestore.collection("users").document(userId)
-
-        userDocRef.get().addOnSuccessListener { document ->
-            // Retrieves the numReviews field in database
-            val numReviews = document.getLong("numReviews") ?: 0
-
-            // Updates the numReviews field in database
-            userDocRef.update("numReviews", numReviews)
-                .addOnSuccessListener {
-                    // Update text view here (if applicable)
-                }
-                .addOnFailureListener {
-                    Toast.makeText(activity, "Error updating number of reviews", Toast.LENGTH_SHORT).show()
-                }
-        }.addOnFailureListener { e ->
-            Toast.makeText(activity, "Error getting number of reviews: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // Veronica Nguyen
     // Function updates the number of friends the user has
     private fun updateNumFriends(userId: String) {
         // References document of current user
@@ -515,6 +372,27 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Function updates the number of reviews the user has
+    private fun updateNumReviews(userId: String) {
+        // References document of current user
+        val userDocRef = firestore.collection("users").document(userId)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            // Retrieves the numReviews field in database
+            val numReviews = document.getLong("numReviews") ?: 0
+
+            // Updates the numReviews field in database
+            userDocRef.update("numReviews", numReviews)
+                .addOnSuccessListener {
+                    // Update text view here (if applicable)
+                }
+                .addOnFailureListener {
+                    Toast.makeText(activity, "Error updating number of reviews", Toast.LENGTH_SHORT).show()
+                }
+        }.addOnFailureListener { e ->
+            Toast.makeText(activity, "Error getting number of reviews: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     // Method to open the gallery and pick an image
     private fun pickImageFromGallery(requestCode: Int) {

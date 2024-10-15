@@ -41,7 +41,7 @@ class FriendProfileFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         // Retrieve the friend's user ID from the arguments
-        friendUserId = arguments?.getString("receiverId")
+        friendUserId = arguments?.getString(ARG_FRIEND_USER_ID)
         if (friendUserId == null) {
             Toast.makeText(activity, "Friend user ID not provided", Toast.LENGTH_SHORT).show()
             parentFragmentManager.popBackStack()
@@ -70,6 +70,8 @@ class FriendProfileFragment : Fragment() {
             showPopupMenu(view)
         }
 
+
+
         // Disable editing on EditTexts
         quoteEditText.isEnabled = false
         characterEditText.isEnabled = false
@@ -81,12 +83,6 @@ class FriendProfileFragment : Fragment() {
             Toast.makeText(activity, "Friend user ID not provided", Toast.LENGTH_SHORT).show()
         }
 
-
-        // Load initial friend status
-        friendUserId?.let { friendId ->
-            checkFriendshipStatus(friendId)  // Check the initial status
-        }
-
         // Set up Add Friend button
         addFriendButton.setOnClickListener {
             friendUserId?.let { friendId ->
@@ -95,82 +91,6 @@ class FriendProfileFragment : Fragment() {
         }
 
         return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
-        val receiverId = arguments?.getString("receiverId")  // Retrieves the receiver's id from friends fragment arguments
-        addFriendButton = view.findViewById(R.id.addFriendButton)  // Calls view for the Add Friend Button
-
-    }
-
-    // Function to send a friend request
-    private fun sendFriendRequest(receiverId: String) {
-        val db = FirebaseFirestore.getInstance()
-        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
-
-        if (currentUser != null) {
-            val senderId = currentUser.uid  // senderId is the current user
-            val senderRef = db.collection("users").document(senderId)
-
-            // Fetch sender's username
-            senderRef.get().addOnSuccessListener { senderDoc ->
-                val senderUsername = senderDoc?.getString("username")
-
-                if (senderUsername != null) {
-                    // creates a map of friend request details
-                    val friendRequest = hashMapOf(
-                        "senderId" to senderId,
-                        "senderUsername" to senderUsername,
-                        "receiverId" to receiverId,
-                        "status" to "pending"
-                    )
-
-                    // Update receiver's friend requests array in database
-                    db.collection("users").document(receiverId)
-                        .update("friendRequests", FieldValue.arrayUnion(friendRequest))
-                        .addOnSuccessListener {
-                            Toast.makeText(activity, "Friend request sent", Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(activity, "Failed to send friend request: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                } else {
-                    Toast.makeText(activity, "Sender username not found", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
-    // Function to remove a friend
-    private fun removeFriend(receiverId: String) {
-        val db = FirebaseFirestore.getInstance()
-        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
-
-        val currentUserRef = currentUserId?.let { db.collection("users").document(it) }
-        if (currentUserRef != null) {
-            // Deletes the friend from the current user's database
-            currentUserRef.update("friends", FieldValue.arrayRemove(friendUserId))
-                .addOnSuccessListener {
-                    val friendRef = friendUserId?.let { it1 -> db.collection("users").document(it1) }
-                    if (friendRef != null) {
-                        // Deletes the friend from the other user's database
-                        friendRef.update("friends", FieldValue.arrayRemove(currentUserId))
-                            .addOnSuccessListener {
-                                Toast.makeText(activity, "Friend removed", Toast.LENGTH_SHORT).show()
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(activity, "Failed to remove friend", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                }
-                .addOnFailureListener {
-                    Toast.makeText(activity, "Failed to remove friend", Toast.LENGTH_SHORT).show()
-                }
-        }
     }
 
     private fun showPopupMenu(view: View) {
@@ -264,7 +184,7 @@ class FriendProfileFragment : Fragment() {
 
                     if (friends.contains(friendId)) {
                         // Remove friend
-                        removeFriend(friendId)
+                        friends.remove(friendId)
                         currentUserDocRef.update("friends", friends)
                             .addOnSuccessListener {
                                 addFriendButton.text = "Add Friend"
@@ -272,7 +192,7 @@ class FriendProfileFragment : Fragment() {
                             }
                     } else {
                         // Add friend
-                        sendFriendRequest(friendId)
+                        friends.add(friendId)
                         currentUserDocRef.update("friends", friends)
                             .addOnSuccessListener {
                                 addFriendButton.text = "Remove Friend"
