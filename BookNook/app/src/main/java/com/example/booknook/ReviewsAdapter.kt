@@ -57,6 +57,10 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
         private val timestamp: TextView = itemView.findViewById(R.id.Timestamp)
         private val overallReviewHeading: TextView = itemView.findViewById(R.id.OverallReviewHeading)
 
+        // Warning views
+        private val spoilerWarning: TextView = itemView.findViewById(R.id.SpoilerWarning)
+        private val sensitiveTopicsWarning: TextView = itemView.findViewById(R.id.SensitiveTopicsWarning)
+
         // Comment-related views
         private val commentsRecyclerView: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
         private val commentInput: EditText = itemView.findViewById(R.id.commentInput)
@@ -127,6 +131,18 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             likeButton.setOnClickListener { handleLike(review, userId) }
             dislikeButton.setOnClickListener { handleDislike(review, userId) }
 
+            // Set visibility for Spoiler and Sensitive Topics warnings
+            if (review.hasSpoilers) {
+                spoilerWarning.visibility = View.VISIBLE
+            } else {
+                spoilerWarning.visibility = View.GONE
+            }
+
+            if (review.hasSensitiveTopics) {
+                sensitiveTopicsWarning.visibility = View.VISIBLE
+            } else {
+                sensitiveTopicsWarning.visibility = View.GONE
+            }
 
             // Load existing comments
             loadComments(review)
@@ -168,7 +184,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                                     likeCount.text = review.likes.toString()
                                 }
                         } else {
-                            // User hasn't liked yet, check if they disliked first
+                            // Check if the user has disliked, don't allow like if dislike exists
                             db.collection("books")
                                 .document(review.isbn)
                                 .collection("reviews")
@@ -177,34 +193,21 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                                 .document(userId)
                                 .get()
                                 .addOnSuccessListener { dislikeDoc ->
-                                    if (dislikeDoc.exists()) {
-                                        // Remove dislike before adding like
+                                    if (!dislikeDoc.exists()) {
+                                        // Add like only if no dislike exists
                                         db.collection("books")
                                             .document(review.isbn)
                                             .collection("reviews")
                                             .document(review.reviewId)
-                                            .collection("dislikes")
+                                            .collection("likes")
                                             .document(userId)
-                                            .delete() // Remove dislike
+                                            .set(mapOf("timestamp" to Date())) // Add the like
                                             .addOnSuccessListener {
-                                                review.dislikes--
-                                                dislikeCount.text = review.dislikes.toString()
+                                                review.likes++
+                                                updateReviewInFirestore(review)
+                                                likeCount.text = review.likes.toString()
                                             }
                                     }
-
-                                    // Add like
-                                    db.collection("books")
-                                        .document(review.isbn)
-                                        .collection("reviews")
-                                        .document(review.reviewId)
-                                        .collection("likes")
-                                        .document(userId)
-                                        .set(mapOf("timestamp" to Date())) // Add the like
-                                        .addOnSuccessListener {
-                                            review.likes++
-                                            updateReviewInFirestore(review)
-                                            likeCount.text = review.likes.toString()
-                                        }
                                 }
                         }
                     }
@@ -242,7 +245,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                                     dislikeCount.text = review.dislikes.toString()
                                 }
                         } else {
-                            // User hasn't disliked yet, check if they liked first
+                            // Check if the user has liked, don't allow dislike if like exists
                             db.collection("books")
                                 .document(review.isbn)
                                 .collection("reviews")
@@ -251,34 +254,21 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                                 .document(userId)
                                 .get()
                                 .addOnSuccessListener { likeDoc ->
-                                    if (likeDoc.exists()) {
-                                        // Remove like before adding dislike
+                                    if (!likeDoc.exists()) {
+                                        // Add dislike only if no like exists
                                         db.collection("books")
                                             .document(review.isbn)
                                             .collection("reviews")
                                             .document(review.reviewId)
-                                            .collection("likes")
+                                            .collection("dislikes")
                                             .document(userId)
-                                            .delete() // Remove like
+                                            .set(mapOf("timestamp" to Date())) // Add the dislike
                                             .addOnSuccessListener {
-                                                review.likes--
-                                                likeCount.text = review.likes.toString()
+                                                review.dislikes++
+                                                updateReviewInFirestore(review)
+                                                dislikeCount.text = review.dislikes.toString()
                                             }
                                     }
-
-                                    // Add dislike
-                                    db.collection("books")
-                                        .document(review.isbn)
-                                        .collection("reviews")
-                                        .document(review.reviewId)
-                                        .collection("dislikes")
-                                        .document(userId)
-                                        .set(mapOf("timestamp" to Date())) // Add the dislike
-                                        .addOnSuccessListener {
-                                            review.dislikes++
-                                            updateReviewInFirestore(review)
-                                            dislikeCount.text = review.dislikes.toString()
-                                        }
                                 }
                         }
                     }
@@ -287,8 +277,6 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                     }
             }
         }
-
-
 
 
         private fun loadComments(review: Review) {
@@ -462,8 +450,8 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             checkUserReaction(templateReview, userId)
 
             // Handle like and dislike button actions
-            likeButton.setOnClickListener { handleLike(templateReview, userId) }
-            dislikeButton.setOnClickListener { handleDislike(templateReview, userId) }
+            likeButton.setOnClickListener { handleTemplateReviewLike(templateReview, userId) }
+            dislikeButton.setOnClickListener { handleTemplateReviewDislike(templateReview, userId) }
 
             // Set visibility and text for characters review if available
             if (!templateReview.charactersReview.isNullOrEmpty()) {
@@ -601,11 +589,11 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             }
         }
 
-        private fun handleLike(templateReview: TemplateReview, userId: String?) {
+        private fun handleTemplateReviewLike(templateReview: TemplateReview, userId: String?) {
             if (userId != null) {
                 val db = FirebaseFirestore.getInstance()
 
-                // Check if the user has already liked the review
+                // Check if the user has already liked the template review
                 db.collection("books")
                     .document(templateReview.isbn)
                     .collection("reviews")
@@ -625,11 +613,11 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                                 .delete() // Remove like
                                 .addOnSuccessListener {
                                     templateReview.likes--
-                                    updateReviewInFirestore(templateReview)
+                                    updateTemplateReviewInFirestore(templateReview)
                                     likeCount.text = templateReview.likes.toString()
                                 }
                         } else {
-                            // User hasn't liked yet, check if they disliked first
+                            // Check if the user has disliked, don't allow like if dislike exists
                             db.collection("books")
                                 .document(templateReview.isbn)
                                 .collection("reviews")
@@ -638,34 +626,21 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                                 .document(userId)
                                 .get()
                                 .addOnSuccessListener { dislikeDoc ->
-                                    if (dislikeDoc.exists()) {
-                                        // Remove dislike before adding like
+                                    if (!dislikeDoc.exists()) {
+                                        // Add like only if no dislike exists
                                         db.collection("books")
                                             .document(templateReview.isbn)
                                             .collection("reviews")
                                             .document(templateReview.reviewId)
-                                            .collection("dislikes")
+                                            .collection("likes")
                                             .document(userId)
-                                            .delete() // Remove dislike
+                                            .set(mapOf("timestamp" to Date())) // Add the like
                                             .addOnSuccessListener {
-                                                templateReview.dislikes--
-                                                dislikeCount.text = templateReview.dislikes.toString()
+                                                templateReview.likes++
+                                                updateTemplateReviewInFirestore(templateReview)
+                                                likeCount.text = templateReview.likes.toString()
                                             }
                                     }
-
-                                    // Add like
-                                    db.collection("books")
-                                        .document(templateReview.isbn)
-                                        .collection("reviews")
-                                        .document(templateReview.reviewId)
-                                        .collection("likes")
-                                        .document(userId)
-                                        .set(mapOf("timestamp" to Date())) // Add the like
-                                        .addOnSuccessListener {
-                                            templateReview.likes++
-                                            updateReviewInFirestore(templateReview)
-                                            likeCount.text = templateReview.likes.toString()
-                                        }
                                 }
                         }
                     }
@@ -675,11 +650,11 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
             }
         }
 
-        private fun handleDislike(templateReview: TemplateReview, userId: String?) {
+        private fun handleTemplateReviewDislike(templateReview: TemplateReview, userId: String?) {
             if (userId != null) {
                 val db = FirebaseFirestore.getInstance()
 
-                // Check if the user has already disliked the review
+                // Check if the user has already disliked the template review
                 db.collection("books")
                     .document(templateReview.isbn)
                     .collection("reviews")
@@ -699,11 +674,11 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                                 .delete() // Remove dislike
                                 .addOnSuccessListener {
                                     templateReview.dislikes--
-                                    updateReviewInFirestore(templateReview)
+                                    updateTemplateReviewInFirestore(templateReview)
                                     dislikeCount.text = templateReview.dislikes.toString()
                                 }
                         } else {
-                            // User hasn't disliked yet, check if they liked first
+                            // Check if the user has liked, don't allow dislike if like exists
                             db.collection("books")
                                 .document(templateReview.isbn)
                                 .collection("reviews")
@@ -712,34 +687,21 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                                 .document(userId)
                                 .get()
                                 .addOnSuccessListener { likeDoc ->
-                                    if (likeDoc.exists()) {
-                                        // Remove like before adding dislike
+                                    if (!likeDoc.exists()) {
+                                        // Add dislike only if no like exists
                                         db.collection("books")
                                             .document(templateReview.isbn)
                                             .collection("reviews")
                                             .document(templateReview.reviewId)
-                                            .collection("likes")
+                                            .collection("dislikes")
                                             .document(userId)
-                                            .delete() // Remove like
+                                            .set(mapOf("timestamp" to Date())) // Add the dislike
                                             .addOnSuccessListener {
-                                                templateReview.likes--
-                                                likeCount.text = templateReview.likes.toString()
+                                                templateReview.dislikes++
+                                                updateTemplateReviewInFirestore(templateReview)
+                                                dislikeCount.text = templateReview.dislikes.toString()
                                             }
                                     }
-
-                                    // Add dislike
-                                    db.collection("books")
-                                        .document(templateReview.isbn)
-                                        .collection("reviews")
-                                        .document(templateReview.reviewId)
-                                        .collection("dislikes")
-                                        .document(userId)
-                                        .set(mapOf("timestamp" to Date())) // Add the dislike
-                                        .addOnSuccessListener {
-                                            templateReview.dislikes++
-                                            updateReviewInFirestore(templateReview)
-                                            dislikeCount.text = templateReview.dislikes.toString()
-                                        }
                                 }
                         }
                     }
@@ -748,6 +710,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                     }
             }
         }
+
 
         // Load comments for the review
         private fun loadComments(templateReview: TemplateReview) {
@@ -836,8 +799,8 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 }
         }
 
-        // Update the review document in Firestore with new like/dislike counts
-        private fun updateReviewInFirestore(templateReview: TemplateReview) {
+        // Function to update the review in Firestore
+        private fun updateTemplateReviewInFirestore(templateReview: TemplateReview) {
             val db = FirebaseFirestore.getInstance()
             db.collection("books")
                 .document(templateReview.isbn) // Use templateReview ISBN
