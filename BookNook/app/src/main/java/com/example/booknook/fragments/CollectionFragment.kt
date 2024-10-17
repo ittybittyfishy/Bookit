@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Spinner
 import com.example.booknook.MainActivity
@@ -79,6 +80,9 @@ class CollectionFragment : Fragment(){
         // initalize spinner for sorting options
         sortSpinner = view.findViewById(R.id.sortBooks)
 
+        // Set up the sort spinner with selection listener
+        setupSortSpinner()
+
         // Fetch the user's collections and books from Firestore
         fetchCollectionsAndBooks()
 
@@ -86,15 +90,25 @@ class CollectionFragment : Fragment(){
 
     // Set up the sort spinner with selection listener
     private fun setupSortSpinner() {
-        // Set listener for spinner selection
+        // Create an ArrayAdapter using the string array and custom spinner item layout
+        val adapter = ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.book_sort_options,
+            R.layout.item_collections_spinner_layout  // Custom layout for the spinner display
+        )
+        // Apply the adapter to the spinner
+        adapter.setDropDownViewResource(R.layout.item_collections_spinner_dropdown) // The layout for dropdown items
+        sortSpinner.adapter = adapter
+
+        // Handle selection changes as before
         sortSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val selectedSortOption = parent.getItemAtPosition(position).toString() // Get the selected sort option
-                sortBooks(selectedSortOption) // Call the sorting function
+                val selectedSortOption = parent.getItemAtPosition(position).toString()
+                sortBooks(selectedSortOption)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
-                // No action needed if nothing is selected
+                // No action if nothing is selected
             }
         }
     }
