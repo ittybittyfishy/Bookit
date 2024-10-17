@@ -109,7 +109,6 @@ class CreateGroupFragment : DialogFragment() {
                         bannerRef.downloadUrl.addOnSuccessListener { uri ->
                             val bannerImgUrl = uri.toString()
                             createGroupInFirestore(groupName, isPrivate, userId, tags, bannerImgUrl, db)
-                            dismiss()
                         }.addOnFailureListener { e ->
                             Log.w("CreateGroup", "Error getting banner image URL: ${e.message}")
                         }
@@ -147,7 +146,12 @@ class CreateGroupFragment : DialogFragment() {
                 db.collection("users").document(userId)
                     .update("joinedGroups", FieldValue.arrayUnion(groupId))
                     .addOnSuccessListener {
-                        Toast.makeText(context, "Group created and added to your account", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "Group created and added to your account",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        dismiss()
                     }
                     .addOnFailureListener { e ->
                         Log.w("CreateGroup", "Error adding group to user: ${e.message}")
