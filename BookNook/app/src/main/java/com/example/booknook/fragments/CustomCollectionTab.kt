@@ -87,11 +87,20 @@ class CustomCollectionTab : Fragment() {
 
     // Setup the spinner for sorting options and handle the selection event
     private fun setupSortSpinner() {
+        // Create an ArrayAdapter using the string array and custom spinner item layout
+        val adapter = ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.book_sort_options,
+            R.layout.item_collections_spinner_layout  // Custom layout for the spinner display
+        )
+        // Apply the adapter to the spinner
+        adapter.setDropDownViewResource(R.layout.item_collections_spinner_dropdown) // The layout for dropdown items
+        sortSpinner.adapter = adapter
+
+        // Handle selection changes as before
         sortSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                // When an option is selected, get the selected sort option as a string
                 val selectedSortOption = parent.getItemAtPosition(position).toString()
-                // Sort books in custom collections based on selection
                 sortBooks(selectedSortOption)
             }
 
