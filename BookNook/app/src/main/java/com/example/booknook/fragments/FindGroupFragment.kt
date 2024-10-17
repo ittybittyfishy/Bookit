@@ -96,6 +96,7 @@ class FindGroupFragment  : Fragment() {
                 for (document in documents) {
                     // Retrieve the members list from the document
                     val members = document.get("members") as? List<String>
+                    // Doesn't load groups that the user is already a part of
                     if (members != null && !(members.contains(userId))) {
                         val group = document.toObject(GroupItem::class.java).copy(id = document.id)
                         groupList.add(group)
