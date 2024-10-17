@@ -98,27 +98,41 @@ class CreateGroupFragment : DialogFragment() {
         if (user != null) {
             val userId = user.uid
 
-            // Check if bannerImg is provided
-            if (bannerImg != null) {
-                // Upload the banner image
-                val storageRef = FirebaseStorage.getInstance().reference
-                val bannerRef = storageRef.child("groupBannerImgs/$groupName-${System.currentTimeMillis()}.jpg")
+            // Check if the group name already exists
+            db.collection("groups")
+                .whereEqualTo("groupName", groupName)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (documents.isEmpty) {
+                        // If no group with this name exists, proceed with group creation
+                        if (bannerImg != null) {
+                            // Upload the banner image
+                            val storageRef = FirebaseStorage.getInstance().reference
+                            val bannerRef = storageRef.child("groupBannerImgs/$groupName-${System.currentTimeMillis()}.jpg")
 
-                bannerRef.putFile(bannerImg)
-                    .addOnSuccessListener { taskSnapshot ->
-                        bannerRef.downloadUrl.addOnSuccessListener { uri ->
-                            val bannerImgUrl = uri.toString()
-                            createGroupInFirestore(groupName, isPrivate, userId, tags, bannerImgUrl, db)
-                        }.addOnFailureListener { e ->
-                            Log.w("CreateGroup", "Error getting banner image URL: ${e.message}")
+                            bannerRef.putFile(bannerImg)
+                                .addOnSuccessListener { taskSnapshot ->
+                                    bannerRef.downloadUrl.addOnSuccessListener { uri ->
+                                        val bannerImgUrl = uri.toString()
+                                        createGroupInFirestore(groupName, isPrivate, userId, tags, bannerImgUrl, db)
+                                    }.addOnFailureListener { e ->
+                                        Log.w("CreateGroup", "Error getting banner image URL: ${e.message}")
+                                    }
+                                }.addOnFailureListener { e ->
+                                    Log.w("CreateGroup", "Error uploading banner image: ${e.message}")
+                                }
+                        } else {
+                            // If no banner image is provided, create the group without it
+                            createGroupInFirestore(groupName, isPrivate, userId, tags, null, db)
                         }
-                    }.addOnFailureListener { e ->
-                        Log.w("CreateGroup", "Error uploading banner image: ${e.message}")
+                    } else {
+                        // If a group with this name already exists, show an error message
+                        Toast.makeText(requireContext(), "Group name already exists. Please choose another name.", Toast.LENGTH_SHORT).show()
                     }
-            } else {
-                // If no banner image is provided, create the group without it
-                createGroupInFirestore(groupName, isPrivate, userId, tags, null, db)
-            }
+                }
+                .addOnFailureListener { e ->
+                    Log.w("CreateGroup", "Error checking group name: ${e.message}")
+                }
         }
     }
 
