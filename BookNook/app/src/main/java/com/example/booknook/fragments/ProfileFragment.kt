@@ -27,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage  // Import Firebase Storage
 import de.hdodenhof.circleimageview.CircleImageView
+import org.w3c.dom.Text
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.math.BigDecimal
@@ -46,8 +47,14 @@ class ProfileFragment : Fragment() {
     private lateinit var pickBannerImageLauncher: ActivityResultLauncher<Intent>
     private lateinit var pickProfileImageLauncher: ActivityResultLauncher<Intent>
 
-    // Declare TextView for displaying the number of collections
+    // Declare TextView for displaying the user stats
     private lateinit var numCollectionsTextView: TextView
+    private lateinit var numBooksReadTextView: TextView
+    private lateinit var topGenresTextView: TextView
+    private lateinit var favoriteTagTextView: TextView
+    private lateinit var averageRatingTextView: TextView
+    private lateinit var numReviewsTextView: TextView
+    private lateinit var numFriendsTextView: TextView
 
     // Main user username
     private lateinit var userUsername: TextView
@@ -83,8 +90,15 @@ class ProfileFragment : Fragment() {
         uploadBannerButton = view.findViewById(R.id.uploadBannerButton)
         uploadProfileButton = view.findViewById(R.id.uploadProfileButton)
 
-        // Initialize the TextView for number of collections
+        // Initialize the TextView for the stats
         numCollectionsTextView = view.findViewById(R.id.numCollectionsTextView)
+        numBooksReadTextView = view.findViewById(R.id.numBooksReadTextView)
+        topGenresTextView = view.findViewById(R.id.topGenresTextView)
+        favoriteTagTextView = view.findViewById(R.id.favoriteTagTextView)
+        averageRatingTextView = view.findViewById(R.id.averageRatingTextView)
+        numReviewsTextView = view.findViewById(R.id.numReviewsTextView)
+        numFriendsTextView = view.findViewById(R.id.numFriendsTextView)
+
 
         // Initialize text view for the main user username
         userUsername = view.findViewById(R.id.userUsername)
@@ -182,6 +196,7 @@ class ProfileFragment : Fragment() {
 
         // If user is authenticated, update their stats
         if (userId != null) {
+            updateTopGenres(userId)
             updateNumBooksRead(userId)
             updateFavoriteTag(userId)
             updateNumCollections(userId)
@@ -310,8 +325,40 @@ class ProfileFragment : Fragment() {
     }
 
     private fun updateTopGenres(userId: String) {
-        // Update view here using "topGenres" field in database
+        val db = FirebaseFirestore.getInstance()
+
+        // Fetch the document for the user
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    // Assuming "topGenres" is a field in the Firestore document and is a List of Strings
+                    val topGenres = document.get("topGenres") as? List<String>
+
+                    if (topGenres != null && topGenres.isNotEmpty()) {
+                        // Join the list into a string to display it in the TextView
+                        val topGenresString = topGenres.joinToString(", ")
+                        Log.d("TAG", "Top Genres: $topGenresString") // Log the topGenres string
+                        // Update the TextView with the retrieved genres
+                        topGenresTextView.text = "$topGenresString"
+                    } else {
+                        // Handle case where topGenres is missing or empty
+                        Log.d("TAG", "Top genres field is empty or null")
+                        topGenresTextView.text = "Top Genres: N/A"
+                    }
+                } else {
+                    // Handle case where the document doesn't exist
+                    Log.d("TAG", "No such document for userId: $userId")
+                    Toast.makeText(context, "User data not found", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Handle the failure to fetch data
+                Log.d("TAG", "Error fetching user data", exception)
+                Toast.makeText(context, "Failed to retrieve top genres: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
     }
+
+
 
     // Function updates the number of books the user has read
     private fun updateNumBooksRead(userId: String) {
@@ -330,6 +377,8 @@ class ProfileFragment : Fragment() {
             userDocRef.update("numBooksRead", numBooksRead)
                 .addOnSuccessListener {
                     // Update text view here (if applicable)
+                    numBooksReadTextView.text = "$numBooksRead"
+
                 }
                 .addOnFailureListener {
                     Toast.makeText(activity, "Error updating number of books read", Toast.LENGTH_SHORT).show()
@@ -385,6 +434,7 @@ class ProfileFragment : Fragment() {
                 db.collection("users").document(userId).update("favoriteTag", favoriteTag)
                     .addOnSuccessListener {
                         // Update text view here
+                        favoriteTagTextView.text = "$favoriteTag"
 
                     }
                     .addOnFailureListener { e ->
@@ -454,6 +504,7 @@ class ProfileFragment : Fragment() {
                     userDocRef.update("averageRating", roundedAverageRating)
                         .addOnSuccessListener {
                             // Update text view here (if applicable)
+                            averageRatingTextView.text = "$averageRating"
                         }
                         .addOnFailureListener {
                             Toast.makeText(activity, "Error updating average rating", Toast.LENGTH_SHORT).show()
@@ -481,6 +532,7 @@ class ProfileFragment : Fragment() {
             userDocRef.update("numReviews", numReviews)
                 .addOnSuccessListener {
                     // Update text view here (if applicable)
+                    numReviewsTextView.text = "$numReviews"
                 }
                 .addOnFailureListener {
                     Toast.makeText(activity, "Error updating number of reviews", Toast.LENGTH_SHORT).show()
@@ -506,6 +558,7 @@ class ProfileFragment : Fragment() {
             userDocRef.update("numFriends", numFriends)
                 .addOnSuccessListener {
                     // Update text view here (if applicable)
+                    numFriendsTextView.text = "$numFriends"
                 }
                 .addOnFailureListener {
                     Toast.makeText(activity, "Error updating number of friends", Toast.LENGTH_SHORT).show()
