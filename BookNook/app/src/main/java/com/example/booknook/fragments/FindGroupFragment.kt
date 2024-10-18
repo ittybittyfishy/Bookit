@@ -75,7 +75,21 @@ class FindGroupFragment  : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         groupAdapter = GroupAdapter(groupList) { groupItem ->
             // Handle group item click
-            Toast.makeText(context, "Clicked: ${groupItem.groupName}", Toast.LENGTH_SHORT).show()
+            if (groupItem.private)
+            {
+                // Show the GroupPrivateFragment
+                val groupPrivate = GroupPrivateFragment().apply {
+                    arguments = Bundle().apply {
+                        putString("GROUP_ID", groupItem.id)
+                        putString("GROUP_CREATOR_ID", groupItem.createdBy)
+                    }
+                }
+                groupPrivate.show(parentFragmentManager, "GroupPrivateDialog")
+            }
+            else {
+                Toast.makeText(context, "Clicked: ${groupItem.groupName}", Toast.LENGTH_SHORT)
+                    .show()
+            }
         }
         recyclerView.adapter = groupAdapter
 
