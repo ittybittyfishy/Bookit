@@ -239,12 +239,19 @@
                     android:textSize="14sp" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/topGenresTextView"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Tags"
+                    android:text="N/A"
+                    android:maxLines="2"
+                    android:ellipsize="none"
                     android:textColor="@color/sub_text_brown"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -287,6 +294,7 @@
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/numBooksReadTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
@@ -331,9 +339,10 @@
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/favoriteTagTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tags"
+                    android:text="N/A"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -342,8 +351,8 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:layout_marginLeft="25dp"
+                android:layout_margin="10dp"
+                android:layout_marginLeft="18dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -477,6 +486,7 @@
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/averageRatingTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
@@ -523,6 +533,7 @@
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/numReviewsTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
@@ -568,6 +579,7 @@
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/numFriendsTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
