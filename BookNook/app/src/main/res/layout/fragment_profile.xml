@@ -140,6 +140,7 @@
                     android:padding="10dp"
                     android:enabled="false"
                     android:focusable="false"
+                    android:textColor="@color/main_text_brown"
                     android:cursorVisible="false"
                     android:imeOptions="actionDone" />
 
@@ -188,6 +189,7 @@
                     android:padding="10dp"
                     android:enabled="false"
                     android:focusable="false"
+                    android:textColor="@color/main_text_brown"
                     android:cursorVisible="false"
                     android:imeOptions="actionDone" />
 
