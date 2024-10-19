@@ -33,6 +33,7 @@
             android:layout_gravity="center" />
     </FrameLayout>
     <!-- Yunjong Noh -->
+    <!-- For Showing Personal Recommendaiton -->
     <!-- Title for recommendations -->
     <TextView
         android:id="@+id/dailyRecommendationsTitle"
@@ -44,13 +45,13 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="54dp" />
 
-    <!-- Horizontal RecyclerView for book recommendations -->
+    <!-- Horizontal RecyclerView for personal book recommendations -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewRecommendations"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:padding="16dp"
+        android:layout_marginTop="85dp"
+        android:padding="8dp"
         android:layout_gravity="center_horizontal"
         android:orientation="horizontal" />
 
@@ -59,7 +60,7 @@
         android:id="@+id/divider1"
         android:layout_width="350dp"
         android:layout_height="1dp"
-        android:layout_marginTop="312dp"
+        android:layout_marginTop="355dp"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/rounded_rectangle"
         android:backgroundTint="@color/main_text_brown" />
@@ -73,5 +74,5 @@
         android:text="While you were away..."
         android:textColor="@color/home_pink"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="315dp" />
+        android:layout_marginTop="360dp" />
 </FrameLayout>
