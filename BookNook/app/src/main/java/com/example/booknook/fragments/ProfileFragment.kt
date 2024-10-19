@@ -231,6 +231,7 @@ class ProfileFragment : Fragment() {
             updateTopGenres(userId)
             updateNumBooksRead(userId)
             updateFavoriteTag(userId)
+            updateNumGroups(userId)
             updateNumCollections(userId)
             updateAverageRating(userId)
             updateNumReviews(userId)
@@ -491,7 +492,27 @@ class ProfileFragment : Fragment() {
     // Veronica Nguyen
     // Function updates the number of groups the user is in
     private fun updateNumGroups(userId: String) {
-        // To-do
+        // References document of current user
+        val userDocRef = firestore.collection("users").document(userId)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            // Retrieves the joinedGroups array in database
+            val groups = document.get("joinedGroups") as? List<*>
+            // Finds the size of the array to determine number of groups
+            val numGroups = groups?.size ?: 0
+
+            // Updates the numFriends field in database
+            userDocRef.update("numGroups", numGroups)
+                .addOnSuccessListener {
+                    // Update text view here (if applicable)
+
+                }
+                .addOnFailureListener {
+                    Toast.makeText(activity, "Error updating number of groups", Toast.LENGTH_SHORT).show()
+                }
+        }.addOnFailureListener { e ->
+            Toast.makeText(activity, "Error getting number of groups: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     // Veronica Nguyen
@@ -545,7 +566,7 @@ class ProfileFragment : Fragment() {
                     userDocRef.update("averageRating", roundedAverageRating)
                         .addOnSuccessListener {
                             // Update text view here (if applicable)
-                            averageRatingTextView.text = "$averageRating"
+                            averageRatingTextView.text = "$roundedAverageRating"
                         }
                         .addOnFailureListener {
                             Toast.makeText(activity, "Error updating average rating", Toast.LENGTH_SHORT).show()
