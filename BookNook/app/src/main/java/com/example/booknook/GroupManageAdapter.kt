@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.CollectionAdapter.CollectionViewHolder
 
-class GroupManageAdapter(private val requests: List<GroupRequestHolderItem>) : RecyclerView.Adapter<GroupManageAdapter.GroupManageViewHolder>() {
+class GroupManageAdapter(private val requests: MutableList<GroupRequestHolderItem>) : RecyclerView.Adapter<GroupManageAdapter.GroupManageViewHolder>() {
 
     class GroupManageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val groupName: TextView = itemView.findViewById(R.id.groupName)

@@ -89,7 +89,7 @@ class ManageGroupsFragment : Fragment() {
                 groupList.clear()
 
                 for (document in documents) {
-                    val owner = document.get("createdBy") as? String
+                    val owner = document.getString("createdBy")
 
                     if (owner == userId) {
                         val groupName = document.getString("groupName") ?: "Unknown Group"
@@ -101,12 +101,12 @@ class ManageGroupsFragment : Fragment() {
                             .addOnSuccessListener { requestDocs ->
                                 val requests = requestDocs.map { requestDoc ->
                                     requestDoc.toObject(GroupRequestItem::class.java)
-                                }
+                                }.toMutableList() // Convert to MutableList
 
                                 // Create GroupRequestHolderItem containing group name and requests
                                 val groupRequestHolderItem = GroupRequestHolderItem(
                                     groupName = groupName,
-                                    requests = requests
+                                    requests = requests // Now it should be mutable
                                 )
 
                                 groupList.add(groupRequestHolderItem)
@@ -124,14 +124,6 @@ class ManageGroupsFragment : Fragment() {
             .addOnFailureListener { e ->
                 Log.w("ManageGroupsFragment", "Error loading groups: ${e.message}")
             }
-
     }
 
-    private fun acceptGroup(groupName: String, senderId: String)
-    {
-        val db = FirebaseFirestore.getInstance()
-        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
-
-
-    }
 }

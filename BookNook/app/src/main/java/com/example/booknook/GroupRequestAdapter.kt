@@ -6,11 +6,13 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.booknook.FriendRequestAdapter.FriendRequestViewHolder
+import com.google.firebase.firestore.FirebaseFirestore
 import de.hdodenhof.circleimageview.CircleImageView
 
 class GroupRequestAdapter(
-    private val requestList: List<GroupRequestItem>,
+    private val requestList: MutableList<GroupRequestItem>,
     private val onAcceptClick: (GroupRequestItem) -> Unit,
     private val onRejectClick: (GroupRequestItem) -> Unit
 ) : RecyclerView.Adapter<GroupRequestAdapter.GroupRequestViewHolder>() {
@@ -35,7 +37,7 @@ class GroupRequestAdapter(
         holder.usernameTextView.text = requestItem.senderUsername
 
         // Placeholder for setting profile image (if you have image URL, you can use Glide/Picasso)
-        holder.profileImage.setImageResource(R.drawable.profile_picture_placeholder)
+        loadProfileImage(requestItem.senderId, holder.profileImage)
 
         // Handle accept button click
         holder.acceptButton.setOnClickListener {
@@ -46,9 +48,35 @@ class GroupRequestAdapter(
         holder.rejectButton.setOnClickListener {
             onRejectClick(requestItem)
         }
+
     }
 
-    override fun getItemCount(): Int {
+    // Helper function to fetch and load the profile image from Firebase Storage
+    private fun loadProfileImage(senderId: String, imageView: CircleImageView) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Fetch the profile image URL from Firestore
+        db.collection("users").document(senderId).get().addOnSuccessListener { document ->
+            val profileImageUrl = document.getString("profileImageUrl")
+            if (!profileImageUrl.isNullOrEmpty()) {
+                // Use Glide to load the image
+                Glide.with(imageView.context)
+                    .load(profileImageUrl)
+                    .placeholder(R.drawable.profile_picture_placeholder)  // Placeholder while loading
+                    .error(R.drawable.profile_picture_placeholder)       // Fallback in case of error
+                    .into(imageView)
+            } else {
+                // Set a placeholder if no profile image URL is found
+                imageView.setImageResource(R.drawable.profile_picture_placeholder)
+            }
+        }.addOnFailureListener {
+            // Handle errors and set a placeholder if the request fails
+            imageView.setImageResource(R.drawable.profile_picture_placeholder)
+        }
+    }
+
+
+        override fun getItemCount(): Int {
         return requestList.size
     }
 }
