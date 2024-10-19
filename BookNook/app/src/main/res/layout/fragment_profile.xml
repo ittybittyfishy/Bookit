@@ -73,7 +73,7 @@
                 android:layout_height="25dp"
                 android:gravity="center"
                 android:background="@drawable/rounded_rectangle_1"
-                android:text="LVL.80"
+                android:text="Level 0"
                 android:layout_centerHorizontal="true"
                 android:layout_below="@id/profileImage"
                 android:layout_marginTop="-20dp" />
