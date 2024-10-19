@@ -1,11 +1,10 @@
 package com.example.booknook
 
-class GroupJoinRequest (
+class GroupRequestItem (
     val id: String = "",
+    val groupName: String = "",
     val senderId: String = "",
     val receiverId: String = "",
-    val username: String = "",
+    val senderUsername: String = "",
     val status: String = "pending"
-){
-
-}
+){}

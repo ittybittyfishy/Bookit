@@ -12,6 +12,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.GroupAdapter
 import com.example.booknook.GroupItem
+import com.example.booknook.GroupManageAdapter
+import com.example.booknook.GroupRequestAdapter
+import com.example.booknook.GroupRequestHolderItem
+import com.example.booknook.GroupRequestItem
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
@@ -26,10 +30,10 @@ class ManageGroupsFragment : Fragment() {
 
     // page UI elements
     private lateinit var createGroup: Button
-
     private lateinit var recyclerView: RecyclerView
-    private lateinit var groupAdapter: GroupAdapter
-    private val groupList = mutableListOf<GroupItem>()
+
+    private lateinit var groupManageAdapter: GroupManageAdapter
+    private val groupList = mutableListOf<GroupRequestHolderItem>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,65 +49,89 @@ class ManageGroupsFragment : Fragment() {
         // Page UI elements
         createGroup = view.findViewById(R.id.createGroupButton)
 
-        createGroup.setOnClickListener()
-        {
+        createGroup.setOnClickListener {
             val createGroupDialog = CreateGroupFragment()
             createGroupDialog.show(childFragmentManager, "CreateGroupDialog")
         }
 
-        // navigation buttons
+        // Navigation buttons
         myGroups = view.findViewById(R.id.myGroups)
         findGroups = view.findViewById(R.id.findGroups)
 
-        myGroups.setOnClickListener()
-        {
+        myGroups.setOnClickListener {
             val groupsFragment = GroupsFragment()
             (activity as MainActivity).replaceFragment(groupsFragment, "My Groups")
         }
 
-        findGroups.setOnClickListener()
-        {
+        findGroups.setOnClickListener {
             val findGroupsFragment = FindGroupFragment()
             (activity as MainActivity).replaceFragment(findGroupsFragment, "Find Groups")
         }
 
-        // Recycler View
+        // Recycler View setup
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        groupAdapter = GroupAdapter(groupList) { groupItem ->
-            // Handle group item click
-            Toast.makeText(context, "Clicked: ${groupItem.groupName}", Toast.LENGTH_SHORT).show()
-        }
-        recyclerView.adapter = groupAdapter
 
+        // Initialize adapter
+        groupManageAdapter = GroupManageAdapter(groupList)
+        recyclerView.adapter = groupManageAdapter
+
+        // Load data from Firestore
         loadGroupsFromFirestore()
-
     }
 
     private fun loadGroupsFromFirestore() {
         val db = FirebaseFirestore.getInstance()
-
         val userId = FirebaseAuth.getInstance().currentUser?.uid
 
         db.collection("groups").get()
             .addOnSuccessListener { documents ->
-                groupList.clear()  // Clear any existing data
+                groupList.clear()
 
                 for (document in documents) {
-                    // Retrieve the members list from the document
                     val owner = document.get("createdBy") as? String
 
-                    // Check if user is the owner
                     if (owner == userId) {
-                        val group = document.toObject(GroupItem::class.java).copy(id = document.id)
-                        groupList.add(group)
+                        val groupName = document.getString("groupName") ?: "Unknown Group"
+                        val groupId = document.id
+
+                        // Fetch requests for this group
+                        db.collection("groups").document(groupId).collection("requests")
+                            .get()
+                            .addOnSuccessListener { requestDocs ->
+                                val requests = requestDocs.map { requestDoc ->
+                                    requestDoc.toObject(GroupRequestItem::class.java)
+                                }
+
+                                // Create GroupRequestHolderItem containing group name and requests
+                                val groupRequestHolderItem = GroupRequestHolderItem(
+                                    groupName = groupName,
+                                    requests = requests
+                                )
+
+                                groupList.add(groupRequestHolderItem)
+                                groupManageAdapter.notifyDataSetChanged()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w(
+                                    "ManageGroupsFragment",
+                                    "Error loading requests: ${e.message}"
+                                )
+                            }
                     }
                 }
-
-                groupAdapter.notifyDataSetChanged()  // Update RecyclerView with new data
             }
             .addOnFailureListener { e ->
-                Log.w("GroupsFragment", "Error loading groups: ${e.message}")
+                Log.w("ManageGroupsFragment", "Error loading groups: ${e.message}")
             }
+
+    }
+
+    private fun acceptGroup(groupName: String, senderId: String)
+    {
+        val db = FirebaseFirestore.getInstance()
+        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
+
+
     }
 }

@@ -113,8 +113,7 @@ class GroupPrivateFragment : DialogFragment() {
                                 Toast.makeText(requireContext(), "Failed to send join request: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
                         }
-
-                    // (Optional) Also notify the group creator about the join request
+                    // notify owner of group request
                     db.collection("users").document(groupCreatorId)
                         .update("groupJoinRequests", FieldValue.arrayUnion(joinRequest))
                         .addOnSuccessListener {
