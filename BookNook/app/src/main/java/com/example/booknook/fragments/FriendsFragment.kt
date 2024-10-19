@@ -173,6 +173,7 @@ class FriendsFragment : Fragment() {
         val userProfileFragment = FriendProfileFragment()
         val bundle = Bundle()
         bundle.putString("receiverId", selectedFriend.friendId)
+        bundle.putString("receiverUsername", selectedFriend.friendUsername)
         userProfileFragment.arguments = bundle
         (activity as MainActivity).replaceFragment(userProfileFragment, "Profile")
     }

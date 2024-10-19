@@ -1,6 +1,7 @@
 package com.example.booknook.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -30,6 +31,7 @@ class FriendProfileFragment : Fragment() {
 
     // Friend's user ID (to be passed as an argument)
     private var friendUserId: String? = null
+    private var friendUsername: String? = null
 
     //block user menu
     private lateinit var threeDotsButton: ImageButton
@@ -49,6 +51,7 @@ class FriendProfileFragment : Fragment() {
 
         // Retrieve the friend's user ID from the arguments
         friendUserId = arguments?.getString("receiverId")
+        friendUsername = arguments?.getString("receiverUsername")
         if (friendUserId == null) {
             Toast.makeText(activity, "Friend user ID not provided", Toast.LENGTH_SHORT).show()
             parentFragmentManager.popBackStack()
@@ -106,7 +109,11 @@ class FriendProfileFragment : Fragment() {
         // Set up Add Friend button
         addFriendButton.setOnClickListener {
             friendUserId?.let { friendId ->
-                toggleFriendshipStatus(friendId)
+                if (addFriendButton.text == "Remove Friend") {
+                    removeFriend(friendId)
+                } else {
+                    sendFriendRequest(friendId)
+                }
             }
         }
 
@@ -148,8 +155,8 @@ class FriendProfileFragment : Fragment() {
                     db.collection("users").document(receiverId)
                         .update("friendRequests", FieldValue.arrayUnion(friendRequest))
                         .addOnSuccessListener {
-                            Toast.makeText(activity, "Friend request sent", Toast.LENGTH_SHORT)
-                                .show()
+                            Toast.makeText(activity, "Friend request sent", Toast.LENGTH_SHORT).show()
+                            addFriendButton.text = "Friend Request Sent"
                         }
                         .addOnFailureListener { e ->
                             Toast.makeText(activity, "Failed to send friend request: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -162,32 +169,46 @@ class FriendProfileFragment : Fragment() {
     }
 
     // Function to remove a friend
-    private fun removeFriend(receiverId: String) {
+    private fun removeFriend(friendId: String) {
         val db = FirebaseFirestore.getInstance()
-        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
-
         val currentUserRef = currentUserId?.let { db.collection("users").document(it) }
+
         if (currentUserRef != null) {
-            // Deletes the friend from the current user's database
-            currentUserRef.update("friends", FieldValue.arrayRemove(friendUserId))
-                .addOnSuccessListener {
-                    val friendRef = friendUserId?.let { it1 -> db.collection("users").document(it1) }
-                    if (friendRef != null) {
-                        // Deletes the friend from the other user's database
-                        friendRef.update("friends", FieldValue.arrayRemove(currentUserId))
+            // Fetch the current user's username
+            currentUserRef.get().addOnSuccessListener { userDoc ->
+                val currentUsername = userDoc.getString("username") ?: return@addOnSuccessListener
+
+                // Create a map for the friend to be removed
+                val friendToRemove = hashMapOf("friendId" to friendId, "friendUsername" to friendUsername)
+
+                // Remove the friend from the current user's friends list
+                currentUserRef.update("friends", FieldValue.arrayRemove(friendToRemove))
+                    .addOnSuccessListener {
+                        // Now remove the current user from the friend's friends list
+                        val friendRef = db.collection("users").document(friendId)
+                        val currentUserAsFriend = hashMapOf("friendId" to currentUserId, "friendUsername" to currentUsername)
+
+                        friendRef.update("friends", FieldValue.arrayRemove(currentUserAsFriend))
                             .addOnSuccessListener {
-                                Toast.makeText(activity, "Friend removed", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(activity, "Friend removed from both users", Toast.LENGTH_SHORT).show()
+                                addFriendButton.text = "Add Friend"
                             }
-                            .addOnFailureListener {
-                                Toast.makeText(activity, "Failed to remove friend", Toast.LENGTH_SHORT).show()
+                            .addOnFailureListener { e ->
+                                Toast.makeText(activity, "Failed to remove friend from their list: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
                     }
-                }
-                .addOnFailureListener {
-                    Toast.makeText(activity, "Failed to remove friend", Toast.LENGTH_SHORT).show()
-                }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(activity, "Failed to remove friend from your list: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }.addOnFailureListener {
+                Toast.makeText(activity, "Failed to fetch current user data", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(activity, "Current user is not logged in", Toast.LENGTH_SHORT).show()
         }
     }
+
+
 
     private fun showPopupMenu(view: View) {
         val popup = PopupMenu(requireContext(), view)
@@ -267,13 +288,22 @@ class FriendProfileFragment : Fragment() {
         currentUserDocRef.get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
-                    val friends = document.get("friends") as? List<*>
-                    if (friends != null && friends.contains(friendId)) {
-                        // Already friends
-                        addFriendButton.text = "Remove Friend"
+                    val friends = document.get("friends") as? List<Map<String, String>>
+                    if (friends != null) {
+                        // Loops through each friend to check if they're already friends by comparing friendIds
+                        val isFriend = friends.any { friendMap -> friendMap["friendId"] == friendId}
+                        if (isFriend) {
+                            // Already friends
+                            addFriendButton.text = "Remove Friend"
+                            Toast.makeText(activity, "Already friends", Toast.LENGTH_SHORT).show()
+                        } else {
+                            // Not friends
+                            addFriendButton.text = "Add Friend"
+                            Toast.makeText(activity, "Not friends", Toast.LENGTH_SHORT).show()
+                        }
                     } else {
-                        // Not friends
-                        addFriendButton.text = "Add Friend"
+                        addFriendButton.text = "Add friend"
+                        Toast.makeText(activity, "No friends found", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
