@@ -23,6 +23,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide  // Add this import for image loading
 import com.example.booknook.R
+import com.google.api.Distribution.BucketOptions.Linear
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage  // Import Firebase Storage
@@ -76,6 +77,13 @@ class ProfileFragment : Fragment() {
     private val currentUser = auth.currentUser
     private val userId = currentUser?.uid  // Retrieves ID of the current user
 
+    //make icons clickable
+    // Initialize the UI elements for sections
+    private lateinit var collectionsSection: LinearLayout
+    private lateinit var groupsSection: LinearLayout
+    private lateinit var friendsSection: LinearLayout
+    private lateinit var achievementsSection: LinearLayout
+
     // Method called to create and return the view hierarchy associated with the fragment
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -98,6 +106,30 @@ class ProfileFragment : Fragment() {
         averageRatingTextView = view.findViewById(R.id.averageRatingTextView)
         numReviewsTextView = view.findViewById(R.id.numReviewsTextView)
         numFriendsTextView = view.findViewById(R.id.numFriendsTextView)
+
+        //make icons clickable
+        collectionsSection = view.findViewById(R.id.collections_section)
+        groupsSection = view.findViewById(R.id.groups_section)
+        friendsSection = view.findViewById(R.id.friends_section)
+        achievementsSection = view.findViewById(R.id.achievements_section)
+
+        // Set click listeners to navigate to the respective fragments
+        collectionsSection.setOnClickListener {
+            replaceFragment(CollectionFragment())
+        }
+
+        groupsSection.setOnClickListener {
+            replaceFragment(GroupsFragment())
+        }
+
+        friendsSection.setOnClickListener {
+            replaceFragment(FriendsFragment())
+        }
+
+        achievementsSection.setOnClickListener {
+            replaceFragment(AchievmentsFragment())
+        }
+
 
 
         // Initialize text view for the main user username
@@ -245,6 +277,15 @@ class ProfileFragment : Fragment() {
 
         // Return the created view
         return view
+    }
+
+    // Function to replace the current fragment
+    private fun replaceFragment(fragment: Fragment) {
+        val fragmentManager = parentFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.menu_container, fragment) // Replace with your fragment container
+        fragmentTransaction.addToBackStack(null) // Add to back stack to enable "back" navigation
+        fragmentTransaction.commit()
     }
 
     // Function to enable editing on an EditText and change icon to save

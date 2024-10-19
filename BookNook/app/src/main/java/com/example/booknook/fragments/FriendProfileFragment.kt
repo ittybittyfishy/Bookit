@@ -34,7 +34,14 @@ class FriendProfileFragment : Fragment() {
     //block user menu
     private lateinit var threeDotsButton: ImageButton
 
-
+    //load in stats
+    private lateinit var numCollectionsTextView: TextView
+    private lateinit var numBooksReadTextView: TextView
+    private lateinit var topGenresTextView: TextView
+    private lateinit var favoriteTagTextView: TextView
+    private lateinit var averageRatingTextView: TextView
+    private lateinit var numReviewsTextView: TextView
+    private lateinit var numFriendsTextView: TextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,6 +69,15 @@ class FriendProfileFragment : Fragment() {
         userUsername = view.findViewById(R.id.userUsername)
         quoteEditText = view.findViewById(R.id.rectangle4)
         characterEditText = view.findViewById(R.id.rectangle5)
+
+        //load in stats UI
+        numCollectionsTextView = view.findViewById(R.id.numCollectionsTextView)
+        numBooksReadTextView = view.findViewById(R.id.numBooksReadTextView)
+        topGenresTextView = view.findViewById(R.id.topGenresTextView)
+        favoriteTagTextView = view.findViewById(R.id.favoriteTagTextView)
+        averageRatingTextView = view.findViewById(R.id.averageRatingTextView)
+        numReviewsTextView = view.findViewById(R.id.numReviewsTextView)
+        numFriendsTextView = view.findViewById(R.id.numFriendsTextView)
 
         //block user menu
         threeDotsButton = view.findViewById(R.id.threeDotsButton)
@@ -200,6 +216,13 @@ class FriendProfileFragment : Fragment() {
                     val favoriteCharacter = document.getString("favoriteCharacter") ?: ""
                     val profileImageUrl = document.getString("profileImageUrl")
                     val bannerImageUrl = document.getString("bannerImageUrl")
+                    val numCollections = document.getLong("numCollections") ?: 0
+                    val numBooksRead = document.getLong("numBooksRead") ?: 0
+                    val favoriteTag = document.getString("favoriteTag") ?: "N/A"
+                    val topGenres = document.get("topGenres") as? List<String> ?: listOf()
+                    val averageRating = document.getDouble("averageRating") ?: 0.0
+                    val numReviews = document.getLong("numReviews") ?: 0
+                    val numFriends = document.getLong("numFriends") ?: 0
 
                     // Set the username and other data to the views
                     userUsername.text = username ?: "No Username"
@@ -219,8 +242,14 @@ class FriendProfileFragment : Fragment() {
                             .into(bannerImage)
                     }
 
-                    // Check if the current user is already friends with this user
-                    checkFriendshipStatus(friendId)
+                    // Update stats in the corresponding TextViews
+                    numCollectionsTextView.text = "$numCollections"
+                    numBooksReadTextView.text = "$numBooksRead"
+                    favoriteTagTextView.text = favoriteTag
+                    topGenresTextView.text = topGenres.joinToString(", ")
+                    averageRatingTextView.text = String.format("%.2f", averageRating)
+                    numReviewsTextView.text = "$numReviews"
+                    numFriendsTextView.text = "$numFriends"
                 } else {
                     Toast.makeText(activity, "User does not exist", Toast.LENGTH_SHORT).show()
                 }
@@ -229,6 +258,7 @@ class FriendProfileFragment : Fragment() {
                 Toast.makeText(activity, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 
     private fun checkFriendshipStatus(friendId: String) {
         if (currentUserId == null) return
