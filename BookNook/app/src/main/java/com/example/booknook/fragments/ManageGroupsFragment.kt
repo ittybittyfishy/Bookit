@@ -19,6 +19,7 @@ import com.example.booknook.GroupRequestItem
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 
@@ -72,8 +73,12 @@ class ManageGroupsFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        // Initialize adapter
-        groupManageAdapter = GroupManageAdapter(groupList)
+        // Initialize adapter with click listeners
+        groupManageAdapter = GroupManageAdapter(
+            groupList,
+            onAcceptClick = { groupId, requestItem -> handleAcceptRequest(groupId, requestItem) },
+            onRejectClick = { groupId, requestItem -> handleRejectRequest(groupId, requestItem) }
+        )
         recyclerView.adapter = groupManageAdapter
 
         // Load data from Firestore
@@ -93,7 +98,7 @@ class ManageGroupsFragment : Fragment() {
 
                     if (owner == userId) {
                         val groupName = document.getString("groupName") ?: "Unknown Group"
-                        val groupId = document.id
+                        val groupId = document.id  // Extract groupId
 
                         // Fetch requests for this group
                         db.collection("groups").document(groupId).collection("requests")
@@ -103,10 +108,11 @@ class ManageGroupsFragment : Fragment() {
                                     requestDoc.toObject(GroupRequestItem::class.java)
                                 }.toMutableList() // Convert to MutableList
 
-                                // Create GroupRequestHolderItem containing group name and requests
+                                // Create GroupRequestHolderItem containing groupId, group name, and requests
                                 val groupRequestHolderItem = GroupRequestHolderItem(
+                                    groupId = groupId,  // Pass groupId here
                                     groupName = groupName,
-                                    requests = requests // Now it should be mutable
+                                    requests = requests
                                 )
 
                                 groupList.add(groupRequestHolderItem)
@@ -125,5 +131,54 @@ class ManageGroupsFragment : Fragment() {
                 Log.w("ManageGroupsFragment", "Error loading groups: ${e.message}")
             }
     }
+
+    private fun handleAcceptRequest(groupId: String, requestItem: GroupRequestItem) {
+        val db = FirebaseFirestore.getInstance()
+        val userId = requestItem.senderId
+
+        // Add user to group members
+        db.collection("groups").document(groupId)
+            .update("members", FieldValue.arrayUnion(userId))
+            .addOnSuccessListener {
+                // Remove request from Firestore
+                removeJoinRequest(groupId, requestItem)
+
+                // Notify user
+                Toast.makeText(requireContext(), "User added to group", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Log.w("ManageGroupsFragment", "Error adding user to group: ${e.message}")
+            }
+    }
+
+    private fun handleRejectRequest(groupId: String, requestItem: GroupRequestItem) {
+        // Just remove the join request without adding the user
+        removeJoinRequest(groupId, requestItem)
+        Toast.makeText(requireContext(), "Join request rejected", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun removeJoinRequest(groupId: String, requestItem: GroupRequestItem) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Find the document ID of the join request
+        db.collection("groups").document(groupId)
+            .collection("requests")
+            .whereEqualTo("senderId", requestItem.senderId)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot) {
+                    // Delete the request document
+                    document.reference.delete()
+                }
+
+                // Optionally: Notify the adapter to refresh the view
+                loadGroupsFromFirestore()
+            }
+            .addOnFailureListener { e ->
+                Log.w("ManageGroupsFragment", "Error removing join request: ${e.message}")
+            }
+    }
+
+
 
 }

@@ -3,13 +3,18 @@ package com.example.booknook
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.CollectionAdapter.CollectionViewHolder
 
-class GroupManageAdapter(private val requests: MutableList<GroupRequestHolderItem>) : RecyclerView.Adapter<GroupManageAdapter.GroupManageViewHolder>() {
+class GroupManageAdapter(
+private val requests: MutableList<GroupRequestHolderItem>,
+private val onAcceptClick: (String, GroupRequestItem) -> Unit,
+private val onRejectClick: (String, GroupRequestItem) -> Unit
+) : RecyclerView.Adapter<GroupManageAdapter.GroupManageViewHolder>() {
 
     class GroupManageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val groupName: TextView = itemView.findViewById(R.id.groupName)
@@ -23,25 +28,23 @@ class GroupManageAdapter(private val requests: MutableList<GroupRequestHolderIte
     }
 
     override fun onBindViewHolder(holder: GroupManageViewHolder, position: Int) {
-        val groupRequestHolder = requests[position]
-        holder.groupName.text = groupRequestHolder.groupName
+        val groupItem = requests[position]
 
-        // Setup inner RecyclerView with onClick listeners for accept/reject
+        // Set group name
+        holder.groupName.text = groupItem.groupName
+
+        // Setup inner RecyclerView
         holder.groupRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
         holder.groupRecyclerView.adapter = GroupRequestAdapter(
-            groupRequestHolder.requests,
+            groupItem.requests,
             onAcceptClick = { requestItem ->
-                // Handle accept click here
-                Toast.makeText(holder.itemView.context, "Accepted: ${requestItem.senderId}", Toast.LENGTH_SHORT).show()
+                onAcceptClick(groupItem.groupId, requestItem)
             },
             onRejectClick = { requestItem ->
-                // Handle reject click here
-                Toast.makeText(holder.itemView.context, "Rejected: ${requestItem.senderId}", Toast.LENGTH_SHORT).show()
+                onRejectClick(groupItem.groupId, requestItem)
             }
         )
     }
 
     override fun getItemCount(): Int = requests.size
-
-
 }
