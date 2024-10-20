@@ -1,31 +1,24 @@
 package com.example.booknook.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.widget.TextView
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.booknook.BookItemCollection
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.bumptech.glide.Glide
-import com.example.booknook.BookRecommendationAdapter
 
+//Yunjong Noh
+//Showing personal book Recommendation
 class HomeFragment : Fragment() {
-
+    // declare UI componets
     private lateinit var loggedInTextView: TextView
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
-    //Yunjong Noh
-    //Showing personal book Recommendation
-    // declare UI componets
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var bookAdapter: BookRecommendationAdapter
-    private lateinit var bookList: List<BookItemCollection>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,11 +34,38 @@ class HomeFragment : Fragment() {
         // Initialize views
         loggedInTextView = view.findViewById(R.id.loggedInTextView)
 
-        //Yunjong Noh
-        //Initalize view of personal recommendation
-        recyclerView = view.findViewById(R.id.recyclerViewRecommendations)
-        // Setup RecyclerView with horizontal layout
-        recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        // 첫 번째 책
+        val bookCoverImageView1: ImageView = view.findViewById(R.id.bookCoverImageView1)
+        val bookTitleTextView1: TextView = view.findViewById(R.id.bookTitleTextView1)
+        val bookAuthorsTextView1: TextView = view.findViewById(R.id.bookAuthorsTextView1)
+        val bookGenresTextView1: TextView = view.findViewById(R.id.bookGenresTextView1)
+
+        bookTitleTextView1.text = "Book Title 1"
+        bookAuthorsTextView1.text = "Author 1"
+        bookGenresTextView1.text = "Fiction"
+        Glide.with(this).load(R.drawable.placeholder_image).into(bookCoverImageView1)
+
+        // 두 번째 책
+        val bookCoverImageView2: ImageView = view.findViewById(R.id.bookCoverImageView2)
+        val bookTitleTextView2: TextView = view.findViewById(R.id.bookTitleTextView2)
+        val bookAuthorsTextView2: TextView = view.findViewById(R.id.bookAuthorsTextView2)
+        val bookGenresTextView2: TextView = view.findViewById(R.id.bookGenresTextView2)
+
+        bookTitleTextView2.text = "Book Title 2"
+        bookAuthorsTextView2.text = "Author 2"
+        bookGenresTextView2.text = "Mystery"
+        Glide.with(this).load(R.drawable.placeholder_image).into(bookCoverImageView2)
+
+        // 세 번째 책
+        val bookCoverImageView3: ImageView = view.findViewById(R.id.bookCoverImageView3)
+        val bookTitleTextView3: TextView = view.findViewById(R.id.bookTitleTextView3)
+        val bookAuthorsTextView3: TextView = view.findViewById(R.id.bookAuthorsTextView3)
+        val bookGenresTextView3: TextView = view.findViewById(R.id.bookGenresTextView3)
+
+        bookTitleTextView3.text = "Book Title 3"
+        bookAuthorsTextView3.text = "Author 3"
+        bookGenresTextView3.text = "Science Fiction"
+        Glide.with(this).load(R.drawable.placeholder_image).into(bookCoverImageView3)
 
         return view
     }
@@ -66,22 +86,9 @@ class HomeFragment : Fragment() {
                 } else {
                     loggedInTextView.text = "Username not found"
                 }
+            }.addOnFailureListener { exception ->
+                loggedInTextView.text = "Error: ${exception.message}"
             }
-                .addOnFailureListener { exception ->
-                    loggedInTextView.text = "Error: ${exception.message}"
-                }
         }
-
-        //Yunjong Noh
-        // Load book recommendation data (For fow, placeholder as an example)
-        bookList = listOf(
-            BookItemCollection("Book Title 1", listOf("Author 1"), "R.drawable.placeholder_image", 300, genres = listOf("Fiction")),
-            BookItemCollection("Book Title 2", listOf("Author 2"), "R.drawable.placeholder_image", 250, genres = listOf("Mystery")),
-            BookItemCollection("Book Title 3", listOf("Author 3"), "R.drawable.placeholder_image", 400, genres = listOf("Science Fiction"))
-        )
-
-        // Set up the RecyclerView adapter
-        bookAdapter = BookRecommendationAdapter(bookList)
-        recyclerView.adapter = bookAdapter
     }
 }
