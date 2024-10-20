@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import de.hdodenhof.circleimageview.CircleImageView
 import androidx.appcompat.widget.PopupMenu
+import com.example.booknook.MainActivity
 import com.google.firebase.firestore.FieldValue
 
 
@@ -190,21 +191,21 @@ class FriendProfileFragment : Fragment() {
 
                         friendRef.update("friends", FieldValue.arrayRemove(currentUserAsFriend))
                             .addOnSuccessListener {
-                                Toast.makeText(activity, "Friend removed from both users", Toast.LENGTH_SHORT).show()
+                                context?.let { Toast.makeText(activity, "Friend removed from both users", Toast.LENGTH_SHORT).show() }
                                 addFriendButton.text = "Add Friend"
                             }
                             .addOnFailureListener { e ->
-                                Toast.makeText(activity, "Failed to remove friend from their list: ${e.message}", Toast.LENGTH_SHORT).show()
+                                context?.let{ Toast.makeText(activity, "Failed to remove friend from their list: ${e.message}", Toast.LENGTH_SHORT).show() }
                             }
                     }
                     .addOnFailureListener { e ->
-                        Toast.makeText(activity, "Failed to remove friend from your list: ${e.message}", Toast.LENGTH_SHORT).show()
+                        context?.let { Toast.makeText(activity, "Failed to remove friend from your list: ${e.message}", Toast.LENGTH_SHORT).show() }
                     }
             }.addOnFailureListener {
-                Toast.makeText(activity, "Failed to fetch current user data", Toast.LENGTH_SHORT).show()
+                context?.let { Toast.makeText(activity, "Failed to fetch current user data", Toast.LENGTH_SHORT).show() }
             }
         } else {
-            Toast.makeText(activity, "Current user is not logged in", Toast.LENGTH_SHORT).show()
+            context?.let { Toast.makeText(activity, "Current user is not logged in", Toast.LENGTH_SHORT).show() }
         }
     }
 
@@ -217,6 +218,16 @@ class FriendProfileFragment : Fragment() {
             when (item.itemId) {
                 R.id.action_block_user -> {
                     //block user function goes here
+                    friendUserId?.let { blockUser(it) }
+                    friendUserId?.let { removeFriend(it) }
+
+                    val blockedUserProfileFragment = BlockedUserProfileFragment()
+                    val bundle = Bundle().apply {
+                        putString("blockedUserId", friendUserId)  // Pass the receiver's id into the bundle
+                        putString("blockedUsername", friendUsername)
+                    }
+                    blockedUserProfileFragment.arguments = bundle
+                    (activity as MainActivity).replaceFragment(blockedUserProfileFragment, "Profile")
                     true
                 }
                 else -> false
@@ -312,39 +323,55 @@ class FriendProfileFragment : Fragment() {
             }
     }
 
-    private fun toggleFriendshipStatus(friendId: String) {
-        if (currentUserId == null) return
+    // Function to block a user
+    private fun blockUser(receiverId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
 
-        val currentUserDocRef = firestore.collection("users").document(currentUserId)
+        if (currentUser != null) {
+            val senderId = currentUser.uid  // senderId is the current user
+            val senderRef = db.collection("users").document(senderId)  // gets the sender's document
+            val blockedUserRef = db.collection("users").document(receiverId)  // gets the blocked user's document
 
-        currentUserDocRef.get()
-            .addOnSuccessListener { document ->
-                if (document != null && document.exists()) {
-                    val friends = document.get("friends") as? MutableList<String> ?: mutableListOf()
+            // Fetch sender's username
+            senderRef.get().addOnSuccessListener { senderDoc ->
+                val senderUsername = senderDoc?.getString("username")  // gets the sender's username
 
-                    if (friends.contains(friendId)) {
-                        // Remove friend
-                        removeFriend(friendId)
-                        currentUserDocRef.update("friends", friends)
-                            .addOnSuccessListener {
-                                addFriendButton.text = "Add Friend"
-                                Toast.makeText(activity, "Friend removed", Toast.LENGTH_SHORT).show()
-                            }
-                    } else {
-                        // Add friend
-                        sendFriendRequest(friendId)
-                        currentUserDocRef.update("friends", friends)
-                            .addOnSuccessListener {
-                                addFriendButton.text = "Remove Friend"
-                                Toast.makeText(activity, "Friend added", Toast.LENGTH_SHORT).show()
-                            }
+                if (senderUsername != null) {
+                    blockedUserRef.get().addOnSuccessListener { blockedUserDoc ->
+                        val blockedUsername = blockedUserDoc?.getString("username")  // gets the blocked user's username
+
+                        if (blockedUsername != null) {
+                            // creates a map of blocked user's details
+                            val blockedUser = hashMapOf(
+                                "blockedUserId" to receiverId,
+                                "blockedUsername" to blockedUsername
+                            )
+
+                            // Update current user's blocked users array in database
+                            db.collection("users").document(senderId)
+                                .update("blockedUsers", FieldValue.arrayUnion(blockedUser))
+                                .addOnSuccessListener {
+                                    context?.let { Toast.makeText(it, "User blocked", Toast.LENGTH_SHORT).show() }
+                                }
+                                .addOnFailureListener { e ->
+                                    context?.let { Toast.makeText(it, "Failed to block user: ${e.message}", Toast.LENGTH_SHORT).show() }
+                                }
+                        } else {
+                            context?.let { Toast.makeText(it, "Blocked user's username not found", Toast.LENGTH_SHORT).show() }
+                        }
                     }
+                } else {
+                    context?.let { Toast.makeText(it, "Sender username not found", Toast.LENGTH_SHORT).show() }
                 }
+            }.addOnFailureListener {
+                context?.let { Toast.makeText(it, "Failed to block user", Toast.LENGTH_SHORT).show() }
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(activity, "Error updating friendship status: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        } else {
+            context?.let { Toast.makeText(it, "User not authenticated", Toast.LENGTH_SHORT).show() }
+        }
     }
+
 
     companion object {
         private const val ARG_FRIEND_USER_ID = "friendUserId"

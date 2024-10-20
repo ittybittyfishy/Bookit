@@ -42,7 +42,7 @@ class FriendRequestAdapter(private val friendRequests: List<FriendRequest>,
             val requestsUserProfileFragment = RequestsUserProfileFragment()
             val bundle = Bundle().apply {
                 putString("senderId", friendRequest.senderId)  // Pass the receiver's id into the bundle
-                putString("receiverUsername", friendRequest.username)
+                putString("senderUsername", friendRequest.username)
             }
             requestsUserProfileFragment.arguments = bundle  // Set the arguments to the bundle
             (holder.itemView.context as MainActivity).replaceFragment(requestsUserProfileFragment, "Profile")

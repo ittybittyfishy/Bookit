@@ -191,6 +191,7 @@ class FriendsFragment : Fragment() {
             .addOnSuccessListener { senderDoc ->
                 // Gets the user's current friends
                 val allFriends = senderDoc?.get("friends") as? List<Map<String, Any>> ?: emptyList()
+                val blockedUsers = senderDoc?.get("blockedUsers") as? List<Map<String, Any>> ?: emptyList()
 
                 db.collection("users").whereEqualTo("username", username).get()  // checks for username in documents in users collection
                     .addOnCompleteListener { searchTask ->
@@ -207,9 +208,20 @@ class FriendsFragment : Fragment() {
                                     friend["friendId"] == receiverId  // If any of the user's friends matches the receiverID
                                 }
 
-                                if (alreadyFriend) {
-                                    // User can't send friend request if they're already friends
-                                    Toast.makeText(activity, "$userName already added as friend", Toast.LENGTH_SHORT).show()
+                                // Checks to see if the user is blocked
+                                val isBlocked = blockedUsers.any { blockedUser ->
+                                    blockedUser["blockedUserId"] == receiverId
+                                }
+
+                                if (isBlocked) {
+                                    // Navigate to BlockedUserProfileFragment
+                                    val blockedProfileFragment = BlockedUserProfileFragment()
+                                    val bundle = Bundle()
+                                    bundle.putString("blockedUserId", receiverId)
+                                    bundle.putString("blockedUsername", username)
+                                    blockedProfileFragment.arguments = bundle
+                                    (activity as MainActivity).replaceFragment(blockedProfileFragment, "Profile")
+                                    Toast.makeText(activity, "User is blocked", Toast.LENGTH_SHORT).show()
                                 } else if (senderId == receiverId) {
                                     // User can't send a friend request to themselves
                                     Toast.makeText(activity, "Can't add yourself as friend", Toast.LENGTH_SHORT).show()
@@ -219,7 +231,7 @@ class FriendsFragment : Fragment() {
                                     val bundle = Bundle()
                                     bundle.putString("receiverId", receiverId)
                                     friendProfileFragment.arguments = bundle  // Sends receiver id to the friend profile fragment
-                                    (activity as MainActivity).replaceFragment(friendProfileFragment, "$userName")
+                                    (activity as MainActivity).replaceFragment(friendProfileFragment, "Profile")
                                     Toast.makeText(activity, "User found: $userName", Toast.LENGTH_SHORT).show()
                                 }
                             } else {

@@ -12,8 +12,10 @@ import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import de.hdodenhof.circleimageview.CircleImageView
 
@@ -25,7 +27,9 @@ class BlockedUserProfileFragment : Fragment() {
     private lateinit var quoteEditText: EditText
     private lateinit var characterEditText: EditText
 
-    // Declare TextView for displaying the number of collections
+    // Friend's user ID (to be passed as an argument)
+    private var blockedUserId: String? = null
+    private var blockedUsername: String? = null
 
     //block user menu
     private lateinit var threeDotsButton: ImageButton
@@ -39,6 +43,19 @@ class BlockedUserProfileFragment : Fragment() {
     private lateinit var numReviewsTextView: TextView
     private lateinit var numFriendsTextView: TextView
 
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        blockedUserId = arguments?.getString("blockedUserId")  // Receives blockedUserId from blocked fragment
+        blockedUsername = arguments?.getString("blockedUsername")
+
+        if (blockedUserId == null) {
+            Toast.makeText(activity, "Blocked user ID not provided", Toast.LENGTH_SHORT).show()
+            parentFragmentManager.popBackStack()
+            return
+        }
+    }
+
     // Method called to create and return the view hierarchy associated with the fragment
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,25 +64,11 @@ class BlockedUserProfileFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_blocked_user_profile, container, false)
 
-        val blockedUserId = arguments?.getString("blockedUserId")  // Receives receiverId from friends fragment
-        val blockedUsername = arguments?.getString("blockedUsername")
-
 
         // Initialize UI elements
         bannerImage = view.findViewById(R.id.bannerImage)
         profileImage = view.findViewById(R.id.profileImage)
         userUsername = view.findViewById(R.id.userUsername)
-        quoteEditText = view.findViewById(R.id.rectangle4)
-        characterEditText = view.findViewById(R.id.rectangle5)
-
-        //load in stats UI
-        numCollectionsTextView = view.findViewById(R.id.numCollectionsTextView)
-        numBooksReadTextView = view.findViewById(R.id.numBooksReadTextView)
-        topGenresTextView = view.findViewById(R.id.topGenresTextView)
-        favoriteTagTextView = view.findViewById(R.id.favoriteTagTextView)
-        averageRatingTextView = view.findViewById(R.id.averageRatingTextView)
-        numReviewsTextView = view.findViewById(R.id.numReviewsTextView)
-        numFriendsTextView = view.findViewById(R.id.numFriendsTextView)
 
         //block user menu
         threeDotsButton = view.findViewById(R.id.threeDotsButton)
@@ -74,15 +77,11 @@ class BlockedUserProfileFragment : Fragment() {
             showPopupMenu(view)
         }
 
-        // Disable editing on EditTexts
-        quoteEditText.isEnabled = false
-        characterEditText.isEnabled = false
-
-        // Load friend's data
+        // Load blocked user's data
         if (blockedUserId != null) {
-            loadUserData(blockedUserId)
+            loadUserData(blockedUserId!!)
         } else {
-            Toast.makeText(activity, "Friend user ID not provided", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, "Blocked user ID not provided", Toast.LENGTH_SHORT).show()
         }
 
         return view
@@ -101,7 +100,16 @@ class BlockedUserProfileFragment : Fragment() {
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_unblock_user -> {
-                    //block user function goes here
+                    //unblock user function goes here
+                    blockedUserId?.let { unblockUser(it) }
+
+                    val friendProfileFragment = FriendProfileFragment()
+                    val bundle = Bundle().apply {
+                        putString("receiverId", blockedUserId)  // Pass the receiver's id into the bundle
+                        putString("receiverUsername", blockedUsername)
+                    }
+                    friendProfileFragment.arguments = bundle
+                    (activity as MainActivity).replaceFragment(friendProfileFragment, "Profile")
                     true
                 }
                 else -> false
@@ -116,50 +124,84 @@ class BlockedUserProfileFragment : Fragment() {
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
                     val username = document.getString("username")
-                    val favoriteQuote = document.getString("favoriteQuote") ?: ""
-                    val favoriteCharacter = document.getString("favoriteCharacter") ?: ""
                     val profileImageUrl = document.getString("profileImageUrl")
                     val bannerImageUrl = document.getString("bannerImageUrl")
-                    val numCollections = document.getLong("numCollections") ?: 0
-                    val numBooksRead = document.getLong("numBooksRead") ?: 0
-                    val favoriteTag = document.getString("favoriteTag") ?: "N/A"
-                    val topGenres = document.get("topGenres") as? List<String> ?: listOf()
-                    val averageRating = document.getDouble("averageRating") ?: 0.0
-                    val numReviews = document.getLong("numReviews") ?: 0
-                    val numFriends = document.getLong("numFriends") ?: 0
 
                     // Set the username and other data to the views
                     userUsername.text = username ?: "No Username"
-                    quoteEditText.setText(favoriteQuote)
-                    characterEditText.setText(favoriteCharacter)
 
-                    // Load images using Glide
-                    if (!profileImageUrl.isNullOrEmpty()) {
-                        Glide.with(this)
-                            .load(profileImageUrl)
-                            .into(profileImage)
+                    // Ensure the fragment is attached before loading images with Glide
+                    if (isAdded && activity != null) {
+                        // Load images using Glide
+                        if (!profileImageUrl.isNullOrEmpty()) {
+                            Glide.with(this)
+                                .load(profileImageUrl)
+                                .into(profileImage)
+                        }
+
+                        if (!bannerImageUrl.isNullOrEmpty()) {
+                            Glide.with(this)
+                                .load(bannerImageUrl)
+                                .into(bannerImage)
+                        }
+                    } else {
+                        context?.let { Toast.makeText(activity, "Fragment is not attached", Toast.LENGTH_SHORT).show() }
                     }
-
-                    if (!bannerImageUrl.isNullOrEmpty()) {
-                        Glide.with(this)
-                            .load(bannerImageUrl)
-                            .into(bannerImage)
-                    }
-
-                    // Update stats in the corresponding TextViews
-                    numCollectionsTextView.text = "$numCollections"
-                    numBooksReadTextView.text = "$numBooksRead"
-                    favoriteTagTextView.text = favoriteTag
-                    topGenresTextView.text = topGenres.joinToString(", ")
-                    averageRatingTextView.text = String.format("%.2f", averageRating)
-                    numReviewsTextView.text = "$numReviews"
-                    numFriendsTextView.text = "$numFriends"
                 } else {
-                    Toast.makeText(activity, "User does not exist", Toast.LENGTH_SHORT).show()
+                    context?.let { Toast.makeText(activity, "User does not exist", Toast.LENGTH_SHORT).show() }
                 }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(activity, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                context?.let { Toast.makeText(activity, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show() }
             }
+    }
+
+
+    // Function to unblock a user
+    private fun unblockUser(receiverId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
+
+        if (currentUser != null) {
+            val senderId = currentUser.uid  // senderId is the current user
+            val senderRef = db.collection("users").document(senderId)  // gets the sender's document
+            val blockedUserRef = db.collection("users").document(receiverId)  // gets the blocked user's document
+
+            // Fetch sender's username
+            senderRef.get().addOnSuccessListener { senderDoc ->
+                val senderUsername = senderDoc?.getString("username")  // gets the sender's username
+
+                if (senderUsername != null) {
+                    blockedUserRef.get().addOnSuccessListener { blockedUserDoc ->
+                        val blockedUsername = blockedUserDoc?.getString("username")  // gets the blocked user's username
+
+                        if (blockedUsername != null) {
+                            // creates a map of blocked user's details
+                            val blockedUser = hashMapOf(
+                                "blockedUserId" to receiverId,
+                                "blockedUsername" to blockedUsername
+                            )
+
+                            // Update current user's blocked users array in database
+                            db.collection("users").document(senderId)
+                                .update("blockedUsers", FieldValue.arrayRemove(blockedUser))
+                                .addOnSuccessListener {
+                                    context?.let { Toast.makeText(activity, "User unblocked", Toast.LENGTH_SHORT).show() }
+                                }
+                                .addOnFailureListener { e -> Toast.makeText(activity, "Failed to unblock user: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        } else {
+                            context?.let { Toast.makeText(activity, "Blocked user's username not found", Toast.LENGTH_SHORT).show() }
+                        }
+                    }
+                } else {
+                    context?.let { Toast.makeText(activity, "Sender username not found", Toast.LENGTH_SHORT).show() }
+                }
+            }.addOnFailureListener {
+                context?.let { Toast.makeText(activity, "Failed to unblock user", Toast.LENGTH_SHORT).show() }
+            }
+        } else {
+            context?.let { Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show() }
+        }
     }
 }

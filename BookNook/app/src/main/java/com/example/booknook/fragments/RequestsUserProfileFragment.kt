@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -26,7 +27,8 @@ class RequestsUserProfileFragment : Fragment() {
     private lateinit var quoteEditText: EditText
     private lateinit var characterEditText: EditText
 
-    // Declare TextView for displaying the number of collections
+    private var senderId: String? = null
+    private var senderUsername: String? = null
 
     //block user menu
     private lateinit var threeDotsButton: ImageButton
@@ -48,8 +50,8 @@ class RequestsUserProfileFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_friend_request_profile, container, false)
 
-        val senderId = arguments?.getString("senderId")  // Receives receiverId from friends fragment
-        val receiverUsername = arguments?.getString("receiverUsername")
+        senderId = arguments?.getString("senderId")  // Receives receiverId from friends fragment
+        senderUsername = arguments?.getString("senderUsername")
 
 
         // Initialize UI elements
@@ -81,7 +83,7 @@ class RequestsUserProfileFragment : Fragment() {
 
         // Load friend's data
         if (senderId != null) {
-            loadUserData(senderId)
+            loadUserData(senderId!!)
         } else {
             Toast.makeText(activity, "Friend user ID not provided", Toast.LENGTH_SHORT).show()
         }
@@ -103,6 +105,15 @@ class RequestsUserProfileFragment : Fragment() {
             when (item.itemId) {
                 R.id.action_block_user -> {
                     //block user function goes here
+                    senderId?.let { blockUser(it) }
+
+                    val blockedUserProfileFragment = BlockedUserProfileFragment()
+                    val bundle = Bundle().apply {
+                        putString("blockedUserId", senderId)  // Pass the receiver's id into the bundle
+                        putString("blockedUsername", senderUsername)
+                    }
+                    blockedUserProfileFragment.arguments = bundle
+                    (activity as MainActivity).replaceFragment(blockedUserProfileFragment, "Profile")
                     true
                 }
                 else -> false
@@ -162,5 +173,54 @@ class RequestsUserProfileFragment : Fragment() {
             .addOnFailureListener { e ->
                 Toast.makeText(activity, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    // Function to block a user
+    private fun blockUser(receiverId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
+
+        if (currentUser != null) {
+            val senderId = currentUser.uid  // senderId is the current user
+            val senderRef = db.collection("users").document(senderId)  // gets the sender's document
+            val blockedUserRef = db.collection("users").document(receiverId)  // gets the blocked user's document
+
+            // Fetch sender's username
+            senderRef.get().addOnSuccessListener { senderDoc ->
+                val senderUsername = senderDoc?.getString("username")  // gets the sender's username
+
+                if (senderUsername != null) {
+                    blockedUserRef.get().addOnSuccessListener { blockedUserDoc ->
+                        val blockedUsername = blockedUserDoc?.getString("username")  // gets the blocked user's username
+
+                        if (blockedUsername != null) {
+                            // creates a map of blocked user's details
+                            val blockedUser = hashMapOf(
+                                "blockedUserId" to receiverId,
+                                "blockedUsername" to blockedUsername
+                            )
+
+                            // Update current user's blocked users array in database
+                            db.collection("users").document(senderId)
+                                .update("blockedUsers", FieldValue.arrayUnion(blockedUser))
+                                .addOnSuccessListener {
+                                    context?.let { Toast.makeText(it, "User blocked", Toast.LENGTH_SHORT).show() }
+                                }
+                                .addOnFailureListener { e ->
+                                    context?.let { Toast.makeText(it, "Failed to block user: ${e.message}", Toast.LENGTH_SHORT).show() }
+                                }
+                        } else {
+                            context?.let { Toast.makeText(it, "Blocked user's username not found", Toast.LENGTH_SHORT).show() }
+                        }
+                    }
+                } else {
+                    context?.let { Toast.makeText(it, "Sender username not found", Toast.LENGTH_SHORT).show() }
+                }
+            }.addOnFailureListener {
+                context?.let { Toast.makeText(it, "Failed to block user", Toast.LENGTH_SHORT).show() }
+            }
+        } else {
+            context?.let { Toast.makeText(it, "User not authenticated", Toast.LENGTH_SHORT).show() }
+        }
     }
 }
