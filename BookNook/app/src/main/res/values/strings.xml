@@ -23,15 +23,27 @@
     <string name="failed_to_add_book">Failed to add book: %1$s</string>
     <string name="underlined_rate_it"><u>Rate it!</u></string>
 
+    <!-- Sort Books -->
 
     <string-array name="book_sort_options">
-        <item>Sort Books</item>
+        <item>Sort Books ▼</item>
         <item>Title (A-Z)</item>
         <item>Title (Z-A)</item>
         <item>Author (A-Z)</item>
         <item>Author (Z-A)</item>
         <item>Chapter\'s Read (Ascending)</item>
         <item>Chapter\'s Read (Descending)</item>
+    </string-array>
+
+    <!-- Sort Groups -->
+    <string-array name="groups_sort_options">
+        <item>Sort Groups ▼</item>
+        <item>Title (A-Z)</item>
+        <item>Title (Z-A)</item>
+        <item>Creator (A-Z)</item>
+        <item>Creator (Z-A)</item>
+        <item>Members (Ascending)</item>
+        <item>Members (Descending)</item>
     </string-array>
 
     <!-- Other resources -->
