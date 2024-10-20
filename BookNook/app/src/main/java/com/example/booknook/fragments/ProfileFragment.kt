@@ -33,6 +33,7 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.math.BigDecimal
 import java.math.RoundingMode
+import com.example.booknook.MainActivity
 
 //working version
 // Define a Fragment class for the Profile section
@@ -56,6 +57,7 @@ class ProfileFragment : Fragment() {
     private lateinit var averageRatingTextView: TextView
     private lateinit var numReviewsTextView: TextView
     private lateinit var numFriendsTextView: TextView
+    private lateinit var numGroupsTextView: TextView
 
     // Main user username
     private lateinit var userUsername: TextView
@@ -106,6 +108,8 @@ class ProfileFragment : Fragment() {
         averageRatingTextView = view.findViewById(R.id.averageRatingTextView)
         numReviewsTextView = view.findViewById(R.id.numReviewsTextView)
         numFriendsTextView = view.findViewById(R.id.numFriendsTextView)
+        numGroupsTextView = view.findViewById(R.id.numGroupsTextView)
+
 
         //make icons clickable
         collectionsSection = view.findViewById(R.id.collections_section)
@@ -115,19 +119,20 @@ class ProfileFragment : Fragment() {
 
         // Set click listeners to navigate to the respective fragments
         collectionsSection.setOnClickListener {
-            replaceFragment(CollectionFragment())
+            replaceFragment(CollectionFragment(), "Collections")
         }
 
         groupsSection.setOnClickListener {
-            replaceFragment(GroupsFragment())
+            replaceFragment(GroupsFragment(), "Groups")
         }
 
         friendsSection.setOnClickListener {
-            replaceFragment(FriendsFragment())
+            replaceFragment(FriendsFragment(), "Friends")
         }
 
         achievementsSection.setOnClickListener {
-            replaceFragment(AchievmentsFragment())
+            replaceFragment(AchievmentsFragment(), "Achievements")
+
         }
 
 
@@ -281,13 +286,16 @@ class ProfileFragment : Fragment() {
     }
 
     // Function to replace the current fragment
-    private fun replaceFragment(fragment: Fragment) {
-        val fragmentManager = parentFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.menu_container, fragment) // Replace with your fragment container
-        fragmentTransaction.addToBackStack(null) // Add to back stack to enable "back" navigation
-        fragmentTransaction.commit()
+    fun replaceFragment(fragment: Fragment, title: String) {
+        val transaction = parentFragmentManager.beginTransaction()  // Use parentFragmentManager
+        transaction.replace(R.id.menu_container, fragment)  // Replace the fragment in the specified container
+        transaction.commit()  // Commit the transaction
+
+        // Use view?.findViewById or (activity as? MainActivity) to access views in the parent activity
+        val bannerTextView = activity?.findViewById<TextView>(R.id.bannerTextView)
+        bannerTextView?.text = title  // Update the banner text in the parent activity
     }
+
 
     // Function to enable editing on an EditText and change icon to save
     private fun enableEditing(editText: EditText, imageButton: ImageButton) {
@@ -492,28 +500,30 @@ class ProfileFragment : Fragment() {
     // Veronica Nguyen
     // Function updates the number of groups the user is in
     private fun updateNumGroups(userId: String) {
+        Log.d("ProfileFragment", "updateNumGroups called with userId: $userId")
+
         // References document of current user
         val userDocRef = firestore.collection("users").document(userId)
 
         userDocRef.get().addOnSuccessListener { document ->
-            // Retrieves the joinedGroups array in database
+            Log.d("ProfileFragment", "Document fetched: ${document.data}")
+
+            // Retrieves the joinedGroups array from the database
             val groups = document.get("joinedGroups") as? List<*>
+            Log.d("ProfileFragment", "Groups fetched: $groups")
+
             // Finds the size of the array to determine number of groups
             val numGroups = groups?.size ?: 0
 
-            // Updates the numFriends field in database
-            userDocRef.update("numGroups", numGroups)
-                .addOnSuccessListener {
-                    // Update text view here (if applicable)
-
-                }
-                .addOnFailureListener {
-                    Toast.makeText(activity, "Error updating number of groups", Toast.LENGTH_SHORT).show()
-                }
+            // Update the TextView to display the number of groups
+            numGroupsTextView.text = "$numGroups"
+            Log.d("ProfileFragment", "Number of groups: $numGroups")
         }.addOnFailureListener { e ->
+            Log.e("ProfileFragment", "Error getting number of groups: ${e.message}")
             Toast.makeText(activity, "Error getting number of groups: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     // Veronica Nguyen
     // Function updates the number of custom collections a user has

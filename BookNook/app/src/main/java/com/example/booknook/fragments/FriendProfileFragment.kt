@@ -13,6 +13,7 @@ import de.hdodenhof.circleimageview.CircleImageView
 import androidx.appcompat.widget.PopupMenu
 import com.example.booknook.MainActivity
 import com.google.firebase.firestore.FieldValue
+import org.w3c.dom.Text
 
 
 class FriendProfileFragment : Fragment() {
@@ -45,6 +46,7 @@ class FriendProfileFragment : Fragment() {
     private lateinit var averageRatingTextView: TextView
     private lateinit var numReviewsTextView: TextView
     private lateinit var numFriendsTextView: TextView
+    private lateinit var numGroupsTextView: TextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,6 +84,7 @@ class FriendProfileFragment : Fragment() {
         averageRatingTextView = view.findViewById(R.id.averageRatingTextView)
         numReviewsTextView = view.findViewById(R.id.numReviewsTextView)
         numFriendsTextView = view.findViewById(R.id.numFriendsTextView)
+        numGroupsTextView = view.findViewById(R.id.numGroupsTextView)
 
         //block user menu
         threeDotsButton = view.findViewById(R.id.threeDotsButton)
@@ -255,6 +258,7 @@ class FriendProfileFragment : Fragment() {
                     val averageRating = document.getDouble("averageRating") ?: 0.0
                     val numReviews = document.getLong("numReviews") ?: 0
                     val numFriends = document.getLong("numFriends") ?: 0
+                    val numGroups = document.getLong("numGroups") ?: 0
 
                     // Set the username and other data to the views
                     userUsername.text = username ?: "No Username"
@@ -282,6 +286,7 @@ class FriendProfileFragment : Fragment() {
                     averageRatingTextView.text = String.format("%.2f", averageRating)
                     numReviewsTextView.text = "$numReviews"
                     numFriendsTextView.text = "$numFriends"
+                    numGroupsTextView.text = "$numGroups"
                 } else {
                     Toast.makeText(activity, "User does not exist", Toast.LENGTH_SHORT).show()
                 }
