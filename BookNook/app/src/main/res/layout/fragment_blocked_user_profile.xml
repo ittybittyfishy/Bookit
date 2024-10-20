@@ -35,32 +35,34 @@
                 android:layout_height="120dp"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="55dp"
-                android:src="@android:color/holo_green_dark" />
+                android:src="@drawable/profile_picture_placeholder"
+                app:civ_border_width="2dp"
+                app:civ_border_color="@color/banner_green" />
 
             <!-- Add Friend Button to the right of the profile image -->
             <!-- Add Friend Button -->
             <Button
-                android:id="@+id/removeFriendButton"
+                android:id="@+id/addFriendButton"
                 android:layout_width="100dp"
                 android:layout_height="35dp"
                 android:layout_toEndOf="@id/profileImage"
                 android:layout_marginStart="-1dp"
-                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
                 android:layout_alignTop="@id/profileImage"
                 android:layout_marginTop="80dp"
-                android:background="@color/username_rectangle"
-                android:text="Remove Friend"
+                android:background="@color/rounded_rectangle"
+                android:text="Add Friend"
                 android:textSize="10dp"
-                android:textColor="#FFFFFF" />
+                android:textColor="#FFFFFF"
+                android:visibility="invisible"/>
 
             <!-- Three Dots ImageButton -->
             <ImageButton
                 android:id="@+id/threeDotsButton"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_toEndOf="@id/removeFriendButton"
-                android:layout_alignTop="@id/removeFriendButton"
-                android:layout_marginStart="8dp"
+                android:layout_toEndOf="@id/addFriendButton"
+                android:layout_alignTop="@id/addFriendButton"
                 android:src="@drawable/threedots"
                 android:background="@null"
                 android:contentDescription="Options"
@@ -76,27 +78,28 @@
                 android:layout_height="25dp"
                 android:gravity="center"
                 android:background="@drawable/rounded_rectangle_1"
-                android:text="LVL.80"
+                android:text="Level 0"
                 android:layout_centerHorizontal="true"
                 android:layout_below="@id/profileImage"
-                android:layout_marginTop="-20dp" />
+                android:layout_marginTop="-20dp"
+                android:visibility="invisible"/>
 
             <!-- Second Rounded Rectangle below the first rectangle -->
-
-            <!-- Third Rounded Rectangle below the second rectangle -->
             <TextView
                 android:id="@+id/userUsername"
                 android:layout_width="140dp"
                 android:layout_height="30dp"
-                android:layout_below="@id/rectangle1"
-                android:layout_marginTop="-14dp"
                 android:background="@drawable/rounded_rectangle_2"
-                android:backgroundTint="@color/username_rectangle"
-                android:gravity="center"
                 android:text="Username"
+                android:gravity="center"
+                android:textSize="18dp"
+                android:layout_below="@id/rectangle1"
+                android:layout_centerHorizontal="true"
+                android:backgroundTint="@color/rounded_rectangle"
                 android:textColor="@color/sub_text_brown"
-                android:textSize="18dp" />
+                android:layout_marginTop="1dp" />
 
+            <!-- Third Rounded Rectangle below the second rectangle -->
             <TextView
                 android:id="@+id/rectangle3"
                 android:layout_width="150dp"
@@ -109,7 +112,8 @@
                 android:textColor="@color/sub_text_brown"
                 android:layout_below="@id/userUsername"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="1dp" />
+                android:layout_marginTop="1dp"
+                android:visibility="invisible"/>
 
             <!-- Fourth Rounded Rectangle (EditText) with icons -->
 
@@ -129,7 +133,8 @@
                     android:layout_height="24dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:src="@drawable/quote_icon" />
+                    android:src="@drawable/quote_icon"
+                    android:visibility="invisible"/>
 
                 <!-- EditText -->
                 <EditText
@@ -144,7 +149,8 @@
                     android:focusable="false"
                     android:hint="Enter your favorite book quote"
                     android:imeOptions="actionDone"
-                    android:padding="10dp" />
+                    android:padding="10dp"
+                    android:visibility="invisible"/>
 
 
             </LinearLayout>
@@ -166,7 +172,8 @@
                     android:layout_height="24dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:src="@drawable/mr_blobby" />
+                    android:src="@drawable/mr_blobby"
+                    android:visibility="invisible"/>
 
                 <!-- EditText -->
                 <EditText
@@ -181,7 +188,8 @@
                     android:enabled="false"
                     android:focusable="false"
                     android:cursorVisible="false"
-                    android:imeOptions="actionDone" />
+                    android:imeOptions="actionDone"
+                    android:visibility="invisible"/>
 
 
             </LinearLayout>
@@ -194,10 +202,11 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
-            android:layout_marginRight="3dp"
+            android:layout_marginRight="-10dp"
             android:columnCount="5"
             android:padding="20dp"
-            android:rowCount="20">
+            android:rowCount="20"
+            android:visibility="invisible">
 
             <!-- First row -->
             <!-- Favorite Genre -->
@@ -209,6 +218,7 @@
                 android:orientation="vertical">
 
                 <ImageView
+                    android:id="@+id/genre_icon"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:src="@drawable/genre"
@@ -218,16 +228,28 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Favorite Genre"
+                    android:textStyle="bold"
                     android:textColor="@color/sub_text_brown"
                     android:textSize="14sp" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/topGenresTextView"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Tags"
+                    android:text="N/A"
+                    android:maxLines="3"
+                    android:ellipsize="none"
                     android:textColor="@color/sub_text_brown"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="16dp"
+                    />
+
+
+
+
             </LinearLayout>
 
             <LinearLayout
@@ -240,7 +262,7 @@
 
                 <View
                     android:layout_width="3dp"
-                    android:layout_height="100dp"
+                    android:layout_height="120dp"
                     android:background="#d0d0d0" />
 
             </LinearLayout>
@@ -250,8 +272,10 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
+                android:layout_margin="10dp"
                 android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -266,10 +290,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Books Read"
+                    android:textStyle="bold"
                     android:textColor="@color/sub_text_brown"
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/numBooksReadTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
@@ -310,13 +336,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Favorite Tag"
+                    android:textStyle="bold"
                     android:textColor="@color/sub_text_brown"
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/favoriteTagTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tags"
+                    android:text="N/A"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -325,8 +353,8 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:layout_marginLeft="25dp"
+                android:layout_margin="5dp"
+                android:layout_marginLeft="18dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -341,6 +369,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="placeholder"
+                    android:textStyle="bold"
                     android:textColor="@color/sub_text_brown"
                     android:textSize="14sp" />
 
@@ -369,7 +398,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp"
+                android:layout_margin="10dp"
                 android:layout_marginLeft="27dp"
                 android:gravity="center"
                 android:orientation="vertical">
@@ -377,6 +406,7 @@
                 <ImageView
                     android:layout_width="48dp"
                     android:layout_height="48dp"
+                    android:layout_marginBottom="5dp"
                     android:src="@drawable/people"
                     app:tint="@color/light_green"
                     />
@@ -385,6 +415,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Groups"
+                    android:textStyle="bold"
                     android:textColor="@color/sub_text_brown"
                     android:textSize="14sp" />
 
@@ -413,7 +444,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp"
+                android:layout_margin="3dp"
                 android:layout_marginLeft="10dp"
                 android:gravity="center"
                 android:orientation="vertical">
@@ -428,6 +459,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Collections"
+                    android:textStyle="bold"
                     android:textColor="@color/sub_text_brown"
                     android:textSize="14sp" />
 
@@ -442,7 +474,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
+                android:layout_margin="12dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -456,10 +488,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Average rating"
+                    android:textStyle="bold"
                     android:textColor="@color/sub_text_brown"
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/averageRatingTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
@@ -486,7 +520,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
+                android:layout_margin="12dp"
                 android:layout_marginLeft="27dp"
                 android:gravity="center"
                 android:orientation="vertical">
@@ -502,10 +536,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Reviews"
+                    android:textStyle="bold"
                     android:textColor="@color/sub_text_brown"
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/numReviewsTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
@@ -529,10 +565,10 @@
 
             <!-- Favorite Tag -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="70dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:layout_marginLeft="11dp"
+                android:layout_margin="12dp"
+                android:layout_marginRight="20dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -547,10 +583,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Friends"
+                    android:textStyle="bold"
                     android:textColor="@color/sub_text_brown"
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/numFriendsTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"

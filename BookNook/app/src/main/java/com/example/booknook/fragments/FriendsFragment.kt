@@ -170,12 +170,12 @@ class FriendsFragment : Fragment() {
 
     // Function to navigate to the friend's profile when clicking on them
     private fun openFriendProfile(selectedFriend: Friend) {
-        val userProfileFragment = FriendProfileFragment()
+        val friendProfileFragment = FriendProfileFragment()
         val bundle = Bundle()
         bundle.putString("receiverId", selectedFriend.friendId)
         bundle.putString("receiverUsername", selectedFriend.friendUsername)
-        userProfileFragment.arguments = bundle
-        (activity as MainActivity).replaceFragment(userProfileFragment, "Profile")
+        friendProfileFragment.arguments = bundle
+        (activity as MainActivity).replaceFragment(friendProfileFragment, "Profile")
     }
 
     // Function to search for a user with their username
