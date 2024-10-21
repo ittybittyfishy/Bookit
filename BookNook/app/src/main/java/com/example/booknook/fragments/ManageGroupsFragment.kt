@@ -19,6 +19,7 @@ import com.example.booknook.GroupRequestItem
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -160,9 +161,11 @@ class ManageGroupsFragment : Fragment() {
             }
 
         // Update users's groups
+        val userRef = db.collection("users").document(userId)
         db.collection("users").document(userId)
             .update("joinedGroups", FieldValue.arrayUnion(groupId))
             .addOnSuccessListener {
+                userRef.update("numGroups", FieldValue.increment(1))
                 Toast.makeText(
                     requireContext(),
                     "Memeber has been added to group",
