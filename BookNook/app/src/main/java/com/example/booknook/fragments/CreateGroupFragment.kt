@@ -157,9 +157,11 @@ class CreateGroupFragment : DialogFragment() {
                 Log.d("CreateGroup", "Group created with ID: $groupId")
 
                 // Update the user's document to include the new group ID in the 'joinedGroups' list
+                val userRef = db.collection("users").document(userId)
                 db.collection("users").document(userId)
                     .update("joinedGroups", FieldValue.arrayUnion(groupId))
                     .addOnSuccessListener {
+                        userRef.update("numGroups", FieldValue.increment(1))
                         Toast.makeText(
                             requireContext(),
                             "Group created and added to your account",

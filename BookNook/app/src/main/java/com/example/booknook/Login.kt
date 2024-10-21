@@ -24,6 +24,9 @@ class Login : AppCompatActivity() {
     lateinit var db: FirebaseFirestore  // Firestore instance to access the database.
     lateinit var forgotPass: TextView  // TextView to navigate to password reset (Changed from Button to TextView).
 
+    // Initialize Firestore
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+
     // The onCreate method is called when the activity is created.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,53 +77,92 @@ class Login : AppCompatActivity() {
         }
     }
 
-    // This method handles the login process using Firebase Authentication.
     private fun loginUser(email: String, password: String) {
-        // Attempt to sign in with email and password using FirebaseAuth.
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
-                // Check if the login was successful.
                 if (task.isSuccessful) {
-                    // Get the current authenticated user.
                     val firebaseUser = auth.currentUser
                     if (firebaseUser != null) {
-                        val userId = firebaseUser.uid  // Get the user's unique ID.
-
-                        // Update the user's status to "online" in the Firestore database.
+                        val userId = firebaseUser.uid
                         db.collection("users").document(userId)
-                            .update("isOnline", true)  // Set the user's "isOnline" status to true.
+                            .update("isOnline", true)
                             .addOnSuccessListener {
-                                // After successfully updating, fetch additional user info from Firestore.
                                 db.collection("users").document(userId).get().addOnSuccessListener { document ->
                                     if (document != null) {
-                                        // Get the "isFirstLogin" flag to see if it's the user's first login.
                                         val isFirstLogin = document.getBoolean("isFirstLogin") ?: true
-                                        // Retrieve the user's email and username for debugging purposes.
                                         val userEmail = document.getString("email")
-                                        Log.d("TAG", "User Email: $userEmail")  // Log the user's email.
                                         val userName = document.getString("username")
-                                        Log.d("TAG", "Username: $userName")  // Log the user's username.
 
-                                        // Show a success message to the user.
+                                        // Check if the user has the Book Nooker achievement
+                                        checkAndAwardBookNookerAchievement(userId)
+
                                         Toast.makeText(this@Login, "Login successful", Toast.LENGTH_SHORT).show()
-
-                                        // Navigate to the main activity after login.
                                         val intent = Intent(this@Login, MainActivity::class.java)
-                                        intent.putExtra("isFirstLogin", isFirstLogin)  // Pass the "isFirstLogin" flag to MainActivity.
-                                        startActivity(intent)  // Start the MainActivity.
-                                        finish()  // Close the Login activity.
+                                        intent.putExtra("isFirstLogin", isFirstLogin)
+                                        startActivity(intent)
+                                        finish()
                                     }
                                 }
                             }
                     }
                 } else {
-                    // If the login fails, show an error message to the user.
                     Toast.makeText(this@Login, "Login failed", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener(this) { exception ->
-                // If there is an error during the login process, show the error message.
                 Toast.makeText(this@Login, "Login failed: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
+
+    fun signInUser(email: String, password: String) {
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val userId = auth.currentUser?.uid
+                if (userId != null) {
+                    checkAndAwardBookNookerAchievement(userId)
+                }
+            }
+        }
+    }
+
+    private fun awardBookNookerAchievement(userId: String) {
+        // Reference the user's document in Firestore
+        val userDocRef = firestore.collection("users").document(userId)
+
+        // Use a mutable map instead of HashMap
+        val updates: MutableMap<String, Any> = mutableMapOf(
+            "bookNookerAchieved" to true,
+            "xp" to 50  // Assuming 50 XP for getting this achievement; adjust as necessary
+        )
+
+        // Apply the updates to Firestore
+        userDocRef.update(updates)
+            .addOnSuccessListener {
+                // Achievement awarded successfully, inform the user
+                Toast.makeText(this, "Congrats! You've unlocked the 'Book Nooker' achievement!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                // Handle any errors
+                Toast.makeText(this, "Error awarding achievement: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
+
+    // Check if the user already has the "Book Nooker" achievement
+    fun checkAndAwardBookNookerAchievement(userId: String) {
+        val userDocRef = firestore.collection("users").document(userId)
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val bookNookerAchieved = document.getBoolean("bookNookerAchieved") ?: false
+                if (!bookNookerAchieved) {
+                    // Award the achievement if not yet awarded
+                    awardBookNookerAchievement(userId)
+                }
+            }
+        }
+    }
+
+
 }

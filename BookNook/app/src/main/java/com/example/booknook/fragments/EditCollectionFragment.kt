@@ -96,6 +96,8 @@ class EditCollectionFragment : DialogFragment() {
                         db.collection("users").document(userId)
                             .update("customCollections.$newName", updatedCollection)
                             .addOnSuccessListener {
+                                db.collection("users").document(userId)
+                                    .update("numCollections", FieldValue.increment(1))
                                 // After successful addition, remove the old collection
                                 collectionName?.let { name ->
                                     // Remove the old collection by its previous name
@@ -125,6 +127,8 @@ class EditCollectionFragment : DialogFragment() {
         db.collection("users").document(userId)
             .update("customCollections.$oldName", FieldValue.delete()) // Remove the old collection from Firestore
             .addOnSuccessListener {
+                db.collection("users").document(userId)
+                    .update("numCollections", FieldValue.increment(-1))
                 Toast.makeText(activity, "Old collection removed", Toast.LENGTH_SHORT).show()
                 dismiss() // Close the dialog
             }
@@ -142,6 +146,8 @@ class EditCollectionFragment : DialogFragment() {
         db.collection("users").document(userId)
             .update("customCollections.$collectionName", FieldValue.delete())  // Remove the collection
             .addOnSuccessListener {
+                db.collection("users").document(userId)
+                    .update("numCollections", FieldValue.increment(-1))
                 Toast.makeText(activity, "Collection deleted", Toast.LENGTH_SHORT).show()
                 dismiss() // Close the dialog
             }

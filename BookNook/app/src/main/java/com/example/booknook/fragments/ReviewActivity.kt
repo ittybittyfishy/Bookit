@@ -14,6 +14,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.SetOptions
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.Locale
 
 // Yunjong Noh
@@ -295,6 +297,7 @@ class ReviewActivity : Fragment() {
                         .addOnSuccessListener {
                             Toast.makeText(activity, "Old review deleted.", Toast.LENGTH_SHORT).show()
                             decrementUserReviewNum(userId) // Decrease the user's review count
+                            updateUserAverageRating(userId)
                             onComplete()
                         }
                         .addOnFailureListener {
@@ -379,6 +382,7 @@ class ReviewActivity : Fragment() {
                                             Toast.makeText(requireActivity(), "Review saved successfully!", Toast.LENGTH_SHORT).show()
                                             // Increment the number of reviews field for the user
                                             incrementUserReviewNum(userId)
+                                            updateUserAverageRating(userId)
                                         }
                                         .addOnFailureListener {
                                             // If saving the review fails, display an error message
@@ -391,8 +395,8 @@ class ReviewActivity : Fragment() {
                                         .set(reviewData)
                                         .addOnSuccessListener {
                                             // Show success message for review update
-                                            Toast.makeText(requireActivity(), "Review updated successfully!", Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(requireActivity(), "Review updated successfully!", Toast.LENGTH_SHORT).show()
+                                            updateUserAverageRating(userId)
                                         }
                                         .addOnFailureListener {
                                             // If updating the review fails, display an error message
@@ -415,6 +419,36 @@ class ReviewActivity : Fragment() {
                 }
             }
         }
+    }
+
+    // Veronica Nguyen
+    // Function updates the average rating of the user
+    fun updateUserAverageRating(userId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userDocRef = db.collection("users").document(userId)
+
+        // Accesses all collections named "reviews" in database
+        db.collectionGroup("reviews")
+            .whereEqualTo("userId", userId)  // Finds all documents with the user's id (current user)
+            .get()
+            .addOnSuccessListener { documents ->
+                // Gets all of the user's ratings under reviews
+                val userRatings = documents.mapNotNull { it.getDouble("rating") }
+                if (userRatings.isNotEmpty()) {
+                    // Gets the sum of all of the ratings
+                    val ratingsTotalSum = userRatings.sum()
+                    // Calculates the user's average rating
+                    val averageRating = ratingsTotalSum / userRatings.size
+                    // Rounds the average rating to two decimal places
+                    val roundedAverageRating =
+                        BigDecimal(averageRating).setScale(2, RoundingMode.HALF_UP).toDouble()
+
+                    // Updates the averageRating field in database
+                    db.collection("users").document(userId)
+                        .update("averageRating", roundedAverageRating)
+
+                }
+            }
     }
 
     // Veronica Nguyen

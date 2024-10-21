@@ -6,8 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.booknook.FriendRequestAdapter.FriendRequestViewHolder
-import com.example.booknook.fragments.UserProfileFragment
+import com.example.booknook.fragments.BlockedUserProfileFragment
 import com.google.firebase.firestore.FirebaseFirestore
 import de.hdodenhof.circleimageview.CircleImageView
 
@@ -35,12 +34,13 @@ class BlockedUserAdapter(private val blockedUsers: List<BlockedUser>
 
         // Allows user to click on each of their blocked users
         holder.itemView.setOnClickListener {
-            val userProfileFragment = UserProfileFragment()
+            val blockedUserProfileFragment = BlockedUserProfileFragment()
             val bundle = Bundle().apply {
-                putString("receiverId", blockedUser.blockedUserId)  // Pass the blocked user's id into the bundle
+                putString("blockedUserId", blockedUser.blockedUserId)  // Pass the blocked user's id into the bundle
+                putString("blockedUsername", blockedUser.blockedUsername)
             }
-            userProfileFragment.arguments = bundle  // Set the arguments to the bundle
-            (holder.itemView.context as MainActivity).replaceFragment(userProfileFragment, "${blockedUser.blockedUsername}")
+            blockedUserProfileFragment.arguments = bundle  // Set the arguments to the bundle
+            (holder.itemView.context as MainActivity).replaceFragment(blockedUserProfileFragment, "Profile")
         }
     }
 
