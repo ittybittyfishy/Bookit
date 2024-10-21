@@ -1,3 +1,4 @@
+<!-- FrameLayout for orange rectangle and text -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -23,7 +24,7 @@
             android:id="@+id/loggedInTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Logged in as"
+            android:text="Welcome back Costume Party!"
             android:textSize="20sp"
             android:padding="0dp"
             android:gravity="center"
@@ -42,131 +43,240 @@
         android:textSize="30sp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="54dp" />
-
-    <!-- 직접 3개의 책을 표시 -->
+    <!-- Yunjong Noh -->
+    <!-- XML for Personal recommendation -->
+    <!-- Horizontal LinearLayout for Book Recommendations -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_horizontal"
-        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:layout_marginTop="90dp"
         android:padding="8dp">
 
         <!-- Book 1 -->
         <LinearLayout
             android:id="@+id/bookItem1"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:padding="8dp"
-            android:gravity="center_horizontal">
+            android:gravity="center">
 
+            <!-- Book cover Image -->
             <ImageView
                 android:id="@+id/bookCoverImageView1"
-                android:layout_width="100dp"
+                android:layout_width="110dp"
                 android:layout_height="150dp"
                 android:src="@drawable/placeholder_image"
-                android:scaleType="fitXY" />
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter" />
 
+            <!-- Title of Book -->
             <TextView
                 android:id="@+id/bookTitleTextView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Book Title 1"
+                android:text="The Yellow Wall-Paper"
                 android:textSize="16sp"
                 android:gravity="center"
                 android:layout_marginTop="8dp"
                 android:textStyle="bold" />
 
+            <!-- Author's name -->
             <TextView
                 android:id="@+id/bookAuthorsTextView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Author 1" />
+                android:text="Charlotte Perkins Gilman" />
 
-            <TextView
-                android:id="@+id/bookGenresTextView1"
+            <!-- Rating Bar -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Fiction" />
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="4dp">
+
+                <!-- Rating Bar -->
+                <RatingBar
+                    android:id="@+id/bookRating1"
+                    style="@style/Widget.AppCompat.RatingBar.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    android:stepSize="0.5"
+                    android:rating="4.1" />
+
+                <!-- Rating Number -->
+                <TextView
+                    android:id="@+id/ratingNumber1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(4.1)"
+                    android:textColor="@color/main_text_brown"
+                    android:layout_marginStart="4dp" />
+            </LinearLayout>
+
+            <!-- Number of Ratings -->
+            <TextView
+                android:id="@+id/ratingsCountTextView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="201,593 ratings"
+                android:textSize="12sp"
+                android:textColor="@color/main_text_brown" />
         </LinearLayout>
 
         <!-- Book 2 -->
         <LinearLayout
             android:id="@+id/bookItem2"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:padding="8dp"
-            android:gravity="center_horizontal">
+            android:gravity="center">
 
+            <!-- Book cover Image -->
             <ImageView
                 android:id="@+id/bookCoverImageView2"
-                android:layout_width="100dp"
+                android:layout_width="110dp"
                 android:layout_height="150dp"
                 android:src="@drawable/placeholder_image"
-                android:scaleType="fitXY" />
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter" />
 
+            <!-- Title of Book -->
             <TextView
                 android:id="@+id/bookTitleTextView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Book Title 2"
+                android:text="The Ballad of Black Tom"
                 android:textSize="16sp"
                 android:gravity="center"
                 android:layout_marginTop="8dp"
                 android:textStyle="bold" />
 
+            <!-- Author's name -->
             <TextView
                 android:id="@+id/bookAuthorsTextView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Author 2" />
+                android:text="Victor LaValle" />
 
-            <TextView
-                android:id="@+id/bookGenresTextView2"
+            <!-- Rating Bar -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Mystery" />
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="4dp">
+
+                <!-- Rating Bar -->
+                <RatingBar
+                    android:id="@+id/bookRating2"
+                    style="@style/Widget.AppCompat.RatingBar.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    android:stepSize="0.5"
+                    android:rating="3.86" />
+
+                <!-- Rating Number -->
+                <TextView
+                    android:id="@+id/ratingNumber2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(3.86)"
+                    android:textColor="@color/main_text_brown"
+                    android:layout_marginStart="4dp" />
+            </LinearLayout>
+
+            <!-- Number of Ratings -->
+            <TextView
+                android:id="@+id/ratingsCountTextView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="28,323 ratings"
+                android:textSize="12sp"
+                android:textColor="@color/main_text_brown" />
         </LinearLayout>
 
         <!-- Book 3 -->
         <LinearLayout
             android:id="@+id/bookItem3"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:padding="8dp"
-            android:gravity="center_horizontal">
+            android:gravity="center">
 
+            <!-- Book cover Image -->
             <ImageView
                 android:id="@+id/bookCoverImageView3"
-                android:layout_width="100dp"
+                android:layout_width="110dp"
                 android:layout_height="150dp"
                 android:src="@drawable/placeholder_image"
-                android:scaleType="fitXY" />
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter" />
 
+            <!-- Title of Book -->
             <TextView
                 android:id="@+id/bookTitleTextView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Book Title 3"
+                android:text="House of Leaves"
                 android:textSize="16sp"
                 android:gravity="center"
                 android:layout_marginTop="8dp"
                 android:textStyle="bold" />
 
+            <!-- Author's name -->
             <TextView
                 android:id="@+id/bookAuthorsTextView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Author 3" />
+                android:text="Mark Z. Danielewski" />
 
-            <TextView
-                android:id="@+id/bookGenresTextView3"
+            <!-- Rating Bar -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Science Fiction" />
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="4dp">
+
+                <!-- Rating Bar -->
+                <RatingBar
+                    android:id="@+id/bookRating3"
+                    style="@style/Widget.AppCompat.RatingBar.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    android:stepSize="0.5"
+                    android:rating="4.09" />
+
+                <!-- Rating Number -->
+                <TextView
+                    android:id="@+id/ratingNumber3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(4.09)"
+                    android:textColor="@color/main_text_brown"
+                    android:layout_marginStart="4dp" />
+            </LinearLayout>
+
+            <!-- Number of Ratings -->
+            <TextView
+                android:id="@+id/ratingsCountTextView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="170,053 ratings"
+                android:textSize="12sp"
+                android:textColor="@color/main_text_brown" />
         </LinearLayout>
 
     </LinearLayout>

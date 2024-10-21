@@ -38,33 +38,27 @@ class HomeFragment : Fragment() {
         val bookCoverImageView1: ImageView = view.findViewById(R.id.bookCoverImageView1)
         val bookTitleTextView1: TextView = view.findViewById(R.id.bookTitleTextView1)
         val bookAuthorsTextView1: TextView = view.findViewById(R.id.bookAuthorsTextView1)
-        val bookGenresTextView1: TextView = view.findViewById(R.id.bookGenresTextView1)
 
         bookTitleTextView1.text = "Book Title 1"
         bookAuthorsTextView1.text = "Author 1"
-        bookGenresTextView1.text = "Fiction"
         Glide.with(this).load(R.drawable.placeholder_image).into(bookCoverImageView1)
 
         // 두 번째 책
         val bookCoverImageView2: ImageView = view.findViewById(R.id.bookCoverImageView2)
         val bookTitleTextView2: TextView = view.findViewById(R.id.bookTitleTextView2)
         val bookAuthorsTextView2: TextView = view.findViewById(R.id.bookAuthorsTextView2)
-        val bookGenresTextView2: TextView = view.findViewById(R.id.bookGenresTextView2)
 
         bookTitleTextView2.text = "Book Title 2"
         bookAuthorsTextView2.text = "Author 2"
-        bookGenresTextView2.text = "Mystery"
         Glide.with(this).load(R.drawable.placeholder_image).into(bookCoverImageView2)
 
         // 세 번째 책
         val bookCoverImageView3: ImageView = view.findViewById(R.id.bookCoverImageView3)
         val bookTitleTextView3: TextView = view.findViewById(R.id.bookTitleTextView3)
         val bookAuthorsTextView3: TextView = view.findViewById(R.id.bookAuthorsTextView3)
-        val bookGenresTextView3: TextView = view.findViewById(R.id.bookGenresTextView3)
 
         bookTitleTextView3.text = "Book Title 3"
         bookAuthorsTextView3.text = "Author 3"
-        bookGenresTextView3.text = "Science Fiction"
         Glide.with(this).load(R.drawable.placeholder_image).into(bookCoverImageView3)
 
         return view
