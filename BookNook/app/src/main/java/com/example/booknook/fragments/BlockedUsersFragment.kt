@@ -46,8 +46,6 @@ class BlockedUsersFragment : Fragment() {
         // Initialize buttons and views
         friendsButton = view.findViewById(R.id.friends_button)
         requestsButton = view.findViewById(R.id.requests_button)
-        searchButton = view.findViewById(R.id.block_user_search_button)
-        searchBar = view.findViewById(R.id.block_user_search)
 
         // Switches to Friends fragment upon click of button
         friendsButton.setOnClickListener {
@@ -60,16 +58,6 @@ class BlockedUsersFragment : Fragment() {
             // Handle account button click
             val requestsFragment = FriendRequestsFragment()
             (activity as MainActivity).replaceFragment(requestsFragment, "Friends")
-        }
-
-        // Handle search for user by username button click
-        searchButton.setOnClickListener {
-            val query = searchBar.text.toString().trim()
-            if (query.isNotEmpty()) {
-                searchUser(query)  // Searches for user
-            } else {
-                Toast.makeText(activity, "Please enter a username", Toast.LENGTH_SHORT).show()
-            }
         }
 
         blockedRecyclerView = view.findViewById(R.id.blocked_recycler_view)
@@ -112,80 +100,4 @@ class BlockedUsersFragment : Fragment() {
         }
     }
 
-    // Function to search for a user with their username
-    // Temporary just to test blocking users and adding in database
-    private fun searchUser(username: String) {
-        val db = FirebaseFirestore.getInstance()
-        val senderId = FirebaseAuth.getInstance().currentUser?.uid
-        db.collection("users").whereEqualTo("username", username).get()  // checks for username in documents in users collection
-            .addOnCompleteListener { searchTask ->
-                if (searchTask.isSuccessful)
-                {
-                    val result: QuerySnapshot? = searchTask.result  // gets result from Task object, which can be null
-                    if (result != null && !result.isEmpty) {  // checks if result is null and contains at least one document
-                        val userDocument = result.documents[0]  // retrieves first document
-                        val receiverId = userDocument.id  // retrieves the receiver user's id
-                        val userName = userDocument.getString("username")  // retrieves "username" field of receiver
-                        if (senderId == receiverId) {
-                            Toast.makeText(activity, "Can't block yourself", Toast.LENGTH_SHORT).show()
-                        } else {
-                            blockUser(receiverId)  // calls function to block a user
-                            Toast.makeText(activity, "User found: $userName", Toast.LENGTH_SHORT).show()
-                        }
-                    } else {
-                        Toast.makeText(activity, "User not found", Toast.LENGTH_SHORT).show()  // displays if user doesn't exist
-                    }
-                } else {
-                    Toast.makeText(activity, "Error in retrieving documents", Toast.LENGTH_SHORT).show()
-                }
-            }
-    }
-
-    // Temporary test function to block a user
-    private fun blockUser(receiverId: String) {
-        val db = FirebaseFirestore.getInstance()
-        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
-
-        if (currentUser != null) {
-            val senderId = currentUser.uid  // senderId is the current user
-            val senderRef = db.collection("users").document(senderId)  // gets the sender's document
-            val blockedUserRef = db.collection("users").document(receiverId)  // gets the blocked user's document
-
-            // Fetch sender's username
-            senderRef.get().addOnSuccessListener { senderDoc ->
-                val senderUsername = senderDoc?.getString("username")  // gets the sender's username
-
-                if (senderUsername != null) {
-                    blockedUserRef.get().addOnSuccessListener { blockedUserDoc ->
-                        val blockedUsername = blockedUserDoc?.getString("username")  // gets the blocked user's username
-
-                        if (blockedUsername != null) {
-                            // creates a map of blocked user's details
-                            val blockedUser = hashMapOf(
-                                "blockedUserId" to receiverId,
-                                "blockedUsername" to blockedUsername
-                            )
-
-                            // Update current user's blocked users array in database
-                            db.collection("users").document(senderId)
-                                .update("blockedUsers", FieldValue.arrayUnion(blockedUser))
-                                .addOnSuccessListener {
-                                    Toast.makeText(activity, "User blocked", Toast.LENGTH_SHORT).show()
-                                }
-                                .addOnFailureListener { e -> Toast.makeText(activity, "Failed to block user: ${e.message}", Toast.LENGTH_SHORT).show()
-                                }
-                        } else {
-                            Toast.makeText(activity, "Blocked user's username not found", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                } else {
-                    Toast.makeText(activity, "Sender username not found", Toast.LENGTH_SHORT).show()
-                }
-            }.addOnFailureListener {
-                Toast.makeText(activity, "Failed to block user", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
-        }
-    }
 }

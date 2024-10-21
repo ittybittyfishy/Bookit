@@ -3,14 +3,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.booknook.fragments.FriendProfileFragment
-import com.example.booknook.fragments.UserProfileFragment
+import com.example.booknook.fragments.RequestsUserProfileFragment
 import com.google.firebase.firestore.FirebaseFirestore
 import de.hdodenhof.circleimageview.CircleImageView
 
@@ -42,12 +39,13 @@ class FriendRequestAdapter(private val friendRequests: List<FriendRequest>,
 
         // Allows user to click on each of their requests
         holder.itemView.setOnClickListener {
-            val userProfileFragment = UserProfileFragment()
+            val requestsUserProfileFragment = RequestsUserProfileFragment()
             val bundle = Bundle().apply {
-                putString("receiverId", friendRequest.receiverId)  // Pass the receiver's id into the bundle
+                putString("senderId", friendRequest.senderId)  // Pass the receiver's id into the bundle
+                putString("senderUsername", friendRequest.username)
             }
-            userProfileFragment.arguments = bundle  // Set the arguments to the bundle
-            (holder.itemView.context as MainActivity).replaceFragment(userProfileFragment, "${friendRequest.username}")
+            requestsUserProfileFragment.arguments = bundle  // Set the arguments to the bundle
+            (holder.itemView.context as MainActivity).replaceFragment(requestsUserProfileFragment, "Profile")
         }
 
         // Setting up click listeners for accept and reject buttons

@@ -48,6 +48,8 @@ class GroupsFragment : Fragment() {
         groupAdapter = GroupAdapter(groupList) { groupItem ->
             // Handle group item click
             Toast.makeText(context, "Clicked: ${groupItem.groupName}", Toast.LENGTH_SHORT).show()
+            val groupHomepageFragment = GroupHomepageFragment()
+            (activity as MainActivity).replaceFragment(groupHomepageFragment, "${groupItem.groupName}")
         }
         recyclerView.adapter = groupAdapter
 

@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 class CreateCollectionFragment : DialogFragment() {
@@ -85,6 +86,8 @@ class CreateCollectionFragment : DialogFragment() {
             db.collection("users").document(userId)
                 .update("customCollections.$name", collectionData) // Add the collection using its name as a key
                 .addOnSuccessListener {
+                    db.collection("users").document(userId)
+                        .update("numCollections", FieldValue.increment(1))
                     // If the collection was successfully created, show a confirmation message
                     Toast.makeText(activity, "Collection created", Toast.LENGTH_SHORT).show()
                     dismiss() // Close the dialog

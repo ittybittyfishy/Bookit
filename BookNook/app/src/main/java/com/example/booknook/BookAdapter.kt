@@ -181,6 +181,12 @@ class BookAdapter(
                             for (existingBook in it) {
                                 if (existingBook["title"] == title && existingBook["authors"] == authors.split(", ")) {
                                     transaction.update(userDocRef, "standardCollections.$collection", FieldValue.arrayRemove(existingBook))
+
+                                    // Veronica Nguyen
+                                    // If the book was in "Finished", decrement numBooksRead
+                                    if (collection == "Finished") {
+                                        transaction.update(userDocRef, "numBooksRead", FieldValue.increment(-1))
+                                    }
                                     break // Exit loop after removing the book
                                 }
                             }
@@ -190,6 +196,12 @@ class BookAdapter(
 
                 // Add the book to the new collection.
                 transaction.update(userDocRef, "standardCollections.$newCollectionName", FieldValue.arrayUnion(book))
+
+                // Veronica Nguyen
+                // Increment numBooksRead if the new collection is "Finished"
+                if (newCollectionName == "Finished") {
+                    transaction.update(userDocRef, "numBooksRead", FieldValue.increment(1))
+                }
                 null // Indicate successful transaction
             }.addOnSuccessListener {
                 // Veronica Nguyen
@@ -301,6 +313,12 @@ class BookAdapter(
                             if (existingBook["title"] == title && existingBook["authors"] == authors.split(", ")) {
                                 // Remove the book from the collection.
                                 transaction.update(userDocRef, "standardCollections.$collection", FieldValue.arrayRemove(existingBook))
+
+                                // Veronica Nguyen
+                                // If the book was in "Finished", decrement numBooksRead
+                                if (collection == "Finished") {
+                                    transaction.update(userDocRef, "numBooksRead", FieldValue.increment(-1))
+                                }
                                 break // Exit loop after removing the book
                             }
                         }
