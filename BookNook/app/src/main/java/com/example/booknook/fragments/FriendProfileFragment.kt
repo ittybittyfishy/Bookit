@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import de.hdodenhof.circleimageview.CircleImageView
 import androidx.appcompat.widget.PopupMenu
 import com.example.booknook.MainActivity
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import org.w3c.dom.Text
 
@@ -160,7 +161,7 @@ class FriendProfileFragment : Fragment() {
                         .update("friendRequests", FieldValue.arrayUnion(friendRequest))
                         .addOnSuccessListener {
                             Toast.makeText(activity, "Friend request sent", Toast.LENGTH_SHORT).show()
-                            addFriendButton.text = "Friend Request Sent"
+                            addFriendButton.text = "Pending"
                         }
                         .addOnFailureListener { e ->
                             Toast.makeText(activity, "Failed to send friend request: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -188,12 +189,15 @@ class FriendProfileFragment : Fragment() {
                 // Remove the friend from the current user's friends list
                 currentUserRef.update("friends", FieldValue.arrayRemove(friendToRemove))
                     .addOnSuccessListener {
+                        decrementNumFriends(currentUserRef)
+
                         // Now remove the current user from the friend's friends list
                         val friendRef = db.collection("users").document(friendId)
                         val currentUserAsFriend = hashMapOf("friendId" to currentUserId, "friendUsername" to currentUsername)
 
                         friendRef.update("friends", FieldValue.arrayRemove(currentUserAsFriend))
                             .addOnSuccessListener {
+                                decrementNumFriends(friendRef)
                                 context?.let { Toast.makeText(activity, "Friend removed from both users", Toast.LENGTH_SHORT).show() }
                                 addFriendButton.text = "Add Friend"
                             }
@@ -375,6 +379,11 @@ class FriendProfileFragment : Fragment() {
         } else {
             context?.let { Toast.makeText(it, "User not authenticated", Toast.LENGTH_SHORT).show() }
         }
+    }
+
+    // Function to decrement numFriends in database
+    private fun decrementNumFriends(userRef: DocumentReference) {
+        userRef.update("numFriends", FieldValue.increment(-1))
     }
 
 

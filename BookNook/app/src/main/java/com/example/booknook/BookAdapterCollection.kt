@@ -232,6 +232,9 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
                                 // 2. Add the updated book with the new tags
                                 db.collection("users").document(userId)
                                     .update("standardCollections.$collectionName", FieldValue.arrayUnion(updatedBook))
+                                    .addOnSuccessListener {
+                                        updateFavoriteTag(userId)
+                                    }
                             }
                             .addOnFailureListener {
                                 // Handle failure if needed
@@ -260,9 +263,59 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
 
                     db.collection("users").document(userId)
                         .update("customCollections.$collectionName.books", updatedBooks)
+                        .addOnSuccessListener {
+                            updateFavoriteTag(userId)
+                        }
                 }
             }
         }
+    }
+
+    // Veronica Nguyen
+    // Function to get the user's favorite tag
+    private fun updateFavoriteTag(userId: String) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users").document(userId).get()  // Gets users collection
+            .addOnSuccessListener { document ->
+                val tagCount = mutableMapOf<String, Int>() // Map to count number of times a tag appears
+
+                // Gets user's standard collections
+                val standardCollections = document.get("standardCollections") as? Map<String, List<Map<String, Any>>>
+                // Loops through each standard collection
+                standardCollections?.values?.forEach { bookList ->
+                    // Loops through each book in a collection
+                    bookList.forEach { book ->
+                        val tags = book["tags"] as? List<String> ?: listOf()  // Retrieves tags from a book
+                        // Loops through each tag of a book
+                        tags.forEach { tag ->
+                            // Increments the count of that tag by 1
+                            tagCount[tag] = tagCount.getOrDefault(tag, 0) + 1
+                        }
+                    }
+                }
+
+                // Gets user's custom collections
+                val customCollections = document.get("customCollections") as? Map<String, Map<String, Any>>
+                // Loops through each custom collection
+                customCollections?.forEach { (_, collectionData) ->  //  Ignores key parameter of lambda expression
+                    val books = collectionData["books"] as? List<Map<String, Any>>  // Gets the books in collection
+                    // Loops through each book in a collection
+                    books?.forEach { book ->
+                        val tags = book["tags"] as? List<String> ?: listOf()  // Retrieves tags from a book
+                        // Loops through each tag of a book
+                        tags.forEach { tag ->
+                            // Increments the count of that tag by 1
+                            tagCount[tag] = tagCount.getOrDefault(tag, 0) + 1
+                        }
+                    }
+                }
+
+                // Sort tags by count in descending order and take the most frequent one
+                val favoriteTag = tagCount.entries.maxByOrNull { it.value }?.key
+
+                // Update user's favoriteTag field in Firestore
+                db.collection("users").document(userId).update("favoriteTag", favoriteTag)
+            }
     }
 
     // This function returns the total number of books to display in the RecyclerView

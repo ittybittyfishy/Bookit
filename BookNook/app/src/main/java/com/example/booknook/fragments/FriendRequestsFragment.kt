@@ -15,6 +15,7 @@ import com.example.booknook.FriendRequestAdapter
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -130,7 +131,10 @@ class FriendRequestsFragment : Fragment() {
                             "friendId" to currentUserId,
                             "friendUsername" to currentUsername
                         )
-                    ))
+                    )).addOnSuccessListener {
+                        incrementNumFriends(userRef)
+                        incrementNumFriends(senderRef)
+                    }
                 }
             }
         }
@@ -162,6 +166,11 @@ class FriendRequestsFragment : Fragment() {
             )
         ))
         Toast.makeText(activity, "${request.username} declined", Toast.LENGTH_SHORT).show()
+    }
+
+    // Function to increment numFriends in database
+    private fun incrementNumFriends(userRef: DocumentReference) {
+        userRef.update("numFriends", FieldValue.increment(1))
     }
 }
 
