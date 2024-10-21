@@ -92,8 +92,9 @@ class FindGroupFragment  : Fragment() {
             }
             else {
                 // If the group is public, show a toast with the group name
-                Toast.makeText(context, "Clicked: ${groupItem.groupName}", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(context, "Clicked: ${groupItem.groupName}", Toast.LENGTH_SHORT).show()
+                val groupHomepageFragment = GroupHomepageFragment()
+                (activity as MainActivity).replaceFragment(groupHomepageFragment, "${groupItem.groupName}")
             }
         }
         recyclerView.adapter = groupAdapter // Set the adapter for the RecyclerView

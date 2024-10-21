@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.ProfileFragment">
+
+    <!-- Banner with dark grey color -->
+    <ImageView
+        android:id="@+id/bannerImage"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:background="#A9A9A9"
+        android:layout_gravity="top"
+        android:scaleType="centerCrop" />
+
+    <!-- RelativeLayout to contain the profile picture and button -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="60dp">
+
+        <!-- Circular Profile Image -->
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profileImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="50dp"
+            android:src="@android:color/holo_green_dark" />
+
+        <!-- Add Friend Button to the right of the profile image -->
+        <Button
+            android:id="@+id/joinGroupButton"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_toEndOf="@id/profileImage"
+            android:layout_marginStart="20dp"
+            android:layout_centerVertical="true"
+            android:layout_alignTop="@id/profileImage"
+            android:layout_marginTop="60dp"
+            android:background="#03A9F4"
+            android:text="Join Group"
+            android:textColor="#FFFFFF" />
+    </RelativeLayout>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="-30dp"
+        android:layout_marginRight="10dp"
+        android:columnCount="5">
+
+        <!-- Members -->
+        <LinearLayout
+            android:layout_width="10dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_marginLeft="13dp"
+            android:layout_columnWeight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/genre"
+                app:tint="@color/light_green" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Members"
+                android:textColor="@color/sub_text_brown"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@color/sub_text_brown"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Vertical Divider -->
+        <View
+            android:layout_width="2dp"
+            android:layout_height="100dp"
+            android:background="#d0d0d0"
+            android:layout_marginLeft="5dp"
+            android:layout_columnWeight="0.01" />
+
+        <!-- Members Online -->
+        <LinearLayout
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_marginLeft="13dp"
+            android:layout_columnWeight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/readbook"
+                app:tint="@color/light_green" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Members Online"
+                android:gravity="center"
+                android:textColor="@color/sub_text_brown"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Vertical Divider -->
+        <View
+            android:layout_width="2dp"
+            android:layout_height="100dp"
+            android:background="#d0d0d0"
+            android:layout_marginLeft="0dp"
+            android:layout_columnWeight="0.01" />
+
+        <!-- Recommendations -->
+        <LinearLayout
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_marginLeft="6dp"
+            android:layout_columnWeight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/tag"
+                app:tint="@color/light_green" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recommendations"
+                android:textColor="@color/sub_text_brown"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+    </GridLayout>
+
+</FrameLayout>
