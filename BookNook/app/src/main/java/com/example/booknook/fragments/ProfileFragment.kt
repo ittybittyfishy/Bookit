@@ -131,7 +131,7 @@ class ProfileFragment : Fragment() {
         }
 
         achievementsSection.setOnClickListener {
-            replaceFragment(AchievmentsFragment(), "Achievements")
+            replaceFragment(AchievementsFragment(), "Achievements")
 
         }
 
@@ -393,7 +393,7 @@ class ProfileFragment : Fragment() {
                     } else {
                         // Handle case where topGenres is missing or empty
                         Log.d("TAG", "Top genres field is empty or null")
-                        topGenresTextView.text = "Top Genres: N/A"
+                        topGenresTextView.text = "N/A"
                     }
                 } else {
                     // Handle case where the document doesn't exist
@@ -557,7 +557,7 @@ class ProfileFragment : Fragment() {
         val db = FirebaseFirestore.getInstance()
         val userDocRef = db.collection("users").document(userId)
 
-        // Accesses all collections named "reviews" in database
+        // Access all collections named "reviews" in the database
         db.collectionGroup("reviews")
             .whereEqualTo("userId", userId)  // Finds all documents with the user's id (current user)
             .get()
@@ -565,30 +565,36 @@ class ProfileFragment : Fragment() {
                 // Gets all of the user's ratings under reviews
                 val userRatings = documents.mapNotNull { it.getDouble("rating") }
                 if (userRatings.isNotEmpty()) {
-                    // Gets the sum of all of the ratings
+                    // Calculate the user's average rating
                     val ratingsTotalSum = userRatings.sum()
-                    // Calculates the user's average rating
                     val averageRating = ratingsTotalSum / userRatings.size
-                    // Rounds the average rating to two decimal places
-                    val roundedAverageRating = BigDecimal(averageRating).setScale(2, RoundingMode.HALF_UP).toDouble()
 
-                    // Updates the averageRating field in database
-                    userDocRef.update("averageRating", roundedAverageRating)
+                    // Update the user's averageRating in Firestore
+                    userDocRef.update("averageRating", averageRating)
                         .addOnSuccessListener {
-                            // Update text view here (if applicable)
-                            averageRatingTextView.text = "$roundedAverageRating"
+                            // Ensure context is available before showing Toast
+                            context?.let {
+                                Toast.makeText(it, "Average rating updated", Toast.LENGTH_SHORT).show()
+                            }
                         }
                         .addOnFailureListener {
-                            Toast.makeText(activity, "Error updating average rating", Toast.LENGTH_SHORT).show()
+                            context?.let {
+                                Toast.makeText(it, "Error updating average rating", Toast.LENGTH_SHORT).show()
+                            }
                         }
                 } else {
-                    Toast.makeText(activity, "No ratings found", Toast.LENGTH_SHORT).show()
+                    context?.let {
+                        Toast.makeText(it, "No ratings found", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(activity, "Error getting user ratings", Toast.LENGTH_SHORT).show()
+                context?.let {
+                    Toast.makeText(it, "Error getting user ratings", Toast.LENGTH_SHORT).show()
+                }
             }
     }
+
 
     // Veronica Nguyen
     // Function updates the number of reviews the user has

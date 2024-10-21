@@ -126,7 +126,9 @@ class Register : AppCompatActivity() {
                             "joinedGroups" to mutableListOf<String>(),
                             "isFirstLogin" to true,  // Flag to indicate if this is the user's first login.
                             "standardCollections" to standardCollections,  // Add the default collections to the user.
-                            "customCollections" to emptyMap<String, Any>() // Initialize custom collections as empty.
+                            "customCollections" to emptyMap<String, Any>(), // Initialize custom collections as empty.
+                            "xp" to 0, // Default XP,
+                            "level" to 0 // Default Level
                         )
 
                         // Save the user object in Firestore under the "users" collection.

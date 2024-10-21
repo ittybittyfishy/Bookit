@@ -158,6 +158,20 @@ class ManageGroupsFragment : Fragment() {
             .addOnFailureListener { e ->
                 Log.w("ManageGroupsFragment", "Error adding user to group: ${e.message}")
             }
+
+        // Update users's groups
+        db.collection("users").document(userId)
+            .update("joinedGroups", FieldValue.arrayUnion(groupId))
+            .addOnSuccessListener {
+                Toast.makeText(
+                    requireContext(),
+                    "Memeber has been added to group",
+                    Toast.LENGTH_SHORT
+                )
+            }
+            .addOnFailureListener { e ->
+                Log.w("CreateGroup", "Error adding group to user: ${e.message}")
+            }
     }
 
     // Handle rejecting a join request by simply removing the request
