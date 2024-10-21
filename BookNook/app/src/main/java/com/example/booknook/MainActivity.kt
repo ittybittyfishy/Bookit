@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
     private val searchFragment = SearchFragment()
     private val friendsFragment = FriendsFragment()
     private val groupsFragment = GroupsFragment()
-    private val achievementsFragment = AchievmentsFragment()
+    private val achievementsFragment = AchievementsFragment()
     private val settingsFragment = SettingsFragment()
     private val genrePreferenceFragment = GenrePreferenceFragment()
     private val accountFragment = AccountFragment()
