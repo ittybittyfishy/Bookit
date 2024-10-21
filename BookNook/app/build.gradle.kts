@@ -50,8 +50,11 @@ dependencies {
     implementation("com.google.firebase:firebase-auth:23.0.0")
     implementation("com.google.firebase:firebase-firestore:25.1.0")
     implementation ("com.google.firebase:firebase-storage:21.0.1")
-    implementation ("androidx.activity:activity-ktx:1.9.2")
-    implementation ("androidx.fragment:fragment-ktx:1.8.3")
+    implementation ("androidx.activity:activity-ktx:1.9.3")
+    implementation ("androidx.fragment:fragment-ktx:1.8.4")
+
+    //Achievements
+    implementation("androidx.cardview:cardview:1.0.0")
 
 
     implementation("com.github.bumptech.glide:glide:4.16.0")
