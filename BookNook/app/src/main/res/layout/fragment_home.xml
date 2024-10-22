@@ -54,7 +54,10 @@
         android:orientation="horizontal"
         android:gravity="center"
         android:layout_marginTop="90dp"
-        android:padding="8dp">
+        android:padding="8dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp">
 
         <!-- Book 1 -->
         <LinearLayout
@@ -77,19 +80,23 @@
             <!-- Title of Book -->
             <TextView
                 android:id="@+id/bookTitleTextView1"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="The Yellow Wall-Paper"
-                android:textSize="16sp"
+                android:textSize="12sp"
                 android:gravity="center"
                 android:layout_marginTop="8dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_width="wrap_content" />
 
             <!-- Author's name -->
             <TextView
                 android:id="@+id/bookAuthorsTextView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:text="Charlotte Perkins Gilman" />
 
             <!-- Rating Bar -->
@@ -152,19 +159,23 @@
             <!-- Title of Book -->
             <TextView
                 android:id="@+id/bookTitleTextView2"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="The Ballad of Black Tom"
-                android:textSize="16sp"
+                android:text="The Yellow Wall-Paper"
+                android:textSize="12sp"
                 android:gravity="center"
                 android:layout_marginTop="8dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_width="wrap_content" />
 
             <!-- Author's name -->
             <TextView
                 android:id="@+id/bookAuthorsTextView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:text="Victor LaValle" />
 
             <!-- Rating Bar -->
@@ -227,19 +238,23 @@
             <!-- Title of Book -->
             <TextView
                 android:id="@+id/bookTitleTextView3"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="House of Leaves"
-                android:textSize="16sp"
+                android:text="The Yellow Wall-Paper"
+                android:textSize="12sp"
                 android:gravity="center"
                 android:layout_marginTop="8dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_width="wrap_content" />
 
             <!-- Author's name -->
             <TextView
                 android:id="@+id/bookAuthorsTextView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:text="Mark Z. Danielewski" />
 
             <!-- Rating Bar -->
