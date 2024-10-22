@@ -6,8 +6,10 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.booknook.fragments.EditGroupFragment
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
@@ -15,7 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class GroupAdapter(
     private val groupList: List<GroupItem>,
-    private val clickListener: (GroupItem) -> Unit
+    private val clickListener: (GroupItem) -> Unit,
 ) : RecyclerView.Adapter<GroupAdapter.GroupViewHolder>() {
 
     class GroupViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -59,6 +61,15 @@ class GroupAdapter(
             // Handle item clicks
             itemView.setOnClickListener {
                 clickListener(groupItem)
+            }
+
+            // Show EditGroupFragment dialog when edit button is clicked
+            editGroup.setOnClickListener {
+                val editFragment = EditGroupFragment.newInstance(groupItem.id)
+                editFragment.show(
+                    (itemView.context as AppCompatActivity).supportFragmentManager,
+                    "EditGroupDialog"
+                )
             }
 
             // Load edit button if group belongs to user
