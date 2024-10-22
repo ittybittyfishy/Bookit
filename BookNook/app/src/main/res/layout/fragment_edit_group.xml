@@ -347,6 +347,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/deleteGroup"
         android:backgroundTint="@color/transparent"
         android:text="Delete Group"
         android:textColor="@color/home_pink"

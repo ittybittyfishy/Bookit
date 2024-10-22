@@ -21,6 +21,7 @@ import com.example.booknook.R
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
@@ -31,6 +32,7 @@ class EditGroupFragment : DialogFragment() {
     private lateinit var chipGroup: ChipGroup
     private lateinit var confirmButton: Button
     private lateinit var cancelButton: Button
+    private lateinit var deleteButton: Button
     private lateinit var bannerImg: ImageView
     private var selectedBannerUri: Uri? = null // To hold the new selected banner image URI
 
@@ -68,6 +70,7 @@ class EditGroupFragment : DialogFragment() {
         confirmButton = view.findViewById(R.id.confirmGroupButton)
         cancelButton = view.findViewById(R.id.cancelGroupButton)
         bannerImg = view.findViewById(R.id.imagePreview)
+        deleteButton = view.findViewById(R.id.deleteGroup)
         val uploadImageButton: Button = view.findViewById(R.id.uploadImageButton)
 
         // Fetch group details using groupId
@@ -97,6 +100,14 @@ class EditGroupFragment : DialogFragment() {
         // Handle upload image button click to select a new banner
         uploadImageButton.setOnClickListener {
             openImagePicker()
+        }
+
+        // Handle deleting a group
+        deleteButton.setOnClickListener{
+            arguments?.getString(ARG_GROUP_ID)?.let { groupId ->
+                deleteGroup(groupId)
+            }
+
         }
 
         return view
@@ -225,6 +236,62 @@ class EditGroupFragment : DialogFragment() {
             }
         }
         return selectedTags
+    }
+
+    private fun deleteGroup(groupId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val storage = FirebaseStorage.getInstance().reference
+
+        // Step 1: Fetch the group's data
+        db.collection("groups").document(groupId).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // Fetch the list of members and banner image URL
+                    val members = document.get("members") as? List<String> ?: emptyList()
+                    val bannerImgUrl = document.getString("bannerImg")
+
+                    // Step 2: Delete the group from Firestore
+                    db.collection("groups").document(groupId).delete()
+                        .addOnSuccessListener {
+                            Log.d("DeleteGroup", "Group successfully deleted from Firestore")
+
+                            // Step 3: Remove the group ID from each user's joinedGroups list
+                            for (userId in members) {
+                                db.collection("users").document(userId)
+                                    .update("joinedGroups", FieldValue.arrayRemove(groupId), "numGroups", FieldValue.increment(-1))
+                                    .addOnSuccessListener {
+                                        Log.d("DeleteGroup", "Removed group from user: $userId")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.w("DeleteGroup", "Error removing group from user: ${e.message}")
+                                    }
+                            }
+
+                            // Step 4: Delete the group's banner image from Storage (if it exists)
+                            if (!bannerImgUrl.isNullOrEmpty()) {
+                                val bannerRef = storage.storage.getReferenceFromUrl(bannerImgUrl)
+                                bannerRef.delete()
+                                    .addOnSuccessListener {
+                                        Log.d("DeleteGroup", "Banner image successfully deleted")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.w("DeleteGroup", "Error deleting banner image: ${e.message}")
+                                    }
+                            }
+
+                            Toast.makeText(requireContext(), "Group deleted successfully", Toast.LENGTH_SHORT).show()
+                            dismiss()
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("DeleteGroup", "Error deleting group from Firestore: ${e.message}")
+                        }
+                } else {
+                    Log.w("DeleteGroup", "Group not found in Firestore")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.w("DeleteGroup", "Error fetching group data: ${e.message}")
+            }
     }
 
 }
