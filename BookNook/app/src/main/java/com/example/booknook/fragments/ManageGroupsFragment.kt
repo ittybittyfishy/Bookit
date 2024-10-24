@@ -82,7 +82,8 @@ class ManageGroupsFragment : Fragment() {
         groupManageAdapter = GroupManageAdapter(
             groupList,
             onAcceptClick = { groupId, requestItem -> handleAcceptRequest(groupId, requestItem) },
-            onRejectClick = { groupId, requestItem -> handleRejectRequest(groupId, requestItem) }
+            onRejectClick = { groupId, requestItem -> handleRejectRequest(groupId, requestItem) },
+            fragmentManager = childFragmentManager
         )
         recyclerView.adapter = groupManageAdapter
 
