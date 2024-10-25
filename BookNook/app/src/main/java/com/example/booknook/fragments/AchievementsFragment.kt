@@ -21,8 +21,11 @@ class AchievementsFragment : Fragment() {
 
     // UI elements for progress bars and TextViews
     private lateinit var xpProgressBar: ProgressBar
+    private lateinit var currentXpTextView: TextView
+    private lateinit var xpNeededTextView: TextView
     private lateinit var levelNumberTextView: TextView
     private lateinit var levelProgressText: TextView
+
 
     // Achievement UI elements
     private lateinit var bookNookerProgressBar: ProgressBar
@@ -61,6 +64,15 @@ class AchievementsFragment : Fragment() {
         xpProgressBar = view.findViewById(R.id.xpProgressBar)
         levelNumberTextView = view.findViewById(R.id.level_number)
         levelProgressText = view.findViewById(R.id.level_progress_text)
+
+        // Initialize UI components
+        currentXpTextView = view.findViewById(R.id.currentXpTextView)
+        xpNeededTextView = view.findViewById(R.id.xpNeededTextView)
+
+
+        // Initialize progress bars and TextViews for achievements
+        bookNookerProgressBar = view.findViewById(R.id.book_nooker_progress_bar)
+        bookNookerProgressText = view.findViewById(R.id.book_nooker_progress)
 
         // Initialize progress bars and TextViews for achievements
         bookNookerProgressBar = view.findViewById(R.id.book_nooker_progress_bar)
@@ -119,6 +131,10 @@ class AchievementsFragment : Fragment() {
                 updateProgressUI(currentXp, currentLevel, booksRead)
 
                 // Update individual achievements progress
+                val bookNookerAchieved = document.getBoolean("bookNookerAchieved") ?: false
+                updateAchievementProgress(bookNookerProgressBar, bookNookerProgressText, 1, booksRead, "Welcome to Book Nook!", bookNookerAchieved)
+
+                // Update individual achievements progress
                 updateAchievementProgress(bookNookerProgressBar, bookNookerProgressText, 1, booksRead, "Welcome to Book Nook!")
                 updateAchievementProgress(firstChapterProgressBar, firstChapterProgressText, 1, booksRead, "Finish 1 book")
                 updateAchievementProgress(readingRookieProgressBar, readingRookieProgressText, 5, booksRead, "Log 5 books as finished")
@@ -150,6 +166,10 @@ class AchievementsFragment : Fragment() {
         // Update XP progress bar percentage
         val xpProgressPercentage = (currentXp.toFloat() / xpForNextLevel * 100).toInt()
         xpProgressBar.progress = xpProgressPercentage
+
+        // Update the XP TextViews
+        currentXpTextView.text = "$currentXp"
+        xpNeededTextView.text = "$xpForNextLevel"
     }
 
     // Function to calculate the XP needed for the next level
@@ -164,10 +184,17 @@ class AchievementsFragment : Fragment() {
         progressTextView: TextView,
         maxValue: Int,
         currentValue: Int,
-        description: String
+        description: String,
+        isAchieved: Boolean = false // New parameter to check if the achievement is unlocked
     ) {
         progressBar.max = maxValue
         progressBar.progress = currentValue.coerceAtMost(maxValue)
         progressTextView.text = description
+
+        // Change the progress bar to yellow if the achievement is unlocked
+        if (isAchieved) {
+            progressBar.progressDrawable = resources.getDrawable(R.drawable.yellow_progress_bar, null)
+            progressTextView.text = "Completed!"
+        }
     }
 }

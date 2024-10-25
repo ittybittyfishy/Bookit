@@ -33,17 +33,43 @@
             android:textSize="30dp"
             android:layout_gravity="center" />
 
-
-        <!-- Progress bar will be implemented later -->
-        <ProgressBar
-            android:id="@+id/xpProgressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="150dp"
+        <!-- XP and ProgressBar layout -->
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:progress="75"
-            android:max="100"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp" />
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <!-- TextView to show current XP -->
+            <TextView
+                android:id="@+id/currentXpTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:layout_marginEnd="8dp" />
+
+            <!-- Main XP ProgressBar -->
+            <ProgressBar
+                android:id="@+id/xpProgressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:progress="0"
+                android:max="100" />
+
+            <!-- TextView to show XP needed for the next level -->
+            <TextView
+                android:id="@+id/xpNeededTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
 
         <TextView
             android:id="@+id/level_progress_text"
