@@ -47,11 +47,10 @@
     </RelativeLayout>
 
     <GridLayout
-        android:layout_width="match_parent"
+        android:layout_width="380dp"
         android:layout_height="120dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginTop="-30dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginTop="230dp"
+        android:layout_marginLeft="5dp"
         android:columnCount="5">
 
         <!-- Members -->
@@ -65,12 +64,14 @@
             android:orientation="vertical">
 
             <ImageView
+                android:layout_marginRight="7dp"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@drawable/genre"
+                android:src="@drawable/person"
                 app:tint="@color/light_green" />
 
             <TextView
+                android:layout_marginRight="7dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Members"
@@ -78,6 +79,7 @@
                 android:textSize="14sp" />
 
             <TextView
+                android:layout_marginRight="7dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
@@ -90,7 +92,7 @@
             android:layout_width="2dp"
             android:layout_height="100dp"
             android:background="#d0d0d0"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="-10dp"
             android:layout_columnWeight="0.01" />
 
         <!-- Members Online -->
@@ -98,7 +100,7 @@
             android:layout_width="20dp"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:layout_marginLeft="13dp"
+            android:layout_marginLeft="5dp"
             android:layout_columnWeight="1"
             android:gravity="center"
             android:orientation="vertical">
@@ -106,7 +108,7 @@
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@drawable/readbook"
+                android:src="@drawable/members_online"
                 app:tint="@color/light_green" />
 
             <TextView
@@ -129,7 +131,7 @@
             android:layout_width="2dp"
             android:layout_height="100dp"
             android:background="#d0d0d0"
-            android:layout_marginLeft="0dp"
+            android:layout_marginLeft="-5dp"
             android:layout_columnWeight="0.01" />
 
         <!-- Recommendations -->
@@ -143,9 +145,10 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/tag"
+                android:layout_marginTop="8dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:src="@drawable/pin"
                 app:tint="@color/light_green" />
 
             <TextView
