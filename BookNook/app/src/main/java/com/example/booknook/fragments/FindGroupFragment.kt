@@ -10,7 +10,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
-import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.GroupAdapter
@@ -91,18 +90,28 @@ class FindGroupFragment  : Fragment() {
                 groupPrivate.show(parentFragmentManager, "GroupPrivateDialog")
             }
             else {
-                // If the group is public, show a toast with the group name
-                Toast.makeText(context, "Clicked: ${groupItem.groupName}", Toast.LENGTH_SHORT).show()
-                // If the group is public, navigate to the GroupHomepageFragment
-                val groupHomepageFragment = GroupHomepageFragment.newInstance(groupItem.id)
-                (activity as MainActivity).replaceFragment(groupHomepageFragment, groupItem.groupName)
+                // If the group is public, open the group profile
+                openGroupHomepage(groupItem)
             }
         }
-        recyclerView.adapter = groupAdapter // Set the adapter for the RecyclerView
+        recyclerView.adapter = groupAdapter// Set the adapter for the RecyclerView
 
         // Load all groups by default when fragment is opened
         loadGroupsFromFirestore()
 
+    }
+
+    // Veronica Nguyen
+    // Function to open the group homepage
+    private fun openGroupHomepage(groupItem: GroupItem) {
+        val findGroupHomepageFragment = FindGroupHomepageFragment()
+        val bundle = Bundle()
+        // Passes the group id and group creator id to the fragment
+        bundle.putString("GROUP_ID", groupItem.id)
+        bundle.putString("GROUP_CREATOR_ID", groupItem.createdBy)
+        findGroupHomepageFragment.arguments = bundle
+        // Navigates to the homepage of the group
+        (activity as MainActivity).replaceFragment(findGroupHomepageFragment, "${groupItem.groupName}")
     }
 
     // Method to load all groups from Firestore

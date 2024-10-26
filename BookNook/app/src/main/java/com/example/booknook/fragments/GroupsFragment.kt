@@ -15,7 +15,6 @@ import com.example.booknook.GroupItem
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 
 class GroupsFragment : Fragment() {
@@ -47,10 +46,7 @@ class GroupsFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
         groupAdapter = GroupAdapter(groupList) { groupItem ->
-            // Handle group item click
-            Toast.makeText(context, "Clicked: ${groupItem.groupName}", Toast.LENGTH_SHORT).show()
-            val groupHomepageFragment = GroupHomepageFragment()
-            (activity as MainActivity).replaceFragment(groupHomepageFragment, "${groupItem.groupName}")
+            openGroupHomepage(groupItem)
         }
         recyclerView.adapter = groupAdapter
 
@@ -105,6 +101,19 @@ class GroupsFragment : Fragment() {
             .addOnFailureListener { e ->
                 Log.w("GroupsFragment", "Error loading groups: ${e.message}")
             }
+    }
+
+    // Veronica Nguyen
+    // Function to open the group homepage
+    private fun openGroupHomepage(groupItem: GroupItem) {
+        val myGroupsHomepageFragment = MyGroupsHomepageFragment()
+        val bundle = Bundle()
+        // Passes the group id and group creator id to the fragment
+        bundle.putString("GROUP_ID", groupItem.id)
+        bundle.putString("GROUP_CREATOR_ID", groupItem.createdBy)
+        myGroupsHomepageFragment.arguments = bundle
+        // Navigates to the homepage of the group
+        (activity as MainActivity).replaceFragment(myGroupsHomepageFragment, "${groupItem.groupName}")
     }
 
 
