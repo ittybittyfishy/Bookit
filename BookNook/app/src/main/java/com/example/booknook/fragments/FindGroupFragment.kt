@@ -6,9 +6,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +30,7 @@ class FindGroupFragment  : Fragment() {
     private lateinit var recyclerView: RecyclerView  // RecyclerView to display the list of groups
     private lateinit var groupAdapter: GroupAdapter // Adapter for populating the RecyclerView
     private val groupList = mutableListOf<GroupItem>() // List to hold group items retrieved from Firestore
+    private lateinit var sortGroups: Spinner
 
     // Navigation buttons for switching between different fragments
     private lateinit var myGroups:  Button
@@ -95,6 +99,11 @@ class FindGroupFragment  : Fragment() {
             }
         }
         recyclerView.adapter = groupAdapter// Set the adapter for the RecyclerView
+
+        sortGroups = view.findViewById(R.id.sortGroups)
+
+        // deploy spinner
+        setupSortSpinner()
 
         // Load all groups by default when fragment is opened
         loadGroupsFromFirestore()
@@ -166,6 +175,55 @@ class FindGroupFragment  : Fragment() {
             .addOnFailureListener { e ->
                 Log.w("FindGroupFragment", "Error searching groups: ${e.message}")
             }
+    }
+
+    // Setup the spinner for sorting options and handle the selection event
+    private fun setupSortSpinner() {
+        // Create an ArrayAdapter using the string array and custom spinner item layout
+        val adapter = ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.groups_sort_options,
+            R.layout.item_collections_spinner_layout  // Custom layout for the spinner display
+        )
+        // Apply the adapter to the spinner
+        adapter.setDropDownViewResource(R.layout.item_collections_spinner_dropdown) // The layout for dropdown items
+        sortGroups.adapter = adapter
+
+        // Handle selection changes as before
+        sortGroups.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val selectedSortOption = parent.getItemAtPosition(position).toString()
+                sortGroups(selectedSortOption)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // No action if nothing is selected
+            }
+        }
+    }
+
+    // Function to sort books within each custom collection based on the selected option
+    private fun sortGroups(sortOption: String) {
+        when (sortOption) {
+            "Name A-Z" -> {
+                // Sort groupList alphabetically by group name
+                groupList.sortBy { it.groupName.lowercase() }
+            }
+            "Name Z-A" -> {
+                // Sort groupList in reverse alphabetical order by group name
+                groupList.sortByDescending { it.groupName.lowercase() }
+            }
+            "Members ↑" -> {
+                // Sort groupList alphabetically by creater name
+                groupList.sortBy {it.members.size}
+            }
+            "Members ↓" -> {
+                groupList.sortByDescending {it.members.size}
+            }
+        }
+
+        // Notify the adapter about the updated data
+        groupAdapter.notifyDataSetChanged()
     }
 
 }
