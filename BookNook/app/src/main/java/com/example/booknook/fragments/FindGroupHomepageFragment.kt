@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
@@ -21,6 +22,7 @@ class FindGroupHomepageFragment : Fragment() {
     private var groupId: String? = null
     private var groupCreatorId: String? = null
     private lateinit var bannerImg: ImageView
+    private lateinit var numMembers: TextView
 
     // Get bundled input from group item
     // Olivia Fishbough
@@ -39,6 +41,7 @@ class FindGroupHomepageFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_find_group_homepage, container, false)
         bannerImg = view.findViewById(R.id.bannerImage)
+        numMembers = view.findViewById(R.id.numMembers)
 
         if (groupId != null) {
             // Calls function to load the group's information
@@ -89,6 +92,7 @@ class FindGroupHomepageFragment : Fragment() {
         db.collection("groups").document(groupId)
             .update("members", FieldValue.arrayUnion(userId))
             .addOnSuccessListener {
+                loadGroupData(groupId)
                 // Notify the owner that the user has been added
                 Toast.makeText(requireContext(), "You have joined the group.", Toast.LENGTH_SHORT).show()
             }
@@ -128,6 +132,11 @@ class FindGroupHomepageFragment : Fragment() {
                             .load(bannerImgUrl)
                             .into(bannerImg)
                     }
+
+                    // Displays the number of members
+                    val members = document.get("members") as? List<*>
+                    val numOfMembers = members?.size ?: 0
+                    numMembers.text = "$numOfMembers"
                 }
             }
     }

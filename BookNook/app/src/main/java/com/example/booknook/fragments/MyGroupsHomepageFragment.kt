@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
@@ -20,6 +21,7 @@ class MyGroupsHomepageFragment : Fragment() {
     private var groupId: String? = null
     private var groupCreatorId: String? = null
     private lateinit var bannerImg: ImageView
+    private lateinit var numMembers: TextView
 
     // Get bundled input from group item
     // Olivia Fishbough
@@ -38,6 +40,7 @@ class MyGroupsHomepageFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_my_groups_homepage, container, false)
         bannerImg = view.findViewById(R.id.bannerImage)
+        numMembers = view.findViewById(R.id.numMembers)
 
         if (groupId != null) {
             // Calls function to load the group's information
@@ -77,6 +80,11 @@ class MyGroupsHomepageFragment : Fragment() {
                             .load(bannerImgUrl)
                             .into(bannerImg)
                     }
+
+                    // Displays the number of members
+                    val members = document.get("members") as? List<*>
+                    val numOfMembers = members?.size ?: 0
+                    numMembers.text = "$numOfMembers"
                 }
             }
     }
