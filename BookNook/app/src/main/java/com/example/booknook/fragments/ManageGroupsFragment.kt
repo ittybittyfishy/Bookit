@@ -6,7 +6,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,6 +37,7 @@ class ManageGroupsFragment : Fragment() {
     // Page UI elements: button to create a new group and a RecyclerView to display groups
     private lateinit var createGroup: Button
     private lateinit var recyclerView: RecyclerView
+    private lateinit var sortGroups: Spinner
 
     // Adapter for managing the list of groups and join requests
     private lateinit var groupManageAdapter: GroupManageAdapter
@@ -85,6 +89,11 @@ class ManageGroupsFragment : Fragment() {
             fragmentManager = parentFragmentManager
         )
         recyclerView.adapter = groupManageAdapter
+
+        sortGroups = view.findViewById(R.id.sortGroups)
+
+        // deploy spinner
+        setupSortSpinner()
 
         // Load data from Firestore
         loadGroupsFromFirestore()
@@ -188,6 +197,49 @@ class ManageGroupsFragment : Fragment() {
                 Log.w("ManageGroupsFragment", "Error removing join request: ${e.message}")
             }
     }
+
+    private fun setupSortSpinner() {
+        // Create an ArrayAdapter using the string array and custom spinner item layout
+        val adapter = ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.groups_manage_sort_options,
+            R.layout.item_collections_spinner_layout  // Custom layout for the spinner display
+        )
+        // Apply the adapter to the spinner
+        adapter.setDropDownViewResource(R.layout.item_collections_spinner_dropdown) // The layout for dropdown items
+        sortGroups.adapter = adapter
+
+        // Handle selection changes as before
+        sortGroups.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val selectedSortOption = parent.getItemAtPosition(position).toString()
+                sortGroups(selectedSortOption)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // No action if nothing is selected
+            }
+        }
+    }
+
+    // Function to sort books within each custom collection based on the selected option
+    private fun sortGroups(sortOption: String) {
+        when (sortOption) {
+            "Name A-Z" -> {
+                // Sort groupList alphabetically by group name
+                groupList.sortBy { it.groupName }
+            }
+            "Name Z-A" -> {
+                // Sort groupList in reverse alphabetical order by group name
+                groupList.sortByDescending { it.groupName }
+            }
+            // Add more sort options as needed, e.g., based on creation date or other criteria
+        }
+
+        // Notify the adapter about the updated data
+        groupManageAdapter.notifyDataSetChanged()
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -46,7 +46,12 @@
         <item>Members (Descending)</item>
     </string-array>
 
-    <!-- Other resources -->
+    <!-- Sort Groups -->
+    <string-array name="groups_manage_sort_options">
+        <item>Sort Groups ▼</item>
+        <item>Name A-Z</item>
+        <item>Name Z-A</item>
+    </string-array>
 
     <string-array name="rating_ranges">
         <item>All ratings</item>
