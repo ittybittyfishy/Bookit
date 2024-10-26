@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 
 class ManageGroupsFragment : Fragment() {
@@ -37,6 +38,9 @@ class ManageGroupsFragment : Fragment() {
     // Adapter for managing the list of groups and join requests
     private lateinit var groupManageAdapter: GroupManageAdapter
     private val groupList = mutableListOf<GroupRequestHolderItem>()
+
+    // Listner to update the groups in live time
+    private var groupListener: ListenerRegistration? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -82,7 +86,8 @@ class ManageGroupsFragment : Fragment() {
         groupManageAdapter = GroupManageAdapter(
             groupList,
             onAcceptClick = { groupId, requestItem -> handleAcceptRequest(groupId, requestItem) },
-            onRejectClick = { groupId, requestItem -> handleRejectRequest(groupId, requestItem) }
+            onRejectClick = { groupId, requestItem -> handleRejectRequest(groupId, requestItem) },
+            fragmentManager = parentFragmentManager
         )
         recyclerView.adapter = groupManageAdapter
 
@@ -95,49 +100,34 @@ class ManageGroupsFragment : Fragment() {
         val db = FirebaseFirestore.getInstance()
         val userId = FirebaseAuth.getInstance().currentUser?.uid
 
-        // Retrieve all group documents from Firestore
-        db.collection("groups").get()
-            .addOnSuccessListener { documents ->
-                groupList.clear() // Clear the list to avoid duplicates
-
-                for (document in documents) {
-                    // Check if the user is the owner
-                    val owner = document.getString("createdBy")
-
-                    if (owner == userId) {
-                        val groupName = document.getString("groupName") ?: "Unknown Group"
-                        val groupId = document.id  // Group ID from Firestore document
-
-                        // Fetch join requests for the group
-                        db.collection("groups").document(groupId).collection("requests")
-                            .get()
-                            .addOnSuccessListener { requestDocs ->
-                                // Convert each document to a GroupRequestItem and add to list
-                                val requests = requestDocs.map { requestDoc ->
-                                    requestDoc.toObject(GroupRequestItem::class.java)
-                                }.toMutableList() // Convert to MutableList
-
-                                // Create a holder item containing group information and request
-                                val groupRequestHolderItem = GroupRequestHolderItem(
-                                    groupId = groupId,  // Pass groupId here
-                                    groupName = groupName,
-                                    requests = requests
-                                )
-                                // Add to the list and update the adapter
-                                groupList.add(groupRequestHolderItem)
-                                groupManageAdapter.notifyDataSetChanged()
-                            }
-                            .addOnFailureListener { e ->
-                                Log.w(
-                                    "ManageGroupsFragment",
-                                    "Error loading requests: ${e.message}"
-                                )
-                            }
-                    }
+        // Listen to changes in the "groups" collection
+        groupListener = db.collection("groups")
+            .whereEqualTo("createdBy", userId) // Only listen to groups created by the current user
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.w("ManageGroupsFragment", "Listen failed.", error)
+                    return@addSnapshotListener
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.w("ManageGroupsFragment", "Error loading groups: ${e.message}")
+
+                if (snapshot != null) {
+                    groupList.clear() // Clear existing data
+
+                    for (document in snapshot.documents) {
+                        val groupName = document.getString("groupName") ?: "Unknown Group"
+                        val groupId = document.id
+
+                        // Create a GroupRequestHolderItem for each group (requests not handled)
+                        val groupRequestHolderItem = GroupRequestHolderItem(
+                            groupId = groupId,
+                            groupName = groupName,
+                            requests = mutableListOf() // Empty list for simplicity
+                        )
+                        groupList.add(groupRequestHolderItem)
+                    }
+
+                    // Notify adapter about data changes
+                    groupManageAdapter.notifyDataSetChanged()
+                }
             }
     }
 
@@ -206,5 +196,12 @@ class ManageGroupsFragment : Fragment() {
                 Log.w("ManageGroupsFragment", "Error removing join request: ${e.message}")
             }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Remove Firestore listener when fragment view is destroyed
+        groupListener?.remove()
+    }
+
 
 }

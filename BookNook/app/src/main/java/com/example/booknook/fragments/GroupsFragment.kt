@@ -35,6 +35,7 @@ class GroupsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_groups, container, false)
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -67,6 +68,14 @@ class GroupsFragment : Fragment() {
             (activity as MainActivity).replaceFragment(manageGroupFragment, "Manage Groups")
         }
 
+        // Listen for group update result
+        parentFragmentManager.setFragmentResultListener("groupUpdated", this) { _, bundle ->
+            val shouldRefresh = bundle.getBoolean("refresh")
+            if (shouldRefresh) {
+                loadGroupsFromFirestore() // Refresh the dataset when group info is updated
+            }
+        }
+
         // Load groups
         loadGroupsFromFirestore()
     }
@@ -97,5 +106,6 @@ class GroupsFragment : Fragment() {
                 Log.w("GroupsFragment", "Error loading groups: ${e.message}")
             }
     }
+
 
 }
