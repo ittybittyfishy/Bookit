@@ -27,7 +27,7 @@
             android:id="@+id/joinGroupButton"
             android:layout_width="wrap_content"
             android:layout_height="45dp"
-            android:layout_marginLeft="270dp"
+            android:layout_marginLeft="250dp"
             android:layout_centerVertical="true"
             android:layout_marginTop="240dp"
             android:text="Join Group"
@@ -110,6 +110,7 @@
                 android:textSize="14sp" />
 
             <TextView
+                android:id="@+id/membersOnline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
@@ -149,6 +150,7 @@
                 android:textSize="14sp" />
 
             <TextView
+                android:id="@+id/numRecommendations"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"

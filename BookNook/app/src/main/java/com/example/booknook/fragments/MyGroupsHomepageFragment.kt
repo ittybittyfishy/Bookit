@@ -1,5 +1,6 @@
 package com.example.booknook.fragments
 
+import android.health.connect.datatypes.units.Length
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,6 +23,8 @@ class MyGroupsHomepageFragment : Fragment() {
     private var groupCreatorId: String? = null
     private lateinit var bannerImg: ImageView
     private lateinit var numMembers: TextView
+    private lateinit var membersOnline: TextView
+    private lateinit var numRecommendations: TextView
 
     // Get bundled input from group item
     // Olivia Fishbough
@@ -41,6 +44,8 @@ class MyGroupsHomepageFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_my_groups_homepage, container, false)
         bannerImg = view.findViewById(R.id.bannerImage)
         numMembers = view.findViewById(R.id.numMembers)
+        membersOnline = view.findViewById(R.id.membersOnline)
+        numRecommendations = view.findViewById(R.id.numRecommendations)
 
         if (groupId != null) {
             // Calls function to load the group's information
@@ -85,7 +90,53 @@ class MyGroupsHomepageFragment : Fragment() {
                     val members = document.get("members") as? List<*>
                     val numOfMembers = members?.size ?: 0
                     numMembers.text = "$numOfMembers"
+
+                    // Calls function to get number of members online
+                    getNumMembersOnline(groupId)
                 }
+            }
+    }
+
+    // Veronica Nguyen
+    // Gets the number of members online
+    private fun getNumMembersOnline(groupId: String) {
+        val db = FirebaseFirestore.getInstance()
+        // Gets the group's document
+        val groupsDocRef = db.collection("groups").document(groupId)
+
+        groupsDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    // Gets the members in the group
+                    val memberIds = document.get("members") as? List<String> ?: listOf()
+                    var onlineCount = 0  // Stores the number of members online
+
+                    // Loops through each member to check their online status
+                    for (memberId in memberIds) {
+                        // Accesses the user's document
+                        db.collection("users").document(memberId).get()
+                            .addOnSuccessListener { userDoc ->
+                                if (userDoc != null && userDoc.exists()) {
+                                    // Checks if they're online
+                                    val isOnline = userDoc.getBoolean("isOnline") ?: false
+                                    if (isOnline) {
+                                        onlineCount++
+                                    }
+                                }
+
+                                // Updates TextView after last member is checked
+                                if (memberId == memberIds.last()) {
+                                    membersOnline.text = "$onlineCount"
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(activity, "Failed to check online statuses", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(activity, "Failed to retrieve members", Toast.LENGTH_SHORT).show()
             }
     }
 
