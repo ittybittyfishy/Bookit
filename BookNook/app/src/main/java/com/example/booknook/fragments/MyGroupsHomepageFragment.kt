@@ -68,12 +68,32 @@ class MyGroupsHomepageFragment : Fragment() {
         // Load in buttons
         leaveGroupButton = view.findViewById(R.id.leaveGroupButton)
 
+        // Sets up snapshot listener to see if document has changed
+        groupId?.let { groupId ->
+            FirebaseFirestore.getInstance().collection("groups").document(groupId)
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        Log.w("MyGroupsHomepageFragment", "Listen failed.", e)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null && snapshot.exists()) {
+                        // Re-fetch group data and update the UI immediately if the group doc has changed
+                        loadGroupData(groupId)
+                    }
+                }
+        }
+
         // Set on click listener to allow user to join group
         // Olivia Fishbough
         leaveGroupButton.setOnClickListener(){
-            //
-            // leaveGroup(groupId) function goes here
-            //
+            if (leaveGroupButton.text == "Edit Group") {
+                groupId?.let { it1 -> editGroup(it1) }
+            } else {
+                //
+                // leaveGroup(groupId) function goes here
+                //
+            }
         }
 
         // Veronica Nguyen
@@ -93,6 +113,15 @@ class MyGroupsHomepageFragment : Fragment() {
         }
     }
 
+    // Veronica Nguyen
+    // Function to edit a group
+    private fun editGroup(groupId: String) {
+        // Creates a popup that opens up edit screen
+        val editFragment = EditGroupFragment.newInstance(groupId)
+        childFragmentManager.let {
+            editFragment.show(it, "EditGroupDialog")
+        }
+    }
 
     // Veronica Nguyen
     // Loads the group data
@@ -104,10 +133,20 @@ class MyGroupsHomepageFragment : Fragment() {
                     val bannerImgUrl = document.getString("bannerImg")
 
                     // Load banner image using Glide
-                    if (!bannerImgUrl.isNullOrEmpty()) {
+                    if (!bannerImgUrl.isNullOrEmpty() && isAdded) {
                         Glide.with(this)
                             .load(bannerImgUrl)
                             .into(bannerImg)
+                    }
+
+                    // Check if the current user is the creator of the group
+                    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+                    groupCreatorId = document.getString("createdBy")
+                    // Change button text to "Edit Group" if current user is the creator
+                    if (currentUserId == groupCreatorId) {
+                        leaveGroupButton.text = "Edit Group"
+                    } else {
+                        leaveGroupButton.text = "Leave Group"  // Else, keep it as "Leave Group"
                     }
 
                     // Calls function to display group tags
@@ -134,9 +173,11 @@ class MyGroupsHomepageFragment : Fragment() {
                 val tags = document.get("tags") as? List<String> ?: listOf()
                 tagsChipGroup.removeAllViews() // Clear any existing chips
 
+                val currentContext = context ?: return@addOnSuccessListener
+
                 // Loops through each tag and displays it in the chips
                 for (tag in tags) {
-                    val chip = Chip(context)
+                    val chip = Chip(currentContext)
                     chip.text = tag
                     chip.isCloseIconVisible = false
 

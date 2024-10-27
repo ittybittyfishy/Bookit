@@ -68,18 +68,36 @@ class FindGroupHomepageFragment : Fragment() {
         // Load in buttons
         joinGroupButton = view.findViewById(R.id.joinGroupButton)
 
-        // Load initial joined status
+        // Sets up snapshot listener to see if document has changed
         groupId?.let { groupId ->
+            // Load initial joined status
             checkJoinedGroupStatus(groupId)  // Check the initial status
+            FirebaseFirestore.getInstance().collection("groups").document(groupId)
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        Log.w("FindGroupHomepageFragment", "Listen failed.", e)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null && snapshot.exists()) {
+                        // Re-fetch group data and update the UI immediately if the group doc has changed
+                        loadGroupData(groupId)
+                    }
+                }
         }
 
         // Set on click listener to allow user to join group
         // Olivia Fishbough
         joinGroupButton.setOnClickListener(){
+            // Leave a group
             if (joinGroupButton.text == "Leave Group") {
                 //
                 // leaveGroup(groupId) function goes here
                 //
+            // Edit group if they're the creator
+            } else if (joinGroupButton.text == "Edit Group"){
+                groupId?.let { it1 -> editGroup(it1) }
+            // Join group
             } else {
                 // Call joinGroup only if groupId is not null
                 groupId?.let { joinGroup(it) }
@@ -92,7 +110,7 @@ class FindGroupHomepageFragment : Fragment() {
             // Toggles the expand/collapse state when button is clicked
             isExpanded = !isExpanded
             displayChips(isExpanded)
-            // Swithces the button image when clicked on
+            // Switches the button image when clicked on
             expandButton.setImageResource(
                 if (isExpanded) {
                     R.drawable.collapse_button
@@ -102,6 +120,17 @@ class FindGroupHomepageFragment : Fragment() {
             )
         }
     }
+
+    // Veronica Nguyen
+    // Function to edit a group
+    private fun editGroup(groupId: String) {
+        // Creates a popup that opens up edit screen
+        val editFragment = EditGroupFragment.newInstance(groupId)
+        childFragmentManager.let {
+            editFragment.show(it, "EditGroupDialog")
+        }
+    }
+
 
     // Function that allows user to join public group
     // Olivia Fishbough
@@ -154,7 +183,7 @@ class FindGroupHomepageFragment : Fragment() {
                     val bannerImgUrl = document.getString("bannerImg")
 
                     // Load banner image using Glide
-                    if (!bannerImgUrl.isNullOrEmpty()) {
+                    if (!bannerImgUrl.isNullOrEmpty() && isAdded) {
                         Glide.with(this)
                             .load(bannerImgUrl)
                             .into(bannerImg)
@@ -184,13 +213,20 @@ class FindGroupHomepageFragment : Fragment() {
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
                     val members = document.get("members") as? List<String>
+                    val groupCreatorId = document.getString("createdBy")
                     if (members != null) {
                         // Loops through each member to check if they're already in the group
                         val alreadyJoined = members.any { membersItem -> membersItem == userId}
-                        if (alreadyJoined) {
+                        // If the current user is the creator of the group
+                        if (userId == groupCreatorId) {
+                            // Change button to "Edit Group"
+                            joinGroupButton.text = "Edit Group"
+                        // If user is already a member
+                        } else if (alreadyJoined) {
                             // Already joined group, change button to "Leave Group"
                             joinGroupButton.text = "Leave Group"
                             Toast.makeText(activity, "Already joined", Toast.LENGTH_SHORT).show()
+                        // User is not a creator or member of group
                         } else {
                             // Not joined, button displays "Join Group"
                             joinGroupButton.text = "Join Group"
@@ -217,9 +253,11 @@ class FindGroupHomepageFragment : Fragment() {
                 val tags = document.get("tags") as? List<String> ?: listOf()
                 tagsChipGroup.removeAllViews() // Clear any existing chips
 
+                val currentContext = context ?: return@addOnSuccessListener
+
                 // Loops through each tag and displays it in the chips
                 for (tag in tags) {
-                    val chip = Chip(context)
+                    val chip = Chip(currentContext)
                     chip.text = tag
                     chip.isCloseIconVisible = false
 
