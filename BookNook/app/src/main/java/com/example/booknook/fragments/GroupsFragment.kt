@@ -141,11 +141,11 @@ class GroupsFragment : Fragment() {
         when (sortOption) {
             "Name A-Z" -> {
                 // Sort groupList alphabetically by group name
-                groupList.sortBy { it.groupName }
+                groupList.sortBy { it.groupName.lowercase() }
             }
             "Name Z-A" -> {
                 // Sort groupList in reverse alphabetical order by group name
-                groupList.sortByDescending { it.groupName }
+                groupList.sortByDescending { it.groupName.lowercase() }
             }
             "Members ↑" -> {
                 // Sort groupList alphabetically by creater name

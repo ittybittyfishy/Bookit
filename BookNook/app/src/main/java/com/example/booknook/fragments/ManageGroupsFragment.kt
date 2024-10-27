@@ -227,11 +227,11 @@ class ManageGroupsFragment : Fragment() {
         when (sortOption) {
             "Name A-Z" -> {
                 // Sort groupList alphabetically by group name
-                groupList.sortBy { it.groupName }
+                groupList.sortBy { it.groupName.lowercase() }
             }
             "Name Z-A" -> {
                 // Sort groupList in reverse alphabetical order by group name
-                groupList.sortByDescending { it.groupName }
+                groupList.sortByDescending { it.groupName.lowercase() }
             }
             // Add more sort options as needed, e.g., based on creation date or other criteria
         }
