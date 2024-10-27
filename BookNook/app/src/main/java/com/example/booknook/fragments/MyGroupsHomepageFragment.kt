@@ -76,6 +76,7 @@ class MyGroupsHomepageFragment : Fragment() {
             //
         }
 
+        // Veronica Nguyen
         // Handles click of expand button for chips
         expandButton.setOnClickListener {
             // Toggles the expand/collapse state when button is clicked
@@ -155,6 +156,7 @@ class MyGroupsHomepageFragment : Fragment() {
             }
     }
 
+    // Veronica Nguyen
     // Displays the chips and initially shows only the first row
     private fun displayChips(expand: Boolean) {
         // Gets all the chips

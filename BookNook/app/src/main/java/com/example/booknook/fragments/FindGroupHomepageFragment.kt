@@ -85,6 +85,8 @@ class FindGroupHomepageFragment : Fragment() {
                 groupId?.let { joinGroup(it) }
             }
         }
+
+        // Veronica Nguyen
         // Handles click of expand button for chips
         expandButton.setOnClickListener {
             // Toggles the expand/collapse state when button is clicked
@@ -237,6 +239,7 @@ class FindGroupHomepageFragment : Fragment() {
             }
     }
 
+    // Veronica Nguyen
     // Displays the chips and initially shows only the first row
     private fun displayChips(expand: Boolean) {
         // Gets all the chips
