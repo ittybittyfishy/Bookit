@@ -38,31 +38,31 @@ private val fragmentManager: FragmentManager
     override fun onBindViewHolder(holder: GroupManageViewHolder, position: Int) {
         val groupItem = requests[position]
 
-        // get group id
-        var groupId = groupItem.groupId
-
         // Set group name
         holder.groupName.text = groupItem.groupName
 
-        // allow user to edit groups
-        // Allow user to edit groups
-        holder.editButton.setOnClickListener {
-            val editFragment = EditGroupFragment.newInstance(groupId)
-            editFragment.show(
-                fragmentManager, // Use the passed FragmentManager
-                "EditGroupDialog"
-            )
+        // Initialize inner RecyclerView with horizontal layout for group requests
+        holder.groupRecyclerView.layoutManager = LinearLayoutManager(
+            holder.itemView.context,
+            LinearLayoutManager.HORIZONTAL, // Set to horizontal orientation
+            false
+        )
+        holder.groupRecyclerView.adapter = GroupRequestAdapter(
+            groupItem.requests,
+            onAcceptClick = { requestItem ->
+                onAcceptClick(groupItem.groupId, requestItem)
+            },
+            onRejectClick = { requestItem ->
+                onRejectClick(groupItem.groupId, requestItem)
+            }
+        )
 
-            // Setup the inner RecyclerView for displaying group requests
-            holder.groupRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
-            holder.groupRecyclerView.adapter = GroupRequestAdapter(
-                groupItem.requests, // Provide the list of requests for this group
-                onAcceptClick = { requestItem -> // Handle accept click for individual requests
-                    onAcceptClick(groupItem.groupId, requestItem)
-                },
-                onRejectClick = { requestItem -> // Handle reject click for individual requests
-                    onRejectClick(groupItem.groupId, requestItem)
-                }
+        // Edit button click to show edit fragment
+        holder.editButton.setOnClickListener {
+            val editFragment = EditGroupFragment.newInstance(groupItem.groupId)
+            editFragment.show(
+                fragmentManager,
+                "EditGroupDialog"
             )
         }
     }
