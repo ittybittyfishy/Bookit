@@ -44,7 +44,7 @@
         <item>Members ↓</item>
     </string-array>
 
-    <!-- Sort Groups -->
+    <!-- Sort Manage Groups -->
     <string-array name="groups_manage_sort_options">
         <item>Sort Groups ▼</item>
         <item>Name A-Z</item>
