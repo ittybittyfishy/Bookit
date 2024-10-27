@@ -7,12 +7,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.booknook.R
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -22,9 +25,12 @@ class MyGroupsHomepageFragment : Fragment() {
     private var groupId: String? = null
     private var groupCreatorId: String? = null
     private lateinit var bannerImg: ImageView
+    private lateinit var tagsChipGroup: ChipGroup
     private lateinit var numMembers: TextView
     private lateinit var membersOnline: TextView
     private lateinit var numRecommendations: TextView
+    private lateinit var expandButton: ImageButton
+    private var isExpanded = false  // Tracks if chips are expanded or collapsed
 
     // Get bundled input from group item
     // Olivia Fishbough
@@ -46,6 +52,8 @@ class MyGroupsHomepageFragment : Fragment() {
         numMembers = view.findViewById(R.id.numMembers)
         membersOnline = view.findViewById(R.id.membersOnline)
         numRecommendations = view.findViewById(R.id.numRecommendations)
+        tagsChipGroup = view.findViewById(R.id.tagsChipGroup)
+        expandButton = view.findViewById(R.id.expandButton)
 
         if (groupId != null) {
             // Calls function to load the group's information
@@ -67,6 +75,21 @@ class MyGroupsHomepageFragment : Fragment() {
             // leaveGroup(groupId) function goes here
             //
         }
+
+        // Handles click of expand button for chips
+        expandButton.setOnClickListener {
+            // Toggles the expand/collapse state when button is clicked
+            isExpanded = !isExpanded
+            displayChips(isExpanded)
+            // Swithces the button image when clicked on
+            expandButton.setImageResource(
+                if (isExpanded) {
+                    R.drawable.collapse_button
+                } else {
+                    R.drawable.expand_button
+                }
+            )
+        }
     }
 
 
@@ -86,6 +109,9 @@ class MyGroupsHomepageFragment : Fragment() {
                             .into(bannerImg)
                     }
 
+                    // Calls function to display group tags
+                    getTags(groupId)
+
                     // Displays the number of members
                     val members = document.get("members") as? List<*>
                     val numOfMembers = members?.size ?: 0
@@ -95,6 +121,54 @@ class MyGroupsHomepageFragment : Fragment() {
                     getNumMembersOnline(groupId)
                 }
             }
+    }
+
+    // Veronica Nguyen
+    // Get group tags
+    private fun getTags(groupId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val groupsDocRef = db.collection("groups").document(groupId)
+        groupsDocRef.get()
+            .addOnSuccessListener { document ->
+                val tags = document.get("tags") as? List<String> ?: listOf()
+                tagsChipGroup.removeAllViews() // Clear any existing chips
+
+                // Loops through each tag and displays it in the chips
+                for (tag in tags) {
+                    val chip = Chip(context)
+                    chip.text = tag
+                    chip.isCloseIconVisible = false
+
+                    // Customize size
+                    chip.layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+
+                    // Adjusts text size
+                    chip.textSize = 12f  // Set the desired text size in sp
+                    // Sets padding
+                    chip.setPadding(10, 10, 10, 10)
+                    tagsChipGroup.addView(chip)
+                }
+                displayChips(isExpanded)  // Initially shows only first row of tags
+            }
+    }
+
+    // Displays the chips and initially shows only the first row
+    private fun displayChips(expand: Boolean) {
+        // Gets all the chips
+        val chips = (0 until tagsChipGroup.childCount).map { tagsChipGroup.getChildAt(it) }
+        chips.forEachIndexed { index, view ->
+            view.visibility =
+                // Shows all chips if isExpanded is true
+                if (expand || index < 4) {
+                    View.VISIBLE
+                // Else shows only the first row
+                } else {
+                    View.GONE
+                }
+        }
     }
 
     // Veronica Nguyen
