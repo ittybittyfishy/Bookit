@@ -5,7 +5,7 @@ package com.example.booknook
 class BookItemCollection (val title: String,
                           val authors: List<String>,
                           val imageLink: String,
-                          val pages: Int,
+                          var pages: Int,
                           var tags: List<String> = emptyList(),
                           val genres: List<String>)  // Veronica Nguyen
 {

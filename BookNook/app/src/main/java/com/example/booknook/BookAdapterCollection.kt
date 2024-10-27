@@ -115,6 +115,9 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
         val newPages = currentPages + change
         pageView.setText(newPages.toString())
 
+        // Update the `BookItemCollection` object so sorting does not reset it
+        book.pages = newPages
+
         // Update in Firestore
         updatePagesInFirestore(book, newPages)
     }

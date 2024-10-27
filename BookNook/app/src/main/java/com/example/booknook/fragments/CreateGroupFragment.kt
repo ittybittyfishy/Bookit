@@ -212,6 +212,8 @@ class CreateGroupFragment : DialogFragment() {
         }
     }
 
+
+
     companion object {
         private const val IMAGE_PICKER_REQUEST_CODE = 1001
     }

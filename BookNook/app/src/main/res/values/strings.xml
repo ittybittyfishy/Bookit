@@ -38,15 +38,18 @@
     <!-- Sort Groups -->
     <string-array name="groups_sort_options">
         <item>Sort Groups ▼</item>
-        <item>Title (A-Z)</item>
-        <item>Title (Z-A)</item>
-        <item>Creator (A-Z)</item>
-        <item>Creator (Z-A)</item>
-        <item>Members (Ascending)</item>
-        <item>Members (Descending)</item>
+        <item>Name A-Z</item>
+        <item>Name Z-A</item>
+        <item>Members ↑</item>
+        <item>Members ↓</item>
     </string-array>
 
-    <!-- Other resources -->
+    <!-- Sort Manage Groups -->
+    <string-array name="groups_manage_sort_options">
+        <item>Sort Groups ▼</item>
+        <item>Name A-Z</item>
+        <item>Name Z-A</item>
+    </string-array>
 
     <string-array name="rating_ranges">
         <item>All ratings</item>
