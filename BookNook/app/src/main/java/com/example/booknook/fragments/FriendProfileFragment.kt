@@ -114,7 +114,7 @@ class FriendProfileFragment : Fragment() {
         // Set up Add Friend button
         addFriendButton.setOnClickListener {
             friendUserId?.let { friendId ->
-                if (addFriendButton.text == "Remove Friend") {
+                if (addFriendButton.text == "Unfriend") {
                     removeFriend(friendId)
                 } else {
                     sendFriendRequest(friendId)
