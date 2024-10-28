@@ -273,6 +273,8 @@ class FindGroupHomepageFragment : Fragment() {
                     chip.setPadding(10, 10, 10, 10)
                     tagsChipGroup.addView(chip)
                 }
+                // Only show expand button if there's more than 3 chips
+                expandButton.visibility = if (tags.size > 3) View.VISIBLE else View.GONE
                 displayChips(isExpanded)  // Initially shows only first row of tags
             }
     }
