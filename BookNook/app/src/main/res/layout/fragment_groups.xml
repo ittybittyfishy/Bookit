@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     tools:context=".fragments.GroupsFragment"
     android:background="@color/background_tan"
-    android:padding="20dp"
     android:orientation="vertical">
 
    <LinearLayout
@@ -44,11 +43,19 @@
 
    </LinearLayout>
 
-
+    <Spinner
+        android:id="@+id/sortGroups"
+        android:layout_width="130dp"
+        android:layout_height="42dp"
+        android:entries="@array/groups_sort_options"
+        android:background="@drawable/green_round"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="634dp" />
+        android:layout_height="match_parent" />
 
 </LinearLayout>

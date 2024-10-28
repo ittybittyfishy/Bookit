@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.ProfileFragment">
+
+    <!-- Banner with dark grey color -->
+    <ImageView
+        android:id="@+id/bannerImage"
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
+        android:background="#A9A9A9"
+        android:layout_gravity="top"
+        android:scaleType="centerCrop"
+        android:src="@drawable/banner_placeholder"/>
+
+    <!-- Join Group button -->
+    <Button
+        android:id="@+id/joinGroupButton"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_marginLeft="250dp"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="120dp"
+        android:text="Leave Group"
+        android:backgroundTint="#D9D9D9"
+        android:textColor="#8B845E" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="180dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp">
+
+            <!-- Tags Chips -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/tagsChipGroup"
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/expandButton"
+                android:layout_toLeftOf="@id/expandButton"
+                app:lineSpacing="3dp" />
+
+            <!-- Expand/Collapse Button for chips -->
+            <ImageButton
+                android:id="@+id/expandButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="5dp"
+                android:padding="8dp"
+                android:backgroundTint="@color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/expand_button" />
+        </RelativeLayout>
+
+
+        <GridLayout
+            android:layout_width="380dp"
+            android:layout_height="120dp"
+            android:layout_marginLeft="4dp"
+            android:columnCount="5">
+
+            <!-- Members -->
+            <LinearLayout
+                android:layout_width="10dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:layout_marginLeft="13dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginRight="7dp"
+                    android:src="@drawable/person"
+                    app:tint="@color/light_green" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="7dp"
+                    android:text="Members"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/numMembers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="7dp"
+                    android:text="0"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Vertical Divider -->
+            <View
+                android:layout_width="2dp"
+                android:layout_height="100dp"
+                android:layout_columnWeight="0.01"
+                android:layout_marginLeft="-10dp"
+                android:background="#d0d0d0" />
+
+            <!-- Members Online -->
+            <LinearLayout
+                android:layout_width="20dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:layout_marginLeft="5dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/members_online"
+                    app:tint="@color/light_green" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Members Online"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/membersOnline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Vertical Divider -->
+            <View
+                android:layout_width="2dp"
+                android:layout_height="100dp"
+                android:layout_columnWeight="0.01"
+                android:layout_marginLeft="-5dp"
+                android:background="#d0d0d0" />
+
+            <!-- Recommendations -->
+            <LinearLayout
+                android:layout_width="32dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:layout_marginLeft="6dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/pin"
+                    app:tint="@color/light_green" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Recommendations"
+                    android:textColor="@color/sub_text_brown"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/numRecommendations"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </GridLayout>
+    </LinearLayout>
+</FrameLayout>

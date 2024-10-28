@@ -6,7 +6,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,19 +37,19 @@ class ManageGroupsFragment : Fragment() {
     // Page UI elements: button to create a new group and a RecyclerView to display groups
     private lateinit var createGroup: Button
     private lateinit var recyclerView: RecyclerView
+    private lateinit var sortGroups: Spinner
 
     // Adapter for managing the list of groups and join requests
     private lateinit var groupManageAdapter: GroupManageAdapter
     private val groupList = mutableListOf<GroupRequestHolderItem>()
 
-    // Listner to update the groups in live time
+    // Listener to update the groups in real time
     private var groupListener: ListenerRegistration? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_manage_groups, container, false)
     }
 
@@ -55,9 +58,7 @@ class ManageGroupsFragment : Fragment() {
 
         // Initialize and set up the "Create Group" button
         createGroup = view.findViewById(R.id.createGroupButton)
-
         createGroup.setOnClickListener {
-            // Show a dialog fragment to create a new group
             val createGroupDialog = CreateGroupFragment()
             createGroupDialog.show(childFragmentManager, "CreateGroupDialog")
         }
@@ -67,13 +68,11 @@ class ManageGroupsFragment : Fragment() {
         findGroups = view.findViewById(R.id.findGroups)
 
         myGroups.setOnClickListener {
-            // Navigate to "My Groups" fragment
             val groupsFragment = GroupsFragment()
             (activity as MainActivity).replaceFragment(groupsFragment, "My Groups")
         }
 
         findGroups.setOnClickListener {
-            // Navigate to "Find Groups" fragment
             val findGroupsFragment = FindGroupFragment()
             (activity as MainActivity).replaceFragment(findGroupsFragment, "Find Groups")
         }
@@ -91,18 +90,22 @@ class ManageGroupsFragment : Fragment() {
         )
         recyclerView.adapter = groupManageAdapter
 
+        sortGroups = view.findViewById(R.id.sortGroups)
+
+        // deploy spinner
+        setupSortSpinner()
+
         // Load data from Firestore
         loadGroupsFromFirestore()
     }
 
-    // Method to fetch groups from Firestore where the user is the owner
     private fun loadGroupsFromFirestore() {
         val db = FirebaseFirestore.getInstance()
         val userId = FirebaseAuth.getInstance().currentUser?.uid
 
-        // Listen to changes in the "groups" collection
+        // Listen to changes in the "groups" collection for groups created by the current user
         groupListener = db.collection("groups")
-            .whereEqualTo("createdBy", userId) // Only listen to groups created by the current user
+            .whereEqualTo("createdBy", userId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     Log.w("ManageGroupsFragment", "Listen failed.", error)
@@ -116,92 +119,131 @@ class ManageGroupsFragment : Fragment() {
                         val groupName = document.getString("groupName") ?: "Unknown Group"
                         val groupId = document.id
 
-                        // Create a GroupRequestHolderItem for each group (requests not handled)
-                        val groupRequestHolderItem = GroupRequestHolderItem(
-                            groupId = groupId,
-                            groupName = groupName,
-                            requests = mutableListOf() // Empty list for simplicity
-                        )
-                        groupList.add(groupRequestHolderItem)
+                        // Fetch join requests for the group
+                        db.collection("groups").document(groupId).collection("requests")
+                            .get()
+                            .addOnSuccessListener { requestDocs ->
+                                val requests = requestDocs.map { requestDoc ->
+                                    requestDoc.toObject(GroupRequestItem::class.java)
+                                }.toMutableList()
+
+                                // Create a holder item containing group information and requests
+                                val groupRequestHolderItem = GroupRequestHolderItem(
+                                    groupId = groupId,
+                                    groupName = groupName,
+                                    requests = requests
+                                )
+
+                                // Add to the list and update the adapter
+                                groupList.add(groupRequestHolderItem)
+                                groupManageAdapter.notifyDataSetChanged()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w("ManageGroupsFragment", "Error loading requests: ${e.message}")
+                            }
                     }
 
-                    // Notify adapter about data changes
-                    groupManageAdapter.notifyDataSetChanged()
+                    groupManageAdapter.notifyDataSetChanged() // Refresh the adapter after processing all groups
                 }
             }
     }
 
-    // Handle accepting a join request by adding the user to the group
     private fun handleAcceptRequest(groupId: String, requestItem: GroupRequestItem) {
         val db = FirebaseFirestore.getInstance()
-        val userId = requestItem.senderId // The ID of the user who sent the join request
+        val userId = requestItem.senderId
 
         // Add user to group members
         db.collection("groups").document(groupId)
             .update("members", FieldValue.arrayUnion(userId))
             .addOnSuccessListener {
-                // Remove the join request after adding the user to the group
-                removeJoinRequest(groupId, requestItem)
-
-                // Notify the owner that the user has been added
+                removeJoinRequest(groupId, requestItem) // Remove the join request
                 Toast.makeText(requireContext(), "User added to group", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { e ->
                 Log.w("ManageGroupsFragment", "Error adding user to group: ${e.message}")
             }
 
-        // Update users's groups
+        // Update user's groups
         val userRef = db.collection("users").document(userId)
-        db.collection("users").document(userId)
-            .update("joinedGroups", FieldValue.arrayUnion(groupId))
+        userRef.update("joinedGroups", FieldValue.arrayUnion(groupId))
             .addOnSuccessListener {
                 userRef.update("numGroups", FieldValue.increment(1))
-                Toast.makeText(
-                    requireContext(),
-                    "Memeber has been added to group",
-                    Toast.LENGTH_SHORT
-                )
+                Toast.makeText(requireContext(), "Member has been added to group", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { e ->
-                Log.w("CreateGroup", "Error adding group to user: ${e.message}")
+                Log.w("ManageGroupsFragment", "Error adding group to user: ${e.message}")
             }
     }
 
-    // Handle rejecting a join request by simply removing the request
     private fun handleRejectRequest(groupId: String, requestItem: GroupRequestItem) {
-        // Just remove the join request without adding the user
         removeJoinRequest(groupId, requestItem)
         Toast.makeText(requireContext(), "Join request rejected", Toast.LENGTH_SHORT).show()
     }
 
-    // Remove a join request from Firestore
     private fun removeJoinRequest(groupId: String, requestItem: GroupRequestItem) {
         val db = FirebaseFirestore.getInstance()
 
-        // Look for the document matching the join request to be removed
-        db.collection("groups").document(groupId)
-            .collection("requests")
-            .whereEqualTo("senderId", requestItem.senderId) // Find by sender's ID
+        db.collection("groups").document(groupId).collection("requests")
+            .whereEqualTo("senderId", requestItem.senderId)
             .get()
             .addOnSuccessListener { querySnapshot ->
                 for (document in querySnapshot) {
-                    // Delete the request document
                     document.reference.delete()
                 }
 
-                // Refresh the list of groups after removal
-                loadGroupsFromFirestore()
+                loadGroupsFromFirestore() // Refresh the list of groups
             }
             .addOnFailureListener { e ->
                 Log.w("ManageGroupsFragment", "Error removing join request: ${e.message}")
             }
     }
 
+    private fun setupSortSpinner() {
+        // Create an ArrayAdapter using the string array and custom spinner item layout
+        val adapter = ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.groups_manage_sort_options,
+            R.layout.item_collections_spinner_layout  // Custom layout for the spinner display
+        )
+        // Apply the adapter to the spinner
+        adapter.setDropDownViewResource(R.layout.item_collections_spinner_dropdown) // The layout for dropdown items
+        sortGroups.adapter = adapter
+
+        // Handle selection changes as before
+        sortGroups.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val selectedSortOption = parent.getItemAtPosition(position).toString()
+                sortGroups(selectedSortOption)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // No action if nothing is selected
+            }
+        }
+    }
+
+    // Function to sort books within each custom collection based on the selected option
+    private fun sortGroups(sortOption: String) {
+        when (sortOption) {
+            "Name A-Z" -> {
+                // Sort groupList alphabetically by group name
+                groupList.sortBy { it.groupName.lowercase() }
+            }
+            "Name Z-A" -> {
+                // Sort groupList in reverse alphabetical order by group name
+                groupList.sortByDescending { it.groupName.lowercase() }
+            }
+            // Add more sort options as needed, e.g., based on creation date or other criteria
+        }
+
+        // Notify the adapter about the updated data
+        groupManageAdapter.notifyDataSetChanged()
+    }
+
+
     override fun onDestroyView() {
         super.onDestroyView()
         // Remove Firestore listener when fragment view is destroyed
         groupListener?.remove()
     }
-
-
 }
