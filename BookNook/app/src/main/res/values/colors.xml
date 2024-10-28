@@ -22,7 +22,11 @@
     <color name="tag_text">#392A48</color>
     <color name="username_rectangle">#D9D9D9</color>
 
-
+    <!-- Itzel Medina -->
+    <color name="grey">#9E9E9E</color>
+    <color name ="achievement_card_unlocked">#eef7da</color>
+    <color name ="achievement_card">#fcf8f2</color>
+    <color name="achievement_unlocked_color">#826aa8</color> <!-- Gold color for achievements progress bar -->
     <color name="light_green">#A7CCAF</color> <!-- Example light green color -->
 
 
