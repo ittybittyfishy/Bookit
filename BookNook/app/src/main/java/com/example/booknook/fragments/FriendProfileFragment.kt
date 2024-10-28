@@ -314,7 +314,7 @@ class FriendProfileFragment : Fragment() {
                         val isFriend = friends.any { friendMap -> friendMap["friendId"] == friendId}
                         if (isFriend) {
                             // Already friends
-                            addFriendButton.text = "Remove Friend"
+                            addFriendButton.text = "Unfriend"
                             Toast.makeText(activity, "Already friends", Toast.LENGTH_SHORT).show()
                         } else {
                             // Not friends
