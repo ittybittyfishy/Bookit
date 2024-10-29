@@ -8,10 +8,12 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
@@ -30,6 +32,8 @@ class FindGroupHomepageFragment : Fragment() {
     private lateinit var membersOnline: TextView
     private lateinit var numRecommendations: TextView
     private lateinit var expandButton: ImageButton
+    private lateinit var membersSection: LinearLayout
+    private lateinit var recommendationsSection: LinearLayout
     private var isExpanded = false  // Tracks if chips are expanded or collapsed
 
     // Get bundled input from group item
@@ -54,6 +58,8 @@ class FindGroupHomepageFragment : Fragment() {
         numRecommendations = view.findViewById(R.id.numRecommendations)
         tagsChipGroup = view.findViewById(R.id.tagsChipGroup)
         expandButton = view.findViewById(R.id.expandButton)
+        membersSection = view.findViewById(R.id.membersSection)
+        recommendationsSection = view.findViewById(R.id.recommendationsSection)
 
         if (groupId != null) {
             // Calls function to load the group's information
@@ -119,6 +125,20 @@ class FindGroupHomepageFragment : Fragment() {
                 }
             )
         }
+
+        membersSection.setOnClickListener {
+            val groupMembersFragment = GroupMembersFragment()
+            val bundle = Bundle()
+            bundle.putString("groupId", groupId)
+            groupMembersFragment.arguments = bundle
+            (activity as MainActivity).replaceFragment(groupMembersFragment, "Members")
+        }
+
+        recommendationsSection.setOnClickListener {
+            val recommendationsFragment = GroupRecommendationsFragment()
+            (activity as MainActivity).replaceFragment(recommendationsFragment, "Recommendations")
+        }
+
     }
 
     // Veronica Nguyen

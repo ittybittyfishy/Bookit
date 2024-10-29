@@ -74,6 +74,7 @@
 
             <!-- Members -->
             <LinearLayout
+                android:id="@+id/membersSection"
                 android:layout_width="10dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
@@ -117,6 +118,7 @@
 
             <!-- Members Online -->
             <LinearLayout
+                android:id="@+id/membersOnlineSection"
                 android:layout_width="20dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
@@ -157,6 +159,7 @@
 
             <!-- Recommendations -->
             <LinearLayout
+                android:id="@+id/recommendationsSection"
                 android:layout_width="32dp"
                 android:layout_height="wrap_content"
                 android:layout_columnWeight="1"
