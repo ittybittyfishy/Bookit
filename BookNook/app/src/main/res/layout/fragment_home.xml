@@ -75,7 +75,8 @@
                 android:layout_height="150dp"
                 android:src="@drawable/placeholder_image"
                 android:adjustViewBounds="true"
-                android:scaleType="fitCenter" />
+                android:scaleType="fitCenter"
+                android:layout_gravity="center_horizontal" />
 
             <!-- Title of Book -->
             <TextView
@@ -154,7 +155,8 @@
                 android:layout_height="150dp"
                 android:src="@drawable/placeholder_image"
                 android:adjustViewBounds="true"
-                android:scaleType="fitCenter" />
+                android:scaleType="fitCenter"
+                android:layout_gravity="center_horizontal" />
 
             <!-- Title of Book -->
             <TextView
@@ -233,7 +235,8 @@
                 android:layout_height="150dp"
                 android:src="@drawable/placeholder_image"
                 android:adjustViewBounds="true"
-                android:scaleType="fitCenter" />
+                android:scaleType="fitCenter"
+                android:layout_gravity="center_horizontal" />
 
             <!-- Title of Book -->
             <TextView
