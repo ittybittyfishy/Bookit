@@ -6,11 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 
-class GroupRecommendationsFragment : Fragment() {
-    private lateinit var addRecommendationButton: Button
+
+class AddRecommendationFragment : Fragment() {
+    private lateinit var searchBookButton: FrameLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,19 +24,21 @@ class GroupRecommendationsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_group_recommendations, container, false)
+        return inflater.inflate(R.layout.fragment_add_recommendation, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        addRecommendationButton = view.findViewById(R.id.addRecommendationButton)
+        // Initialize buttons and views
+        searchBookButton = view.findViewById(R.id.searchBookButton)
 
-        // Opens page to add recommendations when button is pressed
-        addRecommendationButton.setOnClickListener {
-            val addRecommendationFragment = AddRecommendationFragment()
-            (activity as MainActivity).replaceFragment(addRecommendationFragment, "Add Recommendation")
+        // Opens page to search book when search button is pressed
+        searchBookButton.setOnClickListener {
+            val searchBookRecommendationFragment = SearchBookRecommendationFragment()
+            (activity as MainActivity).replaceFragment(searchBookRecommendationFragment, "Search")
         }
     }
+
 
 }

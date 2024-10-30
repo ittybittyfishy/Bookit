@@ -1,0 +1,10 @@
+<!-- Dashed border for searching book in group recommendations page -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@android:color/transparent" />
+    <stroke
+        android:width="2dp"
+        android:color="#8B845E"
+        android:dashWidth="10dp"
+        android:dashGap="5dp" />
+    <corners android:radius="8dp" />
+</shape>

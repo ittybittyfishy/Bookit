@@ -5,10 +5,24 @@
     android:layout_height="match_parent"
     tools:context=".fragments.GroupRecommendationsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <!-- Spinner to sort recommendations -->
+    <Spinner
+        android:id="@+id/sortBooks"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:entries="@array/book_sort_options"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/green_round" />
 
+    <!-- Add Recommendation Button -->
+    <Button
+        android:id="@+id/addRecommendationButton"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="180dp"
+        android:text="Add Recommendation"
+        android:textSize="14dp"
+        android:backgroundTint="@color/light_green"/>
 </FrameLayout>

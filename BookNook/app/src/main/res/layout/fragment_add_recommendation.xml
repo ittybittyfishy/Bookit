@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+
+    <!-- Search for a book -->
+    <FrameLayout
+        android:id="@+id/searchBookButton"
+        android:layout_marginTop="150dp"
+        android:layout_width="220dp"
+        android:layout_height="310dp"
+        android:background="@drawable/dashed_border"
+        android:padding="16dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <!-- Search icon in the center -->
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/search_icon_2"
+            android:layout_gravity="center"
+            android:contentDescription="Icon" />
+
+        <!-- Text below the icon -->
+        <TextView
+            android:id="@+id/buttonText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search for a book!"
+            android:layout_gravity="center_horizontal|bottom"
+            android:paddingTop="8dp"
+            android:textColor="#8B845E"
+            android:textSize="17sp"
+            android:layout_marginTop="32dp" />
+    </FrameLayout>
+
+    <!-- Recommend Button -->
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Recommend"
+        android:textColor="#8B845E"
+        android:backgroundTint="#D3E3CE"
+        android:layout_marginTop="25dp" />
+
+</LinearLayout>
