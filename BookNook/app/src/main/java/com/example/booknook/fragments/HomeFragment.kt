@@ -154,7 +154,7 @@ class HomeFragment : Fragment() {
             genreBooksMap[genre] = mutableListOf() // Initialize list for each genre
 
             // Generate a random startIndex between 0 and 100 for varied search results
-            val randomStartIndex = Random.nextInt(0, 100)
+            val randomStartIndex = Random.nextInt(0, 30)
 
             // Nested function to fetch books for a specific genre with an attempt counter
             fun fetchBooksForGenre(attempt: Int) {
