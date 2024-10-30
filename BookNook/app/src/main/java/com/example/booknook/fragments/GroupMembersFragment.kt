@@ -132,13 +132,20 @@ class GroupMembersFragment : Fragment() {
 
     // Function to navigate to the friend's profile when clicking on them
     private fun openMemberProfile(selectedMember: Friend) {
-        val friendProfileFragment = FriendProfileFragment()
-        val bundle = Bundle()
-        bundle.putString("receiverId", selectedMember.friendId)
-        bundle.putString("receiverUsername", selectedMember.friendUsername)
-        friendProfileFragment.arguments = bundle
-        (activity as MainActivity).replaceFragment(friendProfileFragment, "Profile")
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+
+        // If the group member is the current user, open their own profile
+        if (currentUserId == selectedMember.friendId) {
+            val profileFragment = ProfileFragment()
+            (activity as MainActivity).replaceFragment(profileFragment, "Profile")
+        // Otherwise open the member's  profile as another user's profile
+        } else {
+            val friendProfileFragment = FriendProfileFragment()
+            val bundle = Bundle()
+            bundle.putString("receiverId", selectedMember.friendId)
+            bundle.putString("receiverUsername", selectedMember.friendUsername)
+            friendProfileFragment.arguments = bundle
+            (activity as MainActivity).replaceFragment(friendProfileFragment, "Profile")
+        }
     }
-
-
 }
