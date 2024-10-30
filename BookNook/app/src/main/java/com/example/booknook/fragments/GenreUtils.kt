@@ -2,6 +2,7 @@
 package com.example.booknook.utils
 
 object GenreUtils {
+    // Right side is from the API
     private val genreSynonyms = mapOf(
         "non-fiction" to "nonfiction",
         "sci-fi" to "science fiction"
