@@ -1,5 +1,6 @@
 package com.example.booknook.fragments
 
+import android.app.AlertDialog
 import android.health.connect.datatypes.units.Length
 import android.os.Bundle
 import android.util.Log
@@ -21,6 +22,7 @@ import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 class MyGroupsHomepageFragment : Fragment() {
     private lateinit var leaveGroupButton: Button
@@ -96,9 +98,7 @@ class MyGroupsHomepageFragment : Fragment() {
             if (leaveGroupButton.text == "Edit Group") {
                 groupId?.let { it1 -> editGroup(it1) }
             } else {
-                //
-                // leaveGroup(groupId) function goes here
-                //
+                groupId?.let { it1 -> leaveGroup(it1) }
             }
         }
 
@@ -279,6 +279,39 @@ class MyGroupsHomepageFragment : Fragment() {
             }
     }
 
+    // Olivia Fishbough
+    // Function that allows a user to leave a group
+    private fun leaveGroup(groupId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userId == null) {
+            Log.w("LeaveGroup", "User not authenticated")
+            return
+        }
+
+        // Step 1: Remove user from group members
+        db.collection("groups").document(groupId).update("members", FieldValue.arrayRemove(userId))
+            .addOnSuccessListener {
+                // Step 2: Remove group from user's joined groups and decrement numGroups
+                db.collection("users").document(userId)
+                    .update(
+                        "joinedGroups", FieldValue.arrayRemove(groupId),
+                        "numGroups", FieldValue.increment(-1)
+                    )
+                    .addOnSuccessListener {
+                        Toast.makeText(activity, "User left group", Toast.LENGTH_SHORT).show()
+                        Log.d("LeaveGroup", "Successfully removed user $userId from group $groupId and updated user data.")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("LeaveGroup", "Failed to update user data after removing from group: ${e.message}")
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.w("LeaveGroup", "Failed to remove user from group members: ${e.message}")
+            }
+    }
+
 
     // Olivia Fishbough
     companion object {
@@ -291,4 +324,6 @@ class MyGroupsHomepageFragment : Fragment() {
             return fragment
         }
     }
+
+
 }
