@@ -37,16 +37,20 @@ class AchievementsFragment : Fragment() {
     private lateinit var firstChapterCard: CardView
     private lateinit var readingRookieCard: CardView
     private lateinit var storySeekerCard: CardView
-    private lateinit var novelNavigatorCard: CardView // New CardView for Novel Navigator
-    private lateinit var bookEnthusiastCard: CardView // New CardView for Book Enthusiast
+    private lateinit var novelNavigatorCard: CardView
+    private lateinit var bookEnthusiastCard: CardView
+    private lateinit var legendaryLibrarianCard: CardView
+    private lateinit var bookGodCard: CardView // New CardView for Book God
     // Add other CardViews as needed...
 
     // Progress bars for achievements
     private lateinit var firstChapterProgressBar: ProgressBar
     private lateinit var readingRookieProgressBar: ProgressBar
     private lateinit var storySeekerProgressBar: ProgressBar
-    private lateinit var novelNavigatorProgressBar: ProgressBar // New ProgressBar for Novel Navigator
-    private lateinit var bookEnthusiastProgressBar: ProgressBar // New ProgressBar for Book Enthusiast
+    private lateinit var novelNavigatorProgressBar: ProgressBar
+    private lateinit var bookEnthusiastProgressBar: ProgressBar
+    private lateinit var legendaryLibrarianProgressBar: ProgressBar
+    private lateinit var bookGodProgressBar: ProgressBar // New ProgressBar for Book God
     // Add other ProgressBars as needed...
 
     // Progress TextViews for achievements
@@ -62,13 +66,21 @@ class AchievementsFragment : Fragment() {
     private lateinit var storySeekerCurrentProgressText: TextView
     private lateinit var storySeekerMaxProgressText: TextView
 
-    private lateinit var novelNavigatorProgressText: TextView // New ProgressTextView for Novel Navigator
-    private lateinit var novelNavigatorCurrentProgressText: TextView // New Current Progress TextView
-    private lateinit var novelNavigatorMaxProgressText: TextView // New Max Progress TextView
+    private lateinit var novelNavigatorProgressText: TextView
+    private lateinit var novelNavigatorCurrentProgressText: TextView
+    private lateinit var novelNavigatorMaxProgressText: TextView
 
-    private lateinit var bookEnthusiastProgressText: TextView // New ProgressTextView for Book Enthusiast
-    private lateinit var bookEnthusiastCurrentProgressText: TextView // New Current Progress TextView
-    private lateinit var bookEnthusiastMaxProgressText: TextView // New Max Progress TextView
+    private lateinit var bookEnthusiastProgressText: TextView
+    private lateinit var bookEnthusiastCurrentProgressText: TextView
+    private lateinit var bookEnthusiastMaxProgressText: TextView
+
+    private lateinit var legendaryLibrarianProgressText: TextView
+    private lateinit var legendaryLibrarianCurrentProgressText: TextView
+    private lateinit var legendaryLibrarianMaxProgressText: TextView
+
+    private lateinit var bookGodProgressText: TextView // New ProgressTextView for Book God
+    private lateinit var bookGodCurrentProgressText: TextView // New Current Progress TextView
+    private lateinit var bookGodMaxProgressText: TextView // New Max Progress TextView
     // Add other Progress TextViews as needed...
 
     // Achievement Icons, Titles, and Requirements (ImageView and TextView)
@@ -84,13 +96,21 @@ class AchievementsFragment : Fragment() {
     private lateinit var storySeekerTitle: TextView
     private lateinit var storySeekerRequirement: TextView
 
-    private lateinit var novelNavigatorIcon: ImageView // New Icon for Novel Navigator
-    private lateinit var novelNavigatorTitle: TextView // New Title for Novel Navigator
-    private lateinit var novelNavigatorRequirement: TextView // New Requirement for Novel Navigator
+    private lateinit var novelNavigatorIcon: ImageView
+    private lateinit var novelNavigatorTitle: TextView
+    private lateinit var novelNavigatorRequirement: TextView
 
-    private lateinit var bookEnthusiastIcon: ImageView // New Icon for Book Enthusiast
-    private lateinit var bookEnthusiastTitle: TextView // New Title for Book Enthusiast
-    private lateinit var bookEnthusiastRequirement: TextView // New Requirement for Book Enthusiast
+    private lateinit var bookEnthusiastIcon: ImageView
+    private lateinit var bookEnthusiastTitle: TextView
+    private lateinit var bookEnthusiastRequirement: TextView
+
+    private lateinit var legendaryLibrarianIcon: ImageView
+    private lateinit var legendaryLibrarianTitle: TextView
+    private lateinit var legendaryLibrarianRequirement: TextView
+
+    private lateinit var bookGodIcon: ImageView // New Icon for Book God
+    private lateinit var bookGodTitle: TextView // New Title for Book God
+    private lateinit var bookGodRequirement: TextView // New Requirement for Book God
     // Add other Icons, Titles, and Requirements as needed...
 
     override fun onCreateView(
@@ -106,22 +126,26 @@ class AchievementsFragment : Fragment() {
         levelProgressText = view.findViewById(R.id.level_progress_text)
         currentXpTextView = view.findViewById(R.id.currentXpTextView)
         xpNeededTextView = view.findViewById(R.id.xpNeededTextView)
-        xpRangeTextView = view.findViewById(R.id.xp_range_text_view) // Initialize new TextView
+        xpRangeTextView = view.findViewById(R.id.xp_range_text_view)
 
         // Initialize CardViews for achievements
         firstChapterCard = view.findViewById(R.id.first_chapter_card)
         readingRookieCard = view.findViewById(R.id.reading_rookie_card)
         storySeekerCard = view.findViewById(R.id.story_seeker_card)
-        novelNavigatorCard = view.findViewById(R.id.novel_navigator_card) // Initialize Novel Navigator CardView
-        bookEnthusiastCard = view.findViewById(R.id.book_enthusiast_card) // Initialize Book Enthusiast CardView
+        novelNavigatorCard = view.findViewById(R.id.novel_navigator_card)
+        bookEnthusiastCard = view.findViewById(R.id.book_enthusiast_card)
+        legendaryLibrarianCard = view.findViewById(R.id.legendary_librarian_card)
+        bookGodCard = view.findViewById(R.id.book_god_card) // Initialize Book God CardView
         // Initialize other CardViews as needed...
 
         // Initialize ProgressBars for achievements
         firstChapterProgressBar = view.findViewById(R.id.first_chapter_progress_bar)
         readingRookieProgressBar = view.findViewById(R.id.reading_rookie_progress_bar)
         storySeekerProgressBar = view.findViewById(R.id.story_seeker_progress_bar)
-        novelNavigatorProgressBar = view.findViewById(R.id.novel_navigator_progress_bar) // Initialize Novel Navigator ProgressBar
-        bookEnthusiastProgressBar = view.findViewById(R.id.book_enthusiast_progress_bar) // Initialize Book Enthusiast ProgressBar
+        novelNavigatorProgressBar = view.findViewById(R.id.novel_navigator_progress_bar)
+        bookEnthusiastProgressBar = view.findViewById(R.id.book_enthusiast_progress_bar)
+        legendaryLibrarianProgressBar = view.findViewById(R.id.legendary_librarian_progress_bar)
+        bookGodProgressBar = view.findViewById(R.id.book_god_progress_bar) // Initialize Book God ProgressBar
         // Initialize other ProgressBars as needed...
 
         // Initialize Progress TextViews for achievements
@@ -137,13 +161,21 @@ class AchievementsFragment : Fragment() {
         storySeekerCurrentProgressText = view.findViewById(R.id.story_seeker_current_progress_text)
         storySeekerMaxProgressText = view.findViewById(R.id.story_seeker_max_progress_text)
 
-        novelNavigatorProgressText = view.findViewById(R.id.novel_navigator_progress_text) // Initialize Novel Navigator ProgressTextView
-        novelNavigatorCurrentProgressText = view.findViewById(R.id.novel_navigator_current_progress_text) // Initialize Novel Navigator Current Progress TextView
-        novelNavigatorMaxProgressText = view.findViewById(R.id.novel_navigator_max_progress_text) // Initialize Novel Navigator Max Progress TextView
+        novelNavigatorProgressText = view.findViewById(R.id.novel_navigator_progress_text)
+        novelNavigatorCurrentProgressText = view.findViewById(R.id.novel_navigator_current_progress_text)
+        novelNavigatorMaxProgressText = view.findViewById(R.id.novel_navigator_max_progress_text)
 
-        bookEnthusiastProgressText = view.findViewById(R.id.book_enthusiast_progress_text) // Initialize Book Enthusiast ProgressTextView
-        bookEnthusiastCurrentProgressText = view.findViewById(R.id.book_enthusiast_current_progress_text) // Initialize Book Enthusiast Current Progress TextView
-        bookEnthusiastMaxProgressText = view.findViewById(R.id.book_enthusiast_max_progress_text) // Initialize Book Enthusiast Max Progress TextView
+        bookEnthusiastProgressText = view.findViewById(R.id.book_enthusiast_progress_text)
+        bookEnthusiastCurrentProgressText = view.findViewById(R.id.book_enthusiast_current_progress_text)
+        bookEnthusiastMaxProgressText = view.findViewById(R.id.book_enthusiast_max_progress_text)
+
+        legendaryLibrarianProgressText = view.findViewById(R.id.legendary_librarian_progress_text)
+        legendaryLibrarianCurrentProgressText = view.findViewById(R.id.legendary_librarian_current_progress_text)
+        legendaryLibrarianMaxProgressText = view.findViewById(R.id.legendary_librarian_max_progress_text)
+
+        bookGodProgressText = view.findViewById(R.id.book_god_progress_text) // Initialize Book God ProgressTextView
+        bookGodCurrentProgressText = view.findViewById(R.id.book_god_current_progress_text) // Initialize Book God Current Progress TextView
+        bookGodMaxProgressText = view.findViewById(R.id.book_god_max_progress_text) // Initialize Book God Max Progress TextView
         // Initialize other Progress TextViews as needed...
 
         // Initialize Achievement Icons, Titles, and Requirements
@@ -159,13 +191,21 @@ class AchievementsFragment : Fragment() {
         storySeekerTitle = view.findViewById(R.id.story_seeker_title)
         storySeekerRequirement = view.findViewById(R.id.story_seeker_requirement)
 
-        novelNavigatorIcon = view.findViewById(R.id.novel_navigator_icon) // Initialize Novel Navigator Icon
-        novelNavigatorTitle = view.findViewById(R.id.novel_navigator_title) // Initialize Novel Navigator Title
-        novelNavigatorRequirement = view.findViewById(R.id.novel_navigator_requirement) // Initialize Novel Navigator Requirement
+        novelNavigatorIcon = view.findViewById(R.id.novel_navigator_icon)
+        novelNavigatorTitle = view.findViewById(R.id.novel_navigator_title)
+        novelNavigatorRequirement = view.findViewById(R.id.novel_navigator_requirement)
 
-        bookEnthusiastIcon = view.findViewById(R.id.book_enthusiast_icon) // Initialize Book Enthusiast Icon
-        bookEnthusiastTitle = view.findViewById(R.id.book_enthusiast_title) // Initialize Book Enthusiast Title
-        bookEnthusiastRequirement = view.findViewById(R.id.book_enthusiast_requirement) // Initialize Book Enthusiast Requirement
+        bookEnthusiastIcon = view.findViewById(R.id.book_enthusiast_icon)
+        bookEnthusiastTitle = view.findViewById(R.id.book_enthusiast_title)
+        bookEnthusiastRequirement = view.findViewById(R.id.book_enthusiast_requirement)
+
+        legendaryLibrarianIcon = view.findViewById(R.id.legendary_librarian_icon)
+        legendaryLibrarianTitle = view.findViewById(R.id.legendary_librarian_title)
+        legendaryLibrarianRequirement = view.findViewById(R.id.legendary_librarian_requirement)
+
+        bookGodIcon = view.findViewById(R.id.book_god_icon) // Initialize Book God Icon
+        bookGodTitle = view.findViewById(R.id.book_god_title) // Initialize Book God Title
+        bookGodRequirement = view.findViewById(R.id.book_god_requirement) // Initialize Book God Requirement
         // Initialize other Icons, Titles, and Requirements as needed...
 
         // Load achievements and XP data from Firestore
@@ -363,6 +403,62 @@ class AchievementsFragment : Fragment() {
                     // Update the current and max progress TextViews
                     bookEnthusiastCurrentProgressText.text = booksRead.coerceAtMost(50).toString()
                     bookEnthusiastMaxProgressText.text = "50"
+                }
+
+                // **Legendary Librarian Achievement Implementation**
+                val isLegendaryLibrarianAchieved = document.getBoolean("legendaryLibrarianAchieved") ?: false
+
+                if (!isLegendaryLibrarianAchieved && booksRead >= 100) {
+                    // Unlock the achievement
+                    unlockLegendaryLibrarianAchievement(userDocRef)
+                } else {
+                    // Update the achievement progress
+                    updateAchievementProgress(
+                        progressBar = legendaryLibrarianProgressBar,
+                        progressTextView = legendaryLibrarianProgressText,
+                        currentProgressTextView = legendaryLibrarianCurrentProgressText,
+                        maxProgressTextView = legendaryLibrarianMaxProgressText,
+                        cardView = legendaryLibrarianCard,
+                        iconView = legendaryLibrarianIcon,
+                        titleTextView = legendaryLibrarianTitle,
+                        requirementTextView = legendaryLibrarianRequirement,
+                        maxValue = 100,
+                        currentValue = booksRead.coerceAtMost(100),
+                        description = "Log 100 books as finished",
+                        isAchieved = isLegendaryLibrarianAchieved || booksRead >= 100
+                    )
+
+                    // Update the current and max progress TextViews
+                    legendaryLibrarianCurrentProgressText.text = booksRead.coerceAtMost(100).toString()
+                    legendaryLibrarianMaxProgressText.text = "100"
+                }
+
+                // **Book God Achievement Implementation**
+                val isBookGodAchieved = document.getBoolean("bookGodAchieved") ?: false
+
+                if (!isBookGodAchieved && booksRead >= 100) {
+                    // Unlock the achievement
+                    unlockBookGodAchievement(userDocRef)
+                } else {
+                    // Update the achievement progress
+                    updateAchievementProgress(
+                        progressBar = bookGodProgressBar,
+                        progressTextView = bookGodProgressText,
+                        currentProgressTextView = bookGodCurrentProgressText,
+                        maxProgressTextView = bookGodMaxProgressText,
+                        cardView = bookGodCard,
+                        iconView = bookGodIcon,
+                        titleTextView = bookGodTitle,
+                        requirementTextView = bookGodRequirement,
+                        maxValue = 100,
+                        currentValue = booksRead.coerceAtMost(100),
+                        description = "Log 100 books as finished",
+                        isAchieved = isBookGodAchieved || booksRead >= 100
+                    )
+
+                    // Update the current and max progress TextViews
+                    bookGodCurrentProgressText.text = booksRead.coerceAtMost(100).toString()
+                    bookGodMaxProgressText.text = "100"
                 }
 
                 // Continue updating other achievements based on 'booksRead'
@@ -625,6 +721,96 @@ class AchievementsFragment : Fragment() {
             }
             .addOnFailureListener { exception ->
                 Log.e("AchievementsFragment", "Error unlocking Book Enthusiast achievement: ", exception)
+            }
+    }
+
+    // Unlock the Legendary Librarian Achievement and show a Toast notification
+    private fun unlockLegendaryLibrarianAchievement(userDocRef: DocumentReference) {
+        Log.d("AchievementsFragment", "Attempting to unlock Legendary Librarian Achievement")
+        userDocRef.update("legendaryLibrarianAchieved", true)
+            .addOnSuccessListener {
+                Log.d("AchievementsFragment", "Successfully unlocked Legendary Librarian Achievement")
+                if (isAdded && context != null) { // Ensure fragment is attached
+                    requireActivity().runOnUiThread {
+                        // Show a toast when the achievement is unlocked
+                        Toast.makeText(context, "Achievement Unlocked: Legendary Librarian!", Toast.LENGTH_SHORT).show()
+
+                        // Animate the card background color change
+                        animateCardBackgroundColor(
+                            cardView = legendaryLibrarianCard,
+                            fromColor = ContextCompat.getColor(requireContext(), R.color.achievement_card),
+                            toColor = ContextCompat.getColor(requireContext(), R.color.achievement_card_unlocked)
+                        )
+
+                        // Update the UI to reflect the unlocked achievement
+                        updateAchievementProgress(
+                            progressBar = legendaryLibrarianProgressBar,
+                            progressTextView = legendaryLibrarianProgressText,
+                            currentProgressTextView = legendaryLibrarianCurrentProgressText,
+                            maxProgressTextView = legendaryLibrarianMaxProgressText,
+                            cardView = legendaryLibrarianCard,
+                            iconView = legendaryLibrarianIcon,
+                            titleTextView = legendaryLibrarianTitle,
+                            requirementTextView = legendaryLibrarianRequirement,
+                            maxValue = 100,
+                            currentValue = 100,
+                            description = "Log 100 books as finished",
+                            isAchieved = true
+                        )
+
+                        // Update the current and max progress TextViews
+                        legendaryLibrarianCurrentProgressText.text = "100"
+                        legendaryLibrarianMaxProgressText.text = "100"
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("AchievementsFragment", "Error unlocking Legendary Librarian achievement: ", exception)
+            }
+    }
+
+    // Unlock the Book God Achievement and show a Toast notification
+    private fun unlockBookGodAchievement(userDocRef: DocumentReference) {
+        Log.d("AchievementsFragment", "Attempting to unlock Book God Achievement")
+        userDocRef.update("bookGodAchieved", true)
+            .addOnSuccessListener {
+                Log.d("AchievementsFragment", "Successfully unlocked Book God Achievement")
+                if (isAdded && context != null) { // Ensure fragment is attached
+                    requireActivity().runOnUiThread {
+                        // Show a toast when the achievement is unlocked
+                        Toast.makeText(context, "Achievement Unlocked: Book God!", Toast.LENGTH_SHORT).show()
+
+                        // Animate the card background color change
+                        animateCardBackgroundColor(
+                            cardView = bookGodCard,
+                            fromColor = ContextCompat.getColor(requireContext(), R.color.achievement_card),
+                            toColor = ContextCompat.getColor(requireContext(), R.color.achievement_card_unlocked)
+                        )
+
+                        // Update the UI to reflect the unlocked achievement
+                        updateAchievementProgress(
+                            progressBar = bookGodProgressBar,
+                            progressTextView = bookGodProgressText,
+                            currentProgressTextView = bookGodCurrentProgressText,
+                            maxProgressTextView = bookGodMaxProgressText,
+                            cardView = bookGodCard,
+                            iconView = bookGodIcon,
+                            titleTextView = bookGodTitle,
+                            requirementTextView = bookGodRequirement,
+                            maxValue = 100,
+                            currentValue = 100,
+                            description = "Log 100 books as finished",
+                            isAchieved = true
+                        )
+
+                        // Update the current and max progress TextViews
+                        bookGodCurrentProgressText.text = "100"
+                        bookGodMaxProgressText.text = "100"
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("AchievementsFragment", "Error unlocking Book God achievement: ", exception)
             }
     }
 
