@@ -97,9 +97,7 @@ class FindGroupHomepageFragment : Fragment() {
         joinGroupButton.setOnClickListener(){
             // Leave a group
             if (joinGroupButton.text == "Leave Group") {
-                //
-                // leaveGroup(groupId) function goes here
-                //
+                groupId?.let { it1 -> leaveGroup(it1) { checkJoinedGroupStatus(it1) } } // Pass the callback
             // Edit group if they're the creator
             } else if (joinGroupButton.text == "Edit Group"){
                 groupId?.let { it1 -> editGroup(it1) }
@@ -356,6 +354,41 @@ class FindGroupHomepageFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 Toast.makeText(activity, "Failed to retrieve members", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Olivia Fishbough
+    private fun leaveGroup(groupId: String, onSuccess: () -> Unit) { // Added onSuccess parameter
+        val db = FirebaseFirestore.getInstance()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userId == null) {
+            Toast.makeText(requireContext(), "Error: User is not logged in.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Remove user from the group members array
+        db.collection("groups").document(groupId)
+            .update("members", FieldValue.arrayRemove(userId))
+            .addOnSuccessListener {
+                // Update user's group list and decrement group count
+                val userRef = db.collection("users").document(userId)
+                userRef.update("joinedGroups", FieldValue.arrayRemove(groupId))
+                    .addOnSuccessListener {
+                        userRef.update("numGroups", FieldValue.increment(-1))
+                        onSuccess() // Call the callback function to update UI
+                        Toast.makeText(
+                            requireContext(),
+                            "You have left the group.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("FindGroupHomepageFragment", "Error updating user data: ${e.message}")
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.w("FindGroupHomepageFragment", "Error removing user from group: ${e.message}")
             }
     }
 
