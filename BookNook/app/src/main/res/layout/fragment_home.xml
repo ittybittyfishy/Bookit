@@ -99,44 +99,6 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:text="Charlotte Perkins Gilman" />
-
-            <!-- Rating Bar -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginTop="4dp">
-
-                <!-- Rating Bar -->
-                <RatingBar
-                    android:id="@+id/bookRating1"
-                    style="@style/Widget.AppCompat.RatingBar.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:isIndicator="true"
-                    android:numStars="5"
-                    android:stepSize="0.5"
-                    android:rating="4.1" />
-
-                <!-- Rating Number -->
-                <TextView
-                    android:id="@+id/ratingNumber1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="(4.1)"
-                    android:textColor="@color/main_text_brown"
-                    android:layout_marginStart="4dp" />
-            </LinearLayout>
-
-            <!-- Number of Ratings -->
-            <TextView
-                android:id="@+id/ratingsCountTextView1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="201,593 ratings"
-                android:textSize="12sp"
-                android:textColor="@color/main_text_brown" />
         </LinearLayout>
 
         <!-- Book 2 -->
@@ -179,44 +141,6 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:text="Victor LaValle" />
-
-            <!-- Rating Bar -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginTop="4dp">
-
-                <!-- Rating Bar -->
-                <RatingBar
-                    android:id="@+id/bookRating2"
-                    style="@style/Widget.AppCompat.RatingBar.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:isIndicator="true"
-                    android:numStars="5"
-                    android:stepSize="0.5"
-                    android:rating="3.86" />
-
-                <!-- Rating Number -->
-                <TextView
-                    android:id="@+id/ratingNumber2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="(3.86)"
-                    android:textColor="@color/main_text_brown"
-                    android:layout_marginStart="4dp" />
-            </LinearLayout>
-
-            <!-- Number of Ratings -->
-            <TextView
-                android:id="@+id/ratingsCountTextView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="28,323 ratings"
-                android:textSize="12sp"
-                android:textColor="@color/main_text_brown" />
         </LinearLayout>
 
         <!-- Book 3 -->
@@ -259,44 +183,6 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:text="Mark Z. Danielewski" />
-
-            <!-- Rating Bar -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginTop="4dp">
-
-                <!-- Rating Bar -->
-                <RatingBar
-                    android:id="@+id/bookRating3"
-                    style="@style/Widget.AppCompat.RatingBar.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:isIndicator="true"
-                    android:numStars="5"
-                    android:stepSize="0.5"
-                    android:rating="4.09" />
-
-                <!-- Rating Number -->
-                <TextView
-                    android:id="@+id/ratingNumber3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="(4.09)"
-                    android:textColor="@color/main_text_brown"
-                    android:layout_marginStart="4dp" />
-            </LinearLayout>
-
-            <!-- Number of Ratings -->
-            <TextView
-                android:id="@+id/ratingsCountTextView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="170,053 ratings"
-                android:textSize="12sp"
-                android:textColor="@color/main_text_brown" />
         </LinearLayout>
 
     </LinearLayout>
