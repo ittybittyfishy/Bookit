@@ -273,13 +273,6 @@
                 android:checkable="true"
                 android:text="Tragedy" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_non_fiction"
-                style="@style/CustomChipStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:text="Non Fiction" />
 
         </com.google.android.material.chip.ChipGroup>
     </ScrollView>

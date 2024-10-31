@@ -36,16 +36,39 @@ class AchievementsFragment : Fragment() {
     // Achievement UI elements (CardViews)
     private lateinit var firstChapterCard: CardView
     private lateinit var readingRookieCard: CardView
+    private lateinit var storySeekerCard: CardView
+    private lateinit var novelNavigatorCard: CardView // New CardView for Novel Navigator
+    private lateinit var bookEnthusiastCard: CardView // New CardView for Book Enthusiast
     // Add other CardViews as needed...
 
     // Progress bars for achievements
     private lateinit var firstChapterProgressBar: ProgressBar
     private lateinit var readingRookieProgressBar: ProgressBar
+    private lateinit var storySeekerProgressBar: ProgressBar
+    private lateinit var novelNavigatorProgressBar: ProgressBar // New ProgressBar for Novel Navigator
+    private lateinit var bookEnthusiastProgressBar: ProgressBar // New ProgressBar for Book Enthusiast
     // Add other ProgressBars as needed...
 
     // Progress TextViews for achievements
     private lateinit var firstChapterProgressText: TextView
+    private lateinit var firstChapterCurrentProgressText: TextView
+    private lateinit var firstChapterMaxProgressText: TextView
+
     private lateinit var readingRookieProgressText: TextView
+    private lateinit var readingRookieCurrentProgressText: TextView
+    private lateinit var readingRookieMaxProgressText: TextView
+
+    private lateinit var storySeekerProgressText: TextView
+    private lateinit var storySeekerCurrentProgressText: TextView
+    private lateinit var storySeekerMaxProgressText: TextView
+
+    private lateinit var novelNavigatorProgressText: TextView // New ProgressTextView for Novel Navigator
+    private lateinit var novelNavigatorCurrentProgressText: TextView // New Current Progress TextView
+    private lateinit var novelNavigatorMaxProgressText: TextView // New Max Progress TextView
+
+    private lateinit var bookEnthusiastProgressText: TextView // New ProgressTextView for Book Enthusiast
+    private lateinit var bookEnthusiastCurrentProgressText: TextView // New Current Progress TextView
+    private lateinit var bookEnthusiastMaxProgressText: TextView // New Max Progress TextView
     // Add other Progress TextViews as needed...
 
     // Achievement Icons, Titles, and Requirements (ImageView and TextView)
@@ -56,6 +79,18 @@ class AchievementsFragment : Fragment() {
     private lateinit var readingRookieIcon: ImageView
     private lateinit var readingRookieTitle: TextView
     private lateinit var readingRookieRequirement: TextView
+
+    private lateinit var storySeekerIcon: ImageView
+    private lateinit var storySeekerTitle: TextView
+    private lateinit var storySeekerRequirement: TextView
+
+    private lateinit var novelNavigatorIcon: ImageView // New Icon for Novel Navigator
+    private lateinit var novelNavigatorTitle: TextView // New Title for Novel Navigator
+    private lateinit var novelNavigatorRequirement: TextView // New Requirement for Novel Navigator
+
+    private lateinit var bookEnthusiastIcon: ImageView // New Icon for Book Enthusiast
+    private lateinit var bookEnthusiastTitle: TextView // New Title for Book Enthusiast
+    private lateinit var bookEnthusiastRequirement: TextView // New Requirement for Book Enthusiast
     // Add other Icons, Titles, and Requirements as needed...
 
     override fun onCreateView(
@@ -76,16 +111,39 @@ class AchievementsFragment : Fragment() {
         // Initialize CardViews for achievements
         firstChapterCard = view.findViewById(R.id.first_chapter_card)
         readingRookieCard = view.findViewById(R.id.reading_rookie_card)
+        storySeekerCard = view.findViewById(R.id.story_seeker_card)
+        novelNavigatorCard = view.findViewById(R.id.novel_navigator_card) // Initialize Novel Navigator CardView
+        bookEnthusiastCard = view.findViewById(R.id.book_enthusiast_card) // Initialize Book Enthusiast CardView
         // Initialize other CardViews as needed...
 
         // Initialize ProgressBars for achievements
         firstChapterProgressBar = view.findViewById(R.id.first_chapter_progress_bar)
         readingRookieProgressBar = view.findViewById(R.id.reading_rookie_progress_bar)
+        storySeekerProgressBar = view.findViewById(R.id.story_seeker_progress_bar)
+        novelNavigatorProgressBar = view.findViewById(R.id.novel_navigator_progress_bar) // Initialize Novel Navigator ProgressBar
+        bookEnthusiastProgressBar = view.findViewById(R.id.book_enthusiast_progress_bar) // Initialize Book Enthusiast ProgressBar
         // Initialize other ProgressBars as needed...
 
         // Initialize Progress TextViews for achievements
         firstChapterProgressText = view.findViewById(R.id.first_chapter_progress_text)
+        firstChapterCurrentProgressText = view.findViewById(R.id.first_chapter_current_progress_text)
+        firstChapterMaxProgressText = view.findViewById(R.id.first_chapter_max_progress_text)
+
         readingRookieProgressText = view.findViewById(R.id.reading_rookie_progress_text)
+        readingRookieCurrentProgressText = view.findViewById(R.id.readingRookieCurrentProgressText)
+        readingRookieMaxProgressText = view.findViewById(R.id.readingRookieMaxProgressText)
+
+        storySeekerProgressText = view.findViewById(R.id.story_seeker_progress_text)
+        storySeekerCurrentProgressText = view.findViewById(R.id.story_seeker_current_progress_text)
+        storySeekerMaxProgressText = view.findViewById(R.id.story_seeker_max_progress_text)
+
+        novelNavigatorProgressText = view.findViewById(R.id.novel_navigator_progress_text) // Initialize Novel Navigator ProgressTextView
+        novelNavigatorCurrentProgressText = view.findViewById(R.id.novel_navigator_current_progress_text) // Initialize Novel Navigator Current Progress TextView
+        novelNavigatorMaxProgressText = view.findViewById(R.id.novel_navigator_max_progress_text) // Initialize Novel Navigator Max Progress TextView
+
+        bookEnthusiastProgressText = view.findViewById(R.id.book_enthusiast_progress_text) // Initialize Book Enthusiast ProgressTextView
+        bookEnthusiastCurrentProgressText = view.findViewById(R.id.book_enthusiast_current_progress_text) // Initialize Book Enthusiast Current Progress TextView
+        bookEnthusiastMaxProgressText = view.findViewById(R.id.book_enthusiast_max_progress_text) // Initialize Book Enthusiast Max Progress TextView
         // Initialize other Progress TextViews as needed...
 
         // Initialize Achievement Icons, Titles, and Requirements
@@ -96,6 +154,18 @@ class AchievementsFragment : Fragment() {
         readingRookieIcon = view.findViewById(R.id.reading_rookie_icon)
         readingRookieTitle = view.findViewById(R.id.reading_rookie_title)
         readingRookieRequirement = view.findViewById(R.id.reading_rookie_requirement)
+
+        storySeekerIcon = view.findViewById(R.id.story_seeker_icon)
+        storySeekerTitle = view.findViewById(R.id.story_seeker_title)
+        storySeekerRequirement = view.findViewById(R.id.story_seeker_requirement)
+
+        novelNavigatorIcon = view.findViewById(R.id.novel_navigator_icon) // Initialize Novel Navigator Icon
+        novelNavigatorTitle = view.findViewById(R.id.novel_navigator_title) // Initialize Novel Navigator Title
+        novelNavigatorRequirement = view.findViewById(R.id.novel_navigator_requirement) // Initialize Novel Navigator Requirement
+
+        bookEnthusiastIcon = view.findViewById(R.id.book_enthusiast_icon) // Initialize Book Enthusiast Icon
+        bookEnthusiastTitle = view.findViewById(R.id.book_enthusiast_title) // Initialize Book Enthusiast Title
+        bookEnthusiastRequirement = view.findViewById(R.id.book_enthusiast_requirement) // Initialize Book Enthusiast Requirement
         // Initialize other Icons, Titles, and Requirements as needed...
 
         // Load achievements and XP data from Firestore
@@ -130,6 +200,7 @@ class AchievementsFragment : Fragment() {
                 val booksNeeded = if (xpRemaining > 0) ceil(xpRemaining / 20.0).toInt() else 0
 
                 Log.d("AchievementsFragment", "Total XP: $totalXp, Level: $currentLevel, XP in Level: $currentXpInLevel, Books Needed: $booksNeeded")
+                Log.d("AchievementsFragment", "Books Finished: $booksFinished")
 
                 // Update the Level and XP UI with absolute values
                 updateLevelAndXpUI(
@@ -140,8 +211,7 @@ class AchievementsFragment : Fragment() {
                 )
 
                 // Update achievements based on books read
-                // Assuming 'booksRead' includes 'booksFinished'
-                val booksRead = document.getLong("booksRead")?.toInt() ?: 0
+                val booksRead = document.getLong("numBooksRead")?.toInt() ?: 0
 
                 Log.d("AchievementsFragment", "Books Read: $booksRead")
 
@@ -149,6 +219,8 @@ class AchievementsFragment : Fragment() {
                 updateAchievementProgress(
                     progressBar = firstChapterProgressBar,
                     progressTextView = firstChapterProgressText,
+                    currentProgressTextView = firstChapterCurrentProgressText,
+                    maxProgressTextView = firstChapterMaxProgressText,
                     cardView = firstChapterCard,
                     iconView = firstChapterIcon,
                     titleTextView = firstChapterTitle,
@@ -168,6 +240,8 @@ class AchievementsFragment : Fragment() {
                     updateAchievementProgress(
                         progressBar = firstChapterProgressBar,
                         progressTextView = firstChapterProgressText,
+                        currentProgressTextView = firstChapterCurrentProgressText,
+                        maxProgressTextView = firstChapterMaxProgressText,
                         cardView = firstChapterCard,
                         iconView = firstChapterIcon,
                         titleTextView = firstChapterTitle,
@@ -179,22 +253,120 @@ class AchievementsFragment : Fragment() {
                     )
                 }
 
+                // **Reading Rookie Achievement Implementation**
+                val isReadingRookieAchieved = document.getBoolean("readingRookieAchieved") ?: false
+
+                if (!isReadingRookieAchieved && booksRead >= 5) {
+                    // Unlock the achievement
+                    unlockReadingRookieAchievement(userDocRef)
+                } else {
+                    // Update the achievement progress
+                    updateAchievementProgress(
+                        progressBar = readingRookieProgressBar,
+                        progressTextView = readingRookieProgressText,
+                        currentProgressTextView = readingRookieCurrentProgressText,
+                        maxProgressTextView = readingRookieMaxProgressText,
+                        cardView = readingRookieCard,
+                        iconView = readingRookieIcon,
+                        titleTextView = readingRookieTitle,
+                        requirementTextView = readingRookieRequirement,
+                        maxValue = 5,
+                        currentValue = booksRead.coerceAtMost(5),
+                        description = "Log 5 books as finished",
+                        isAchieved = isReadingRookieAchieved || booksRead >= 5
+                    )
+
+                    // Update the current and max progress TextViews
+                    readingRookieCurrentProgressText.text = booksRead.coerceAtMost(5).toString()
+                    readingRookieMaxProgressText.text = "5"
+                }
+
+                // **Story Seeker Achievement Implementation**
+                val isStorySeekerAchieved = document.getBoolean("storySeekerAchieved") ?: false
+
+                if (!isStorySeekerAchieved && booksRead >= 10) {
+                    // Unlock the achievement
+                    unlockStorySeekerAchievement(userDocRef)
+                } else {
+                    // Update the achievement progress
+                    updateAchievementProgress(
+                        progressBar = storySeekerProgressBar,
+                        progressTextView = storySeekerProgressText,
+                        currentProgressTextView = storySeekerCurrentProgressText,
+                        maxProgressTextView = storySeekerMaxProgressText,
+                        cardView = storySeekerCard,
+                        iconView = storySeekerIcon,
+                        titleTextView = storySeekerTitle,
+                        requirementTextView = storySeekerRequirement,
+                        maxValue = 10,
+                        currentValue = booksRead.coerceAtMost(10),
+                        description = "Log 10 books as finished",
+                        isAchieved = isStorySeekerAchieved || booksRead >= 10
+                    )
+
+                    // Update the current and max progress TextViews
+                    storySeekerCurrentProgressText.text = booksRead.coerceAtMost(10).toString()
+                    storySeekerMaxProgressText.text = "10"
+                }
+
+                // **Novel Navigator Achievement Implementation**
+                val isNovelNavigatorAchieved = document.getBoolean("novelNavigatorAchieved") ?: false
+
+                if (!isNovelNavigatorAchieved && booksRead >= 25) {
+                    // Unlock the achievement
+                    unlockNovelNavigatorAchievement(userDocRef)
+                } else {
+                    // Update the achievement progress
+                    updateAchievementProgress(
+                        progressBar = novelNavigatorProgressBar,
+                        progressTextView = novelNavigatorProgressText,
+                        currentProgressTextView = novelNavigatorCurrentProgressText,
+                        maxProgressTextView = novelNavigatorMaxProgressText,
+                        cardView = novelNavigatorCard,
+                        iconView = novelNavigatorIcon,
+                        titleTextView = novelNavigatorTitle,
+                        requirementTextView = novelNavigatorRequirement,
+                        maxValue = 25,
+                        currentValue = booksRead.coerceAtMost(25),
+                        description = "Log 25 books as finished",
+                        isAchieved = isNovelNavigatorAchieved || booksRead >= 25
+                    )
+
+                    // Update the current and max progress TextViews
+                    novelNavigatorCurrentProgressText.text = booksRead.coerceAtMost(25).toString()
+                    novelNavigatorMaxProgressText.text = "25"
+                }
+
+                // **Book Enthusiast Achievement Implementation**
+                val isBookEnthusiastAchieved = document.getBoolean("bookEnthusiastAchieved") ?: false
+
+                if (!isBookEnthusiastAchieved && booksRead >= 50) {
+                    // Unlock the achievement
+                    unlockBookEnthusiastAchievement(userDocRef)
+                } else {
+                    // Update the achievement progress
+                    updateAchievementProgress(
+                        progressBar = bookEnthusiastProgressBar,
+                        progressTextView = bookEnthusiastProgressText,
+                        currentProgressTextView = bookEnthusiastCurrentProgressText,
+                        maxProgressTextView = bookEnthusiastMaxProgressText,
+                        cardView = bookEnthusiastCard,
+                        iconView = bookEnthusiastIcon,
+                        titleTextView = bookEnthusiastTitle,
+                        requirementTextView = bookEnthusiastRequirement,
+                        maxValue = 50,
+                        currentValue = booksRead.coerceAtMost(50),
+                        description = "Log 50 books as finished",
+                        isAchieved = isBookEnthusiastAchieved || booksRead >= 50
+                    )
+
+                    // Update the current and max progress TextViews
+                    bookEnthusiastCurrentProgressText.text = booksRead.coerceAtMost(50).toString()
+                    bookEnthusiastMaxProgressText.text = "50"
+                }
+
                 // Continue updating other achievements based on 'booksRead'
-                updateAchievementProgress(
-                    progressBar = readingRookieProgressBar,
-                    progressTextView = readingRookieProgressText,
-                    cardView = readingRookieCard,
-                    iconView = readingRookieIcon,
-                    titleTextView = readingRookieTitle,
-                    requirementTextView = readingRookieRequirement,
-                    maxValue = 5,
-                    currentValue = booksRead.coerceAtMost(5),
-                    description = "Log 5 books as finished",
-                    isAchieved = booksRead >= 5
-                )
-
-                // Add similar blocks for other achievements...
-
+                // ... (Your existing code for other achievements)
             }
         }.addOnFailureListener { exception ->
             Log.e("Firestore", "Error loading achievements: ", exception)
@@ -240,6 +412,7 @@ class AchievementsFragment : Fragment() {
     private fun unlockFirstChapterAchievement(userDocRef: DocumentReference) {
         userDocRef.update("firstChapterAchieved", true)
             .addOnSuccessListener {
+                Log.d("AchievementsFragment", "First Chapter Achievement unlocked successfully.")
                 if (isAdded && context != null) { // Ensure fragment is attached
                     requireActivity().runOnUiThread {
                         // Show a toast when the achievement is unlocked
@@ -256,6 +429,8 @@ class AchievementsFragment : Fragment() {
                         updateAchievementProgress(
                             progressBar = firstChapterProgressBar,
                             progressTextView = firstChapterProgressText,
+                            currentProgressTextView = firstChapterCurrentProgressText,
+                            maxProgressTextView = firstChapterMaxProgressText,
                             cardView = firstChapterCard,
                             iconView = firstChapterIcon,
                             titleTextView = firstChapterTitle,
@@ -269,7 +444,187 @@ class AchievementsFragment : Fragment() {
                 }
             }
             .addOnFailureListener { exception ->
-                Log.e("Firestore", "Error unlocking achievement: ", exception)
+                Log.e("AchievementsFragment", "Error unlocking First Chapter achievement: ", exception)
+            }
+    }
+
+    // Unlock the Reading Rookie Achievement and show a Toast notification
+    private fun unlockReadingRookieAchievement(userDocRef: DocumentReference) {
+        Log.d("AchievementsFragment", "Attempting to unlock Reading Rookie Achievement")
+        userDocRef.update("readingRookieAchieved", true)
+            .addOnSuccessListener {
+                Log.d("AchievementsFragment", "Successfully unlocked Reading Rookie Achievement")
+                if (isAdded && context != null) { // Ensure fragment is attached
+                    requireActivity().runOnUiThread {
+                        // Show a toast when the achievement is unlocked
+                        Toast.makeText(context, "Achievement Unlocked: Reading Rookie!", Toast.LENGTH_SHORT).show()
+
+                        // Animate the card background color change
+                        animateCardBackgroundColor(
+                            cardView = readingRookieCard,
+                            fromColor = ContextCompat.getColor(requireContext(), R.color.achievement_card),
+                            toColor = ContextCompat.getColor(requireContext(), R.color.achievement_card_unlocked)
+                        )
+
+                        // Update the UI to reflect the unlocked achievement
+                        updateAchievementProgress(
+                            progressBar = readingRookieProgressBar,
+                            progressTextView = readingRookieProgressText,
+                            currentProgressTextView = readingRookieCurrentProgressText,
+                            maxProgressTextView = readingRookieMaxProgressText,
+                            cardView = readingRookieCard,
+                            iconView = readingRookieIcon,
+                            titleTextView = readingRookieTitle,
+                            requirementTextView = readingRookieRequirement,
+                            maxValue = 5,
+                            currentValue = 5,
+                            description = "Log 5 books as finished",
+                            isAchieved = true
+                        )
+
+                        // Update the current and max progress TextViews
+                        readingRookieCurrentProgressText.text = "5"
+                        readingRookieMaxProgressText.text = "5"
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("AchievementsFragment", "Error unlocking Reading Rookie achievement: ", exception)
+            }
+    }
+
+    // Unlock the Story Seeker Achievement and show a Toast notification
+    private fun unlockStorySeekerAchievement(userDocRef: DocumentReference) {
+        Log.d("AchievementsFragment", "Attempting to unlock Story Seeker Achievement")
+        userDocRef.update("storySeekerAchieved", true)
+            .addOnSuccessListener {
+                Log.d("AchievementsFragment", "Successfully unlocked Story Seeker Achievement")
+                if (isAdded && context != null) { // Ensure fragment is attached
+                    requireActivity().runOnUiThread {
+                        // Show a toast when the achievement is unlocked
+                        Toast.makeText(context, "Achievement Unlocked: Story Seeker!", Toast.LENGTH_SHORT).show()
+
+                        // Animate the card background color change
+                        animateCardBackgroundColor(
+                            cardView = storySeekerCard,
+                            fromColor = ContextCompat.getColor(requireContext(), R.color.achievement_card),
+                            toColor = ContextCompat.getColor(requireContext(), R.color.achievement_card_unlocked)
+                        )
+
+                        // Update the UI to reflect the unlocked achievement
+                        updateAchievementProgress(
+                            progressBar = storySeekerProgressBar,
+                            progressTextView = storySeekerProgressText,
+                            currentProgressTextView = storySeekerCurrentProgressText,
+                            maxProgressTextView = storySeekerMaxProgressText,
+                            cardView = storySeekerCard,
+                            iconView = storySeekerIcon,
+                            titleTextView = storySeekerTitle,
+                            requirementTextView = storySeekerRequirement,
+                            maxValue = 10,
+                            currentValue = 10,
+                            description = "Log 10 books as finished",
+                            isAchieved = true
+                        )
+
+                        // Update the current and max progress TextViews
+                        storySeekerCurrentProgressText.text = "10"
+                        storySeekerMaxProgressText.text = "10"
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("AchievementsFragment", "Error unlocking Story Seeker achievement: ", exception)
+            }
+    }
+
+    // Unlock the Novel Navigator Achievement and show a Toast notification
+    private fun unlockNovelNavigatorAchievement(userDocRef: DocumentReference) {
+        Log.d("AchievementsFragment", "Attempting to unlock Novel Navigator Achievement")
+        userDocRef.update("novelNavigatorAchieved", true)
+            .addOnSuccessListener {
+                Log.d("AchievementsFragment", "Successfully unlocked Novel Navigator Achievement")
+                if (isAdded && context != null) { // Ensure fragment is attached
+                    requireActivity().runOnUiThread {
+                        // Show a toast when the achievement is unlocked
+                        Toast.makeText(context, "Achievement Unlocked: Novel Navigator!", Toast.LENGTH_SHORT).show()
+
+                        // Animate the card background color change
+                        animateCardBackgroundColor(
+                            cardView = novelNavigatorCard,
+                            fromColor = ContextCompat.getColor(requireContext(), R.color.achievement_card),
+                            toColor = ContextCompat.getColor(requireContext(), R.color.achievement_card_unlocked)
+                        )
+
+                        // Update the UI to reflect the unlocked achievement
+                        updateAchievementProgress(
+                            progressBar = novelNavigatorProgressBar,
+                            progressTextView = novelNavigatorProgressText,
+                            currentProgressTextView = novelNavigatorCurrentProgressText,
+                            maxProgressTextView = novelNavigatorMaxProgressText,
+                            cardView = novelNavigatorCard,
+                            iconView = novelNavigatorIcon,
+                            titleTextView = novelNavigatorTitle,
+                            requirementTextView = novelNavigatorRequirement,
+                            maxValue = 25,
+                            currentValue = 25,
+                            description = "Log 25 books as finished",
+                            isAchieved = true
+                        )
+
+                        // Update the current and max progress TextViews
+                        novelNavigatorCurrentProgressText.text = "25"
+                        novelNavigatorMaxProgressText.text = "25"
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("AchievementsFragment", "Error unlocking Novel Navigator achievement: ", exception)
+            }
+    }
+
+    // Unlock the Book Enthusiast Achievement and show a Toast notification
+    private fun unlockBookEnthusiastAchievement(userDocRef: DocumentReference) {
+        Log.d("AchievementsFragment", "Attempting to unlock Book Enthusiast Achievement")
+        userDocRef.update("bookEnthusiastAchieved", true)
+            .addOnSuccessListener {
+                Log.d("AchievementsFragment", "Successfully unlocked Book Enthusiast Achievement")
+                if (isAdded && context != null) { // Ensure fragment is attached
+                    requireActivity().runOnUiThread {
+                        // Show a toast when the achievement is unlocked
+                        Toast.makeText(context, "Achievement Unlocked: Book Enthusiast!", Toast.LENGTH_SHORT).show()
+
+                        // Animate the card background color change
+                        animateCardBackgroundColor(
+                            cardView = bookEnthusiastCard,
+                            fromColor = ContextCompat.getColor(requireContext(), R.color.achievement_card),
+                            toColor = ContextCompat.getColor(requireContext(), R.color.achievement_card_unlocked)
+                        )
+
+                        // Update the UI to reflect the unlocked achievement
+                        updateAchievementProgress(
+                            progressBar = bookEnthusiastProgressBar,
+                            progressTextView = bookEnthusiastProgressText,
+                            currentProgressTextView = bookEnthusiastCurrentProgressText,
+                            maxProgressTextView = bookEnthusiastMaxProgressText,
+                            cardView = bookEnthusiastCard,
+                            iconView = bookEnthusiastIcon,
+                            titleTextView = bookEnthusiastTitle,
+                            requirementTextView = bookEnthusiastRequirement,
+                            maxValue = 50,
+                            currentValue = 50,
+                            description = "Log 50 books as finished",
+                            isAchieved = true
+                        )
+
+                        // Update the current and max progress TextViews
+                        bookEnthusiastCurrentProgressText.text = "50"
+                        bookEnthusiastMaxProgressText.text = "50"
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("AchievementsFragment", "Error unlocking Book Enthusiast achievement: ", exception)
             }
     }
 
@@ -277,6 +632,8 @@ class AchievementsFragment : Fragment() {
     private fun updateAchievementProgress(
         progressBar: ProgressBar,
         progressTextView: TextView,
+        currentProgressTextView: TextView,
+        maxProgressTextView: TextView,
         cardView: CardView,
         iconView: ImageView,
         titleTextView: TextView,
@@ -318,6 +675,11 @@ class AchievementsFragment : Fragment() {
             // Restore the icon color by removing the gray tint
             iconView.setColorFilter(null)
             iconView.imageTintList = null
+
+            // Hide the current and max progress TextViews
+            currentProgressTextView.visibility = View.GONE
+            maxProgressTextView.visibility = View.GONE
+
         } else {
             // Achievement is still locked
             progressTextView.text = description
@@ -332,6 +694,10 @@ class AchievementsFragment : Fragment() {
 
             // Apply gray tint to the icon to indicate the locked state
             iconView.setColorFilter(ContextCompat.getColor(requireContext(), R.color.grey))
+
+            // Ensure the current and max progress TextViews are visible
+            currentProgressTextView.visibility = View.VISIBLE
+            maxProgressTextView.visibility = View.VISIBLE
         }
     }
 
