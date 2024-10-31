@@ -67,11 +67,13 @@ class ManageGroupsFragment : Fragment() {
         myGroups = view.findViewById(R.id.myGroups)
         findGroups = view.findViewById(R.id.findGroups)
 
+        // On click listener to take user to the groups tab
         myGroups.setOnClickListener {
             val groupsFragment = GroupsFragment()
             (activity as MainActivity).replaceFragment(groupsFragment, "My Groups")
         }
 
+        // On click listener to take user to find groups tab
         findGroups.setOnClickListener {
             val findGroupsFragment = FindGroupFragment()
             (activity as MainActivity).replaceFragment(findGroupsFragment, "Find Groups")
@@ -92,13 +94,14 @@ class ManageGroupsFragment : Fragment() {
 
         sortGroups = view.findViewById(R.id.sortGroups)
 
-        // deploy spinner
+        // set up spinner for sorting options
         setupSortSpinner()
 
         // Load data from Firestore
         loadGroupsFromFirestore()
     }
 
+    // Function to load the groups from firestore
     private fun loadGroupsFromFirestore() {
         val db = FirebaseFirestore.getInstance()
         val userId = FirebaseAuth.getInstance().currentUser?.uid
@@ -148,6 +151,8 @@ class ManageGroupsFragment : Fragment() {
             }
     }
 
+    // Handle accepting a join request
+    // Olivia Fishbough
     private fun handleAcceptRequest(groupId: String, requestItem: GroupRequestItem) {
         val db = FirebaseFirestore.getInstance()
         val userId = requestItem.senderId
@@ -175,11 +180,13 @@ class ManageGroupsFragment : Fragment() {
             }
     }
 
+    // Handle rejecting a join request
     private fun handleRejectRequest(groupId: String, requestItem: GroupRequestItem) {
         removeJoinRequest(groupId, requestItem)
         Toast.makeText(requireContext(), "Join request rejected", Toast.LENGTH_SHORT).show()
     }
 
+    // Function to remove a join request from Firestore
     private fun removeJoinRequest(groupId: String, requestItem: GroupRequestItem) {
         val db = FirebaseFirestore.getInstance()
 
@@ -188,16 +195,17 @@ class ManageGroupsFragment : Fragment() {
             .get()
             .addOnSuccessListener { querySnapshot ->
                 for (document in querySnapshot) {
-                    document.reference.delete()
+                    document.reference.delete() // Delete the join request document
                 }
 
-                loadGroupsFromFirestore() // Refresh the list of groups
+                loadGroupsFromFirestore() // Refresh the list of groups after deletion
             }
             .addOnFailureListener { e ->
                 Log.w("ManageGroupsFragment", "Error removing join request: ${e.message}")
             }
     }
 
+    // Setup the sorting spinner with options
     private fun setupSortSpinner() {
         // Create an ArrayAdapter using the string array and custom spinner item layout
         val adapter = ArrayAdapter.createFromResource(
@@ -209,11 +217,11 @@ class ManageGroupsFragment : Fragment() {
         adapter.setDropDownViewResource(R.layout.item_collections_spinner_dropdown) // The layout for dropdown items
         sortGroups.adapter = adapter
 
-        // Handle selection changes as before
+        // Handle selection changes
         sortGroups.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val selectedSortOption = parent.getItemAtPosition(position).toString()
-                sortGroups(selectedSortOption)
+                sortGroups(selectedSortOption) // Sort based on selected option
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
@@ -233,7 +241,7 @@ class ManageGroupsFragment : Fragment() {
                 // Sort groupList in reverse alphabetical order by group name
                 groupList.sortByDescending { it.groupName.lowercase() }
             }
-            // Add more sort options as needed, e.g., based on creation date or other criteria
+            // If you want additional sort options add here
         }
 
         // Notify the adapter about the updated data
