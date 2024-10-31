@@ -111,6 +111,16 @@ class AchievementsFragment : Fragment() {
     private lateinit var bookGodIcon: ImageView // New Icon for Book God
     private lateinit var bookGodTitle: TextView // New Title for Book God
     private lateinit var bookGodRequirement: TextView // New Requirement for Book God
+
+    // UI elements for Fantasy Explorer
+    private lateinit var fantasyExplorerCard: CardView
+    private lateinit var fantasyExplorerProgressBar: ProgressBar
+    private lateinit var fantasyExplorerProgressText: TextView
+    private lateinit var fantasyExplorerCurrentProgressText: TextView
+    private lateinit var fantasyExplorerMaxProgressText: TextView
+    private lateinit var fantasyExplorerIcon: ImageView
+    private lateinit var fantasyExplorerTitle: TextView
+    private lateinit var fantasyExplorerRequirement: TextView
     // Add other Icons, Titles, and Requirements as needed...
 
     override fun onCreateView(
@@ -206,16 +216,131 @@ class AchievementsFragment : Fragment() {
         bookGodIcon = view.findViewById(R.id.book_god_icon) // Initialize Book God Icon
         bookGodTitle = view.findViewById(R.id.book_god_title) // Initialize Book God Title
         bookGodRequirement = view.findViewById(R.id.book_god_requirement) // Initialize Book God Requirement
+
+        // Initialize Fantasy Explorer UI components
+        fantasyExplorerCard = view.findViewById(R.id.fantasy_explorer_card)
+        fantasyExplorerProgressBar = view.findViewById(R.id.fantasy_explorer_progress_bar)
+        fantasyExplorerProgressText = view.findViewById(R.id.fantasy_explorer_progress_text)
+        fantasyExplorerCurrentProgressText = view.findViewById(R.id.fantasy_explorer_current_progress_text)
+        fantasyExplorerMaxProgressText = view.findViewById(R.id.fantasy_explorer_max_progress_text)
+        fantasyExplorerIcon = view.findViewById(R.id.fantasy_explorer_icon)
+        fantasyExplorerTitle = view.findViewById(R.id.fantasy_explorer_title)
+        fantasyExplorerRequirement = view.findViewById(R.id.fantasy_explorer_requirement)
         // Initialize other Icons, Titles, and Requirements as needed...
 
         // Load achievements and XP data from Firestore
         userId?.let {
+            loadFantasyExplorerAchievement(it)
             loadAchievementsData(it)
             setupRealtimeUpdates(it) // Optional: For real-time updates
         }
 
         return view
     }
+
+    private fun loadFantasyExplorerAchievement(userId: String) {
+        val userDocRef = firestore.collection("users").document(userId)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                // Retrieve the list of finished books
+                val finishedBooks = (document.get("standardCollections.Finished") as? List<*>)?.mapNotNull { book ->
+                    when (book) {
+                        is Map<*, *> -> {
+                            val genres = book["genres"] as? List<*>
+                            genres?.filterIsInstance<String>() // Cast genres to a list of strings
+                        }
+                        else -> null
+                    }
+                } ?: emptyList()
+
+                // Count the number of books with the genre "fiction" (case-insensitive)
+                val fictionBooksCount = finishedBooks.flatten().count { genre ->
+                    genre.equals("Fiction", ignoreCase = true)
+                }
+
+                // Check if Fantasy Explorer is already achieved
+                val isFantasyExplorerAchieved = document.getBoolean("fantasyExplorerAchieved") ?: false
+
+                if (!isFantasyExplorerAchieved && fictionBooksCount >= 10) {
+                    // Unlock the achievement
+                    unlockFantasyExplorerAchievement(userDocRef)
+                } else {
+                    // Update the achievement progress UI
+                    updateAchievementProgress(
+                        progressBar = fantasyExplorerProgressBar,
+                        progressTextView = fantasyExplorerProgressText,
+                        currentProgressTextView = fantasyExplorerCurrentProgressText,
+                        maxProgressTextView = fantasyExplorerMaxProgressText,
+                        cardView = fantasyExplorerCard,
+                        iconView = fantasyExplorerIcon,
+                        titleTextView = fantasyExplorerTitle,
+                        requirementTextView = fantasyExplorerRequirement,
+                        maxValue = 10,
+                        currentValue = fictionBooksCount.coerceAtMost(10),
+                        description = "Log 10 fiction books as finished",
+                        isAchieved = isFantasyExplorerAchieved || fictionBooksCount >= 10
+                    )
+
+                    // Update the current and max progress TextViews
+                    fantasyExplorerCurrentProgressText.text = fictionBooksCount.coerceAtMost(10).toString()
+                    fantasyExplorerMaxProgressText.text = "10"
+                }
+            } else {
+                Log.e("AchievementsFragment", "No such document for user: $userId")
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("AchievementsFragment", "Error loading Fantasy Explorer achievement: ", exception)
+        }
+    }
+
+
+    // Function to unlock Fantasy Explorer Achievement and update UI
+    private fun unlockFantasyExplorerAchievement(userDocRef: DocumentReference) {
+        userDocRef.update("fantasyExplorerAchieved", true)
+            .addOnSuccessListener {
+                Log.d("AchievementsFragment", "Fantasy Explorer Achievement unlocked successfully.")
+                if (isAdded && context != null) { // Ensure fragment is attached
+                    requireActivity().runOnUiThread {
+                        // Show a toast when the achievement is unlocked
+                        Toast.makeText(context, "Achievement Unlocked: Fantasy Explorer!", Toast.LENGTH_SHORT).show()
+
+                        // Animate the card background color change
+                        animateCardBackgroundColor(
+                            cardView = fantasyExplorerCard,
+                            fromColor = ContextCompat.getColor(requireContext(), R.color.achievement_card),
+                            toColor = ContextCompat.getColor(requireContext(), R.color.achievement_card_unlocked)
+                        )
+
+                        // Update the UI to reflect the unlocked achievement
+                        updateAchievementProgress(
+                            progressBar = fantasyExplorerProgressBar,
+                            progressTextView = fantasyExplorerProgressText,
+                            currentProgressTextView = fantasyExplorerCurrentProgressText,
+                            maxProgressTextView = fantasyExplorerMaxProgressText,
+                            cardView = fantasyExplorerCard,
+                            iconView = fantasyExplorerIcon,
+                            titleTextView = fantasyExplorerTitle,
+                            requirementTextView = fantasyExplorerRequirement,
+                            maxValue = 10,
+                            currentValue = 10,
+                            description = "Log 10 fiction books as finished",
+                            isAchieved = true
+                        )
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("AchievementsFragment", "Error unlocking Fantasy Explorer achievement: ", exception)
+                // Optional: Inform the user about the failure
+                if (isAdded && context != null) {
+                    requireActivity().runOnUiThread {
+                        Toast.makeText(context, "Failed to unlock Fantasy Explorer. Please try again.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+    }
+
 
     // Load achievements data from Firestore
     private fun loadAchievementsData(userId: String) {
