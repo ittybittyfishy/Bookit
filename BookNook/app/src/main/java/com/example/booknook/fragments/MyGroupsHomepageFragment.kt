@@ -1,5 +1,6 @@
 package com.example.booknook.fragments
 
+import android.app.AlertDialog
 import android.health.connect.datatypes.units.Length
 import android.os.Bundle
 import android.util.Log
@@ -21,6 +22,7 @@ import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 class MyGroupsHomepageFragment : Fragment() {
     private lateinit var leaveGroupButton: Button
@@ -95,10 +97,12 @@ class MyGroupsHomepageFragment : Fragment() {
         leaveGroupButton.setOnClickListener(){
             if (leaveGroupButton.text == "Edit Group") {
                 groupId?.let { it1 -> editGroup(it1) }
-            } else {
-                //
-                // leaveGroup(groupId) function goes here
-                //
+            }
+            else if (leaveGroupButton.text == "Join Group"){
+                groupId?.let { it1 -> joinGroup(it1) }
+            }
+            else {
+                groupId?.let { it1 -> leaveGroup(it1) }
             }
         }
 
@@ -276,6 +280,123 @@ class MyGroupsHomepageFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 Toast.makeText(activity, "Failed to retrieve members", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Olivia Fishbough
+    // Function that allows a user to leave a group
+    private fun leaveGroup(groupId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userId == null) {
+            Log.w("LeaveGroup", "User not authenticated")
+            return
+        }
+
+        // Step 1: Remove user from group members
+        db.collection("groups").document(groupId).update("members", FieldValue.arrayRemove(userId))
+            .addOnSuccessListener {
+                // Step 2: Remove group from user's joined groups and decrement numGroups
+                db.collection("users").document(userId)
+                    .update(
+                        "joinedGroups", FieldValue.arrayRemove(groupId),
+                        "numGroups", FieldValue.increment(-1)
+                    )
+                    .addOnSuccessListener {
+                        Toast.makeText(activity, "User left group", Toast.LENGTH_SHORT).show()
+                        Log.d("LeaveGroup", "Successfully removed user $userId from group $groupId and updated user data.")
+                        // Update button text based on current group status
+                        checkJoinedGroupStatus(groupId)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("LeaveGroup", "Failed to update user data after removing from group: ${e.message}")
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.w("LeaveGroup", "Failed to remove user from group members: ${e.message}")
+            }
+    }
+
+    // Function that allows user to join public group
+    // Olivia Fishbough
+    private fun joinGroup(groupId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        // Ensure userId is not null
+        if (userId == null) {
+            Toast.makeText(requireContext(), "Error: User is not logged in.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Add user to group members
+        db.collection("groups").document(groupId)
+            .update("members", FieldValue.arrayUnion(userId))
+            .addOnSuccessListener {
+                loadGroupData(groupId)
+                checkJoinedGroupStatus(groupId) // Update button text based on current group status
+                // Notify the user that the user has been added
+                Toast.makeText(requireContext(), "You have joined the group.", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Log.w("GroupHomepageFragment", "Error adding user to group: ${e.message}")
+            }
+
+        // Update user's groups
+        val userRef = db.collection("users").document(userId)
+        userRef.update("joinedGroups", FieldValue.arrayUnion(groupId))
+            .addOnSuccessListener {
+                userRef.update("numGroups", FieldValue.increment(1))
+                checkJoinedGroupStatus(groupId)
+                Toast.makeText(
+                    requireContext(),
+                    "Member has been added to group",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .addOnFailureListener { e ->
+                Log.w("GroupHomepageFragment", "Error adding group to user: ${e.message}")
+            }
+    }
+
+    // Veronica Nguyen
+    // Checks to see if the user has already joined the group
+    private fun checkJoinedGroupStatus(groupId: String) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        val groupsDocRef = FirebaseFirestore.getInstance().collection("groups").document(groupId)
+        groupsDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val members = document.get("members") as? List<String>
+                    val groupCreatorId = document.getString("createdBy")
+                    if (members != null) {
+                        // Loops through each member to check if they're already in the group
+                        val alreadyJoined = members.any { membersItem -> membersItem == userId}
+                        // If the current user is the creator of the group
+                        if (userId == groupCreatorId) {
+                            // Change button to "Edit Group"
+                            leaveGroupButton.text = "Edit Group"
+                            // If user is already a member
+                        } else if (alreadyJoined) {
+                            // Already joined group, change button to "Leave Group"
+                            leaveGroupButton.text = "Leave Group"
+                            Toast.makeText(activity, "Already joined", Toast.LENGTH_SHORT).show()
+                            // User is not a creator or member of group
+                        } else {
+                            // Not joined, button displays "Join Group"
+                            leaveGroupButton.text = "Join Group"
+                            Toast.makeText(activity, "Not joined", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        leaveGroupButton.text = "Join Group"
+                        Toast.makeText(activity, "No members found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(activity, "Error checking joined status: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 

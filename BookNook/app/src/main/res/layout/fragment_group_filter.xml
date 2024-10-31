@@ -3,34 +3,57 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="10dp"
+    android:layout_marginTop="1dp">
 
+    <!-- FrameLayout for orange rectangle and text -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="5dp">
 
+        <View
+            android:layout_width="500dp"
+            android:layout_height="50dp"
+            android:background="@drawable/rounded_rectangle_4"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:id="@+id/loggedInTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Welcome!"
+            android:textSize="30sp"
+            android:padding="0dp"
+            android:gravity="center"
+            android:singleLine="true"
+            android:textColor="@color/white"
+            android:layout_gravity="center"/>
+    </FrameLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Create Group"
-        android:layout_gravity="center_horizontal"
-        android:textSize="35dp"
-        android:textColor="@color/banner_green"/>
+        android:text="Thank you for joining Book Nook! To finish setting up your profile, go ahead and select your preferred genres!"
+        android:textSize="20sp"
+        android:textColor="@color/review_button_text"
+        android:gravity="center"
+        android:textAlignment="center" android:layout_gravity="center_horizontal" android:layout_marginTop="15dp" android:layout_marginBottom="10dp" />
 
-    <EditText
-        android:id="@+id/groupName"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:hint="Enter Group Name" />
 
+    <!-- This ScrollView will take up the remaining space -->
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:fillViewport="true">
 
         <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chip_group_groups"
+            android:id="@+id/chip_group_genres"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
@@ -283,60 +306,13 @@
         </com.google.android.material.chip.ChipGroup>
     </ScrollView>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/button_save"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal">
-
-        <CheckBox
-            android:id="@+id/privateToggle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Make group private"
-            android:textColor="@color/star_green"
-            android:buttonTint="@color/tag_background" />
-
-        <!-- Allow user to upload an image -->
-        <Button
-            android:id="@+id/uploadImageButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Upload Image"
-            android:backgroundTint="@color/transparent"
-            android:textColor="@color/star_green"/>
-
-        <ImageView
-            android:id="@+id/imagePreview"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:contentDescription="Selected Group Image"
-            android:background="@drawable/mr_blobby" />
-
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-
-        <Button
-            android:id="@+id/cancelGroupButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cancel"
-            android:backgroundTint="@color/banner_green"/>
-
-        <Button
-            android:id="@+id/confirmGroupButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Confirm"
-            android:backgroundTint="@color/banner_green"/>
-    </LinearLayout>
-
-
-
+        android:text="Save preferences"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#b29ab5"
+        android:textColor="@color/white"/>
 </LinearLayout>
