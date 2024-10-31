@@ -1,6 +1,7 @@
 package com.example.booknook.fragments
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -18,6 +19,7 @@ import androidx.fragment.app.DialogFragment
 import com.bumptech.glide.Glide
 import com.example.booknook.GroupItem
 import com.example.booknook.R
+import com.google.android.gms.tasks.Tasks
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.firestore.DocumentReference
@@ -33,6 +35,7 @@ class EditGroupFragment : DialogFragment() {
     private lateinit var confirmButton: Button
     private lateinit var cancelButton: Button
     private lateinit var deleteButton: Button
+    private lateinit var transferOwnership: Button
     private lateinit var bannerImg: ImageView
     private var selectedBannerUri: Uri? = null // To hold the new selected banner image URI
 
@@ -71,6 +74,7 @@ class EditGroupFragment : DialogFragment() {
         cancelButton = view.findViewById(R.id.cancelGroupButton)
         bannerImg = view.findViewById(R.id.imagePreview)
         deleteButton = view.findViewById(R.id.deleteGroup)
+        transferOwnership = view.findViewById(R.id.transferOwnerGroup)
         val uploadImageButton: Button = view.findViewById(R.id.uploadImageButton)
 
         // Fetch group details using groupId
@@ -102,6 +106,12 @@ class EditGroupFragment : DialogFragment() {
             openImagePicker()
         }
 
+        // handle transfering ownership
+        transferOwnership.setOnClickListener{
+            arguments?.getString(ARG_GROUP_ID)?.let { groupId ->
+            transferOwner(groupId)}
+        }
+
         // Handle deleting a group
         deleteButton.setOnClickListener{
             arguments?.getString(ARG_GROUP_ID)?.let { groupId ->
@@ -109,6 +119,7 @@ class EditGroupFragment : DialogFragment() {
             }
 
         }
+
 
         return view
     }
@@ -291,6 +302,55 @@ class EditGroupFragment : DialogFragment() {
             }
             .addOnFailureListener { e ->
                 Log.w("DeleteGroup", "Error fetching group data: ${e.message}")
+            }
+    }
+
+    private fun transferOwner(groupId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val dialog = AlertDialog.Builder(requireContext())
+        dialog.setTitle("Transfer Group Ownership")
+
+        // Step 1: Fetch the members list from Firestore
+        db.collection("groups").document(groupId)
+            .get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    // Get the members list
+                    val memberIds = documentSnapshot.get("members") as? List<String> ?: emptyList()
+
+                    // Step 2: Create a map to store user IDs and usernames
+                    val userIdToUsername = mutableMapOf<String, String>()
+
+                    // Step 3: Fetch each member's username from Firestore
+                    val tasks = memberIds.map { memberId ->
+                        db.collection("users").document(memberId).get().addOnSuccessListener { userDoc ->
+                            if (userDoc.exists()) {
+                                val username = userDoc.getString("username") ?: "Unknown"
+                                userIdToUsername[memberId] = username
+                            }
+                        }
+                    }
+
+                    // Step 4: Wait for all username fetch tasks to complete
+                    Tasks.whenAll(tasks).addOnSuccessListener {
+                        // Prepare list of usernames for the dialog
+                        val usernames = memberIds.map { userIdToUsername[it] ?: "Unknown" }.toTypedArray()
+
+                        // Step 5: Show the dialog with usernames for selection
+                        dialog.setItems(usernames) { _, which ->
+                            val newOwnerId = memberIds[which]
+
+                            // Step 6: Update Firestore with the new owner ID
+                            db.collection("groups").document(groupId)
+                                .update("createdBy", newOwnerId)
+                                .addOnSuccessListener {
+                                    Toast.makeText(requireContext(), "Ownership transferred successfully", Toast.LENGTH_SHORT).show()
+                                    dismiss()  // Close dialog on success
+                                }
+                        }
+                        dialog.show()
+                    }
+                }
             }
     }
 
