@@ -2,7 +2,6 @@ package com.example.booknook.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +10,6 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.booknook.MainActivity
 import com.example.booknook.R
-import com.example.booknook.utils.GenreUtils
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
@@ -333,7 +331,6 @@ class ReviewActivity : Fragment() {
             val bookTitle = arguments?.getString("bookTitle")
             val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
             var bookIsbn = arguments?.getString("bookIsbn") // Use this to identify the book for the review
-            val rawBookGenres = arguments?.getStringArrayList("bookGenresList") ?: listOf("default genre") // 전달된 장르 리스트
 
             // If the book has no ISBN, create a unique document ID using the title and authors of the book
             if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {
@@ -345,12 +342,6 @@ class ReviewActivity : Fragment() {
                     ?.lowercase(Locale.ROOT)
                 bookIsbn = "$titleId-$authorsId" // Update bookIsbn with new Id
             }
-
-            // Normalize genres using GenreUtils before saving
-            val bookGenres = rawBookGenres.map { GenreUtils.normalizeGenre(it) }
-            // 로그 추가
-            Log.d("ReviewActivity", "Raw genres: $rawBookGenres")
-            Log.d("ReviewActivity", "Normalized genres: $bookGenres")
 
             // Get the user's username from database
             db.collection("users").document(userId).get().addOnSuccessListener { document ->
@@ -374,7 +365,6 @@ class ReviewActivity : Fragment() {
                         val bookData = mapOf(
                             "bookTitle" to bookTitle,
                             "authors" to bookAuthors,
-                            "genres" to bookGenres // Save normalized genres
                         )
 
                         // Reference to the specific book's document in the "books" collection using the book's ISBN

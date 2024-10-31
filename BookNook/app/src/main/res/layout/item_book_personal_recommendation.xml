@@ -7,16 +7,15 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="8dp"
-    android:layout_gravity="start">
+    android:layout_gravity="center_horizontal">
 
     <!-- Book Cover Image with placeholder -->
     <ImageView
         android:id="@+id/bookCoverImageView"
-        android:layout_width="120dp"
-        android:layout_height="140dp"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
         android:layout_gravity="center"
-        android:scaleType="fitCenter"
-        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
         android:src="@drawable/placeholder_image" />
 
 
@@ -71,22 +70,18 @@
         <!-- Dislike Button -->
         <ImageButton
             android:id="@+id/dislikeButton"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/ic_dislike"
             android:background="@null"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"
             android:layout_marginEnd="16dp" />
 
         <!-- Like Button -->
         <ImageButton
             android:id="@+id/likeButton"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/ic_like"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"
             android:background="@null" />
     </LinearLayout>
 </LinearLayout>

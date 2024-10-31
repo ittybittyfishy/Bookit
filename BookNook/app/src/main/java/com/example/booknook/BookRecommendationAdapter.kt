@@ -1,58 +1,98 @@
 package com.example.booknook
 
+import android.app.AlertDialog
+import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 
-// Yunjong Noh
-// Adapter class for displaying book recommendations in a RecyclerView
-class BookRecommendationAdapter(private val books: List<BookItemCollection>) : RecyclerView.Adapter<BookRecommendationAdapter.BookViewHolder>() {
+// Adapter class that connects the data (BookItems) with the RecyclerView to display each book.
+class BookRecommendationAdapter(
+    private val bookList: List<BookItem>, // List of books to display
+    private val listener: RecyclerViewEvent // Listener for handling click events on books
+) : RecyclerView.Adapter<BookRecommendationAdapter.BookViewHolder>() {
 
-    // ViewHolder class that holds the views for each book item
-    class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val bookCoverImageView: ImageView = itemView.findViewById(R.id.bookCoverImageView)
-        val bookTitleTextView: TextView = itemView.findViewById(R.id.bookTitleTextView)
-        val bookRatingTextView: TextView = itemView.findViewById(R.id.bookRatingTextView)
-        val bookRatingCountTextView: TextView = itemView.findViewById(R.id.bookRatingCountTextView)
-        val likeButton: ImageButton = itemView.findViewById(R.id.likeButton)
-        val dislikeButton: ImageButton = itemView.findViewById(R.id.dislikeButton)
-    }
+    // List of predefined collections that users can assign books to.
+    private val standardCollections = listOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped", "Remove")
 
-    // Called when RecyclerView needs a new ViewHolder for a book item
+    // Called when RecyclerView needs a new ViewHolder. ViewHolder represents each item view.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
-
-        // Inflate the layout for each book item
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_book_personal_recommendation, parent, false)
-        return BookViewHolder(view)
+        // Inflate the item layout for each book
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_book_recommendation, parent, false)
+        return BookViewHolder(view) // Create and return a new BookViewHolder instance
     }
 
-    // Binds data to the views in the ViewHolder for each book item
+    // Binds the data (book) to the view at the given position in the RecyclerView.
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
-        // Get the book data at the current position
-        val book = books[position]
+        val book = bookList[position] // Get the book at the current position
 
-        // Set the book title in the TextView
-        holder.bookTitleTextView.text = book.title
+        // Set the title of the book in the view.
+        holder.title.text = book.volumeInfo.title
 
-        // Set the rating text and count; since no rating is available, set it to "N/A"
-        holder.bookRatingTextView.text = "(N/A)"
-        holder.bookRatingCountTextView.text = "N/A"
+        // Set the authors of the book, or display "Unknown Author" if no authors are available.
+        holder.authors.text = book.volumeInfo.authors?.joinToString(", ")
+            ?: holder.itemView.context.getString(R.string.unknown_author)
 
-        // Load the book cover image using Glide; if no image is available, use a placeholder
+        // Load the book's thumbnail image using the Glide library.
+        // Glide is used to load images from a URL and handle image downloading/caching efficiently.
+        val imageUrl = book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
         Glide.with(holder.itemView.context)
-            .load(book.imageLink)  // Load image from link
-            .placeholder(R.drawable.placeholder_image)  // Placeholder image while loading
-            .error(R.drawable.placeholder_image)  // Placeholder if loading fails
-            .into(holder.bookCoverImageView) // Set the image into the ImageView
+            .load(imageUrl)
+            .placeholder(R.drawable.placeholder_image) // Show placeholder image while loading
+            .error(R.drawable.placeholder_image) // Show placeholder if the image fails to load
+            .into(holder.bookImage)
 
-        // Place for :Additional book data like authors, tags, or genres can be handled here if needed in future
+        // Set the rating for the book (average rating) in the RatingBar widget.
+        holder.rating.rating = book.volumeInfo.averageRating ?: 0f
+
+        // Set the genres of the book, or display "Unknown Genres" if no genres are available.
+        holder.genres.text = holder.itemView.context.getString(
+            R.string.genres,
+            book.volumeInfo.categories?.joinToString(", ")
+                ?: holder.itemView.context.getString(R.string.unknown_genres)
+        )
+
+        val genres = book.volumeInfo.categories ?: listOf("Unknown Genre")
     }
 
-    // Returns the total number of book items in the list
-    override fun getItemCount(): Int = books.size
+    // Returns the total number of items (books) in the list.
+    override fun getItemCount(): Int = bookList.size
+
+    // Interface for handling click events on RecyclerView items.
+    interface RecyclerViewEvent {
+        fun onItemClick(position: Int)
+    }
+
+    // ViewHolder class that holds references to the UI elements for each book item.
+    inner class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        val title: TextView = itemView.findViewById(R.id.bookTitle) // Title of the book
+        val authors: TextView = itemView.findViewById(R.id.bookAuthors) // Authors of the book
+        val bookImage: ImageView =
+            itemView.findViewById(R.id.book_image) // Thumbnail image of the book
+        val rating: RatingBar = itemView.findViewById(R.id.bookRating) // Rating of the book
+        val genres: TextView = itemView.findViewById(R.id.bookGenres) // Genres of the book
+
+        // Init block to set click listener for each book item.
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        // When a book item is clicked, this method is triggered.
+        override fun onClick(v: View?) {
+            val position = bindingAdapterPosition // Get the position of the clicked item
+            if (position != RecyclerView.NO_POSITION) {
+                listener.onItemClick(position)  // Notify the listener of the item click
+            }
+        }
+    }
+
+
+
 }
