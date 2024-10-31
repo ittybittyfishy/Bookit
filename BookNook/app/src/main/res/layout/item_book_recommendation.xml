@@ -1,0 +1,86 @@
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/book_card"
+        android:layout_width="170dp"
+        android:layout_height="250dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="8dp"
+        app:cardElevation="2dp"
+        app:cardCornerRadius="1dp"
+        app:cardUseCompatPadding="true">
+
+        <ImageView
+            android:id="@+id/book_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/image_outline"
+            android:contentDescription="@string/book_image"
+            android:padding="5dp"
+            android:scaleType="centerCrop" />
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/bookTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/book_card"
+        android:layout_marginStart="10dp"
+        android:paddingTop="20dp"
+        android:layout_alignParentTop="true"
+        android:text="Book Title"
+        android:textStyle="bold"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/bookAuthors"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bookTitle"
+        android:layout_toEndOf="@id/book_card"
+        android:layout_marginStart="10dp"
+        android:text="Author" />
+
+    <RatingBar
+        android:id="@+id/bookRating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bookAuthors"
+        android:layout_toEndOf="@id/book_card"
+        android:layout_marginStart="9dp"
+        android:numStars="5"
+        android:stepSize="0.5"
+        android:isIndicator="true"
+        android:layout_marginTop="4dp"
+        style="@style/Widget.AppCompat.RatingBar.Small" />
+
+    <TextView
+        android:id="@+id/bookGenres"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bookRating"
+        android:layout_toEndOf="@id/book_card"
+        android:layout_marginStart="10dp"
+        android:text="Genres"
+        android:layout_marginTop="4dp" />
+
+    <!-- Veronica Nguyen -->
+    <!-- Button to select a book for recommendation -->
+    <Button
+        android:id="@+id/selectBook"
+        android:layout_width="250dp"
+        android:textColor="#FFFFFF"
+        android:layout_height="51dp"
+        android:layout_below="@id/bookGenres"
+        android:layout_toEndOf="@id/book_card"
+        android:textAlignment="center"
+        android:text="Select Book"/>
+
+
+</RelativeLayout>
