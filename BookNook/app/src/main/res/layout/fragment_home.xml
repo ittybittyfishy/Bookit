@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- FrameLayout for orange rectangle and text -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -25,7 +25,7 @@
             android:id="@+id/loggedInTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Logged in as"
+            android:text="Welcome back Costume Party!"
             android:textSize="20sp"
             android:padding="0dp"
             android:gravity="center"
@@ -34,7 +34,7 @@
             android:textColor="@color/sub_text_brown"
             android:layout_gravity="center" />
     </FrameLayout>
-    <!-- Yunjong Noh -->
+
     <!-- Title for recommendations -->
     <TextView
         android:id="@+id/dailyRecommendationsTitle"
@@ -45,23 +45,154 @@
         android:textSize="30sp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="54dp" />
-
-    <!-- Horizontal RecyclerView for book recommendations -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewRecommendations"
+    <!-- Yunjong Noh -->
+    <!-- XML for Personal recommendation -->
+    <!-- Horizontal LinearLayout for Book Recommendations -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:padding="16dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="90dp"
+        android:padding="8dp"
         android:layout_gravity="center_horizontal"
-        android:orientation="horizontal" />
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp">
+
+        <!-- Book 1 -->
+        <LinearLayout
+            android:id="@+id/bookItem1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- Book cover Image -->
+            <ImageView
+                android:id="@+id/bookCoverImageView1"
+                android:layout_width="110dp"
+                android:layout_height="150dp"
+                android:src="@drawable/placeholder_image"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center_horizontal" />
+
+            <!-- Title of Book -->
+            <TextView
+                android:id="@+id/bookTitleTextView1"
+                android:layout_height="wrap_content"
+                android:text="The Yellow Wall-Paper"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_width="wrap_content" />
+
+            <!-- Author's name -->
+            <TextView
+                android:id="@+id/bookAuthorsTextView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="Charlotte Perkins Gilman" />
+        </LinearLayout>
+
+        <!-- Book 2 -->
+        <LinearLayout
+            android:id="@+id/bookItem2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- Book cover Image -->
+            <ImageView
+                android:id="@+id/bookCoverImageView2"
+                android:layout_width="110dp"
+                android:layout_height="150dp"
+                android:src="@drawable/placeholder_image"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center_horizontal" />
+
+            <!-- Title of Book -->
+            <TextView
+                android:id="@+id/bookTitleTextView2"
+                android:layout_height="wrap_content"
+                android:text="The Yellow Wall-Paper"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_width="wrap_content" />
+
+            <!-- Author's name -->
+            <TextView
+                android:id="@+id/bookAuthorsTextView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="Victor LaValle" />
+        </LinearLayout>
+
+        <!-- Book 3 -->
+        <LinearLayout
+            android:id="@+id/bookItem3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- Book cover Image -->
+            <ImageView
+                android:id="@+id/bookCoverImageView3"
+                android:layout_width="110dp"
+                android:layout_height="150dp"
+                android:src="@drawable/placeholder_image"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center_horizontal" />
+
+            <!-- Title of Book -->
+            <TextView
+                android:id="@+id/bookTitleTextView3"
+                android:layout_height="wrap_content"
+                android:text="The Yellow Wall-Paper"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_width="wrap_content" />
+
+            <!-- Author's name -->
+            <TextView
+                android:id="@+id/bookAuthorsTextView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="Mark Z. Danielewski" />
+        </LinearLayout>
+
+    </LinearLayout>
 
     <!-- Divider -->
     <View
         android:id="@+id/divider1"
         android:layout_width="350dp"
         android:layout_height="1dp"
-        android:layout_marginTop="312dp"
+        android:layout_marginTop="355dp"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/rounded_rectangle"
         android:backgroundTint="@color/main_text_brown" />
@@ -75,5 +206,5 @@
         android:text="While you were away..."
         android:textColor="@color/home_pink"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="315dp" />
+        android:layout_marginTop="360dp" />
 </FrameLayout>
