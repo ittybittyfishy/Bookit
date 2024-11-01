@@ -480,20 +480,20 @@ class ProfileFragment : Fragment() {
                 // Sort tags by count in descending order and take the most frequent one
                 val favoriteTag = tagCount.entries.maxByOrNull { it.value }?.key
 
-                // Update user's favoriteTag field in Firestore
-                db.collection("users").document(userId).update("favoriteTag", favoriteTag)
-                    .addOnSuccessListener {
-                        // Update text view here
-                        favoriteTagTextView.text = "$favoriteTag"
-
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(context, "Failed to update favorite tag: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-
-                    .addOnFailureListener { e ->
-                        Toast.makeText(context, "Failed to retrieve collections: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
+                // Update user's favoriteTag field in Firestore only if favoriteTag is not null
+                favoriteTag?.let { it ->
+                    db.collection("users").document(userId).update("favoriteTag", it)
+                        .addOnSuccessListener {
+                            // Update text view here
+                            favoriteTagTextView.text = it.toString()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(context, "Failed to update favorite tag: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Failed to retrieve collections: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -571,12 +571,6 @@ class ProfileFragment : Fragment() {
 
                     // Update the user's averageRating in Firestore
                     userDocRef.update("averageRating", averageRating)
-                        .addOnSuccessListener {
-                            // Ensure context is available before showing Toast
-                            context?.let {
-                                Toast.makeText(it, "Average rating updated", Toast.LENGTH_SHORT).show()
-                            }
-                        }
                         .addOnFailureListener {
                             context?.let {
                                 Toast.makeText(it, "Error updating average rating", Toast.LENGTH_SHORT).show()
