@@ -2,6 +2,8 @@ package com.example.booknook.api
 
 import com.example.booknook.BookResponse
 import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -34,4 +36,22 @@ interface GoogleBooksApiService {
         @Query("langRestrict") language: String? = null // Optional parameter to filter by language.
     ): Call<BookResponse> // The return type is Call<BookResponse>, which represents the HTTP response.
     // BookResponse is a data model class that holds the structure of the response we expect from the API.
+
+    // Yunjong Noh
+    // Using Retrofit library, networking with Google books API, return api request
+    // Base URL for Google Books API
+    companion object {
+        private const val BASE_URL = "https://www.googleapis.com/books/v1/"
+
+        // Creates and returns an instance of GoogleBooksApiService using Retrofit
+        fun create(): GoogleBooksApiService {
+            val retrofit = Retrofit.Builder()
+                .baseUrl(BASE_URL) // Set the API base URL
+                // Convert JSON response to Kotlin objects using Gson(Gson is conver json as respective google's library)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+            return retrofit.create(GoogleBooksApiService::class.java) // Return an API service instance
+        }
+    }
 }

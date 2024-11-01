@@ -77,6 +77,7 @@ class GroupsFragment : Fragment() {
             }
         }
 
+        // Allow User to sort groups
         sortGroups = view.findViewById(R.id.sortGroups)
         setupSortSpinner()
 
@@ -148,10 +149,11 @@ class GroupsFragment : Fragment() {
                 groupList.sortByDescending { it.groupName.lowercase() }
             }
             "Members ↑" -> {
-                // Sort groupList alphabetically by creater name
+                // Sort groupList by number of group members ascending
                 groupList.sortBy {it.members.size}
             }
             "Members ↓" -> {
+                // Sort groupList by number of group members descending
                 groupList.sortByDescending {it.members.size}
             }
         }

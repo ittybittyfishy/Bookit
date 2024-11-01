@@ -271,6 +271,7 @@ class BookDetailsFragment : Fragment() {
             bundle.putString("bookImage", bookImage)
             bundle.putFloat("bookRating", bookRating)
             bundle.putString("bookIsbn", isbn)
+            bundle.putStringArrayList("bookGenresList", bookGenres) // Add Genre list
 
             reviewActivityFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
             (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review")  // Opens a new fragment
