@@ -273,43 +273,65 @@ class BookAdapter(
 
         if (userId != null) {
             val db = FirebaseFirestore.getInstance()
+            val userDocRef = db.collection("users").document(userId)
 
-            // Fetch the user's custom collections from Firestore.
-            db.collection("users").document(userId).get()
-                .addOnSuccessListener { document ->
-                    val customCollections = document.get("customCollections") as? Map<String, Any>
+            // Fetch the user's custom collections and identify collections the book is already in.
+            userDocRef.get().addOnSuccessListener { document ->
+                val customCollections = document.get("customCollections") as? Map<String, Map<String, Any>>
+                val collectionsBookIsIn = mutableListOf<String>()
 
-                    // Check if there are any custom collections to display.
-                    if (!customCollections.isNullOrEmpty()) {
-                        // Prepare a dialog to display the custom collections.
-                        val customCollectionNames = customCollections.keys.toMutableList()
-                        customCollectionNames.add("Remove from Custom Collections")
-
-                        // Build and show the dialog with custom collections.
-                        AlertDialog.Builder(context)
-                            .setTitle("Select Custom Collection")
-                            .setItems(customCollectionNames.toTypedArray()) { dialog, which ->
-                                val selectedCollectionName = customCollectionNames[which]
-                                // Check if user selected the option to remove from custom collections.
-                                if (selectedCollectionName == "Remove from Custom Collections") {
-                                    removeBookFromCustomCollections(userId, book, context) // Remove the book from custom collections
-                                    calculateTopGenres(userId, context)  // Calculate top genres when removing book from custom collections
-                                } else {
-                                    // Add the book to the selected custom collection.
-                                    addBookToCustomCollection(userId, book, selectedCollectionName, context) // Add the book to the selected custom collection
-                                }
-                            }
-                            .setNegativeButton("Cancel", null) // Cancel button to dismiss the dialog
-                            .show() // Display the dialog
-                    } else {
-                        // Inform the user if no custom collections are found.
-                        Toast.makeText(context, "No custom collections found.", Toast.LENGTH_SHORT).show()
+                // Identify collections containing the book.
+                customCollections?.forEach { (collectionName, collectionData) ->
+                    val booksInCollection = collectionData["books"] as? List<Map<String, Any>>
+                    booksInCollection?.forEach { bookData ->
+                        if (bookData["title"] == book.volumeInfo.title &&
+                            bookData["authors"] == book.volumeInfo.authors
+                        ) {
+                            collectionsBookIsIn.add(collectionName)
+                        }
                     }
                 }
-                .addOnFailureListener {
-                    // Handle failure to load custom collections.
-                    Toast.makeText(context, "Error loading custom collections.", Toast.LENGTH_SHORT).show()
+
+                // Check if there are any custom collections to display.
+                if (!customCollections.isNullOrEmpty()) {
+                    val customCollectionNames = customCollections.keys.toMutableList()
+                    customCollectionNames.add("Remove from ALL Custom Collections")
+
+                    // Filter out collections the book is already in
+                    val filteredCollections = customCollectionNames.filterNot { it in collectionsBookIsIn }
+                    val displayCollectionNames = filteredCollections.toMutableList()
+
+                    // Show a message if all collections contain the book
+                    if (displayCollectionNames.isEmpty()) {
+                        Toast.makeText(context, "Book is already in all custom collections.", Toast.LENGTH_SHORT).show()
+                        return@addOnSuccessListener
+                    }
+
+                    // Build and show the dialog with custom collections.
+                    AlertDialog.Builder(context)
+                        .setTitle("Select Custom Collection")
+                        .setItems(displayCollectionNames.toTypedArray()) { dialog, which ->
+                            val selectedCollectionName = displayCollectionNames[which]
+
+                            // Check if the user selected the option to remove from custom collections.
+                            if (selectedCollectionName == "Remove from ALL Custom Collections") {
+                                removeBookFromCustomCollections(userId, book, context) // Remove the book from custom collections
+                                calculateTopGenres(userId, context)  // Calculate top genres when removing book from custom collections
+                            } else {
+                                // Add the book to the selected custom collection.
+                                addBookToCustomCollection(userId, book, selectedCollectionName, context) // Add the book to the selected custom collection
+                            }
+                        }
+                        .setNegativeButton("Cancel", null) // Cancel button to dismiss the dialog
+                        .show() // Display the dialog
+                } else {
+                    // Inform the user if no custom collections are found.
+                    Toast.makeText(context, "No custom collections found.", Toast.LENGTH_SHORT).show()
                 }
+            }.addOnFailureListener {
+                // Handle failure to load custom collections.
+                Toast.makeText(context, "Error loading custom collections.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
