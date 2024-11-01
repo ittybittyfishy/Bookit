@@ -467,7 +467,7 @@ class SearchBookRecommendationFragment : Fragment(), BookRecommendationAdapter.R
     // Opens a book's details in another page upon clicking on it
     override fun onItemClick(position: Int) {
         val bookItem = bookList[position]
-        val bookDetailsFragment = BookDetailsFragment()
+        val bookDetailsRecommendationFragment = BookDetailsRecommendationFragment()
         val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
         // Yunjong Noh
         // get ISBN number to manage books collection data
@@ -488,8 +488,8 @@ class SearchBookRecommendationFragment : Fragment(), BookRecommendationAdapter.R
         bundle.putString("bookDescription", description)
         bundle.putStringArrayList("bookGenres", ArrayList(bookItem.volumeInfo.categories ?: listOf("Unknown Genre")))
 
-        bookDetailsFragment.arguments = bundle  // sets bookDetailsFragment's arguments to the data in bundle
-        (activity as MainActivity).replaceFragment(bookDetailsFragment, "Book Details")  // Opens a new fragment
+        bookDetailsRecommendationFragment.arguments = bundle  // sets bookDetailsFragment's arguments to the data in bundle
+        (activity as MainActivity).replaceFragment(bookDetailsRecommendationFragment, "Book Details")  // Opens a new fragment
     }
 
 }
