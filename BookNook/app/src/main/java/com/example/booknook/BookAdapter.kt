@@ -20,10 +20,7 @@ class BookAdapter(
 ) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
 
     // List of predefined collections that users can assign books to.
-    private val standardCollections = mutableListOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped", "Remove")
-
-    // Flag to control the initial selection event
-    var isSpinnerInitialized = false
+    private val standardCollections = listOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped", "Remove")
 
     // Called when RecyclerView needs a new ViewHolder. ViewHolder represents each item view.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
@@ -71,49 +68,47 @@ class BookAdapter(
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         holder.spinnerSelectCollection.adapter = adapter // Assign the adapter to the spinner
 
-        // Initialize the spinner without triggering item selection
-        var isSpinnerInitialized = false // Flag to control the initial selection event
-        val originalFirstItem = standardCollections[0]
-
-        // Find the book's current collection and set the spinner to this collection
-        findBookCollection(holder.itemView.context, book.volumeInfo.title, book.volumeInfo.authors?.joinToString(", ")) { collection ->
-            if (collection != null && collection != "Select Collection") {
-                standardCollections[0] = "Current: " + collection // Temporarily set to current collection
-                adapter.notifyDataSetChanged() // Update spinner view
-            }
-        }
-
         val genres = book.volumeInfo.categories ?: listOf("Unknown Genre")
 
         // Set the listener to handle selection changes
-        holder.spinnerSelectCollection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                if (position == 0) return // Ignore first item selection (current collection)
+        holder.spinnerSelectCollection.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    when (position) {
+                        5 -> { // "Remove" selected
+                            removeBookFromStandardCollection(
+                                holder.itemView.context,
+                                book.volumeInfo.title,
+                                holder.authors.text.toString()
+                            )
+                        }
 
-                val selectedCollection = standardCollections[position]
-                if (position == 5) { // "Remove" collection selected
-                    removeBookFromStandardCollection(
-                        holder.itemView.context,
-                        book.volumeInfo.title,
-                        holder.authors.text.toString()
-                    )
-                } else {
-                    saveBookToCollection(
-                        holder.itemView.context,
-                        book.volumeInfo.title,
-                        holder.authors.text.toString(),
-                        imageUrl,
-                        selectedCollection,
-                        genres
-                    )
+                        1, 2, 3, 4 -> { // Other valid collections selected
+                            val selectedCollection = standardCollections[position]
+                            saveBookToCollection(
+                                holder.itemView.context,
+                                book.volumeInfo.title,
+                                holder.authors.text.toString(),
+                                imageUrl,
+                                selectedCollection,
+                                genres
+                            )
+                        }
+                    }
                 }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {}
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {}
+        // Handle the "Add to Custom Collection" button click event.
+        holder.btnAddToCustomCollection.setOnClickListener {
+            showCustomCollectionDialog(holder.itemView.context, book) // Show a dialog to select custom collection
         }
-
-        // Restore the original first item after setting up the spinner
-        standardCollections[0] = originalFirstItem
     }
 
     // Returns the total number of items (books) in the list.
