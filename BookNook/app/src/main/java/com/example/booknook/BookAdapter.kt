@@ -22,6 +22,9 @@ class BookAdapter(
     // List of predefined collections that users can assign books to.
     private val standardCollections = listOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped", "Remove")
 
+    // Initialize a flag to track if the spinner is in setup phase
+    var isSettingInitialSelection = true
+
     // Called when RecyclerView needs a new ViewHolder. ViewHolder represents each item view.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
         // Inflate the item layout for each book
@@ -68,27 +71,27 @@ class BookAdapter(
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         holder.spinnerSelectCollection.adapter = adapter // Assign the adapter to the spinner
 
+        // Find the book's current collection and set the spinner to this collection
+        findBookCollection(holder.itemView.context, book.volumeInfo.title, book.volumeInfo.authors?.joinToString(", ")) { collection ->
+            val collectionIndex = standardCollections.indexOf(collection) // Find index in standardCollections
+            if (collectionIndex != -1) {
+                holder.spinnerSelectCollection.setSelection(collectionIndex, false) // Set without triggering selection event
+            }
+        }
+
         val genres = book.volumeInfo.categories ?: listOf("Unknown Genre")
 
-        // Handle the spinner's item selection event.
-        holder.spinnerSelectCollection.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                // Called when an item is selected from the spinner.
-                override fun onItemSelected(
-                    parent: AdapterView<*>,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    if (position == 5) { // "Remove" collection selected
-                        // Remove the book from the collection
-                        removeBookFromStandardCollection(
-                            holder.itemView.context,
-                            book.volumeInfo.title,
-                            holder.authors.text.toString()
-                        )
-                    } else if (position != 0) { // Any valid collection selected (not "Select Collection")
-                        val selectedCollection = standardCollections[position]
+        // Set the listener to handle selection changes
+        holder.spinnerSelectCollection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                if (isSettingInitialSelection) return // Skip if we’re in the initial setup phase
+
+                val selectedCollection = standardCollections[position]
+                when {
+                    selectedCollection == "Remove" -> {
+                        removeBookFromStandardCollection(holder.itemView.context, book.volumeInfo.title, holder.authors.text.toString())
+                    }
+                    position != 0 -> {
                         saveBookToCollection(
                             holder.itemView.context,
                             book.volumeInfo.title,
@@ -99,9 +102,10 @@ class BookAdapter(
                         )
                     }
                 }
-
-                override fun onNothingSelected(parent: AdapterView<*>) {}
             }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
 
         // Handle the "Add to Custom Collection" button click event.
         holder.btnAddToCustomCollection.setOnClickListener {
@@ -138,6 +142,46 @@ class BookAdapter(
             if (position != RecyclerView.NO_POSITION) {
                 listener.onItemClick(position)  // Notify the listener of the item click
             }
+        }
+    }
+
+    private fun findBookCollection(
+        context: Context,
+        title: String,
+        authors: String?,
+        callback: (String?) -> Unit // Return collection name via callback
+    ) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        // make sure user is logged in
+        if (userId != null) {
+            val db = FirebaseFirestore.getInstance()
+            val userDocRef = db.collection("users").document(userId)
+
+            db.runTransaction { transaction ->
+                val snapshot = transaction.get(userDocRef)
+
+                // Loop through standard collections to find the book
+                for (collection in listOf("Reading", "Finished", "Want to Read", "Dropped")) {
+                    val booksInCollection = snapshot.get("standardCollections.$collection") as? List<Map<String, Any>>
+                    booksInCollection?.let {
+                        for (existingBook in it) {
+                            if (existingBook["title"] == title &&
+                                existingBook["authors"] == (authors?.split(", ") ?: listOf("Unknown Author"))
+                            ) {
+                                return@runTransaction collection // Return collection name
+                            }
+                        }
+                    }
+                }
+                null // Return null if no collection is found
+            }.addOnSuccessListener { collection ->
+                callback(collection as? String) // Pass collection name to callback
+            }.addOnFailureListener { e ->
+                Toast.makeText(context, "Failed to find book collection: ${e.message}", Toast.LENGTH_SHORT).show()
+                callback(null)
+            }
+        } else {
+            callback(null) // No user ID
         }
     }
 
