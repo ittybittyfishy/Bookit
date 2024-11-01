@@ -59,6 +59,17 @@ class BookAdapter(
                 ?: holder.itemView.context.getString(R.string.unknown_genres)
         )
 
+        findBookCollection(holder.itemView.context, book.volumeInfo.title, book.volumeInfo.authors?.joinToString(", ")) { collection ->
+            if (collection != null) {
+                holder.standardCollectionText.apply {
+                    text = "In Collection: $collection"
+                    visibility = View.VISIBLE
+                }
+            } else {
+                holder.standardCollectionText.visibility = View.GONE
+            }
+        }
+
         // Set up the spinner (drop-down menu) with standard collections.
         val adapter = ArrayAdapter(
             holder.itemView.context,
@@ -128,6 +139,7 @@ class BookAdapter(
         val genres: TextView = itemView.findViewById(R.id.bookGenres) // Genres of the book
         val spinnerSelectCollection: Spinner = itemView.findViewById(R.id.spinnerSelectCollection) // Spinner to select collections
         val btnAddToCustomCollection: Button = itemView.findViewById(R.id.btnAddToCustomCollection) // Button to add to custom collection
+        val standardCollectionText: TextView = itemView.findViewById(R.id.standardCollection)
 
         // Init block to set click listener for each book item.
         init {
@@ -147,10 +159,9 @@ class BookAdapter(
         context: Context,
         title: String,
         authors: String?,
-        callback: (String?) -> Unit // Return collection name via callback
+        callback: (String?) -> Unit // Callback to return collection name
     ) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
-        // make sure user is logged in
         if (userId != null) {
             val db = FirebaseFirestore.getInstance()
             val userDocRef = db.collection("users").document(userId)
@@ -166,20 +177,20 @@ class BookAdapter(
                             if (existingBook["title"] == title &&
                                 existingBook["authors"] == (authors?.split(", ") ?: listOf("Unknown Author"))
                             ) {
-                                return@runTransaction collection // Return collection name
+                                return@runTransaction collection // Return the collection name
                             }
                         }
                     }
                 }
-                null // Return null if no collection is found
+                null // Return null if not found in any collection
             }.addOnSuccessListener { collection ->
-                callback(collection as? String) // Pass collection name to callback
+                callback(collection as? String) // Pass the collection name to the callback
             }.addOnFailureListener { e ->
                 Toast.makeText(context, "Failed to find book collection: ${e.message}", Toast.LENGTH_SHORT).show()
-                callback(null)
+                callback(null) // Pass null if there's an error
             }
         } else {
-            callback(null) // No user ID
+            callback(null) // Return null if user is not logged in
         }
     }
 
