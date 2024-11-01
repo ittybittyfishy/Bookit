@@ -1,0 +1,402 @@
+package com.example.booknook.fragments
+
+import android.app.AlertDialog
+import android.os.Bundle
+import android.text.TextUtils
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.RatingBar
+import android.widget.TextView
+import com.bumptech.glide.Glide
+import com.example.booknook.MainActivity
+import com.example.booknook.R
+import com.example.booknook.BookItem
+import com.example.booknook.R.*
+import com.google.firebase.auth.FirebaseAuth
+import android.content.Context
+import android.util.Log
+import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import android.widget.Spinner
+import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.booknook.Comment
+import com.example.booknook.CommentsAdapter
+import com.example.booknook.ImageLinks
+import com.example.booknook.IndustryIdentifier
+import com.example.booknook.Reply
+import com.example.booknook.Review
+import com.example.booknook.ReviewsAdapter
+import com.example.booknook.TemplateReview
+import com.example.booknook.VolumeInfo
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import java.util.Locale
+
+
+// Veronica Nguyen
+class BookDetailsRecommendationFragment : Fragment() {
+    private lateinit var editButton: ImageButton
+    private lateinit var personalSummary: EditText
+    private lateinit var selectBookButton: Button
+    private lateinit var cancelButton: Button
+    private lateinit var saveChangesButton: Button
+    private lateinit var readMoreButton: Button
+    private var isDescriptionExpanded = false  // defaults the description to not be expanded
+    // List of predefined collections that users can assign books to.
+    private val standardCollections = listOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped", "Remove")
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+
+    ): View? {
+        val view = inflater.inflate(layout.fragment_book_details_recommendation, container, false)
+
+        // Retrieves data from arguments passed in from the search fragment
+        val bookTitle = arguments?.getString("bookTitle")
+        val bookAuthor = arguments?.getString("bookAuthor")
+        val bookAuthorsList = arguments?.getStringArrayList("bookAuthorsList")
+        val bookImage = arguments?.getString("bookImage")
+        val bookRating = arguments?.getFloat("bookRating") ?: 0f
+        val isbn = arguments?.getString("bookIsbn")
+        val bookDescription = arguments?.getString("bookDescription")
+        val bookGenres = arguments?.getStringArrayList("bookGenres")
+        val userId = FirebaseAuth.getInstance().currentUser?.uid // Current logged-in user ID
+
+        // Retrieves Ids in the fragment
+        val titleTextView: TextView = view.findViewById(R.id.bookTitle)
+        val authorTextView: TextView = view.findViewById(R.id.bookAuthor)
+        val imageView: ImageView = view.findViewById(R.id.bookImage)
+        val bookRatingBar: RatingBar = view.findViewById(R.id.bookRating)
+        val ratingNumberTextView: TextView = view.findViewById(R.id.ratingNumber)
+        val descriptionTextView: TextView = view.findViewById(R.id.bookDescription)
+
+        // Calls views
+        editButton = view.findViewById(R.id.edit_summary_button)
+        personalSummary = view.findViewById(R.id.personal_summary)
+        selectBookButton = view.findViewById(R.id.selectBookButton)
+        cancelButton = view.findViewById(R.id.cancel_button)
+        saveChangesButton = view.findViewById(R.id.save_changes_button)
+        readMoreButton = view.findViewById(R.id.readMoreButton)
+
+        titleTextView.text = bookTitle
+        authorTextView.text = bookAuthor  // Update text with the book's author(s)
+        bookRatingBar.rating = bookRating // Update stars with rating
+        ratingNumberTextView.text = "(${bookRating.toString()})" // Set the rating number text
+        descriptionTextView.text = bookDescription
+
+        // Update the book's image
+        if (bookImage != null) {
+            Glide.with(this)
+                .load(bookImage)
+                .placeholder(drawable.placeholder_image)
+                .error(drawable.placeholder_image)
+                .into(imageView)
+        }
+
+
+
+        // Create VolumeInfo object from the data
+        val volumeInfo = bookTitle?.let {
+            VolumeInfo(
+                title = it,
+                authors = bookAuthorsList,
+                categories = bookGenres,
+                imageLinks = bookImage?.let { ImageLinks(it) }
+            )
+        }
+
+        // Create a BookItem object
+        val bookId = arguments?.getString("bookId") ?: "Unknown ID" // You can adjust this based on your data source
+        val book = volumeInfo?.let { BookItem(id = bookId, volumeInfo = it) }
+
+
+        // Display the "Read more" button for the book description if it's too long
+        if (descriptionTextView.maxLines == 6) {
+            readMoreButton.visibility = View.VISIBLE
+        } else {
+            readMoreButton.visibility = View.GONE
+        }
+
+        // Handles click of the read more button
+        readMoreButton.setOnClickListener {
+            // If the description isn't expanded
+            if (isDescriptionExpanded) {
+                descriptionTextView.maxLines = 6  // Show only 6 lines of the description
+                descriptionTextView.ellipsize = TextUtils.TruncateAt.END  // Truncates the end and adds "..."
+                readMoreButton.text = "Read more"  // Button displays as "Read more"
+            } else {
+                descriptionTextView.maxLines = Int.MAX_VALUE  // Expands the whole description
+                descriptionTextView.ellipsize = null  // Removes ellipses
+                readMoreButton.text = "Read less"  // Button displays as "Read less"
+            }
+            isDescriptionExpanded = !isDescriptionExpanded  // Switches state of variable after it's been clicked
+        }
+
+        // Handles click of edit personal summary button
+        editButton.setOnClickListener {
+            // Allows user to now type in box
+            personalSummary.isFocusable = true
+            personalSummary.isFocusableInTouchMode = true
+            personalSummary.requestFocus()
+            // Makes the keyboard pop up
+            val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(personalSummary, InputMethodManager.SHOW_IMPLICIT)
+
+            // Makes cancel and save changes button visible
+            cancelButton.visibility = View.VISIBLE
+            saveChangesButton.visibility = View.VISIBLE
+        }
+
+        // Handles click of cancel button
+        cancelButton.setOnClickListener {
+            personalSummary.isFocusable = false
+            personalSummary.isFocusableInTouchMode = false
+            cancelButton.visibility = View.GONE
+            saveChangesButton.visibility = View.GONE
+        }
+
+        // Handles click of save changes button
+        saveChangesButton.setOnClickListener {
+            val summaryText = personalSummary.text.toString()
+            saveSummary(summaryText)
+
+            // Hide the buttons
+            cancelButton.visibility = View.GONE
+            saveChangesButton.visibility = View.GONE
+        }
+
+        // Fetch existing summary if the user has already submitted one for this book
+        if (userId != null && isbn != null) {
+            val db = FirebaseFirestore.getInstance()
+
+            var bookIsbn = isbn
+            // If the book has no ISBN, create a unique document ID using the title and authors of the book
+            if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {
+                // Creates title part by replacing all whitespaces with underscores, and making it lowercase
+                val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT) ?: "unknown_title"
+                // Creates authors part by combining authors, replacing all whitespaces with underscores, and making it lowercase
+                val authorsId = bookAuthorsList?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
+                bookIsbn = "$titleId-$authorsId" // Update bookIsbn with new Id
+            }
+
+            val bookRef = db.collection("books").document(bookIsbn)
+
+            // Checks if the user already submitted a summary for this book
+            bookRef.collection("summaries").whereEqualTo("userId", userId).get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        // Loads in the summary data if a summary is found
+                        val existingSummary = querySnapshot.documents[0].data
+                        personalSummary.setText(existingSummary?.get("summaryText") as? String ?: "")
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(activity, "Failed to retrieve existing summary", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+
+        //Yunjong Noh
+        // Check if the ISBN is not null("?" statement) and then fetch reviews
+        isbn?.let {
+            fetchReviews(it)  // Call the fetchReviews method and pass the ISBN
+        }
+
+        return view
+    }
+
+
+    // Function to save the personal summary into databases
+    private fun saveSummary(summaryText: String) {
+        val user = FirebaseAuth.getInstance().currentUser // Gets current user
+        val userId = user?.uid // Gets user id
+
+        if (userId != null) {
+            val db = FirebaseFirestore.getInstance()
+            var bookIsbn = arguments?.getString("bookIsbn") // Retrieve the book's ISBN from arguments
+            val bookTitle = arguments?.getString("bookTitle")
+            val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
+
+            // If the book has no ISBN, create a unique document ID using the title and authors of the book
+            if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {
+                // Creates title part by replacing all whitespaces with underscores, and making it lowercase
+                val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT) ?: "unknown_title"
+                // Creates authors part by combining authors, replacing all whitespaces with underscores, and making it lowercase
+                val authorsId = bookAuthors?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
+                bookIsbn = "$titleId-$authorsId" // Update bookIsbn with new Id
+            }
+
+            // Reference to the specific book's document
+            val bookRef = db.collection("books").document(bookIsbn)
+
+            // Get the user's username from database
+            db.collection("users").document(userId).get().addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val username = document.getString("username") // Get username if exists
+
+                    // Create a map for the summary data
+                    val summaryData = mapOf(
+                        "userId" to userId,
+                        "username" to username,
+                        "summaryText" to summaryText,
+                        "timestamp" to FieldValue.serverTimestamp() // Use Firestore timestamp
+                    )
+
+                    // Map to store book data
+                    val bookData = mapOf(
+                        "bookTitle" to bookTitle,
+                        "authors" to bookAuthors
+                    )
+
+                    bookRef.set(bookData, SetOptions.merge())  // Updates database with book details if not in database already
+
+                    // Check if the user has already submitted a summary
+                    bookRef.collection("summaries").whereEqualTo("userId", userId).get()
+                        .addOnSuccessListener { querySnapshot ->
+                            if (querySnapshot.isEmpty) {
+                                // Add a new summary if one doesn't exist
+                                bookRef.collection("summaries").add(summaryData)
+                                    .addOnSuccessListener {
+                                        Toast.makeText(activity, "Summary saved successfully", Toast.LENGTH_SHORT).show()
+                                    }
+                                    .addOnFailureListener {
+                                        Toast.makeText(activity, "Failed to save summary", Toast.LENGTH_SHORT).show()
+                                    }
+                            } else {
+                                // Updates the existing summary
+                                val existingSummaryId = querySnapshot.documents[0].id
+                                bookRef.collection("summaries").document(existingSummaryId)
+                                    .set(summaryData) // Update summary data
+                                    .addOnSuccessListener {
+                                        Toast.makeText(activity, "Summary updated successfully", Toast.LENGTH_SHORT).show()
+                                    }
+                                    .addOnFailureListener {
+                                        Toast.makeText(activity, "Failed to update summary", Toast.LENGTH_SHORT).show()
+                                    }
+                            }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(activity, "Failed to check existing summaries", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        // Doesn't allow user to click on box after saving changes
+        personalSummary.isFocusable = false
+        personalSummary.isFocusableInTouchMode = false
+    }
+
+    // Yunjong Noh
+    // Function to fetch reviews for a specific book from Firestore using its ISBN
+    private fun fetchReviews(isbn: String) {
+        // Reference to the reviews collection of the specified book in Firestore
+        val reviewsRef = FirebaseFirestore.getInstance()
+            .collection("books")
+            .document(isbn)
+            .collection("reviews")
+
+        // Fetch all reviews for the specified book
+        reviewsRef.get()
+            .addOnSuccessListener { documents ->
+                val reviewsList = mutableListOf<Any>()
+                for (document in documents) {
+                    val isTemplateUsed = document.getBoolean("isTemplateUsed") ?: false
+                    if (isTemplateUsed) {
+                        // Convert the document to a TemplateReview object and copy relevant fields
+                        val templateReview = document.toObject(TemplateReview::class.java).copy(
+                            reviewId = document.id, // Set the review ID
+                            isbn = isbn // Set the ISBN
+                        )
+                        reviewsList.add(templateReview) // Add the template review to the list
+                        Log.d("fetchReviews", "Fetched TemplateReview - ISBN: $isbn, ReviewID: ${document.id}") // Log the fetched template review
+                        // Fetch comments for the template review
+                        fetchComments(isbn, document.id)
+                    } else {
+                        val review = document.toObject(Review::class.java).copy(
+                            reviewId = document.id,
+                            isbn = isbn
+                        )
+                        reviewsList.add(review)
+                        Log.d("fetchReviews", "Fetched Review - ISBN: $isbn, ReviewID: ${document.id}") // Log the fetched regular review
+                        // Fetch comments for the regular review
+                        fetchComments(isbn, document.id)
+                    }
+                }
+                setupRecyclerView(reviewsList) // Set up the RecyclerView with the fetched reviews
+            }
+            .addOnFailureListener { exception ->
+                Log.e("BookDetailsFragment", "Error fetching reviews", exception)
+            }
+    }
+
+    // Yunjong Noh
+    // Function to fetch comments for a specific review from Firestore
+    private fun fetchComments(isbn: String, reviewId: String) {
+        // Reference to the comments collection for the specified review in Firestore
+        val commentsRef = FirebaseFirestore.getInstance()
+            .collection("books")
+            .document(isbn)
+            .collection("reviews")
+            .document(reviewId)
+            .collection("comments")
+
+        // Fetch all comments for the specified review
+        commentsRef.get()
+            .addOnSuccessListener { documents ->
+                val commentsList = mutableListOf<Comment>()
+                for (document in documents) { // Iterate through each comment document
+                    // Convert the document to a Comment object and add the comment ID
+                    val comment = document.toObject(Comment::class.java).apply {
+                        commentId = document.id // Add the comment ID
+                    }
+                    commentsList.add(comment) // Add the comment to the list
+                }
+                // Update the UI with the comments list
+                setupCommentsRecyclerView(commentsList) // Set up the RecyclerView for comments
+            }
+            .addOnFailureListener { exception ->
+                Log.e("fetchComments", "Error fetching comments", exception)
+            }
+    }
+
+    // Yunjong Noh
+    // Function to set up the RecyclerView and bind it with the fetched reviews
+    private fun setupRecyclerView(reviews: List<Any>) {
+        // Find the RecyclerView UI element in the layout
+        val recyclerView = view?.findViewById<RecyclerView>(R.id.reviewsRecyclerView)
+        // Set up the RecyclerView to use a vertical LinearLayoutManager
+        recyclerView?.layoutManager = LinearLayoutManager(context)
+        // Set the adapter to show fetched reviews in the RecyclerView
+        recyclerView?.adapter = ReviewsAdapter(reviews) // Bind the reviews to the adapter
+    }
+
+    // Yunjong Noh
+    // Function to set up the RecyclerView for comments
+    private fun setupCommentsRecyclerView(comments: List<Comment>) {
+        // Find the RecyclerView UI element for comments
+        val recyclerView = view?.findViewById<RecyclerView>(R.id.commentsRecyclerView)
+        // Create an adapter for the comments
+        val commentsAdapter = CommentsAdapter(comments)
+        // Set the layout manager for the comments RecyclerView
+        recyclerView?.layoutManager = LinearLayoutManager(context)
+        // Bind the comments to the adapter
+        recyclerView?.adapter = commentsAdapter
+    }
+
+}
