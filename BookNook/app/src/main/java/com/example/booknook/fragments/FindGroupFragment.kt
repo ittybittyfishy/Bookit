@@ -1,5 +1,6 @@
 package com.example.booknook.fragments
 
+import android.app.ProgressDialog
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -22,7 +23,7 @@ import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class FindGroupFragment  : Fragment() {
+class FindGroupFragment  : Fragment(), FilterListener {
 
     // Declaring variables for the EditText and Button UI elements
     private lateinit var searchEdit: EditText // Input field for the search query
@@ -31,10 +32,13 @@ class FindGroupFragment  : Fragment() {
     private lateinit var groupAdapter: GroupAdapter // Adapter for populating the RecyclerView
     private val groupList = mutableListOf<GroupItem>() // List to hold group items retrieved from Firestore
     private lateinit var sortGroups: Spinner
+    private lateinit var filterGroups: Button
 
     // Navigation buttons for switching between different fragments
     private lateinit var myGroups:  Button
     private lateinit var manage: Button
+
+    private var currentQuery: String? = null // Stores the current search query
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -105,9 +109,22 @@ class FindGroupFragment  : Fragment() {
         // deploy spinner
         setupSortSpinner()
 
+        currentQuery = searchEdit.text.toString()
+
+        filterGroups = view.findViewById(R.id.filterGroups)
+        filterGroups.setOnClickListener{
+            navigateToFilters()
+        }
+
         // Load all groups by default when fragment is opened
         loadGroupsFromFirestore()
 
+    }
+
+    // Implement the onFiltersApplied method from FilterListener
+    override fun onFiltersApplied(includeTags: List<String>, excludeTags: List<String>, privateGroupOnly: Boolean, publicGroupOnly: Boolean) {
+        // Filter groups based on tags and publicity
+        loadFilteredGroups(includeTags, excludeTags, privateGroupOnly, publicGroupOnly)
     }
 
     // Veronica Nguyen
@@ -125,6 +142,7 @@ class FindGroupFragment  : Fragment() {
 
     // Method to load all groups from Firestore
     private fun loadGroupsFromFirestore() {
+
         val db = FirebaseFirestore.getInstance()
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid
@@ -224,6 +242,42 @@ class FindGroupFragment  : Fragment() {
 
         // Notify the adapter about the updated data
         groupAdapter.notifyDataSetChanged()
+    }
+
+    // Function to navigate to the filters fragment where users can set search filters
+    private fun navigateToFilters() {
+        val filterFragment = GroupsFilterFragment()
+        filterFragment.setTargetFragment(this, 0) // Set FindGroupFragment as the target
+        filterFragment.show(parentFragmentManager, "GroupsFilterDialog")
+    }
+
+    private fun loadFilteredGroups(includeTags: List<String>, excludeTags: List<String>, privateOnly: Boolean, publicOnly: Boolean) {
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("groups").get()
+            .addOnSuccessListener { documents ->
+                groupList.clear()
+
+                for (document in documents) {
+                    val group = document.toObject(GroupItem::class.java).copy(id = document.id)
+
+                    // Apply tag and publicity filtering
+                    if (matchesFilters(group, includeTags, excludeTags) &&
+                        (publicOnly && !group.private || privateOnly && group.private || !publicOnly && !privateOnly)) {
+                        groupList.add(group)
+                    }
+                }
+
+                groupAdapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener { e ->
+                Log.w("FindGroupFragment", "Error loading groups: ${e.message}")
+            }
+    }
+
+    private fun matchesFilters(group: GroupItem, includeTags: List<String>, excludeTags: List<String>): Boolean {
+        // Check if the group includes all selected tags and excludes any excluded tags
+        return includeTags.all { group.tags.contains(it) } && excludeTags.none { group.tags.contains(it) }
     }
 
 }
