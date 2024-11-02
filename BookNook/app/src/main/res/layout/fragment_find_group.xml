@@ -44,13 +44,14 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal">
+        android:layout_gravity="center_horizontal"
+        android:padding="5dp">
 
         <EditText
             android:id="@+id/searchEditText"
-            android:layout_width="320dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@drawable/rectangle_border_white"
             android:elevation="7dp"
@@ -61,17 +62,18 @@
             android:textColor="#8b774e"
             android:textColorHint="#c1a37a"
             android:textSize="18sp"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_weight="1"
+            />
 
         <ImageButton
             android:id="@+id/searchButton"
             android:layout_width="45dp"
             android:layout_height="45dp"
-            android:layout_gravity="end|center_vertical"
             android:background="@drawable/search_icon"
             android:elevation="6dp"
             android:layout_marginBottom="5dp"
-            android:backgroundTint="@color/banner_green"/>
+            android:backgroundTint="@color/banner_green"
+            android:layout_gravity="center_vertical"/>
 
     </LinearLayout>
 
@@ -79,7 +81,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:layout_marginTop="5dp"
         android:orientation="horizontal">
         <Button
             android:id="@+id/filterGroups"

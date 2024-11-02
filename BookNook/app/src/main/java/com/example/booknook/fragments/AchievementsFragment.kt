@@ -111,6 +111,38 @@ class AchievementsFragment : Fragment() {
     private lateinit var bookGodIcon: ImageView // New Icon for Book God
     private lateinit var bookGodTitle: TextView // New Title for Book God
     private lateinit var bookGodRequirement: TextView // New Requirement for Book God
+
+    // UI elements for Fantasy Explorer
+    private lateinit var fantasyExplorerCard: CardView
+    private lateinit var fantasyExplorerProgressBar: ProgressBar
+    private lateinit var fantasyExplorerProgressText: TextView
+    private lateinit var fantasyExplorerCurrentProgressText: TextView
+    private lateinit var fantasyExplorerMaxProgressText: TextView
+    private lateinit var fantasyExplorerIcon: ImageView
+    private lateinit var fantasyExplorerTitle: TextView
+    private lateinit var fantasyExplorerRequirement: TextView
+
+    // UI elements for History Achievement
+    private lateinit var historyCard: CardView
+    private lateinit var historyProgressBar: ProgressBar
+    private lateinit var historyProgressText: TextView
+    private lateinit var historyCurrentProgressText: TextView
+    private lateinit var historyMaxProgressText: TextView
+    private lateinit var historyIcon: ImageView
+    private lateinit var historyTitle: TextView
+    private lateinit var historyRequirement: TextView
+
+    // UI elements for Mystery Solver Achievement
+    private lateinit var mysteryCard: CardView
+    private lateinit var mysteryProgressBar: ProgressBar
+    private lateinit var mysteryProgressText: TextView
+    private lateinit var mysteryCurrentProgressText: TextView
+    private lateinit var mysteryMaxProgressText: TextView
+    private lateinit var mysteryIcon: ImageView
+    private lateinit var mysteryTitle: TextView
+    private lateinit var mysteryRequirement: TextView
+
+
     // Add other Icons, Titles, and Requirements as needed...
 
     override fun onCreateView(
@@ -206,16 +238,381 @@ class AchievementsFragment : Fragment() {
         bookGodIcon = view.findViewById(R.id.book_god_icon) // Initialize Book God Icon
         bookGodTitle = view.findViewById(R.id.book_god_title) // Initialize Book God Title
         bookGodRequirement = view.findViewById(R.id.book_god_requirement) // Initialize Book God Requirement
+
+        // Initialize Fantasy Explorer UI components
+        fantasyExplorerCard = view.findViewById(R.id.fantasy_explorer_card)
+        fantasyExplorerProgressBar = view.findViewById(R.id.fantasy_explorer_progress_bar)
+        fantasyExplorerProgressText = view.findViewById(R.id.fantasy_explorer_progress_text)
+        fantasyExplorerCurrentProgressText = view.findViewById(R.id.fantasy_explorer_current_progress_text)
+        fantasyExplorerMaxProgressText = view.findViewById(R.id.fantasy_explorer_max_progress_text)
+        fantasyExplorerIcon = view.findViewById(R.id.fantasy_explorer_icon)
+        fantasyExplorerTitle = view.findViewById(R.id.fantasy_explorer_title)
+        fantasyExplorerRequirement = view.findViewById(R.id.fantasy_explorer_requirement)
+
+        // Initialize History Achievement UI components
+        historyCard = view.findViewById(R.id.history_card)
+        historyProgressBar = view.findViewById(R.id.history_progress_bar)
+        historyProgressText = view.findViewById(R.id.history_progress_text)
+        historyCurrentProgressText = view.findViewById(R.id.history_current_progress_text)
+        historyMaxProgressText = view.findViewById(R.id.history_max_progress_text)
+        historyIcon = view.findViewById(R.id.history_icon)
+        historyTitle = view.findViewById(R.id.history_title)
+        historyRequirement = view.findViewById(R.id.history_requirement)
+
+        // Initialize Mystery Solver UI components
+        mysteryCard = view.findViewById(R.id.mystery_solver_card)
+        mysteryProgressBar = view.findViewById(R.id.mystery_solver_progress_bar)
+        mysteryProgressText = view.findViewById(R.id.mystery_solver_progress_text)
+        mysteryCurrentProgressText = view.findViewById(R.id.mystery_solver_current_progress_text)
+        mysteryMaxProgressText = view.findViewById(R.id.mystery_solver_max_progress_text)
+        mysteryIcon = view.findViewById(R.id.mystery_solver_icon)
+        mysteryTitle = view.findViewById(R.id.mystery_solver_title)
+        mysteryRequirement = view.findViewById(R.id.mystery_solver_requirement)
+
+
         // Initialize other Icons, Titles, and Requirements as needed...
 
         // Load achievements and XP data from Firestore
         userId?.let {
+            loadFantasyExplorerAchievement(it)
+            loadHistoryAchievement(it)
+            loadMysterySolverAchievement(it)
             loadAchievementsData(it)
             setupRealtimeUpdates(it) // Optional: For real-time updates
         }
 
         return view
     }
+
+    private fun loadFantasyExplorerAchievement(userId: String) {
+        val userDocRef = firestore.collection("users").document(userId)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                // Retrieve the list of finished books
+                val finishedBooks = (document.get("standardCollections.Finished") as? List<*>)?.mapNotNull { book ->
+                    when (book) {
+                        is Map<*, *> -> {
+                            val genres = book["genres"] as? List<*>
+                            genres?.filterIsInstance<String>() // Cast genres to a list of strings
+                        }
+                        else -> null
+                    }
+                } ?: emptyList()
+
+                // Count the number of books with the genre "fiction" (case-insensitive)
+                val fictionBooksCount = finishedBooks.flatten().count { genre ->
+                    genre.equals("Fiction", ignoreCase = true) || genre.equals("Juvenile Fiction", ignoreCase = true)
+
+                }
+
+                // Check if Fantasy Explorer is already achieved
+                val isFantasyExplorerAchieved = document.getBoolean("fantasyExplorerAchieved") ?: false
+
+                if (!isFantasyExplorerAchieved && fictionBooksCount >= 10) {
+                    // Unlock the achievement
+                    unlockFantasyExplorerAchievement(userDocRef)
+                } else {
+                    // Update the achievement progress UI
+                    updateAchievementProgress(
+                        progressBar = fantasyExplorerProgressBar,
+                        progressTextView = fantasyExplorerProgressText,
+                        currentProgressTextView = fantasyExplorerCurrentProgressText,
+                        maxProgressTextView = fantasyExplorerMaxProgressText,
+                        cardView = fantasyExplorerCard,
+                        iconView = fantasyExplorerIcon,
+                        titleTextView = fantasyExplorerTitle,
+                        requirementTextView = fantasyExplorerRequirement,
+                        maxValue = 10,
+                        currentValue = fictionBooksCount.coerceAtMost(10),
+                        description = "Log 10 fiction books as finished",
+                        isAchieved = isFantasyExplorerAchieved || fictionBooksCount >= 10
+                    )
+
+                    // Update the current and max progress TextViews
+                    fantasyExplorerCurrentProgressText.text = fictionBooksCount.coerceAtMost(10).toString()
+                    fantasyExplorerMaxProgressText.text = "10"
+                }
+            } else {
+                Log.e("AchievementsFragment", "No such document for user: $userId")
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("AchievementsFragment", "Error loading Fantasy Explorer achievement: ", exception)
+        }
+    }
+
+
+    // Function to unlock Fantasy Explorer Achievement and update UI
+    private fun unlockFantasyExplorerAchievement(userDocRef: DocumentReference) {
+        userDocRef.update("fantasyExplorerAchieved", true)
+            .addOnSuccessListener {
+                Log.d("AchievementsFragment", "Fantasy Explorer Achievement unlocked successfully.")
+                if (isAdded && context != null) { // Ensure fragment is attached
+                    requireActivity().runOnUiThread {
+                        // Show a toast when the achievement is unlocked
+                        Toast.makeText(context, "Achievement Unlocked: Fantasy Explorer!", Toast.LENGTH_SHORT).show()
+
+                        // Animate the card background color change
+                        animateCardBackgroundColor(
+                            cardView = fantasyExplorerCard,
+                            fromColor = ContextCompat.getColor(requireContext(), R.color.achievement_card),
+                            toColor = ContextCompat.getColor(requireContext(), R.color.achievement_card_unlocked)
+                        )
+
+                        // Update the UI to reflect the unlocked achievement
+                        updateAchievementProgress(
+                            progressBar = fantasyExplorerProgressBar,
+                            progressTextView = fantasyExplorerProgressText,
+                            currentProgressTextView = fantasyExplorerCurrentProgressText,
+                            maxProgressTextView = fantasyExplorerMaxProgressText,
+                            cardView = fantasyExplorerCard,
+                            iconView = fantasyExplorerIcon,
+                            titleTextView = fantasyExplorerTitle,
+                            requirementTextView = fantasyExplorerRequirement,
+                            maxValue = 10,
+                            currentValue = 10,
+                            description = "Log 10 fiction books as finished",
+                            isAchieved = true
+                        )
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("AchievementsFragment", "Error unlocking Fantasy Explorer achievement: ", exception)
+                // Optional: Inform the user about the failure
+                if (isAdded && context != null) {
+                    requireActivity().runOnUiThread {
+                        Toast.makeText(context, "Failed to unlock Fantasy Explorer. Please try again.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+    }
+
+    private fun loadHistoryAchievement(userId: String) {
+        val userDocRef = firestore.collection("users").document(userId)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                // Log to check the document content
+                Log.d("AchievementsFragment", "Document data: ${document.data}")
+
+                // Retrieve the list of finished books
+                val finishedBooks = (document.get("standardCollections.Finished") as? List<*>)?.mapNotNull { book ->
+                    when (book) {
+                        is Map<*, *> -> {
+                            val genres = book["genres"] as? List<*>
+                            // Log each book's genres
+                            Log.d("AchievementsFragment", "Book genres: $genres")
+                            genres?.filterIsInstance<String>() // Cast genres to a list of strings
+                        }
+                        else -> null
+                    }
+                } ?: emptyList()
+
+                // Log the flattened list of genres to verify the data
+                Log.d("AchievementsFragment", "Flattened genres list: $finishedBooks")
+
+                // Count the number of books with the genre "History" (case-insensitive)
+                val historyBooksCount = finishedBooks.flatten().count { genre ->
+                    genre.equals("history", ignoreCase = true)
+                }
+
+                // Log the count of history books
+                Log.d("AchievementsFragment", "History Books Count: $historyBooksCount")
+
+                // Check if History achievement is already achieved
+                val isHistoryAchieved = document.getBoolean("historyAchieved") ?: false
+
+                if (!isHistoryAchieved && historyBooksCount >= 10) {
+                    // Unlock the achievement
+                    unlockHistoryAchievement(userDocRef)
+                } else {
+                    // Update the achievement progress UI
+                    updateAchievementProgress(
+                        progressBar = historyProgressBar,
+                        progressTextView = historyProgressText,
+                        currentProgressTextView = historyCurrentProgressText,
+                        maxProgressTextView = historyMaxProgressText,
+                        cardView = historyCard,
+                        iconView = historyIcon,
+                        titleTextView = historyTitle,
+                        requirementTextView = historyRequirement,
+                        maxValue = 10,
+                        currentValue = historyBooksCount.coerceAtMost(10),
+                        description = "Read 10 history books",
+                        isAchieved = isHistoryAchieved || historyBooksCount >= 10
+                    )
+
+                    // Update the current and max progress TextViews
+                    historyCurrentProgressText.text = historyBooksCount.coerceAtMost(10).toString()
+                    historyMaxProgressText.text = "10"
+                }
+            } else {
+                Log.e("AchievementsFragment", "No such document for user: $userId")
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("AchievementsFragment", "Error loading History achievement: ", exception)
+        }
+    }
+
+    private fun unlockHistoryAchievement(userDocRef: DocumentReference) {
+        userDocRef.update("historyAchieved", true)
+            .addOnSuccessListener {
+                Log.d("AchievementsFragment", "History Achievement unlocked successfully.")
+                if (isAdded && context != null) { // Ensure fragment is attached
+                    requireActivity().runOnUiThread {
+                        // Show a toast when the achievement is unlocked
+                        Toast.makeText(context, "Achievement Unlocked: Historian!", Toast.LENGTH_SHORT).show()
+
+                        // Animate the card background color change
+                        animateCardBackgroundColor(
+                            cardView = historyCard,
+                            fromColor = ContextCompat.getColor(requireContext(), R.color.achievement_card),
+                            toColor = ContextCompat.getColor(requireContext(), R.color.achievement_card_unlocked)
+                        )
+
+                        // Update the UI to reflect the unlocked achievement
+                        updateAchievementProgress(
+                            progressBar = historyProgressBar,
+                            progressTextView = historyProgressText,
+                            currentProgressTextView = historyCurrentProgressText,
+                            maxProgressTextView = historyMaxProgressText,
+                            cardView = historyCard,
+                            iconView = historyIcon,
+                            titleTextView = historyTitle,
+                            requirementTextView = historyRequirement,
+                            maxValue = 10,
+                            currentValue = 10,
+                            description = "Read 10 history books",
+                            isAchieved = true
+                        )
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("AchievementsFragment", "Error unlocking History achievement: ", exception)
+                if (isAdded && context != null) {
+                    requireActivity().runOnUiThread {
+                        Toast.makeText(context, "Failed to unlock Historian. Please try again.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+    }
+
+    private fun loadMysterySolverAchievement(userId: String) {
+        val userDocRef = firestore.collection("users").document(userId)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                // Log to check the document content
+                Log.d("AchievementsFragment", "Document data: ${document.data}")
+
+                // Retrieve the list of finished books
+                val finishedBooks = (document.get("standardCollections.Finished") as? List<*>)?.mapNotNull { book ->
+                    when (book) {
+                        is Map<*, *> -> {
+                            val genres = book["genres"] as? List<*>
+                            // Log each book's genres
+                            Log.d("AchievementsFragment", "Book genres: $genres")
+                            genres?.filterIsInstance<String>() // Cast genres to a list of strings
+                        }
+                        else -> null
+                    }
+                } ?: emptyList()
+
+                // Log the flattened list of genres to verify the data
+                Log.d("AchievementsFragment", "Flattened genres list: $finishedBooks")
+
+                // Count the number of books with the genres "Crime" or "True Crime" (case-insensitive)
+                val mysteryBooksCount = finishedBooks.flatten().count { genre ->
+                    genre.equals("Crime", ignoreCase = true) || genre.equals("True Crime", ignoreCase = true)
+                }
+
+                // Log the count of mystery books
+                Log.d("AchievementsFragment", "Mystery Books Count: $mysteryBooksCount")
+
+                // Check if Mystery Solver achievement is already achieved
+                val isMysterySolverAchieved = document.getBoolean("mysterySolverAchieved") ?: false
+
+                if (!isMysterySolverAchieved && mysteryBooksCount >= 10) {
+                    // Unlock the achievement
+                    unlockMysterySolverAchievement(userDocRef)
+                } else {
+                    // Update the achievement progress UI
+                    updateAchievementProgress(
+                        progressBar = mysteryProgressBar,
+                        progressTextView = mysteryProgressText,
+                        currentProgressTextView = mysteryCurrentProgressText,
+                        maxProgressTextView = mysteryMaxProgressText,
+                        cardView = mysteryCard,
+                        iconView = mysteryIcon,
+                        titleTextView = mysteryTitle,
+                        requirementTextView = mysteryRequirement,
+                        maxValue = 10,
+                        currentValue = mysteryBooksCount.coerceAtMost(10),
+                        description = "Read 10 mystery or true crime books",
+                        isAchieved = isMysterySolverAchieved || mysteryBooksCount >= 10
+                    )
+
+                    // Update the current and max progress TextViews
+                    mysteryCurrentProgressText.text = mysteryBooksCount.coerceAtMost(10).toString()
+                    mysteryMaxProgressText.text = "10"
+                }
+            } else {
+                Log.e("AchievementsFragment", "No such document for user: $userId")
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("AchievementsFragment", "Error loading Mystery Solver achievement: ", exception)
+        }
+    }
+
+    private fun unlockMysterySolverAchievement(userDocRef: DocumentReference) {
+        userDocRef.update("mysterySolverAchieved", true)
+            .addOnSuccessListener {
+                Log.d("AchievementsFragment", "Mystery Solver Achievement unlocked successfully.")
+                if (isAdded && context != null) { // Ensure fragment is attached
+                    requireActivity().runOnUiThread {
+                        // Show a toast when the achievement is unlocked
+                        Toast.makeText(context, "Achievement Unlocked: Mystery Solver!", Toast.LENGTH_SHORT).show()
+
+                        // Animate the card background color change
+                        animateCardBackgroundColor(
+                            cardView = mysteryCard,
+                            fromColor = ContextCompat.getColor(requireContext(), R.color.achievement_card),
+                            toColor = ContextCompat.getColor(requireContext(), R.color.achievement_card_unlocked)
+                        )
+
+                        // Update the UI to reflect the unlocked achievement
+                        updateAchievementProgress(
+                            progressBar = mysteryProgressBar,
+                            progressTextView = mysteryProgressText,
+                            currentProgressTextView = mysteryCurrentProgressText,
+                            maxProgressTextView = mysteryMaxProgressText,
+                            cardView = mysteryCard,
+                            iconView = mysteryIcon,
+                            titleTextView = mysteryTitle,
+                            requirementTextView = mysteryRequirement,
+                            maxValue = 10,
+                            currentValue = 10,
+                            description = "Read 10 mystery or true crime books",
+                            isAchieved = true
+                        )
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("AchievementsFragment", "Error unlocking Mystery Solver achievement: ", exception)
+                if (isAdded && context != null) {
+                    requireActivity().runOnUiThread {
+                        Toast.makeText(context, "Failed to unlock Mystery Solver. Please try again.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+    }
+
+
+
+
 
     // Load achievements data from Firestore
     private fun loadAchievementsData(userId: String) {
