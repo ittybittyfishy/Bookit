@@ -76,6 +76,7 @@
         android:id="@+id/selectBook"
         android:layout_width="250dp"
         android:textColor="#FFFFFF"
+        android:backgroundTint="@color/light_green"
         android:layout_height="51dp"
         android:layout_below="@id/bookGenres"
         android:layout_toEndOf="@id/book_card"

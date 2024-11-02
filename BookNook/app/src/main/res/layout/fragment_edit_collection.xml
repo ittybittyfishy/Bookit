@@ -33,12 +33,20 @@
         android:background="@drawable/rounded_rectangle"/>
 
     <Button
+        android:id="@+id/removeBook"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Remove a book from the collection"
+        android:background="@color/transparent"
+        android:textColor="@color/banner_green"
+        android:layout_gravity="center_horizontal"/>
+
+    <Button
         android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Save Edits"
         android:textColor="@color/icon_color"
-        android:layout_marginTop="16dp"
         android:layout_gravity="center_horizontal"
         android:backgroundTint="@color/banner_green"/>
 
@@ -50,7 +58,7 @@
         android:background="@color/transparent"
         android:text="Delete Collection"
         android:textStyle="italic"
-        android:textColor="@color/banner_green"
+        android:textColor="@color/home_pink"
         android:layout_marginTop="16dp"/>
 
 </LinearLayout>

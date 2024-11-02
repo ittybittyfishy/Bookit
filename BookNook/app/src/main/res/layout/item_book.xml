@@ -70,11 +70,23 @@
         android:text="Genres"
         android:layout_marginTop="4dp" />
 
+    <TextView
+        android:id="@+id/standardCollection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bookGenres"
+        android:layout_toEndOf="@id/book_card"
+        android:layout_marginStart="10dp"
+        android:textColor="@color/banner_green"
+        android:textStyle="bold"
+        android:text="In Collection: $collection"
+        android:visibility="gone"/>
+
     <Spinner
         android:id="@+id/spinnerSelectCollection"
         android:layout_width="250dp"
         android:layout_height="51dp"
-        android:layout_below="@id/bookGenres"
+        android:layout_below="@id/standardCollection"
         android:layout_toEndOf="@id/book_card"
         android:textAlignment="center"
         style="@style/CustomSpinner"/>

@@ -379,11 +379,6 @@ class MyGroupsHomepageFragment : Fragment() {
                             // Change button to "Edit Group"
                             leaveGroupButton.text = "Edit Group"
                             // If user is already a member
-                        } else if (alreadyJoined) {
-                            // Already joined group, change button to "Leave Group"
-                            leaveGroupButton.text = "Leave Group"
-                            Toast.makeText(activity, "Already joined", Toast.LENGTH_SHORT).show()
-                            // User is not a creator or member of group
                         } else {
                             // Not joined, button displays "Join Group"
                             leaveGroupButton.text = "Join Group"

@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/background_tan"
+    tools:context=".fragments.GroupsFilterFragment"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:text="Filter Groups"
+        android:textColor="@color/banner_green"
+        android:textStyle="bold"
+        android:textSize="25sp" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Click genres once to INCLUDE it and twice to EXCLUDE it"
+        android:textColor="@color/main_text_brown"
+        android:textSize="15sp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:textAlignment="center"
+        android:layout_gravity="center_horizontal"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rectangle_border_white"
+        android:orientation="horizontal"
+        android:padding="5dp"
+        android:layout_gravity="center_horizontal">
+        <!--Column 1 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/checkbox_action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Action" />
+            <CheckBox
+                android:id="@+id/checkbox_adult"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Adult"/>
+            <CheckBox
+                android:id="@+id/checkbox_adventure"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Adventure"/>
+            <CheckBox
+                android:id="@+id/checkbox_biography"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Biography"/>
+            <CheckBox
+                android:id="@+id/checkbox_children"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Children" />
+            <CheckBox
+                android:id="@+id/checkbox_comedy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Comedy"/>
+            <CheckBox
+                android:id="@+id/checkbox_comicBook"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Comic Books"/>
+            <CheckBox
+                android:id="@+id/checkbox_crime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Crime"/>
+            <CheckBox
+                android:id="@+id/checkbox_drama"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Drama" />
+            <CheckBox
+                android:id="@+id/checkbox_fantasy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fantasy"/>
+
+        </LinearLayout>
+
+        <!--Column 2 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/checkbox_fiction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ficiton" />
+
+            <CheckBox
+                android:id="@+id/checkbox_historical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Historical"/>
+            <CheckBox
+                android:id="@+id/checkbox_horror"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Horror"/>
+            <CheckBox
+                android:id="@+id/checkbox_jFiction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Juvenile Fiction"/>
+            <CheckBox
+                android:id="@+id/checkbox_lgbt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LGBTQ+" />
+            <CheckBox
+                android:id="@+id/checkbox_manga"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Manga"/>
+            <CheckBox
+                android:id="@+id/checkbox_mature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mature"/>
+
+            <CheckBox
+                android:id="@+id/checkbox_mystery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mystery" />
+            <CheckBox
+                android:id="@+id/checkbox_nonfiction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nonfiction"/>
+
+            <CheckBox
+                android:id="@+id/checkbox_poetry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Poetry" />
+
+        </LinearLayout>
+
+        <!--Column 3 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/checkbox_psychological"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Psychological"/>
+
+            <CheckBox
+                android:id="@+id/checkbox_romance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Romance"/>
+            <CheckBox
+                android:id="@+id/checkbox_schoolLife"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="School Life" />
+
+            <CheckBox
+                android:id="@+id/checkbox_science"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Science"/>
+            <CheckBox
+                android:id="@+id/checkbox_scienceFiction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Science Fiction" />
+            <CheckBox
+                android:id="@+id/checkbox_sports"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sports" />
+            <CheckBox
+                android:id="@+id/checkbox_supernatural"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Supernatural"/>
+            <CheckBox
+                android:id="@+id/checkbox_suspense"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Suspense" />
+            <CheckBox
+                android:id="@+id/checkbox_thriller"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thriller"/>
+            <CheckBox
+                android:id="@+id/checkbox_tragedy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tragedy" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/publicGroups"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Public Groups Only"
+            android:buttonTint="@color/star_green"/>
+
+        <CheckBox
+            android:id="@+id/privateGroups"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Private Groups Only"
+            android:buttonTint="@color/star_green"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/applyFilters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Apply Filters"
+        android:backgroundTint="@color/star_green"
+        android:layout_gravity="center_horizontal"/>
+
+
+</LinearLayout>

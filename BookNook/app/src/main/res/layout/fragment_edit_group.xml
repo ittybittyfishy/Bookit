@@ -334,25 +334,43 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancel"
-            android:backgroundTint="@color/banner_green"/>
+            android:backgroundTint="@color/banner_green"
+            android:layout_weight="1"/>
 
         <Button
             android:id="@+id/confirmGroupButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Confirm"
-            android:backgroundTint="@color/banner_green"/>
+            android:backgroundTint="@color/banner_green"
+            android:layout_weight="1"/>
     </LinearLayout>
 
-    <Button
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/deleteGroup"
-        android:backgroundTint="@color/transparent"
-        android:text="Delete Group"
-        android:textColor="@color/home_pink"
-        android:textStyle="italic"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"/>
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/deleteGroup"
+            android:backgroundTint="@color/transparent"
+            android:text="Delete Group"
+            android:textColor="@color/home_pink"
+            android:textStyle="italic"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/transferOwnerGroup"
+            android:backgroundTint="@color/transparent"
+            android:text="Transfer Ownership"
+            android:textColor="@color/home_pink"
+            android:textStyle="italic"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"/>
+    </LinearLayout>
 
 </LinearLayout>

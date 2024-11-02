@@ -1,5 +1,7 @@
 package com.example.booknook.fragments
 
+import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +22,7 @@ class EditCollectionFragment : DialogFragment() {
     private lateinit var summaryEdit: EditText
     private lateinit var saveButton: Button
     private lateinit var removeButton: Button
+    private lateinit var removeBook: Button
 
     // Store the current collection name and summary passed to this fragment
     private var collectionName: String? = null
@@ -52,6 +55,7 @@ class EditCollectionFragment : DialogFragment() {
         summaryEdit = view.findViewById(R.id.summaryEdit)
         saveButton = view.findViewById(R.id.saveButton)
         removeButton = view.findViewById(R.id.removeCollection)
+        removeBook = view.findViewById(R.id.removeBook)
 
         // Set the initial values for the collection name and summary, if available
         nameEdit.setText(collectionName)
@@ -74,6 +78,12 @@ class EditCollectionFragment : DialogFragment() {
         // Handle remove button click to delete the collection
         removeButton.setOnClickListener {
             removeCollection() // Remove the collection from Firestore
+        }
+
+        // allows user to remove a book from specific collection
+        removeBook.setOnClickListener{
+            showRemoveBookDialog(requireContext())
+
         }
     }
 
@@ -153,6 +163,57 @@ class EditCollectionFragment : DialogFragment() {
             }
             .addOnFailureListener {
                 Toast.makeText(activity, "Failed to delete collection", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Function to show a dialog with books in the selected collection and allow deletion
+    private fun showRemoveBookDialog(context: Context) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        // Fetch books in the selected custom collection from Firestore
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                val customCollections = document.get("customCollections.$collectionName.books") as? List<Map<String, Any>>
+
+                // Check if there are books in the collection
+                if (!customCollections.isNullOrEmpty()) {
+                    // Create a list of book titles for the dialog
+                    val bookTitles = customCollections.map { it["title"] as? String ?: "Unknown Title" }
+
+                    // Display an alert dialog with book titles
+                    AlertDialog.Builder(context)
+                        .setTitle("Select a Book to Delete")
+                        .setItems(bookTitles.toTypedArray()) { _, which ->
+                            // Get the selected book and remove it
+                            val selectedBook = customCollections[which]
+                            removeBookFromCollection(userId, selectedBook, context)
+                        }
+                        .setNegativeButton("Cancel", null) // Cancel button to dismiss the dialog
+                        .show() // Display the dialog
+                } else {
+                    // Inform the user if there are no books in the collection
+                    Toast.makeText(context, "No books found in this collection.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener {
+                // Handle failure to load books from Firestore
+                Toast.makeText(context, "Error loading books from collection.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Helper function to remove a book from the custom collection in Firestore
+    private fun removeBookFromCollection(userId: String, book: Map<String, Any>, context: Context) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Remove the book from the specified collection in Firestore
+        db.collection("users").document(userId)
+            .update("customCollections.$collectionName.books", FieldValue.arrayRemove(book))
+            .addOnSuccessListener {
+                Toast.makeText(context, "Book removed from collection", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Failed to remove book from collection", Toast.LENGTH_SHORT).show()
             }
     }
 
