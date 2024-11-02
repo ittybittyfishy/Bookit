@@ -1,6 +1,8 @@
 package com.example.booknook.fragments
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -103,34 +105,60 @@ class HomeFragment : Fragment() {
                 val topGenres = document.get("topGenres") as? List<String> ?: listOf() // User's top genres
                 val avgRating = document.get("avgRating") as? Double ?: 3.0 // User's average rating
 
+                // Log the retrieved preferences and top genres
+                Log.d("fetchRecommendedBooks", "Genre Preferences: $genrePreferences")
+                Log.d("fetchRecommendedBooks", "Top Genres: $topGenres")
+                Log.d("fetchRecommendedBooks", "Average Rating: $avgRating")
+
                 // Combine genrePreferences and topGenres, removing duplicates
                 val combinedGenres = (genrePreferences + topGenres).toMutableSet() // Use mutable set for adding high-rated genres
+                Log.d("fetchRecommendedBooks", "Initial Combined Genres (Preferences + Top Genres): $combinedGenres")
 
-                // Step 2: Fetch user's high-rated genres from reviews
-                db.collection("users").document(uid).collection("reviews")
-                    .whereGreaterThanOrEqualTo("rating", 4.0) // Only reviews with rating >= 4.0
+                // Step 2: Fetch high-rated books and genres directly from books collection
+                db.collection("books")
                     .get()
-                    .addOnSuccessListener { querySnapshot ->
-                        if (!querySnapshot.isEmpty) {
-                            // Extract genres from high-rated reviews and add to combinedGenres set
-                            for (document in querySnapshot) {
-                                val genres = document.get("genres") as? List<String> ?: emptyList()
-                                combinedGenres.addAll(genres) // Add high-rated genres to the set
-                            }
-                        }
-
-                        // Step 3: Convert to list and check if genres list is not empty
-                        val genreList = combinedGenres.toList()
-                        if (genreList.isNotEmpty()) {
-                            // Perform Google Books search with the final list of genres
-                            Log.d("fetchRecommendedBooks", "Final genre list for search: $genreList")
-                            performGoogleBooksSearch(genreList, avgRating)
+                    .addOnSuccessListener { booksSnapshot ->
+                        if (booksSnapshot.isEmpty) {
+                            Log.w("fetchRecommendedBooks", "No books found in the collection.")
                         } else {
-                            Log.w("fetchRecommendedBooks", "No genres available for recommendations.")
+                            booksSnapshot.forEach { bookDocument ->
+                                Log.d("fetchRecommendedBooks", "Checking book: ${bookDocument.id}")
+
+                                // Step 2.1: Check if this book has any high-rated reviews
+                                bookDocument.reference.collection("reviews")
+                                    .whereGreaterThanOrEqualTo("rating", 4.0) // Filter only high-rated reviews
+                                    .get()
+                                    .addOnSuccessListener { reviewsSnapshot ->
+                                        if (!reviewsSnapshot.isEmpty) {
+                                            // If there are high-rated reviews, add the book's genres to combinedGenres
+                                            val genres = bookDocument.get("genres") as? List<String> ?: emptyList()
+                                            if (genres.isNotEmpty()) {
+                                                combinedGenres.addAll(genres)
+                                                Log.d("fetchRecommendedBooks", "High-rated genres added from book ${bookDocument.id}: $genres")
+                                            }
+                                        } else {
+                                            Log.d("fetchRecommendedBooks", "No high-rated reviews for book: ${bookDocument.id}")
+                                        }
+
+                                        // Step 3: After all books are processed, perform the Google Books search with the final genre list
+                                        if (bookDocument == booksSnapshot.documents.last()) { // Check if last book is processed
+                                            val genreList = combinedGenres.toList()
+                                            if (genreList.isNotEmpty()) {
+                                                Log.d("fetchRecommendedBooks", "Final genre list for search: $genreList")
+                                                performGoogleBooksSearch(genreList, avgRating)
+                                            } else {
+                                                Log.w("fetchRecommendedBooks", "No genres available for recommendations.")
+                                            }
+                                        }
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("fetchRecommendedBooks", "Error retrieving reviews for book ${bookDocument.id}: ${e.message}", e)
+                                    }
+                            }
                         }
                     }
                     .addOnFailureListener { e ->
-                        Log.e("fetchRecommendedBooks", "Error retrieving high-rated reviews: ${e.message}", e)
+                        Log.e("fetchRecommendedBooks", "Error retrieving books collection: ${e.message}", e)
                     }
             } else {
                 Log.w("fetchRecommendedBooks", "No user data found.")
@@ -154,13 +182,13 @@ class HomeFragment : Fragment() {
         genres.forEach { genre ->
             genreBooksMap[genre] = mutableListOf() // Initialize list for each genre
 
-            // Generate a random startIndex between 0 and 100 for varied search results
+            // Generate a random startIndex between 0 and 30 for varied search results
             val randomStartIndex = Random.nextInt(0, 30)
 
             // Nested function to fetch books for a specific genre with an attempt counter
             fun fetchBooksForGenre(attempt: Int) {
-                val query = "subject:$genre" // Build query for the current genre
-                val call = GoogleBooksApiService.create().searchBooks(query, randomStartIndex, 20, apiKey) // Single API call per genre with random startIndex
+                val query = "subject:$genre"
+                val call = GoogleBooksApiService.create().searchBooks(query, randomStartIndex, 20, apiKey)
 
                 call.enqueue(object : Callback<BookResponse> {
                     override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
@@ -175,39 +203,35 @@ class HomeFragment : Fragment() {
                                 recommendedBookIds.add(book.id) // Mark the book ID as added to avoid duplicates
                             }
 
-                            // Increment the completed API calls counter
                             apiCallsCompleted++
-                            // Once all API calls are complete, gather the results and display recommendations
                             if (apiCallsCompleted == genres.size) {
-                                val finalBooks = genreBooksMap.values.flatten().take(3) // Select up to 3 books
+                                val finalBooks = genreBooksMap.values.flatten().take(3)
                                 if (finalBooks.isNotEmpty()) {
-                                    displayRecommendedBooks(finalBooks) // Display final recommendations
+                                    displayRecommendedBooks(finalBooks)
                                 } else {
                                     Log.d("HomeFragment", "No books found across all genres.")
                                 }
                             }
                         } else {
-                            // Log an error if the response is unsuccessful
                             Log.d("HomeFragment", "Google Books API Error for genre '$genre': ${response.errorBody()?.string()}")
-                            handleApiRetryOrFailure(attempt) // Handle retry or failure logic
+                            handleApiRetryOrFailure(attempt)
                         }
                     }
 
                     override fun onFailure(call: Call<BookResponse>, t: Throwable) {
-                        // Log a message if the API call fails
                         Log.d("HomeFragment", "Google Books API Failure for genre '$genre': ${t.message}")
-                        handleApiRetryOrFailure(attempt) // Handle retry or failure logic
+                        handleApiRetryOrFailure(attempt)
                     }
 
-                    // Function to retry the API call or mark the call as complete on failure
                     private fun handleApiRetryOrFailure(attempt: Int) {
-                        if (attempt < 1) { // Only retry once to prevent excessive API calls
-                            fetchBooksForGenre(attempt + 1) // Retry by increasing the attempt counter
+                        if (attempt < 5) { // Limit to 5 attempts
+                            val delay = (1000 * Math.pow(2.0, attempt.toDouble())).toLong() // 1s, 2s, 4s, 8s, etc.
+                            Log.d("HomeFragment", "Retrying in ${delay / 1000}s for genre '$genre' (attempt $attempt)")
+                            Handler(Looper.getMainLooper()).postDelayed({ fetchBooksForGenre(attempt + 1) }, delay)
                         } else {
-                            // Mark as complete if retry limit is reached
                             apiCallsCompleted++
                             if (apiCallsCompleted == genres.size) {
-                                val finalBooks = genreBooksMap.values.flatten().take(3) // Select up to 3 books
+                                val finalBooks = genreBooksMap.values.flatten().take(3)
                                 if (finalBooks.isNotEmpty()) {
                                     displayRecommendedBooks(finalBooks)
                                 } else {
@@ -219,7 +243,7 @@ class HomeFragment : Fragment() {
                 })
             }
 
-            // initializes first attempt to fetch books for genre
+            // Initialize first attempt to fetch books for genre
             fetchBooksForGenre(0)
         }
     }
