@@ -2,6 +2,7 @@ package com.example.booknook.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.booknook.MainActivity
 import com.example.booknook.R
+import com.example.booknook.utils.GenreUtils
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
@@ -400,6 +402,9 @@ class ReviewActivityTemplate : Fragment() {
             val bookTitle = arguments?.getString("bookTitle")
             val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
             var bookIsbn = arguments?.getString("bookIsbn") // Use this to identify the book for the review
+            // Yunjong Noh
+            // Delivered Genre list
+            val rawBookGenres = arguments?.getStringArrayList("bookGenresList") ?: listOf("default genre")
 
             // If the book has no ISBN, create a unique document ID using the title and authors of the book
             if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {
@@ -413,6 +418,12 @@ class ReviewActivityTemplate : Fragment() {
                     )
                 bookIsbn = "$titleId-$authorsId" // Update bookIsbn with new Id
             }
+            // Yunjong Noh
+            // Normalize genres using GenreUtils before saving
+            val bookGenres = rawBookGenres.map { GenreUtils.normalizeGenre(it) }
+            // Add log for checking
+            Log.d("ReviewActivity", "Raw genres: $rawBookGenres")
+            Log.d("ReviewActivity", "Normalized genres: $bookGenres")
 
             // Get the user's username from database
             db.collection("users").document(userId).get().addOnSuccessListener { document ->
@@ -451,6 +462,9 @@ class ReviewActivityTemplate : Fragment() {
                     val bookData = mapOf(
                         "bookTitle" to bookTitle,
                         "authors" to bookAuthors,
+                        // Yunjong Noh
+                        // Save normalized genres
+                        "genres" to bookGenres
                     )
 
                     // Reference to the specific book's document in the "books" collection

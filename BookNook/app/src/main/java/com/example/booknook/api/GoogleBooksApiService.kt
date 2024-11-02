@@ -47,7 +47,7 @@ interface GoogleBooksApiService {
         fun create(): GoogleBooksApiService {
             val retrofit = Retrofit.Builder()
                 .baseUrl(BASE_URL) // Set the API base URL
-                // Convert JSON response to Kotlin objects using Gson(Gson is conver json as respective google's library)
+                // Convert JSON response to Kotlin objects using Gson(Gson is convert json as respective google's library)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
 

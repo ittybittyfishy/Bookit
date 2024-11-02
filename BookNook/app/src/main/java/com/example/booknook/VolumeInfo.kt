@@ -9,9 +9,6 @@ data class VolumeInfo(
     val categories: List<String>? = listOf("Unknown Genre"), // List of genres/categories of the book
     val language: String = "", // Language of the book (e.g., "en" for English, "fr" for French)
     val description: String? = "Book description unavailable",  // Book's description/synopsis
-    //Yunjong Noh
-    //Add data class to show rating count at recommendation page
-    val ratingsCount: Int? = 0, // Number of ratings for the book
 )
 
 
