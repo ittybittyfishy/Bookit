@@ -1,5 +1,6 @@
 package com.example.booknook.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,9 +18,12 @@ import com.example.booknook.BookResponse
 import com.example.booknook.api.GoogleBooksApiService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.Calendar
 import kotlin.random.Random
 
 class HomeFragment : Fragment() {
@@ -84,7 +88,18 @@ class HomeFragment : Fragment() {
                     val username = document.getString("username")
                     // Set the text to display "logged in as username"
                     loggedInTextView.text = "Logged in as\n$username"
-                    fetchRecommendedBooksFromGoogle(uid)
+
+                    // Yunjong Noh
+                    // Load recommendations from the past 24 hours, if available
+                    if (shouldFetchRecommendations()) {
+                        fetchRecommendedBooksFromGoogle(uid)
+                        saveLastFetchDate() // Save the current date as the last fetch date
+                    } else {
+                        loadRecommendationsFromPreferences()?.let { recommendations ->
+                            displayRecommendedBooks(recommendations) // Display stored recommendations
+                            Log.d("HomeFragment", "Stored recommendations loaded.")
+                        }
+                    }
                 } else {
                     loggedInTextView.text = "Username not found"
                 }
@@ -93,6 +108,79 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
+    // Yunjong Noh
+    // Check if 24 hours have passed since the last fetch
+    private fun shouldFetchRecommendations(): Boolean {
+        // Access SharedPreferences to retrieve the timestamp of the last fetch
+        val sharedPreferences = requireContext().getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE)
+        val lastFetchTime = sharedPreferences.getLong("lastRecommendationFetchTime", 0L)
+
+        // Get the current time in milliseconds
+        val currentTime = Calendar.getInstance().timeInMillis
+
+        // Define 24 hours in milliseconds
+        val oneDayInMillis = 24 * 60 * 60 * 1000 // 24 hours
+
+        // Return true if 24 hours have passed since the last fetch, false otherwise
+        return (currentTime - lastFetchTime) >= oneDayInMillis
+    }
+
+    // Yunjong Noh
+    // Save the current date as the last fetch date
+    private fun saveLastFetchDate() {
+        // Access SharedPreferences in edit mode to store the current timestamp
+        val sharedPreferences = requireContext().getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+
+        // Store the current time in milliseconds as the "lastRecommendationFetchTime"
+        editor.putLong("lastRecommendationFetchTime", Calendar.getInstance().timeInMillis)
+
+        // Apply the changes to SharedPreferences
+        editor.apply()
+    }
+
+    // Yunjong Noh
+    // Convert the list of BookItem to JSON and store it in SharedPreferences
+    private fun saveRecommendationsToPreferences(recommendations: List<BookItem>) {
+        // Access SharedPreferences in edit mode to store the recommendations
+        val sharedPreferences = requireContext().getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+
+        // Convert the list of BookItem to a JSON string using Gson
+        val gson = Gson()
+        val json = gson.toJson(recommendations)
+
+        // Store the JSON string as "recommendations" in SharedPreferences
+        editor.putString("recommendations", json)
+
+        // Apply the changes to SharedPreferences
+        editor.apply()
+    }
+
+    // Yunjong Noh
+    // Load the stored JSON recommendations from SharedPreferences and convert them back to a list of BookItem
+    private fun loadRecommendationsFromPreferences(): List<BookItem>? {
+        // Access SharedPreferences to retrieve the stored recommendations JSON
+        val sharedPreferences = requireContext().getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE)
+        val gson = Gson()
+
+        // Retrieve the JSON string representing the list of recommendations
+        val json = sharedPreferences.getString("recommendations", null)
+
+        // If JSON data exists, convert it back to a list of BookItem using Gson
+        return if (json != null) {
+            // Define the type for deserialization (List<BookItem>)
+            val type = object : TypeToken<List<BookItem>>() {}.type
+
+            // Deserialize the JSON string back into a List<BookItem>
+            gson.fromJson(json, type)
+        } else {
+            // If no JSON data was found, return null
+            null
+        }
+    }
+
     // Yunjong Noh
     // Retrieve user data from Firestore, including top genres, rating, and high-rated review genres
     private fun fetchRecommendedBooksFromGoogle(uid: String) {
@@ -260,13 +348,14 @@ class HomeFragment : Fragment() {
     // Yunjong Noh
     // Display the recommended books in the UI
     private fun displayRecommendedBooks(books: List<BookItem>) {
+        // Save non-empty list of recommended books to SharedPreferences to reuse within 24 hours
         if (books.isNotEmpty()) {
+            saveRecommendationsToPreferences(books)
             // Update the first book's info
             val book1 = books[0] // Get the first book from the list
             bookTitleTextView1.text =
                 book1.volumeInfo.title // Set the book title in the corresponding TextView
-            bookAuthorsTextView1.text = book1.volumeInfo.authors?.joinToString(", ")
-                ?: "Unknown Author" // Display the book authors or a default text if no authors are available
+            bookAuthorsTextView1.text = book1.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author" // Display the book authors or a default text if no authors are available
 
             val thumbnail1 = book1.volumeInfo.imageLinks?.thumbnail?.replace(
                 "http://",
