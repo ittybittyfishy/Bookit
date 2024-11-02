@@ -39,6 +39,4 @@ class AddRecommendationFragment : Fragment() {
             (activity as MainActivity).replaceFragment(searchBookRecommendationFragment, "Search")
         }
     }
-
-
 }

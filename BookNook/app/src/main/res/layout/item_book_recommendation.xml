@@ -73,7 +73,7 @@
     <!-- Veronica Nguyen -->
     <!-- Button to select a book for recommendation -->
     <Button
-        android:id="@+id/selectBook"
+        android:id="@+id/selectBookButton"
         android:layout_width="250dp"
         android:textColor="#FFFFFF"
         android:backgroundTint="@color/light_green"

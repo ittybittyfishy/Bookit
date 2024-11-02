@@ -131,6 +131,20 @@ class BookDetailsRecommendationFragment : Fragment() {
             readMoreButton.visibility = View.GONE
         }
 
+        // Veronica Nguyen
+        // Handles click of "Select Book" button for recommendation
+        selectBookButton.setOnClickListener {
+            // Takes user to the confirm page to confirm their book for recommendation
+            val confirmRecommendationFragment = ConfirmRecommendationFragment()
+            val bundle = Bundle().apply {
+                putString("bookImage", volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://"))
+                putString("bookTitle", volumeInfo?.title)
+                putString("bookAuthor", volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author")
+            }
+            confirmRecommendationFragment.arguments = bundle
+            (activity as MainActivity).replaceFragment(confirmRecommendationFragment, "Add Recommendation")
+        }
+
         // Handles click of the read more button
         readMoreButton.setOnClickListener {
             // If the description isn't expanded
