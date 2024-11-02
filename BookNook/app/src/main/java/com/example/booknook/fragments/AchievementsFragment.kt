@@ -143,6 +143,17 @@ class AchievementsFragment : Fragment() {
     private lateinit var mysteryRequirement: TextView
 
 
+    // UI elements for Psych Achievement
+    private lateinit var psychCard: CardView
+    private lateinit var psychProgressBar: ProgressBar
+    private lateinit var psychProgressText: TextView
+    private lateinit var psychCurrentProgressText: TextView
+    private lateinit var psychMaxProgressText: TextView
+    private lateinit var psychIcon: ImageView
+    private lateinit var psychTitle: TextView
+    private lateinit var psychRequirement: TextView
+
+
     // Add other Icons, Titles, and Requirements as needed...
 
     override fun onCreateView(
@@ -269,6 +280,17 @@ class AchievementsFragment : Fragment() {
         mysteryTitle = view.findViewById(R.id.mystery_solver_title)
         mysteryRequirement = view.findViewById(R.id.mystery_solver_requirement)
 
+        // Initialize Psych Achievement UI components
+        psychCard = view.findViewById(R.id.psych_card)
+        psychProgressBar = view.findViewById(R.id.psych_progress_bar)
+        psychProgressText = view.findViewById(R.id.psych_progress_text)
+        psychCurrentProgressText = view.findViewById(R.id.psych_current_progress_text)
+        psychMaxProgressText = view.findViewById(R.id.psych_max_progress_text)
+        psychIcon = view.findViewById(R.id.psych_icon)
+        psychTitle = view.findViewById(R.id.psych_title)
+        psychRequirement = view.findViewById(R.id.psych_requirement)
+
+
 
         // Initialize other Icons, Titles, and Requirements as needed...
 
@@ -278,6 +300,7 @@ class AchievementsFragment : Fragment() {
             loadHistoryAchievement(it)
             loadMysterySolverAchievement(it)
             loadAchievementsData(it)
+            loadPsychAchievement(it)
             setupRealtimeUpdates(it) // Optional: For real-time updates
         }
 
@@ -1283,6 +1306,118 @@ class AchievementsFragment : Fragment() {
             maxProgressTextView.visibility = View.VISIBLE
         }
     }
+
+    private fun loadPsychAchievement(userId: String) {
+        val userDocRef = firestore.collection("users").document(userId)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                // Log to check the document content
+                Log.d("AchievementsFragment", "Document data: ${document.data}")
+
+                // Retrieve the list of finished books
+                val finishedBooks = (document.get("standardCollections.Finished") as? List<*>)?.mapNotNull { book ->
+                    when (book) {
+                        is Map<*, *> -> {
+                            val genres = book["genres"] as? List<*>
+                            // Log each book's genres
+                            Log.d("AchievementsFragment", "Book genres: $genres")
+                            genres?.filterIsInstance<String>() // Cast genres to a list of strings
+                        }
+                        else -> null
+                    }
+                } ?: emptyList()
+
+                // Log the flattened list of genres to verify the data
+                Log.d("AchievementsFragment", "Flattened genres list: $finishedBooks")
+
+                // Count the number of books with the genres "self help" or "psychology" (case-insensitive)
+                val psychBooksCount = finishedBooks.flatten().count { genre ->
+                    genre.equals("self-help", ignoreCase = true) || genre.equals("psychology", ignoreCase = true)
+                }
+
+                // Log the count of psychology books
+                Log.d("AchievementsFragment", "Psych Books Count: $psychBooksCount")
+
+                // Check if Psych Achievement is already achieved
+                val isPsychAchieved = document.getBoolean("psychAchieved") ?: false
+
+                if (!isPsychAchieved && psychBooksCount >= 10) {
+                    // Unlock the achievement
+                    unlockPsychAchievement(userDocRef)
+                } else {
+                    // Update the achievement progress UI
+                    updateAchievementProgress(
+                        progressBar = psychProgressBar,
+                        progressTextView = psychProgressText,
+                        currentProgressTextView = psychCurrentProgressText,
+                        maxProgressTextView = psychMaxProgressText,
+                        cardView = psychCard,
+                        iconView = psychIcon,
+                        titleTextView = psychTitle,
+                        requirementTextView = psychRequirement,
+                        maxValue = 10,
+                        currentValue = psychBooksCount.coerceAtMost(10),
+                        description = "Not reached ",
+                        isAchieved = isPsychAchieved || psychBooksCount >= 10
+                    )
+
+                    // Update the current and max progress TextViews
+                    psychCurrentProgressText.text = psychBooksCount.coerceAtMost(10).toString()
+                    psychMaxProgressText.text = "10"
+                }
+            } else {
+                Log.e("AchievementsFragment", "No such document for user: $userId")
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("AchievementsFragment", "Error loading Psych Achievement: ", exception)
+        }
+    }
+
+    private fun unlockPsychAchievement(userDocRef: DocumentReference) {
+        userDocRef.update("psychAchieved", true)
+            .addOnSuccessListener {
+                Log.d("AchievementsFragment", "Psych Achievement unlocked successfully.")
+                if (isAdded && context != null) { // Ensure fragment is attached
+                    requireActivity().runOnUiThread {
+                        // Show a toast when the achievement is unlocked
+                        Toast.makeText(context, "Achievement Unlocked: Psych Expert!", Toast.LENGTH_SHORT).show()
+
+                        // Animate the card background color change
+                        animateCardBackgroundColor(
+                            cardView = psychCard,
+                            fromColor = ContextCompat.getColor(requireContext(), R.color.achievement_card),
+                            toColor = ContextCompat.getColor(requireContext(), R.color.achievement_card_unlocked)
+                        )
+
+                        // Update the UI to reflect the unlocked achievement
+                        updateAchievementProgress(
+                            progressBar = psychProgressBar,
+                            progressTextView = psychProgressText,
+                            currentProgressTextView = psychCurrentProgressText,
+                            maxProgressTextView = psychMaxProgressText,
+                            cardView = psychCard,
+                            iconView = psychIcon,
+                            titleTextView = psychTitle,
+                            requirementTextView = psychRequirement,
+                            maxValue = 10,
+                            currentValue = 10,
+                            description = "Not yet unlocked",
+                            isAchieved = true
+                        )
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("AchievementsFragment", "Error unlocking Psych Achievement: ", exception)
+                if (isAdded && context != null) {
+                    requireActivity().runOnUiThread {
+                        Toast.makeText(context, "Failed to unlock Psych Achievement. Please try again.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+    }
+
 
     // Function to animate the background color of a CardView
     private fun animateCardBackgroundColor(cardView: CardView, fromColor: Int, toColor: Int) {
