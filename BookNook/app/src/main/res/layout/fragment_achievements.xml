@@ -110,1140 +110,1140 @@ android:gravity="center_horizontal">
     android:textStyle="bold" />
 
 <!-- Achievements Grid -->
-<GridLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:columnCount="2"
-    android:padding="8dp"
-    android:alignmentMode="alignMargins"
-    android:rowOrderPreserved="false">
-
-    <!-- Book Nooker Achievement (Already Unlocked) -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/book_nooker_card"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="6dp"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill"
-        app:cardBackgroundColor="@color/achievement_card_unlocked"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
-
-    <LinearLayout
+    <GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:gravity="center">
+        android:alignmentMode="alignMargins"
+        android:columnCount="2"
+        android:padding="8dp"
+        android:rowOrderPreserved="false">
 
-        <ImageView
-            android:id="@+id/book_nooker_icon"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/newbie"
-            android:paddingBottom="8dp" />
-
-        <TextView
-            android:id="@+id/book_nooker_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Book Nooker"
-            android:textColor="#000000"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:gravity="center" />
-
-        <TextView
-            android:id="@+id/book_nooker_requirement"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Welcome to Book Nook!"
-            android:textColor="#000000"
-            android:textSize="12sp"
-            android:layout_marginTop="4dp"
-            android:gravity="center" />
-
-        <!-- ProgressBar with Achievement Unlocked Color -->
-        <ProgressBar
-            android:id="@+id/book_nooker_progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="1"
-            android:progress="1"
-            android:progressTint="@color/achievement_unlocked_color" />
-
-        <!-- Progress Description Text -->
-        <TextView
-            android:id="@+id/book_nooker_progress_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Completed!"
-            android:textColor="#000000"
-            android:textSize="12sp"
-            android:layout_marginTop="4dp"
-            android:gravity="center" />
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
-
-<!-- First Chapter Achievement -->
-<androidx.cardview.widget.CardView
-    android:id="@+id/first_chapter_card"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    android:layout_columnWeight="1"
-    android:layout_gravity="fill"
-    app:cardBackgroundColor="@color/achievement_card"
-app:cardCornerRadius="8dp"
-app:cardElevation="4dp">
-
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="20dp"
-    android:gravity="center">
-
-    <ImageView
-        android:id="@+id/first_chapter_icon"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:src="@drawable/egg"
-        android:tint="@color/grey" />
-
-    <TextView
-        android:id="@+id/first_chapter_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="First Chapter"
-        android:textColor="#9E9E9E"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:gravity="center" />
-
-    <TextView
-        android:id="@+id/first_chapter_requirement"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Finish 1 book to unlock"
-        android:textColor="#9E9E9E"
-        android:textSize="12sp"
-        android:layout_marginTop="4dp"
-        android:gravity="center" />
-
-    <!-- Progress Bar with Current and Max Progress -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="8dp">
-
-        <TextView
-            android:id="@+id/first_chapter_current_progress_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0"
-            android:textSize="12sp"
-            android:textColor="#000000"
-            android:layout_marginEnd="8dp" />
-
-        <ProgressBar
-            android:id="@+id/first_chapter_progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
+        <!-- Book Nooker Achievement (Already Unlocked) -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/book_nooker_card"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:max="1"
-            android:progress="0"
-            android:progressTint="@color/grey" />
+            android:layout_columnWeight="1"
+            android:layout_gravity="fill"
+            android:layout_margin="6dp"
+            app:cardBackgroundColor="@color/achievement_card_unlocked"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
 
-        <TextView
-            android:id="@+id/first_chapter_max_progress_text"
-            android:layout_width="3dp"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/book_nooker_icon"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:paddingBottom="8dp"
+                    android:src="@drawable/newbie" />
+
+                <TextView
+                    android:id="@+id/book_nooker_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Book Nooker"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/book_nooker_requirement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Welcome to Book Nook!"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+                <!-- ProgressBar with Achievement Unlocked Color -->
+                <ProgressBar
+                    android:id="@+id/book_nooker_progress_bar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="1"
+                    android:progress="1"
+                    android:progressTint="@color/achievement_unlocked_color" />
+
+                <!-- Progress Description Text -->
+                <TextView
+                    android:id="@+id/book_nooker_progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Completed!"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- First Chapter Achievement -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/first_chapter_card"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="1"
-            android:textColor="#000000"
-            android:textSize="12sp" />
-    </LinearLayout>
-
-    <!-- Progress Description Text -->
-    <TextView
-        android:id="@+id/first_chapter_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Not Reached"
-        android:textColor="#9E9E9E"
-        android:textSize="12sp"
-        android:layout_marginTop="4dp"
-        android:gravity="center" />
-</LinearLayout>
-</androidx.cardview.widget.CardView>
-
-    <!-- Reading Rookie Achievement -->
-<androidx.cardview.widget.CardView
-android:id="@+id/reading_rookie_card"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:layout_margin="6dp"
-android:layout_columnWeight="1"
-android:layout_gravity="fill"
-app:cardBackgroundColor="@color/achievement_card"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
-
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:padding="20dp"
-android:gravity="center">
-
-<ImageView
-    android:id="@+id/reading_rookie_icon"
-    android:layout_width="60dp"
-    android:layout_height="60dp"
-    android:src="@drawable/read"
-    android:tint="@color/grey" />
-
-<TextView
-    android:id="@+id/reading_rookie_title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Reading Rookie"
-    android:textColor="#9E9E9E"
-    android:textStyle="bold"
-    android:textSize="16sp"
-    android:gravity="center" />
-
-<TextView
-    android:id="@+id/reading_rookie_requirement"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Log 5 books as finished"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-
-<!-- Progress Bar with Current and Max Progress -->
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:layout_marginTop="8dp">
-
-    <TextView
-        android:id="@+id/readingRookieCurrentProgressText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginEnd="8dp" />
-
-    <ProgressBar
-        android:id="@+id/reading_rookie_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:max="5"
-        android:progress="0"
-        android:progressTint="@color/grey" />
-
-    <TextView
-        android:id="@+id/readingRookieMaxProgressText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="5"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginStart="8dp" />
-</LinearLayout>
-
-<!-- Progress Description Text -->
-<TextView
-    android:id="@+id/reading_rookie_progress_text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Not Reached"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-</LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Story Seeker Achievement -->
-<androidx.cardview.widget.CardView
-android:id="@+id/story_seeker_card"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:layout_margin="6dp"
-android:layout_columnWeight="1"
-android:layout_gravity="fill"
-app:cardBackgroundColor="@color/achievement_card"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
-
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:padding="20dp"
-android:gravity="center">
-
-<ImageView
-    android:id="@+id/story_seeker_icon"
-    android:layout_width="60dp"
-    android:layout_height="60dp"
-    android:src="@drawable/research"
-    android:tint="@color/grey" />
-
-<TextView
-    android:id="@+id/story_seeker_title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Story Seeker"
-    android:textColor="#9E9E9E"
-    android:textStyle="bold"
-    android:textSize="16sp"
-    android:gravity="center" />
-
-<TextView
-    android:id="@+id/story_seeker_requirement"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Log 10 books as finished"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-
-<!-- Progress Bar with Current and Max Progress -->
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:layout_marginTop="8dp">
-
-    <TextView
-        android:id="@+id/story_seeker_current_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginEnd="8dp" />
-
-    <ProgressBar
-        android:id="@+id/story_seeker_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:max="10"
-        android:progress="0"
-        android:progressTint="@color/grey" />
-
-    <TextView
-        android:id="@+id/story_seeker_max_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="10"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginStart="8dp" />
-</LinearLayout>
-
-<!-- Progress Description Text -->
-<TextView
-    android:id="@+id/story_seeker_progress_text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Not Reached"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-</LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Novel Navigator Achievement -->
-<androidx.cardview.widget.CardView
-android:id="@+id/novel_navigator_card"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:layout_margin="6dp"
-android:layout_columnWeight="1"
-android:layout_gravity="fill"
-app:cardBackgroundColor="@color/achievement_card"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
-
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:padding="20dp"
-android:gravity="center">
-
-<ImageView
-    android:id="@+id/novel_navigator_icon"
-    android:layout_width="60dp"
-    android:layout_height="60dp"
-    android:src="@drawable/compass"
-    android:tint="@color/grey" />
-
-<TextView
-    android:id="@+id/novel_navigator_title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Novel Navigator"
-    android:textColor="#9E9E9E"
-    android:textStyle="bold"
-    android:textSize="16sp"
-    android:gravity="center" />
-
-<TextView
-    android:id="@+id/novel_navigator_requirement"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Log 25 books as finished"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-
-<!-- Progress Bar with Current and Max Progress -->
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:layout_marginTop="8dp">
-
-    <TextView
-        android:id="@+id/novel_navigator_current_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginEnd="8dp" />
-
-    <ProgressBar
-        android:id="@+id/novel_navigator_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:max="25"
-        android:progress="0"
-        android:progressTint="@color/grey" />
-
-    <TextView
-        android:id="@+id/novel_navigator_max_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="25"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginStart="8dp" />
-</LinearLayout>
-
-<!-- Progress Description Text -->
-<TextView
-    android:id="@+id/novel_navigator_progress_text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Not Reached"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-</LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Book Enthusiast Achievement -->
-<androidx.cardview.widget.CardView
-android:id="@+id/book_enthusiast_card"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:layout_margin="6dp"
-android:layout_columnWeight="1"
-android:layout_gravity="fill"
-app:cardBackgroundColor="@color/achievement_card"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
-
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:padding="20dp"
-android:gravity="center">
-
-<ImageView
-    android:id="@+id/book_enthusiast_icon"
-    android:layout_width="60dp"
-    android:layout_height="60dp"
-    android:src="@drawable/motivation"
-    android:tint="@color/grey" />
-
-<TextView
-    android:id="@+id/book_enthusiast_title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Book Enthusiast"
-    android:textColor="#9E9E9E"
-    android:textStyle="bold"
-    android:textSize="16sp"
-    android:gravity="center" />
-
-<TextView
-    android:id="@+id/book_enthusiast_requirement"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Log 50 books as finished"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-
-<!-- Progress Bar with Current and Max Progress -->
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:layout_marginTop="8dp">
-
-    <TextView
-        android:id="@+id/book_enthusiast_current_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginEnd="8dp" />
-
-    <ProgressBar
-        android:id="@+id/book_enthusiast_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:max="50"
-        android:progress="0"
-        android:progressTint="@color/grey" />
-
-    <TextView
-        android:id="@+id/book_enthusiast_max_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="50"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginStart="8dp" />
-</LinearLayout>
-
-<!-- Progress Description Text -->
-<TextView
-    android:id="@+id/book_enthusiast_progress_text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Not Reached"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-</LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Legendary Librarian Achievement -->
-<androidx.cardview.widget.CardView
-android:id="@+id/legendary_librarian_card"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:layout_margin="6dp"
-android:layout_columnWeight="1"
-android:layout_gravity="fill"
-app:cardBackgroundColor="@color/achievement_card"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
-
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:padding="20dp"
-android:gravity="center">
-
-<ImageView
-    android:id="@+id/legendary_librarian_icon"
-    android:layout_width="60dp"
-    android:layout_height="60dp"
-    android:src="@drawable/legendary"
-    android:tint="@color/grey" />
-
-<TextView
-    android:id="@+id/legendary_librarian_title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Legendary Librarian"
-    android:textColor="#9E9E9E"
-    android:textStyle="bold"
-    android:textSize="16sp"
-    android:gravity="center" />
-
-<TextView
-    android:id="@+id/legendary_librarian_requirement"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Read 75 books"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-
-<!-- Progress Bar with Current and Max Progress -->
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:layout_marginTop="8dp">
-
-    <TextView
-        android:id="@+id/legendary_librarian_current_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginEnd="8dp" />
-
-    <ProgressBar
-        android:id="@+id/legendary_librarian_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:max="75"
-        android:progress="0"
-        android:progressTint="@color/grey" />
-
-    <TextView
-        android:id="@+id/legendary_librarian_max_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="75"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginStart="8dp" />
-</LinearLayout>
-
-<!-- Progress Description Text -->
-<TextView
-    android:id="@+id/legendary_librarian_progress_text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Not Reached"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-</LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Book God Achievement -->
-<androidx.cardview.widget.CardView
-android:id="@+id/book_god_card"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:layout_margin="6dp"
-android:layout_columnWeight="1"
-android:layout_gravity="fill"
-app:cardBackgroundColor="@color/achievement_card"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
-
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:padding="20dp"
-android:gravity="center">
-
-<ImageView
-    android:id="@+id/book_god_icon"
-    android:layout_width="60dp"
-    android:layout_height="60dp"
-    android:src="@drawable/zeus"
-    android:tint="@color/grey" />
-
-<TextView
-    android:id="@+id/book_god_title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Book God"
-    android:textColor="#9E9E9E"
-    android:textStyle="bold"
-    android:textSize="16sp"
-    android:gravity="center" />
-
-<TextView
-    android:id="@+id/book_god_requirement"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Read 100 books"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-
-<!-- Progress Bar with Current and Max Progress -->
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:layout_marginTop="8dp">
-
-    <TextView
-        android:id="@+id/book_god_current_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginEnd="8dp" />
-
-    <ProgressBar
-        android:id="@+id/book_god_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:max="100"
-        android:progress="0"
-        android:progressTint="@color/grey" />
-
-    <TextView
-        android:id="@+id/book_god_max_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="100"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginStart="8dp" />
-</LinearLayout>
-
-<!-- Progress Description Text -->
-<TextView
-    android:id="@+id/book_god_progress_text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Not Reached"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-</LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Fantasy Explorer Achievement -->
-<androidx.cardview.widget.CardView
-android:id="@+id/fantasy_explorer_card"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:layout_margin="6dp"
-android:layout_columnWeight="1"
-android:layout_gravity="fill"
-app:cardBackgroundColor="@color/achievement_card"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
-
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:padding="20dp"
-android:gravity="center">
-
-<ImageView
-    android:id="@+id/fantasy_explorer_icon"
-    android:layout_width="60dp"
-    android:layout_height="60dp"
-    android:src="@drawable/fairytale"
-    android:tint="@color/grey" />
-
-<TextView
-    android:id="@+id/fantasy_explorer_title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Fantasy Explorer"
-    android:textColor="#9E9E9E"
-    android:textStyle="bold"
-    android:textSize="16sp"
-    android:gravity="center" />
-
-<TextView
-    android:id="@+id/fantasy_explorer_requirement"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Read 10 fantasy books"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-
-<!-- Progress Bar with Current and Max Progress -->
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:layout_marginTop="8dp">
-
-    <TextView
-        android:id="@+id/fantasy_explorer_current_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginEnd="8dp" />
-
-    <ProgressBar
-        android:id="@+id/fantasy_explorer_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:max="10"
-        android:progress="0"
-        android:progressTint="@color/grey" />
-
-    <TextView
-        android:id="@+id/fantasy_explorer_max_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="10"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginStart="8dp" />
-</LinearLayout>
-
-<!-- Progress Description Text -->
-<TextView
-    android:id="@+id/fantasy_explorer_progress_text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Not Reached"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-</LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Sci-Fi Voyager Achievement -->
-<androidx.cardview.widget.CardView
-android:id="@+id/sci_fi_voyager_card"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:layout_margin="6dp"
-android:layout_columnWeight="1"
-android:layout_gravity="fill"
-app:cardBackgroundColor="@color/achievement_card"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
-
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:padding="20dp"
-android:gravity="center">
-
-<ImageView
-    android:id="@+id/sci_fi_voyager_icon"
-    android:layout_width="60dp"
-    android:layout_height="60dp"
-    android:src="@drawable/scifi"
-    android:tint="@color/grey" />
-
-<TextView
-    android:id="@+id/sci_fi_voyager_title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Sci-Fi Voyager"
-    android:textColor="#9E9E9E"
-    android:textStyle="bold"
-    android:textSize="16sp"
-    android:gravity="center" />
-
-<TextView
-    android:id="@+id/sci_fi_voyager_requirement"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Read 10 sci-fi books"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-
-<!-- Progress Bar with Current and Max Progress -->
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:layout_marginTop="8dp">
-
-    <TextView
-        android:id="@+id/sci_fi_voyager_current_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginEnd="8dp" />
-
-    <ProgressBar
-        android:id="@+id/sci_fi_voyager_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:max="10"
-        android:progress="0"
-        android:progressTint="@color/grey" />
-
-    <TextView
-        android:id="@+id/sci_fi_voyager_max_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="10"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginStart="8dp" />
-</LinearLayout>
-
-<!-- Progress Description Text -->
-<TextView
-    android:id="@+id/sci_fi_voyager_progress_text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Not Reached"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-</LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Mystery Solver Achievement -->
-<androidx.cardview.widget.CardView
-android:id="@+id/mystery_solver_card"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:layout_margin="6dp"
-android:layout_columnWeight="1"
-android:layout_gravity="fill"
-app:cardBackgroundColor="@color/achievement_card"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
-
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:padding="20dp"
-android:gravity="center">
-
-<ImageView
-    android:id="@+id/mystery_solver_icon"
-    android:layout_width="60dp"
-    android:layout_height="60dp"
-    android:src="@drawable/mystery"
-    android:tint="@color/grey" />
-
-<TextView
-    android:id="@+id/mystery_solver_title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Mystery Solver"
-    android:textColor="#9E9E9E"
-    android:textStyle="bold"
-    android:textSize="16sp"
-    android:gravity="center" />
-
-<TextView
-    android:id="@+id/mystery_solver_requirement"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Solve 10 mysteries"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-
-<!-- Progress Bar with Current and Max Progress -->
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:layout_marginTop="8dp">
-
-    <TextView
-        android:id="@+id/mystery_solver_current_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginEnd="8dp" />
-
-    <ProgressBar
-        android:id="@+id/mystery_solver_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:max="10"
-        android:progress="0"
-        android:progressTint="@color/grey" />
-
-    <TextView
-        android:id="@+id/mystery_solver_max_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="10"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginStart="8dp" />
-</LinearLayout>
-
-<!-- Progress Description Text -->
-<TextView
-    android:id="@+id/mystery_solver_progress_text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Not Reached"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-</LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Romance Enthusiast Achievement -->
-<androidx.cardview.widget.CardView
-android:id="@+id/romance_enthusiast_card"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:layout_margin="6dp"
-android:layout_columnWeight="1"
-android:layout_gravity="fill"
-app:cardBackgroundColor="@color/achievement_card"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
-
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:padding="20dp"
-android:gravity="center">
-
-<ImageView
-    android:id="@+id/romance_enthusiast_icon"
-    android:layout_width="60dp"
-    android:layout_height="60dp"
-    android:src="@drawable/romance"
-    android:tint="@color/grey" />
-
-<TextView
-    android:id="@+id/romance_enthusiast_title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Romance Enthusiast"
-    android:textColor="#9E9E9E"
-    android:textStyle="bold"
-    android:textSize="16sp"
-    android:gravity="center" />
-
-<TextView
-    android:id="@+id/romance_enthusiast_requirement"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Read 10 romance books"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-
-<!-- Progress Bar with Current and Max Progress -->
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:layout_marginTop="8dp">
-
-    <TextView
-        android:id="@+id/romance_enthusiast_current_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginEnd="8dp" />
-
-    <ProgressBar
-        android:id="@+id/romance_enthusiast_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:max="10"
-        android:progress="0"
-        android:progressTint="@color/grey" />
-
-    <TextView
-        android:id="@+id/romance_enthusiast_max_progress_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="10"
-        android:textSize="12sp"
-        android:textColor="#000000"
-        android:layout_marginStart="8dp" />
-</LinearLayout>
-
-<!-- Progress Description Text -->
-<TextView
-    android:id="@+id/romance_enthusiast_progress_text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Not Reached"
-    android:textColor="#9E9E9E"
-    android:textSize="12sp"
-    android:layout_marginTop="4dp"
-    android:gravity="center" />
-</LinearLayout>
-    </androidx.cardview.widget.CardView>
+            android:layout_columnWeight="1"
+            android:layout_gravity="fill"
+            android:layout_margin="6dp"
+            app:cardBackgroundColor="@color/achievement_card"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/first_chapter_icon"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/egg"
+                    android:tint="@color/grey" />
+
+                <TextView
+                    android:id="@+id/first_chapter_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="First Chapter"
+                    android:textColor="#9E9E9E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/first_chapter_requirement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Finish 1 book to unlock"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+
+                <!-- Progress Bar with Current and Max Progress -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/first_chapter_current_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="0"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/first_chapter_progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="1"
+                        android:progress="0"
+                        android:progressTint="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/first_chapter_max_progress_text"
+                        android:layout_width="3dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="1"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Progress Description Text -->
+                <TextView
+                    android:id="@+id/first_chapter_progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Not Reached"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Reading Rookie Achievement -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/reading_rookie_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_gravity="fill"
+            android:layout_margin="6dp"
+            app:cardBackgroundColor="@color/achievement_card"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/reading_rookie_icon"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/read"
+                    android:tint="@color/grey" />
+
+                <TextView
+                    android:id="@+id/reading_rookie_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Reading Rookie"
+                    android:textColor="#9E9E9E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/reading_rookie_requirement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Log 5 books as finished"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+
+                <!-- Progress Bar with Current and Max Progress -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/readingRookieCurrentProgressText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="0"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/reading_rookie_progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="5"
+                        android:progress="0"
+                        android:progressTint="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/readingRookieMaxProgressText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="5"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Progress Description Text -->
+                <TextView
+                    android:id="@+id/reading_rookie_progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Not Reached"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Story Seeker Achievement -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/story_seeker_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_gravity="fill"
+            android:layout_margin="6dp"
+            app:cardBackgroundColor="@color/achievement_card"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/story_seeker_icon"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/research"
+                    android:tint="@color/grey" />
+
+                <TextView
+                    android:id="@+id/story_seeker_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Story Seeker"
+                    android:textColor="#9E9E9E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/story_seeker_requirement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Log 10 books as finished"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+
+                <!-- Progress Bar with Current and Max Progress -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/story_seeker_current_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="0"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/story_seeker_progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="10"
+                        android:progress="0"
+                        android:progressTint="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/story_seeker_max_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="10"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Progress Description Text -->
+                <TextView
+                    android:id="@+id/story_seeker_progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Not Reached"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Novel Navigator Achievement -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/novel_navigator_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_gravity="fill"
+            android:layout_margin="6dp"
+            app:cardBackgroundColor="@color/achievement_card"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/novel_navigator_icon"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/compass"
+                    android:tint="@color/grey" />
+
+                <TextView
+                    android:id="@+id/novel_navigator_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Novel Navigator"
+                    android:textColor="#9E9E9E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/novel_navigator_requirement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Log 25 books as finished"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+
+                <!-- Progress Bar with Current and Max Progress -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/novel_navigator_current_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="0"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/novel_navigator_progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="25"
+                        android:progress="0"
+                        android:progressTint="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/novel_navigator_max_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="25"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Progress Description Text -->
+                <TextView
+                    android:id="@+id/novel_navigator_progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Not Reached"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Book Enthusiast Achievement -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/book_enthusiast_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_gravity="fill"
+            android:layout_margin="6dp"
+            app:cardBackgroundColor="@color/achievement_card"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/book_enthusiast_icon"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/motivation"
+                    android:tint="@color/grey" />
+
+                <TextView
+                    android:id="@+id/book_enthusiast_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Book Enthusiast"
+                    android:textColor="#9E9E9E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/book_enthusiast_requirement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Log 50 books as finished"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+
+                <!-- Progress Bar with Current and Max Progress -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/book_enthusiast_current_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="0"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/book_enthusiast_progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="50"
+                        android:progress="0"
+                        android:progressTint="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/book_enthusiast_max_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="50"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Progress Description Text -->
+                <TextView
+                    android:id="@+id/book_enthusiast_progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Not Reached"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Legendary Librarian Achievement -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/legendary_librarian_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_gravity="fill"
+            android:layout_margin="6dp"
+            app:cardBackgroundColor="@color/achievement_card"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/legendary_librarian_icon"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/legendary"
+                    android:tint="@color/grey" />
+
+                <TextView
+                    android:id="@+id/legendary_librarian_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Legendary Librarian"
+                    android:textColor="#9E9E9E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/legendary_librarian_requirement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Read 75 books"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+
+                <!-- Progress Bar with Current and Max Progress -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/legendary_librarian_current_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="0"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/legendary_librarian_progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="75"
+                        android:progress="0"
+                        android:progressTint="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/legendary_librarian_max_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="75"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Progress Description Text -->
+                <TextView
+                    android:id="@+id/legendary_librarian_progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Not Reached"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Book God Achievement -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/book_god_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_gravity="fill"
+            android:layout_margin="6dp"
+            app:cardBackgroundColor="@color/achievement_card"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/book_god_icon"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/zeus"
+                    android:tint="@color/grey" />
+
+                <TextView
+                    android:id="@+id/book_god_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Book God"
+                    android:textColor="#9E9E9E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/book_god_requirement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Read 100 books"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+
+                <!-- Progress Bar with Current and Max Progress -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/book_god_current_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="0"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/book_god_progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="100"
+                        android:progress="0"
+                        android:progressTint="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/book_god_max_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="100"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Progress Description Text -->
+                <TextView
+                    android:id="@+id/book_god_progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Not Reached"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Fantasy Explorer Achievement -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/fantasy_explorer_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_gravity="fill"
+            android:layout_margin="6dp"
+            app:cardBackgroundColor="@color/achievement_card"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/fantasy_explorer_icon"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/fairytale"
+                    android:tint="@color/grey" />
+
+                <TextView
+                    android:id="@+id/fantasy_explorer_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Fantasy Explorer"
+                    android:textColor="#9E9E9E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/fantasy_explorer_requirement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Read 10 fantasy books"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+
+                <!-- Progress Bar with Current and Max Progress -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/fantasy_explorer_current_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="0"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/fantasy_explorer_progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="10"
+                        android:progress="0"
+                        android:progressTint="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/fantasy_explorer_max_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="10"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Progress Description Text -->
+                <TextView
+                    android:id="@+id/fantasy_explorer_progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Not Reached"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- History Achievement -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/history_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_gravity="fill"
+            android:layout_margin="6dp"
+            app:cardBackgroundColor="@color/achievement_card"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/history_icon"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/history"
+                    android:tint="@color/grey" />
+
+                <TextView
+                    android:id="@+id/history_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="History Buff"
+                    android:textColor="#9E9E9E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/history_requirement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Read 10 history books"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+
+                <!-- Progress Bar with Current and Max Progress -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/history_current_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="0"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/history_progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="10"
+                        android:progress="0"
+                        android:progressTint="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/history_max_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="10"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Progress Description Text -->
+                <TextView
+                    android:id="@+id/history_progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Not Reached"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Mystery Solver Achievement -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/mystery_solver_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_gravity="fill"
+            android:layout_margin="6dp"
+            app:cardBackgroundColor="@color/achievement_card"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/mystery_solver_icon"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/mystery"
+                    android:tint="@color/grey" />
+
+                <TextView
+                    android:id="@+id/mystery_solver_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Mystery Solver"
+                    android:textColor="#9E9E9E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/mystery_solver_requirement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Solve 10 crimes"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+
+                <!-- Progress Bar with Current and Max Progress -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/mystery_solver_current_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="0"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/mystery_solver_progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="10"
+                        android:progress="0"
+                        android:progressTint="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/mystery_solver_max_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="10"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Progress Description Text -->
+                <TextView
+                    android:id="@+id/mystery_solver_progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Not Reached"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Romance Enthusiast Achievement -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/romance_enthusiast_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_gravity="fill"
+            android:layout_margin="6dp"
+            app:cardBackgroundColor="@color/achievement_card"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/romance_enthusiast_icon"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/romance"
+                    android:tint="@color/grey" />
+
+                <TextView
+                    android:id="@+id/romance_enthusiast_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Romance Enthusiast"
+                    android:textColor="#9E9E9E"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/romance_enthusiast_requirement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Read 10 romance books"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+
+                <!-- Progress Bar with Current and Max Progress -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/romance_enthusiast_current_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="0"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/romance_enthusiast_progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="10"
+                        android:progress="0"
+                        android:progressTint="@color/grey" />
+
+                    <TextView
+                        android:id="@+id/romance_enthusiast_max_progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="10"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Progress Description Text -->
+                <TextView
+                    android:id="@+id/romance_enthusiast_progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Not Reached"
+                    android:textColor="#9E9E9E"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
     </GridLayout>
 
-    </LinearLayout>
+</LinearLayout>
     </ScrollView>
