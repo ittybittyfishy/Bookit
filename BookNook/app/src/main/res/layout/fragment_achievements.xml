@@ -1147,9 +1147,9 @@ android:gravity="center_horizontal">
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Romance Enthusiast Achievement -->
+        <!-- Psych Achievement -->
         <androidx.cardview.widget.CardView
-            android:id="@+id/romance_enthusiast_card"
+            android:id="@+id/psych_card"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
@@ -1167,29 +1167,29 @@ android:gravity="center_horizontal">
                 android:padding="20dp">
 
                 <ImageView
-                    android:id="@+id/romance_enthusiast_icon"
+                    android:id="@+id/psych_icon"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:src="@drawable/romance"
+                    android:src="@drawable/psychology"
                     android:tint="@color/grey" />
 
                 <TextView
-                    android:id="@+id/romance_enthusiast_title"
+                    android:id="@+id/psych_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Romance Enthusiast"
+                    android:text="Work in progress"
                     android:textColor="#9E9E9E"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/romance_enthusiast_requirement"
+                    android:id="@+id/psych_requirement"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:gravity="center"
-                    android:text="Read 10 romance books"
+                    android:text="Read 10 self help or psychology books"
                     android:textColor="#9E9E9E"
                     android:textSize="12sp" />
 
@@ -1202,7 +1202,7 @@ android:gravity="center_horizontal">
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/romance_enthusiast_current_progress_text"
+                        android:id="@+id/psych_current_progress_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
@@ -1211,7 +1211,7 @@ android:gravity="center_horizontal">
                         android:textSize="12sp" />
 
                     <ProgressBar
-                        android:id="@+id/romance_enthusiast_progress_bar"
+                        android:id="@+id/psych_progress_bar"
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -1221,7 +1221,7 @@ android:gravity="center_horizontal">
                         android:progressTint="@color/grey" />
 
                     <TextView
-                        android:id="@+id/romance_enthusiast_max_progress_text"
+                        android:id="@+id/psych_max_progress_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -1232,7 +1232,7 @@ android:gravity="center_horizontal">
 
                 <!-- Progress Description Text -->
                 <TextView
-                    android:id="@+id/romance_enthusiast_progress_text"
+                    android:id="@+id/psych_progress_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
