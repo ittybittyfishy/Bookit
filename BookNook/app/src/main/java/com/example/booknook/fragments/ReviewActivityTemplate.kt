@@ -402,7 +402,9 @@ class ReviewActivityTemplate : Fragment() {
             val bookTitle = arguments?.getString("bookTitle")
             val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
             var bookIsbn = arguments?.getString("bookIsbn") // Use this to identify the book for the review
-            val rawBookGenres = arguments?.getStringArrayList("bookGenresList") ?: listOf("default genre") // Delivered Genre list
+            // Yunjong Noh
+            // Delivered Genre list
+            val rawBookGenres = arguments?.getStringArrayList("bookGenresList") ?: listOf("default genre")
 
             // If the book has no ISBN, create a unique document ID using the title and authors of the book
             if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {
@@ -416,7 +418,7 @@ class ReviewActivityTemplate : Fragment() {
                     )
                 bookIsbn = "$titleId-$authorsId" // Update bookIsbn with new Id
             }
-
+            // Yunjong Noh
             // Normalize genres using GenreUtils before saving
             val bookGenres = rawBookGenres.map { GenreUtils.normalizeGenre(it) }
             // Add log for checking
@@ -460,7 +462,9 @@ class ReviewActivityTemplate : Fragment() {
                     val bookData = mapOf(
                         "bookTitle" to bookTitle,
                         "authors" to bookAuthors,
-                        "genres" to bookGenres // Save normalized genres
+                        // Yunjong Noh
+                        // Save normalized genres
+                        "genres" to bookGenres
                     )
 
                     // Reference to the specific book's document in the "books" collection
