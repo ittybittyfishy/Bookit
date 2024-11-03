@@ -353,9 +353,9 @@ class HomeFragment : Fragment() {
             saveRecommendationsToPreferences(books)
             // Update the first book's info
             val book1 = books[0] // Get the first book from the list
-            bookTitleTextView1.text =
-                book1.volumeInfo.title // Set the book title in the corresponding TextView
-            bookAuthorsTextView1.text = book1.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author" // Display the book authors or a default text if no authors are available
+            bookTitleTextView1.text = book1.volumeInfo.title // Set the book title in the corresponding TextView
+            // Display the book authors or a default text if no authors are available
+            bookAuthorsTextView1.text = book1.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author"
 
             val thumbnail1 = book1.volumeInfo.imageLinks?.thumbnail?.replace(
                 "http://",
