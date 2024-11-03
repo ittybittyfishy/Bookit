@@ -253,21 +253,24 @@ class FindGroupFragment  : Fragment(), FilterListener {
 
     private fun loadFilteredGroups(includeTags: List<String>, excludeTags: List<String>, privateOnly: Boolean, publicOnly: Boolean) {
         val db = FirebaseFirestore.getInstance()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
 
         db.collection("groups").get()
             .addOnSuccessListener { documents ->
                 groupList.clear()
 
                 for (document in documents) {
+                    // Retrieve the members list from the document
+                    val members = document.get("members") as? List<String>
                     val group = document.toObject(GroupItem::class.java).copy(id = document.id)
 
                     // Apply tag and publicity filtering
                     if (matchesFilters(group, includeTags, excludeTags) &&
-                        (publicOnly && !group.private || privateOnly && group.private || !publicOnly && !privateOnly)) {
+                        (publicOnly && !group.private || privateOnly && group.private || !publicOnly && !privateOnly) &&
+                        (members != null && !(members.contains(userId)))) { // Ensure it only loads groups that the user is not part of
                         groupList.add(group)
                     }
                 }
-
                 groupAdapter.notifyDataSetChanged()
             }
             .addOnFailureListener { e ->

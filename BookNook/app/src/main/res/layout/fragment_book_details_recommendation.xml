@@ -101,12 +101,14 @@
                         android:layout_toEndOf="@id/bookRating" />
                 </RelativeLayout>
 
+                <!-- Veronica Nguyen -->
+                <!-- Select Book Button -->
                 <Button
                     android:id="@+id/selectBookButton"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="25dp"
-                    android:layout_marginStart="170dp"
+                    android:layout_marginStart="150dp"
                     android:text="Select Book"
                     android:backgroundTint="@color/light_green"/>
             </LinearLayout>

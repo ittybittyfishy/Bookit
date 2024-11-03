@@ -2,6 +2,7 @@ package com.example.booknook
 
 import android.app.AlertDialog
 import android.content.Context
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,8 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.booknook.fragments.AddRecommendationFragment
+import com.example.booknook.fragments.ConfirmRecommendationFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -16,6 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 // Adapter class that connects the data (BookItems) with the RecyclerView to display each book.
 class BookRecommendationAdapter(
     private val bookList: List<BookItem>, // List of books to display
+    private val groupId: String,
     private val listener: RecyclerViewEvent // Listener for handling click events on books
 ) : RecyclerView.Adapter<BookRecommendationAdapter.BookViewHolder>() {
 
@@ -60,6 +64,21 @@ class BookRecommendationAdapter(
         )
 
         val genres = book.volumeInfo.categories ?: listOf("Unknown Genre")
+
+        // Veronica Nguyen
+        // Handle the "Select Book" button click event
+        holder.selectBookButton.setOnClickListener {
+            // Takes user to the confirm page to confirm their book for recommendation
+            val confirmRecommendationFragment = ConfirmRecommendationFragment()
+            val bundle = Bundle().apply {
+                putString("groupId", groupId)
+                putString("bookImage", book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"))
+                putString("bookTitle", book.volumeInfo.title)
+                putString("bookAuthor", book.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")
+            }
+            confirmRecommendationFragment.arguments = bundle
+            (holder.itemView.context as MainActivity).replaceFragment(confirmRecommendationFragment, "Add Recommendation")
+        }
     }
 
     // Returns the total number of items (books) in the list.
@@ -78,6 +97,7 @@ class BookRecommendationAdapter(
             itemView.findViewById(R.id.book_image) // Thumbnail image of the book
         val rating: RatingBar = itemView.findViewById(R.id.bookRating) // Rating of the book
         val genres: TextView = itemView.findViewById(R.id.bookGenres) // Genres of the book
+        val selectBookButton: Button = itemView.findViewById(R.id.selectBookButton)
 
         // Init block to set click listener for each book item.
         init {

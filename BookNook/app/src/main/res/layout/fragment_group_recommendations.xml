@@ -1,28 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".fragments.GroupRecommendationsFragment">
 
-    <!-- Spinner to sort recommendations -->
-    <Spinner
-        android:id="@+id/sortBooks"
-        android:layout_width="120dp"
-        android:layout_height="50dp"
-        android:entries="@array/book_sort_options"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:layout_marginLeft="10dp"
-        android:background="@drawable/green_round" />
+        android:layout_marginLeft="13dp">
 
-    <!-- Add Recommendation Button -->
-    <Button
-        android:id="@+id/addRecommendationButton"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="180dp"
-        android:text="Add Recommendation"
-        android:textSize="14dp"
-        android:backgroundTint="@color/light_green"/>
-</FrameLayout>
+        <!-- Spinner to sort recommendations -->
+        <Spinner
+            android:id="@+id/sortBooks"
+            android:layout_width="120dp"
+            android:layout_height="44dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginEnd="45dp"
+            android:background="@drawable/green_round"
+            android:entries="@array/recommendations_sort_options" />
+
+        <!-- Add Recommendation Button -->
+        <Button
+            android:id="@+id/addRecommendationButton"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:text="Add Recommendation"
+            android:textSize="14dp"
+            android:backgroundTint="#a8bc9c"/>
+    </LinearLayout>
+
+    <!-- Recommendations Recycler View -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recommendationsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="30dp"
+        android:paddingStart="25dp"
+        android:paddingEnd="25dp">
+    </androidx.recyclerview.widget.RecyclerView>
+</LinearLayout>

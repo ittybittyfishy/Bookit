@@ -55,33 +55,39 @@
 
         </LinearLayout>
 
-        <!-- Search bar to look up friends by username -->
-        <EditText
-            android:id="@+id/search_friend_bar"
-            android:layout_width="360dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/rounded_rectangle"
-            android:elevation="10dp"
-            android:layout_gravity="center"
-            android:hint="Look up a username"
-            android:textColorHint="@color/hint_text_color"
-            android:imeOptions="actionSearch"
-            android:padding="8dp"
-            android:textSize="20sp" />
+            android:layout_gravity="center_horizontal"
+            android:padding="5dp">
 
-        <!-- Search button -->
-        <Button
-            android:id="@+id/search_friend_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Search"
-            android:textColor="@color/icon_color"
-            android:backgroundTint="@color/green_to_purple"
-            android:layout_gravity="center"
-            android:padding="8dp"
-            android:layout_marginTop="8dp"
-            android:textSize="18sp" />
+            <EditText
+                android:id="@+id/search_friend_bar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rectangle_border_white"
+                android:elevation="7dp"
+                android:fontFamily="sans-serif-light"
+                android:hint="Search Username"
+                android:imeOptions="actionSearch"
+                android:padding="10dp"
+                android:textColor="#8b774e"
+                android:textColorHint="#c1a37a"
+                android:textSize="18sp"
+                android:layout_weight="1"
+                />
+
+            <ImageButton
+                android:id="@+id/search_button"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/search_icon"
+                android:elevation="6dp"
+                android:layout_marginBottom="5dp"
+                android:backgroundTint="@color/banner_green"
+                android:layout_gravity="center_vertical"/>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -25,7 +25,7 @@ class FriendsFragment : Fragment() {
 
     private lateinit var requestsButton: Button
     private lateinit var blockedButton: Button
-    private lateinit var searchButton: Button
+    private lateinit var searchButton: ImageButton
     private lateinit var collapseOnlineButton: ImageButton
     private lateinit var collapseOfflineButton: ImageButton
     private lateinit var searchBar: EditText
@@ -49,7 +49,7 @@ class FriendsFragment : Fragment() {
         // Initialize buttons and views
         requestsButton = view.findViewById(R.id.requests_button)
         blockedButton = view.findViewById(R.id.blocked_button)
-        searchButton = view.findViewById(R.id.search_friend_button)
+        searchButton = view.findViewById(R.id.search_button)
         searchBar = view.findViewById(R.id.search_friend_bar)
         collapseOnlineButton = view.findViewById(R.id.collapse_online_button)
         collapseOfflineButton = view.findViewById(R.id.collapse_offline_button)
