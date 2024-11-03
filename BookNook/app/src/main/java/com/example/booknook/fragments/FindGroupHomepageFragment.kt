@@ -124,16 +124,25 @@ class FindGroupHomepageFragment : Fragment() {
             )
         }
 
+        // Veronica Nguyen
+        // Handles click of Members section
         membersSection.setOnClickListener {
             val groupMembersFragment = GroupMembersFragment()
             val bundle = Bundle()
             bundle.putString("groupId", groupId)
             groupMembersFragment.arguments = bundle
+            // Opens Members fragment
             (activity as MainActivity).replaceFragment(groupMembersFragment, "Members")
         }
 
+        // Veronica Nguyen
+        // Handles click of Recommendations section
         recommendationsSection.setOnClickListener {
             val recommendationsFragment = GroupRecommendationsFragment()
+            val bundle = Bundle()
+            bundle.putString("groupId", groupId)
+            recommendationsFragment.arguments = bundle
+            // Opens Recommendations fragment
             (activity as MainActivity).replaceFragment(recommendationsFragment, "Recommendations")
         }
 
@@ -217,6 +226,11 @@ class FindGroupHomepageFragment : Fragment() {
 
                     // Calls function to get number of members online
                     getNumMembersOnline(groupId)
+
+                    // Displays number of recommendations
+                    val recommendations = document.get("recommendations") as? List<Map<String, Any>>
+                    val numofRecommendations = recommendations?.size ?: 0
+                    numRecommendations.text = "$numofRecommendations"
                 }
             }
     }
@@ -327,6 +341,7 @@ class FindGroupHomepageFragment : Fragment() {
                     // Gets the members in the group
                     val memberIds = document.get("members") as? List<String> ?: listOf()
                     var onlineCount = 0  // Stores the number of members online
+                    var processedCount = 0 // Tracks how many members have been processed
 
                     // Loops through each member to check their online status
                     for (memberId in memberIds) {
@@ -340,14 +355,20 @@ class FindGroupHomepageFragment : Fragment() {
                                         onlineCount++
                                     }
                                 }
+                                processedCount++  // Increment the processed counter
 
-                                // Updates TextView after last member is checked
-                                if (memberId == memberIds.last()) {
+                                // Updates TextView after all members have been checked
+                                if (processedCount == memberIds.size) {
                                     membersOnline.text = "$onlineCount"
                                 }
                             }
                             .addOnFailureListener { e ->
                                 Toast.makeText(activity, "Failed to check online statuses", Toast.LENGTH_SHORT).show()
+                                processedCount++
+                                // Still need to check if all members were processed in case of failure
+                                if (processedCount == memberIds.size) {
+                                    membersOnline.text = "$onlineCount"
+                                }
                             }
                     }
                 }

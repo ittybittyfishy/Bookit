@@ -9,7 +9,7 @@
     <!-- Search for a book -->
     <FrameLayout
         android:id="@+id/searchBookButton"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="140dp"
         android:layout_width="220dp"
         android:layout_height="310dp"
         android:background="@drawable/dashed_border"
@@ -38,14 +38,5 @@
             android:textSize="17sp"
             android:layout_marginTop="32dp" />
     </FrameLayout>
-
-    <!-- Recommend Button -->
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Recommend"
-        android:textColor="#8B845E"
-        android:backgroundTint="#D3E3CE"
-        android:layout_marginTop="25dp" />
 
 </LinearLayout>

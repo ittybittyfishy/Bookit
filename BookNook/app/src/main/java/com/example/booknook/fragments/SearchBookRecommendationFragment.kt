@@ -60,6 +60,9 @@ class SearchBookRecommendationFragment : Fragment(), BookRecommendationAdapter.R
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val groupId = arguments?.getString("groupId")
+        Log.d("SearchBookRecommendationsFragment", "Fetching recommendations for groupId: $groupId")
+
         // Initialize UI components by finding them in the inflated view
         searchButton = view.findViewById(R.id.searchButton)
         searchEditText = view.findViewById(R.id.searchEditText)
@@ -71,7 +74,9 @@ class SearchBookRecommendationFragment : Fragment(), BookRecommendationAdapter.R
 
         // Set up the RecyclerView with a LinearLayoutManager and attach the adapter
         recyclerView.layoutManager = LinearLayoutManager(activity) // Arrange items vertically
-        bookRecommendationAdapter = BookRecommendationAdapter(bookList, this) // Initialize the adapter with the book list
+        bookRecommendationAdapter =
+            groupId?.let { BookRecommendationAdapter(bookList, it, this) }!! // Initialize the adapter with the book list
+
         recyclerView.adapter = bookRecommendationAdapter // Attach the adapter to the RecyclerView
 
         // Set up a listener to detect when the user scrolls to the bottom of the list
@@ -466,6 +471,7 @@ class SearchBookRecommendationFragment : Fragment(), BookRecommendationAdapter.R
     // Veronica Nguyen
     // Opens a book's details in another page upon clicking on it
     override fun onItemClick(position: Int) {
+        val groupId = arguments?.getString("groupId")
         val bookItem = bookList[position]
         val bookDetailsRecommendationFragment = BookDetailsRecommendationFragment()
         val bundle = Bundle() // Bundle to store data that will be transferred to the fragment
@@ -477,6 +483,7 @@ class SearchBookRecommendationFragment : Fragment(), BookRecommendationAdapter.R
         val description = bookItem.volumeInfo.description  // Gets the book's description
 
         // Adds data into the bundle
+        bundle.putString("groupId", groupId)
         bundle.putString("bookTitle", bookItem.volumeInfo.title)
         // Puts authors in a string separated by commas
         bundle.putString("bookAuthor", bookItem.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")

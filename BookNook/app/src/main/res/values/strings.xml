@@ -61,5 +61,14 @@
         <item>5.0 only</item>
     </string-array>
 
+    <!-- Sort Group Recommendations -->
+    <string-array name="recommendations_sort_options">
+        <item>Sort Books ▼</item>
+        <item>Title (A-Z)</item>
+        <item>Title (Z-A)</item>
+        <item>Author (A-Z)</item>
+        <item>Author (Z-A)</item>
+    </string-array>
+
 
 </resources>
