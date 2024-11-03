@@ -19,6 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 // Adapter class that connects the data (BookItems) with the RecyclerView to display each book.
 class BookRecommendationAdapter(
     private val bookList: List<BookItem>, // List of books to display
+    private val groupId: String,
     private val listener: RecyclerViewEvent // Listener for handling click events on books
 ) : RecyclerView.Adapter<BookRecommendationAdapter.BookViewHolder>() {
 
@@ -70,6 +71,7 @@ class BookRecommendationAdapter(
             // Takes user to the confirm page to confirm their book for recommendation
             val confirmRecommendationFragment = ConfirmRecommendationFragment()
             val bundle = Bundle().apply {
+                putString("groupId", groupId)
                 putString("bookImage", book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"))
                 putString("bookTitle", book.volumeInfo.title)
                 putString("bookAuthor", book.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")

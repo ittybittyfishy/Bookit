@@ -1,6 +1,7 @@
 package com.example.booknook.fragments
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -30,12 +31,18 @@ class AddRecommendationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val groupId = arguments?.getString("groupId")
+        Log.d("AddRecommendationFragment", "groupId: $groupId")
+
         // Initialize buttons and views
         searchBookButton = view.findViewById(R.id.searchBookButton)
 
         // Opens page to search book when search button is pressed
         searchBookButton.setOnClickListener {
             val searchBookRecommendationFragment = SearchBookRecommendationFragment()
+            val bundle = Bundle()
+            bundle.putString("groupId", groupId)
+            searchBookRecommendationFragment.arguments = bundle
             (activity as MainActivity).replaceFragment(searchBookRecommendationFragment, "Search")
         }
     }

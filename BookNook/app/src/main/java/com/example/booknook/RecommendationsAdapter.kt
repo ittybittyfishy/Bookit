@@ -15,9 +15,9 @@ class RecommendationsAdapter(
 
     // ViewHolder class that represents each recommendation item
     class RecommendationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val bookImage: ImageView = itemView.findViewById(R.id.recommendationImage)
-        val bookTitle: TextView = itemView.findViewById(R.id.recommendationTitle)
-        val bookAuthors: TextView = itemView.findViewById(R.id.recommendationAuthors)
+        val bookImage: ImageView = itemView.findViewById(R.id.bookImage)
+        val bookTitle: TextView = itemView.findViewById(R.id.bookTitle)
+        val bookAuthors: TextView = itemView.findViewById(R.id.bookAuthors)
     }
 
     // Inflate the item layout and create a ViewHolder

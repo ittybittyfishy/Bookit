@@ -5,6 +5,7 @@
     android:orientation="vertical"
     android:padding="8dp">
 
+    <!-- Book Image -->
     <ImageView
         android:id="@+id/bookImage"
         android:src="@drawable/placeholder_image"
@@ -12,6 +13,7 @@
         android:layout_height="180dp"
         android:scaleType="centerCrop" />
 
+    <!-- Book Title -->
     <TextView
         android:id="@+id/bookTitle"
         android:layout_width="wrap_content"
@@ -22,6 +24,7 @@
         android:paddingTop="4dp"
         android:paddingBottom="2dp" />
 
+    <!-- Book Authors -->
     <TextView
         android:id="@+id/bookAuthors"
         android:layout_width="wrap_content"

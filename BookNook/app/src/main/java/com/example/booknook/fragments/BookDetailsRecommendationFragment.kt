@@ -66,6 +66,7 @@ class BookDetailsRecommendationFragment : Fragment() {
         val view = inflater.inflate(layout.fragment_book_details_recommendation, container, false)
 
         // Retrieves data from arguments passed in from the search fragment
+        val groupId = arguments?.getString("groupId")
         val bookTitle = arguments?.getString("bookTitle")
         val bookAuthor = arguments?.getString("bookAuthor")
         val bookAuthorsList = arguments?.getStringArrayList("bookAuthorsList")
@@ -137,6 +138,7 @@ class BookDetailsRecommendationFragment : Fragment() {
             // Takes user to the confirm page to confirm their book for recommendation
             val confirmRecommendationFragment = ConfirmRecommendationFragment()
             val bundle = Bundle().apply {
+                putString("groupId", groupId)
                 putString("bookImage", volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://"))
                 putString("bookTitle", volumeInfo?.title)
                 putString("bookAuthor", volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author")
