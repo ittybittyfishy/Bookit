@@ -46,7 +46,7 @@ class GroupMembersFragment : Fragment() {
         offlineMembersRecyclerView = view.findViewById(R.id.offline_members_recycler_view)
 
         onlineMembersRecyclerView.layoutManager = GridLayoutManager(context, 2)  // Displays online members in 2 columns
-        offlineMembersRecyclerView.layoutManager = GridLayoutManager(context, 2)  // Displays offline friends in 2 columns
+        offlineMembersRecyclerView.layoutManager = GridLayoutManager(context, 2)  // Displays offline members in 2 columns
 
         // Handles when collapse/expand button for members is clicked
         collapseOnlineButton.setOnClickListener {
