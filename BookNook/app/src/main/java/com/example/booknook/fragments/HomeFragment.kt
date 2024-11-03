@@ -89,13 +89,12 @@ class HomeFragment : Fragment() {
                     // Set the text to display "logged in as username"
                     loggedInTextView.text = "Logged in as\n$username"
 
-                    // Yunjong Noh
-                    // Load recommendations from the past 24 hours, if available
-                    if (shouldFetchRecommendations()) {
+                    // Load recommendations if needed or if no stored data is available
+                    if (shouldFetchRecommendations(uid) || loadRecommendationsFromPreferences(uid) == null) {
                         fetchRecommendedBooksFromGoogle(uid)
-                        saveLastFetchDate() // Save the current date as the last fetch date
+                        saveLastFetchDate(uid) // Save the current date as the last fetch date
                     } else {
-                        loadRecommendationsFromPreferences()?.let { recommendations ->
+                        loadRecommendationsFromPreferences(uid)?.let { recommendations ->
                             displayRecommendedBooks(recommendations) // Display stored recommendations
                             Log.d("HomeFragment", "Stored recommendations loaded.")
                         }
@@ -111,10 +110,10 @@ class HomeFragment : Fragment() {
 
     // Yunjong Noh
     // Check if 24 hours have passed since the last fetch
-    private fun shouldFetchRecommendations(): Boolean {
+    private fun shouldFetchRecommendations(userId: String): Boolean {
         // Access SharedPreferences to retrieve the timestamp of the last fetch
         val sharedPreferences = requireContext().getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE)
-        val lastFetchTime = sharedPreferences.getLong("lastRecommendationFetchTime", 0L)
+        val lastFetchTime = sharedPreferences.getLong("lastRecommendationFetchTime_$userId", 0L)
 
         // Get the current time in milliseconds
         val currentTime = Calendar.getInstance().timeInMillis
@@ -123,18 +122,20 @@ class HomeFragment : Fragment() {
         val oneDayInMillis = 24 * 60 * 60 * 1000 // 24 hours
 
         // Return true if 24 hours have passed since the last fetch, false otherwise
-        return (currentTime - lastFetchTime) >= oneDayInMillis
+        val shouldFetch = (currentTime - lastFetchTime) >= oneDayInMillis
+        Log.d("shouldFetchRecommendations", "Should fetch for user $userId: $shouldFetch")
+        return shouldFetch
     }
 
     // Yunjong Noh
     // Save the current date as the last fetch date
-    private fun saveLastFetchDate() {
+    private fun saveLastFetchDate(userId: String) {
         // Access SharedPreferences in edit mode to store the current timestamp
         val sharedPreferences = requireContext().getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
 
         // Store the current time in milliseconds as the "lastRecommendationFetchTime"
-        editor.putLong("lastRecommendationFetchTime", Calendar.getInstance().timeInMillis)
+        editor.putLong("lastRecommendationFetchTime_$userId", Calendar.getInstance().timeInMillis)
 
         // Apply the changes to SharedPreferences
         editor.apply()
@@ -142,7 +143,7 @@ class HomeFragment : Fragment() {
 
     // Yunjong Noh
     // Convert the list of BookItem to JSON and store it in SharedPreferences
-    private fun saveRecommendationsToPreferences(recommendations: List<BookItem>) {
+    private fun saveRecommendationsToPreferences(userId: String, recommendations: List<BookItem>) {
         // Access SharedPreferences in edit mode to store the recommendations
         val sharedPreferences = requireContext().getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -152,7 +153,8 @@ class HomeFragment : Fragment() {
         val json = gson.toJson(recommendations)
 
         // Store the JSON string as "recommendations" in SharedPreferences
-        editor.putString("recommendations", json)
+        editor.putString("recommendations_$userId", json)
+        Log.d("saveRecommendations", "Saving recommendations for user $userId: $json")
 
         // Apply the changes to SharedPreferences
         editor.apply()
@@ -160,19 +162,18 @@ class HomeFragment : Fragment() {
 
     // Yunjong Noh
     // Load the stored JSON recommendations from SharedPreferences and convert them back to a list of BookItem
-    private fun loadRecommendationsFromPreferences(): List<BookItem>? {
+    private fun loadRecommendationsFromPreferences(userId: String): List<BookItem>? {
         // Access SharedPreferences to retrieve the stored recommendations JSON
         val sharedPreferences = requireContext().getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE)
         val gson = Gson()
 
         // Retrieve the JSON string representing the list of recommendations
-        val json = sharedPreferences.getString("recommendations", null)
-
+        val json = sharedPreferences.getString("recommendations_$userId", null)
+        Log.d("loadRecommendations", "Loaded recommendations for user $userId: $json")
         // If JSON data exists, convert it back to a list of BookItem using Gson
         return if (json != null) {
             // Define the type for deserialization (List<BookItem>)
             val type = object : TypeToken<List<BookItem>>() {}.type
-
             // Deserialize the JSON string back into a List<BookItem>
             gson.fromJson(json, type)
         } else {
@@ -194,8 +195,8 @@ class HomeFragment : Fragment() {
                 val avgRating = document.get("avgRating") as? Double ?: 3.0 // User's average rating
 
                 // Log the retrieved preferences and top genres
-                Log.d("fetchRecommendedBooks", "Genre Preferences: $genrePreferences")
-                Log.d("fetchRecommendedBooks", "Top Genres: $topGenres")
+                Log.d("fetchRecommendedBooks", "User $uid genrePreferences: $genrePreferences")
+                Log.d("fetchRecommendedBooks", "User $uid topGenres: $topGenres")
                 Log.d("fetchRecommendedBooks", "Average Rating: $avgRating")
 
                 // Combine genrePreferences and topGenres, removing duplicates
@@ -350,7 +351,7 @@ class HomeFragment : Fragment() {
     private fun displayRecommendedBooks(books: List<BookItem>) {
         // Save non-empty list of recommended books to SharedPreferences to reuse within 24 hours
         if (books.isNotEmpty()) {
-            saveRecommendationsToPreferences(books)
+            saveRecommendationsToPreferences(auth.currentUser?.uid ?: "", books)
             // Update the first book's info
             val book1 = books[0] // Get the first book from the list
             bookTitleTextView1.text = book1.volumeInfo.title // Set the book title in the corresponding TextView
