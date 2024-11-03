@@ -86,6 +86,10 @@ class ProfileFragment : Fragment() {
     private lateinit var friendsSection: LinearLayout
     private lateinit var achievementsSection: LinearLayout
 
+    //Work review 4
+    private lateinit var userLevelTextView: TextView
+
+
     // Method called to create and return the view hierarchy associated with the fragment
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -93,6 +97,9 @@ class ProfileFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
+
+        //work review 4
+        userLevelTextView = view.findViewById(R.id.rectangle1)
 
         // Initialize the UI elements
         bannerImage = view.findViewById(R.id.bannerImage)
@@ -231,6 +238,8 @@ class ProfileFragment : Fragment() {
             }
         }
 
+
+
         // If user is authenticated, update their stats
         if (userId != null) {
             updateTopGenres(userId)
@@ -241,6 +250,11 @@ class ProfileFragment : Fragment() {
             updateAverageRating(userId)
             updateNumReviews(userId)
             updateNumFriends(userId)
+            updateUserLevel(userId)
+
+
+                // Other data fetching methods...
+
 
             // Retrieve the username and other data from Firestore
             val userDocRef = firestore.collection("users").document(userId)
@@ -279,6 +293,11 @@ class ProfileFragment : Fragment() {
                 }
         } else {
             Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
+        }
+
+        //work review 4
+        userId?.let {
+            loadUnlockedAchievements(it)
         }
 
         // Return the created view
@@ -728,6 +747,102 @@ class ProfileFragment : Fragment() {
                 }
         }
     }
+
+    //work review 4
+    private fun updateUserLevel(userId: String) {
+        val userDocRef = firestore.collection("users").document(userId)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                // Assuming "level" is stored as a field in the user's document
+                val userLevel = document.getLong("level") ?: 0 // Default to 0 if the field is missing
+                userLevelTextView.text = "Level $userLevel"
+            } else {
+                Log.d("ProfileFragment", "No such document for user: $userId")
+                userLevelTextView.text = "Level 0" // Default to Level 0 if document is missing
+            }
+        }.addOnFailureListener { e ->
+            Log.e("ProfileFragment", "Error fetching user level: ${e.message}")
+            Toast.makeText(activity, "Failed to retrieve user level", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    //work review 4
+    private fun loadUnlockedAchievements(userId: String) {
+        val userDocRef = firestore.collection("users").document(userId)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                // Filter achievements based on unlocked status
+                val unlockedAchievements = mutableListOf<String>()
+
+                // Example achievement checks
+                if (document.getBoolean("firstChapterAchieved") == true) {
+                    unlockedAchievements.add("First Chapter")
+                }
+                if (document.getBoolean("readingRookieAchieved") == true) {
+                    unlockedAchievements.add("Reading Rookie")
+                }
+                // Add checks for other achievements as needed...
+
+                // Populate the Spinner with unlocked achievements
+                setupSpinner(unlockedAchievements)
+            } else {
+                Log.e("ProfileFragment", "No document found for user: $userId")
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("ProfileFragment", "Error fetching achievements: ", exception)
+        }
+    }
+
+    //work review 4
+    private fun setupSpinner(achievements: List<String>) {
+        val spinner: Spinner = view?.findViewById(R.id.rectangle3) ?: return
+
+        // Create an ArrayAdapter with a built-in layout that centers text
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item, // This layout centers text
+            achievements
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        // Set the adapter to the Spinner
+        spinner.adapter = adapter
+
+        // Handle Spinner selection
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val selectedAchievement = parent.getItemAtPosition(position).toString()
+                saveSelectedTitleToUserProfile(selectedAchievement)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // Optional: Handle case where no item is selected
+            }
+        }
+    }
+
+    //work review 4
+    private fun saveSelectedTitleToUserProfile(title: String) {
+        val userId = auth.currentUser?.uid ?: return
+        val userDocRef = firestore.collection("users").document(userId)
+
+        // Update the user's profile with the selected achievement title
+        userDocRef.update("profileExperienceTitle", title)
+            .addOnSuccessListener {
+                Log.d("ProfileFragment", "Profile title updated to: $title")
+                Toast.makeText(context, "Profile title updated successfully!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { exception ->
+                Log.e("ProfileFragment", "Error updating profile title: ", exception)
+                Toast.makeText(context, "Failed to update profile title. Please try again.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
+
+
 
     // Companion object to define constants
     companion object {

@@ -641,23 +641,22 @@ class AchievementsFragment : Fragment() {
     private fun loadAchievementsData(userId: String) {
         val userDocRef = firestore.collection("users").document(userId)
 
-        // Retrieve the user's document
         userDocRef.get().addOnSuccessListener { document ->
             if (document != null && document.exists()) {
-                // Get the number of books marked as finished
                 val booksFinished = (document.get("standardCollections.Finished") as? List<*>)?.size ?: 0
-
-                // Calculate total XP
                 val totalXp = booksFinished * 20
-
-                // Calculate current level and XP within the current level (Cumulative XP)
                 val currentLevel = if (totalXp == 0) 1 else ceil(totalXp / 100.0).toInt()
                 val currentXpInLevel = if (totalXp == 0) 0 else totalXp - ((currentLevel - 1) * 100)
 
-                // Calculate books needed for next level
                 val xpNeededForNextLevel = 100
                 val xpRemaining = xpNeededForNextLevel - currentXpInLevel
                 val booksNeeded = if (xpRemaining > 0) ceil(xpRemaining / 20.0).toInt() else 0
+
+                updateLevelAndXpUI(totalXp, currentLevel, currentXpInLevel, booksNeeded)
+
+                // Save the current level to Firestore
+                updateUserLevelInFirestore(userId, currentLevel)
+
 
                 Log.d("AchievementsFragment", "Total XP: $totalXp, Level: $currentLevel, XP in Level: $currentXpInLevel, Books Needed: $booksNeeded")
                 Log.d("AchievementsFragment", "Books Finished: $booksFinished")
@@ -1451,4 +1450,18 @@ class AchievementsFragment : Fragment() {
             }
         }
     }
+
+    //work review 4
+    private fun updateUserLevelInFirestore(userId: String, currentLevel: Int) {
+        val userDocRef = firestore.collection("users").document(userId)
+
+        userDocRef.update("level", currentLevel)
+            .addOnSuccessListener {
+                Log.d("AchievementsFragment", "User level updated successfully to Level $currentLevel")
+            }
+            .addOnFailureListener { e ->
+                Log.e("AchievementsFragment", "Error updating user level: ${e.message}")
+            }
+    }
+
 }
