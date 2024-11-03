@@ -16,9 +16,10 @@
     <!-- Book Title -->
     <TextView
         android:id="@+id/bookTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:gravity="center"
         android:text="Title"
         android:textSize="16sp"
         android:paddingTop="4dp"
@@ -33,4 +34,33 @@
         android:text="Authors"
         android:textSize="14sp"
         android:textColor="#757575"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <!-- Upvote Button -->
+        <ImageButton
+            android:id="@+id/upvoteButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@null"
+            android:src="@drawable/plus"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:padding="5dp" />
+
+        <!-- Number of upvotes -->
+        <TextView
+            android:id="@+id/numberUpvotes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="17sp"
+            android:text="(0)"
+            android:gravity="center_vertical"
+            android:layout_marginStart="5dp"
+            android:layout_gravity="center_vertical"/>
+    </LinearLayout>
 </LinearLayout>
