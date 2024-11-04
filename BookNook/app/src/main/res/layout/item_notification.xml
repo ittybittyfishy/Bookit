@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
+    app:cardUseCompatPadding="true">
+
+    <RelativeLayout
+        android:id="@+id/notification"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <!-- User's profile picture -->
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profileImage"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/profile_picture_placeholder" />
+
+        <TextView
+            android:id="@+id/messageType"
+            android:layout_width="235dp"
+            android:layout_height="wrap_content"
+            android:text="Message Type"
+            android:textSize="17dp"
+            android:textStyle="bold"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/profileImage"/>
+
+        <TextView
+            android:id="@+id/messageBody"
+            android:layout_width="235dp"
+            android:layout_height="wrap_content"
+            android:text="Details of the message"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/profileImage"
+            android:layout_below="@+id/messageType"/>
+
+    </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/dismiss_button"
+        android:background="@color/transparent"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="0dp"
+        android:src="@drawable/ic_accept_button"
+        android:layout_gravity="bottom|right"
+        android:scaleType="centerInside" />
+
+</androidx.cardview.widget.CardView>
