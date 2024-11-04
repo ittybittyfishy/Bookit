@@ -498,21 +498,21 @@ class ProfileFragment : Fragment() {
 
                 // Sort tags by count in descending order and take the most frequent one
                 val favoriteTag = tagCount.entries.maxByOrNull { it.value }?.key
-
-                // Update user's favoriteTag field in Firestore only if favoriteTag is not null
-                favoriteTag?.let { it ->
-                    db.collection("users").document(userId).update("favoriteTag", it)
+                favoriteTag?.let { tag ->
+                    db.collection("users").document(userId).update("favoriteTag", tag)
                         .addOnSuccessListener {
-                            // Update text view here
-                            favoriteTagTextView.text = it.toString()
+                            // Safely display the tag
+                            favoriteTagTextView.text = tag.toString()
                         }
                         .addOnFailureListener { e ->
+                            Log.e("ProfileFragment", "Failed to update favorite tag: ${e.message}")
                             Toast.makeText(context, "Failed to update favorite tag: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
+                } ?: run {
+                    // Handle case where favoriteTag is null
+                    Log.d("ProfileFragment", "No favorite tag found to update.")
+                    favoriteTagTextView.text = "N/A"  // Display a placeholder or handle it appropriately
                 }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(context, "Failed to retrieve collections: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -754,18 +754,30 @@ class ProfileFragment : Fragment() {
 
         userDocRef.get().addOnSuccessListener { document ->
             if (document != null && document.exists()) {
-                // Assuming "level" is stored as a field in the user's document
-                val userLevel = document.getLong("level") ?: 0 // Default to 0 if the field is missing
-                userLevelTextView.text = "Level $userLevel"
+                try {
+                    // Check if the level is stored as a number
+                    val userLevel = document.get("level") as? Number
+                    if (userLevel != null) {
+                        userLevelTextView.text = "Level ${userLevel.toLong()}"
+                    } else {
+                        // Handle if the level is null or not a number
+                        Log.d("ProfileFragment", "Level is null or not a valid number")
+                        userLevelTextView.text = "Level 0" // Default value
+                    }
+                } catch (e: ClassCastException) {
+                    Log.e("ProfileFragment", "Field 'level' is not a valid Number: ${e.message}")
+                    userLevelTextView.text = "Level 0" // Default to Level 0 in case of type mismatch
+                }
             } else {
                 Log.d("ProfileFragment", "No such document for user: $userId")
-                userLevelTextView.text = "Level 0" // Default to Level 0 if document is missing
+                userLevelTextView.text = "Level 0" // Default if document does not exist
             }
         }.addOnFailureListener { e ->
             Log.e("ProfileFragment", "Error fetching user level: ${e.message}")
             Toast.makeText(activity, "Failed to retrieve user level", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     //work review 4
     private fun loadUnlockedAchievements(userId: String) {
