@@ -950,6 +950,7 @@ class ProfileFragment : Fragment() {
             if (document != null && document.exists()) {
                 // List of achievement fields to check
                 val achievementFields = listOf(
+                    "bookNookerAchieved",
                     "firstChapterAchieved",
                     "readingRookieAchieved",
                     "storySeekerAchieved",
