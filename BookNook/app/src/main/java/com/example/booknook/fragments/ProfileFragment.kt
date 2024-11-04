@@ -762,11 +762,11 @@ class ProfileFragment : Fragment() {
                     // Check if the level is stored as a number
                     val userLevel = document.get("level") as? Number
                     if (userLevel != null) {
-                        userLevelTextView.text = "Level ${userLevel.toLong()}"
+                        userLevelTextView.text = "Lvl. ${userLevel.toLong()}"
                     } else {
                         // Handle if the level is null or not a number
                         Log.d("ProfileFragment", "Level is null or not a valid number")
-                        userLevelTextView.text = "Level 0" // Default value
+                        userLevelTextView.text = "Lvl. 0" // Default value
                     }
                 } catch (e: ClassCastException) {
                     Log.e("ProfileFragment", "Field 'level' is not a valid Number: ${e.message}")
@@ -836,18 +836,21 @@ class ProfileFragment : Fragment() {
             }
     }
 
-    // Modified setupSpinner to accept a callback
+
     private fun setupSpinner(unlockedAchievements: List<String>, onSetupComplete: () -> Unit) {
         val spinner: Spinner = view?.findViewById(R.id.rectangle3) ?: return
 
         if (unlockedAchievements.isNotEmpty()) {
-            // Create an ArrayAdapter with the unlocked achievements
+            // Create an ArrayAdapter with the custom spinner_item layout for the selected view
             val adapter = ArrayAdapter(
                 requireContext(),
-                android.R.layout.simple_spinner_item,
+                R.layout.spinner_item, // Custom layout for selected item
                 unlockedAchievements
             )
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+            // Set the custom layout for the dropdown view
+            adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+
             spinner.adapter = adapter
 
             Log.d("ProfileFragment", "Spinner Adapter Set with: $unlockedAchievements")
@@ -884,6 +887,7 @@ class ProfileFragment : Fragment() {
             Log.d("ProfileFragment", "No achievements unlocked to populate spinner.")
         }
     }
+
 
     private fun saveSelectedTitleToUserProfile(title: String) {
         Log.d("ProfileFragment", "Saving selected title: $title")

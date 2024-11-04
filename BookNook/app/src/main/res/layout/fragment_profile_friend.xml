@@ -75,7 +75,7 @@
 
             <!-- First Rounded Rectangle below the profile picture -->
             <TextView
-                android:id="@+id/rectangle1"
+                android:id="@+id/levelTextView"
                 android:layout_width="60dp"
                 android:layout_height="25dp"
                 android:gravity="center"
@@ -94,7 +94,7 @@
                 android:text="Username"
                 android:gravity="center"
                 android:textSize="18dp"
-                android:layout_below="@id/rectangle1"
+                android:layout_below="@id/levelTextView"
                 android:layout_centerHorizontal="true"
                 android:backgroundTint="@color/rounded_rectangle"
                 android:textColor="@color/sub_text_brown"
@@ -145,7 +145,6 @@
                     android:cursorVisible="false"
                     android:enabled="false"
                     android:focusable="false"
-                    android:hint="Enter your favorite book quote"
                     android:imeOptions="actionDone"
                     android:padding="10dp" />
 
@@ -179,7 +178,6 @@
                     android:layout_weight="1"
                     android:layout_marginRight="30dp"
                     android:background="@drawable/rounded_rectangle_2"
-                    android:hint="Enter your favorite book character"
                     android:padding="10dp"
                     android:enabled="false"
                     android:focusable="false"
