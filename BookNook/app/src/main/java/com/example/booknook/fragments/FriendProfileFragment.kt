@@ -29,6 +29,7 @@ class FriendProfileFragment : Fragment() {
     private lateinit var experienceTitleTextView: TextView
     private lateinit var numAchievementsTextView: TextView
     private lateinit var achievementsDetailsTextView: TextView // Optional for listing achievements
+    private lateinit var levelTextView: TextView
 
     // Firebase instances
     private val firestore = FirebaseFirestore.getInstance()
@@ -98,6 +99,7 @@ class FriendProfileFragment : Fragment() {
         // Initialize new TextViews
         experienceTitleTextView = view.findViewById(R.id.experienceTitleTextView)
         numAchievementsTextView = view.findViewById(R.id.numAchievementsTextView)
+        levelTextView = view.findViewById(R.id.levelTextView)
 
         // Initialize stats UI elements
         numCollectionsTextView = view.findViewById(R.id.numCollectionsTextView)
@@ -367,6 +369,10 @@ class FriendProfileFragment : Fragment() {
                     // Update experience title
                     experienceTitleTextView.text = "$experienceTitle"
 
+                    // **Fetch and Update Level**
+                    val level = document.getLong("level") ?: 0
+                    levelTextView.text = "Lvl. $level"
+                    Log.d("FriendProfileFragment", "User Level: $level")
                 } else {
                     Toast.makeText(activity, "User does not exist", Toast.LENGTH_SHORT).show()
                     Log.e("FriendProfileFragment", "User document does not exist for ID: $friendId")
@@ -377,6 +383,7 @@ class FriendProfileFragment : Fragment() {
                 Log.e("FriendProfileFragment", "Error fetching user data", e)
             }
     }
+
 
     private fun checkFriendshipStatus(friendId: String) {
         if (currentUserId == null) return
