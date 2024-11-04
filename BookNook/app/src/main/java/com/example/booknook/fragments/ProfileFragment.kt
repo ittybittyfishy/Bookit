@@ -795,6 +795,7 @@ class ProfileFragment : Fragment() {
 
                     // Check for each achievement and add it to the list if unlocked
                     val achievementFields = mapOf(
+                        "bookNookerAchieved" to "Book Nooker",
                         "firstChapterAchieved" to "First Chapter",
                         "readingRookieAchieved" to "Reading Rookie",
                         "storySeekerAchieved" to "Story Seeker",
