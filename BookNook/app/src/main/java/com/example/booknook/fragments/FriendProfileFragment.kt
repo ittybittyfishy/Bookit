@@ -14,8 +14,6 @@ import androidx.appcompat.widget.PopupMenu
 import com.example.booknook.MainActivity
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
-import org.w3c.dom.Text
-
 
 class FriendProfileFragment : Fragment() {
 
@@ -27,6 +25,11 @@ class FriendProfileFragment : Fragment() {
     private lateinit var quoteEditText: EditText
     private lateinit var characterEditText: EditText
 
+    // UI elements for Experience Title and Achievements
+    private lateinit var experienceTitleTextView: TextView
+    private lateinit var numAchievementsTextView: TextView
+    private lateinit var achievementsDetailsTextView: TextView // Optional for listing achievements
+
     // Firebase instances
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -36,10 +39,10 @@ class FriendProfileFragment : Fragment() {
     private var friendUserId: String? = null
     private var friendUsername: String? = null
 
-    //block user menu
+    // Block user menu
     private lateinit var threeDotsButton: ImageButton
 
-    //load in stats
+    // Load in stats
     private lateinit var numCollectionsTextView: TextView
     private lateinit var numBooksReadTextView: TextView
     private lateinit var topGenresTextView: TextView
@@ -49,11 +52,26 @@ class FriendProfileFragment : Fragment() {
     private lateinit var numFriendsTextView: TextView
     private lateinit var numGroupsTextView: TextView
 
+    // Define all achievement fields
+    private val achievementFields = listOf(
+        "bookGodAchieved",
+        "firstChapterAchieved",
+        "readingRookieAchieved",
+        "storySeekerAchieved",
+        "novelNavigatorAchieved",
+        "bookEnthusiastAchieved",
+        "legendaryLibrarianAchieved",
+        "fantasyExplorerAchieved",
+        "historianAchieved",
+        "mysterySolverAchieved",
+        "psychExpertAchieved"
+        // Add any additional achievement fields here
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Retrieve the friend's user ID from the arguments
+        // Retrieve the friend's user ID and username from the arguments
         friendUserId = arguments?.getString("receiverId")
         friendUsername = arguments?.getString("receiverUsername")
         if (friendUserId == null) {
@@ -77,7 +95,11 @@ class FriendProfileFragment : Fragment() {
         quoteEditText = view.findViewById(R.id.rectangle4)
         characterEditText = view.findViewById(R.id.rectangle5)
 
-        //load in stats UI
+        // Initialize new TextViews
+        experienceTitleTextView = view.findViewById(R.id.experienceTitleTextView)
+        numAchievementsTextView = view.findViewById(R.id.numAchievementsTextView)
+
+        // Initialize stats UI elements
         numCollectionsTextView = view.findViewById(R.id.numCollectionsTextView)
         numBooksReadTextView = view.findViewById(R.id.numBooksReadTextView)
         topGenresTextView = view.findViewById(R.id.topGenresTextView)
@@ -87,7 +109,7 @@ class FriendProfileFragment : Fragment() {
         numFriendsTextView = view.findViewById(R.id.numFriendsTextView)
         numGroupsTextView = view.findViewById(R.id.numGroupsTextView)
 
-        //block user menu
+        // Initialize block user menu
         threeDotsButton = view.findViewById(R.id.threeDotsButton)
 
         threeDotsButton.setOnClickListener { view ->
@@ -104,7 +126,6 @@ class FriendProfileFragment : Fragment() {
         } else {
             Toast.makeText(activity, "Friend user ID not provided", Toast.LENGTH_SHORT).show()
         }
-
 
         // Load initial friend status
         friendUserId?.let { friendId ->
@@ -128,10 +149,7 @@ class FriendProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
-        val receiverId = arguments?.getString("receiverId")  // Retrieves the receiver's id from friends fragment arguments
-        addFriendButton = view.findViewById(R.id.addFriendButton)  // Calls view for the Add Friend Button
-
+        // Optional: Additional setup if needed
     }
 
     // Function to send a friend request
@@ -148,7 +166,7 @@ class FriendProfileFragment : Fragment() {
                 val senderUsername = senderDoc?.getString("username")
 
                 if (senderUsername != null) {
-                    // creates a map of friend request details
+                    // Creates a map of friend request details
                     val friendRequest = hashMapOf(
                         "senderId" to senderId,
                         "senderUsername" to senderUsername,
@@ -165,9 +183,11 @@ class FriendProfileFragment : Fragment() {
                         }
                         .addOnFailureListener { e ->
                             Toast.makeText(activity, "Failed to send friend request: ${e.message}", Toast.LENGTH_SHORT).show()
+                            Log.e("FriendProfileFragment", "Failed to send friend request", e)
                         }
                 } else {
                     Toast.makeText(activity, "Sender username not found", Toast.LENGTH_SHORT).show()
+                    Log.e("FriendProfileFragment", "Sender username not found for ID: $senderId")
                 }
             }
         }
@@ -202,21 +222,23 @@ class FriendProfileFragment : Fragment() {
                                 addFriendButton.text = "Add Friend"
                             }
                             .addOnFailureListener { e ->
-                                context?.let{ Toast.makeText(activity, "Failed to remove friend from their list: ${e.message}", Toast.LENGTH_SHORT).show() }
+                                context?.let { Toast.makeText(activity, "Failed to remove friend from their list: ${e.message}", Toast.LENGTH_SHORT).show() }
+                                Log.e("FriendProfileFragment", "Failed to remove friend from their list", e)
                             }
                     }
                     .addOnFailureListener { e ->
                         context?.let { Toast.makeText(activity, "Failed to remove friend from your list: ${e.message}", Toast.LENGTH_SHORT).show() }
+                        Log.e("FriendProfileFragment", "Failed to remove friend from your list", e)
                     }
             }.addOnFailureListener {
                 context?.let { Toast.makeText(activity, "Failed to fetch current user data", Toast.LENGTH_SHORT).show() }
+                Log.e("FriendProfileFragment", "Failed to fetch current user data")
             }
         } else {
             context?.let { Toast.makeText(activity, "Current user is not logged in", Toast.LENGTH_SHORT).show() }
+            Log.e("FriendProfileFragment", "Current user is not logged in")
         }
     }
-
-
 
     private fun showPopupMenu(view: View) {
         val popup = PopupMenu(requireContext(), view)
@@ -224,7 +246,7 @@ class FriendProfileFragment : Fragment() {
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_block_user -> {
-                    //block user function goes here
+                    // Block user function goes here
                     friendUserId?.let { blockUser(it) }
                     friendUserId?.let { removeFriend(it) }
 
@@ -242,8 +264,6 @@ class FriendProfileFragment : Fragment() {
         }
         popup.show()
     }
-
-
 
     private fun loadFriendData(friendId: String) {
         val userDocRef = firestore.collection("users").document(friendId)
@@ -263,6 +283,46 @@ class FriendProfileFragment : Fragment() {
                     val numReviews = document.getLong("numReviews") ?: 0
                     val numFriends = document.getLong("numFriends") ?: 0
                     val numGroups = document.getLong("numGroups") ?: 0
+
+                    // Initialize achievement count
+                    var numAchievements = 0
+                    val achievedAchievements = mutableListOf<String>()
+
+                    // Iterate through each achievement field and count the number achieved
+                    for (field in achievementFields) {
+                        val achieved = document.getBoolean(field) ?: false
+                        if (achieved) {
+                            numAchievements++
+                            // Convert field names to readable achievement names
+                            val achievementName = when (field) {
+                                "bookGodAchieved" -> "Book God"
+                                "firstChapterAchieved" -> "First Chapter"
+                                "readingRookieAchieved" -> "Reading Rookie"
+                                "storySeekerAchieved" -> "Story Seeker"
+                                "novelNavigatorAchieved" -> "Novel Navigator"
+                                "bookEnthusiastAchieved" -> "Book Enthusiast"
+                                "legendaryLibrarianAchieved" -> "Legendary Librarian"
+                                "fantasyExplorerAchieved" -> "Fantasy Explorer"
+                                "historianAchieved" -> "Historian"
+                                "mysterySolverAchieved" -> "Mystery Solver"
+                                "psychExpertAchieved" -> "Psych Expert"
+                                else -> field // Fallback to the field name
+                            }
+                            achievedAchievements.add(achievementName)
+                            Log.d("FriendProfileFragment", "Achievement $achievementName achieved.")
+                        } else {
+                            Log.d("FriendProfileFragment", "Achievement $field not achieved.")
+                        }
+                    }
+
+                    // Fetch profileExperienceTitle
+                    val experienceTitle = document.getString("profileExperienceTitle") ?: "N/A"
+
+                    // Log fetched data for debugging
+                    Log.d("FriendProfileFragment", "Fetched profileExperienceTitle: $experienceTitle")
+                    Log.d("FriendProfileFragment", "Number of Achievements: $numAchievements")
+                    Log.d("FriendProfileFragment", "Top Genres: $topGenres")
+                    Log.d("FriendProfileFragment", "Favorite Tag: $favoriteTag")
 
                     // Set the username and other data to the views
                     userUsername.text = username ?: "No Username"
@@ -291,15 +351,32 @@ class FriendProfileFragment : Fragment() {
                     numReviewsTextView.text = "$numReviews"
                     numFriendsTextView.text = "$numFriends"
                     numGroupsTextView.text = "$numGroups"
+
+                    // Update achievements count
+                    numAchievementsTextView.text = "$numAchievements"
+
+                    // Update achievements list
+                    if (::achievementsDetailsTextView.isInitialized) {
+                        if (achievedAchievements.isNotEmpty()) {
+                            achievementsDetailsTextView.text = achievedAchievements.joinToString("\n")
+                        } else {
+                            achievementsDetailsTextView.text = "None"
+                        }
+                    }
+
+                    // Update experience title
+                    experienceTitleTextView.text = "$experienceTitle"
+
                 } else {
                     Toast.makeText(activity, "User does not exist", Toast.LENGTH_SHORT).show()
+                    Log.e("FriendProfileFragment", "User document does not exist for ID: $friendId")
                 }
             }
             .addOnFailureListener { e ->
                 Toast.makeText(activity, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("FriendProfileFragment", "Error fetching user data", e)
             }
     }
-
 
     private fun checkFriendshipStatus(friendId: String) {
         if (currentUserId == null) return
@@ -311,24 +388,26 @@ class FriendProfileFragment : Fragment() {
                     val friends = document.get("friends") as? List<Map<String, String>>
                     if (friends != null) {
                         // Loops through each friend to check if they're already friends by comparing friendIds
-                        val isFriend = friends.any { friendMap -> friendMap["friendId"] == friendId}
+                        val isFriend = friends.any { friendMap -> friendMap["friendId"] == friendId }
                         if (isFriend) {
                             // Already friends
                             addFriendButton.text = "Unfriend"
-                            Toast.makeText(activity, "Already friends", Toast.LENGTH_SHORT).show()
+                            // Optionally, remove the Toast to avoid multiple messages
+                            // Toast.makeText(activity, "Already friends", Toast.LENGTH_SHORT).show()
                         } else {
                             // Not friends
                             addFriendButton.text = "Add Friend"
-                            Toast.makeText(activity, "Not friends", Toast.LENGTH_SHORT).show()
+                            // Toast.makeText(activity, "Not friends", Toast.LENGTH_SHORT).show()
                         }
                     } else {
-                        addFriendButton.text = "Add friend"
-                        Toast.makeText(activity, "No friends found", Toast.LENGTH_SHORT).show()
+                        addFriendButton.text = "Add Friend"
+                        // Toast.makeText(activity, "No friends found", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
             .addOnFailureListener { e ->
                 Toast.makeText(activity, "Error checking friendship status: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("FriendProfileFragment", "Error checking friendship status", e)
             }
     }
 
@@ -351,7 +430,7 @@ class FriendProfileFragment : Fragment() {
                         val blockedUsername = blockedUserDoc?.getString("username")  // gets the blocked user's username
 
                         if (blockedUsername != null) {
-                            // creates a map of blocked user's details
+                            // Creates a map of blocked user's details
                             val blockedUser = hashMapOf(
                                 "blockedUserId" to receiverId,
                                 "blockedUsername" to blockedUsername
@@ -362,30 +441,41 @@ class FriendProfileFragment : Fragment() {
                                 .update("blockedUsers", FieldValue.arrayUnion(blockedUser))
                                 .addOnSuccessListener {
                                     context?.let { Toast.makeText(it, "User blocked", Toast.LENGTH_SHORT).show() }
+                                    Log.d("FriendProfileFragment", "User blocked successfully")
                                 }
                                 .addOnFailureListener { e ->
                                     context?.let { Toast.makeText(it, "Failed to block user: ${e.message}", Toast.LENGTH_SHORT).show() }
+                                    Log.e("FriendProfileFragment", "Failed to block user", e)
                                 }
                         } else {
                             context?.let { Toast.makeText(it, "Blocked user's username not found", Toast.LENGTH_SHORT).show() }
+                            Log.e("FriendProfileFragment", "Blocked user's username not found for ID: $receiverId")
                         }
                     }
                 } else {
                     context?.let { Toast.makeText(it, "Sender username not found", Toast.LENGTH_SHORT).show() }
+                    Log.e("FriendProfileFragment", "Sender username not found for ID: $senderId")
                 }
             }.addOnFailureListener {
                 context?.let { Toast.makeText(it, "Failed to block user", Toast.LENGTH_SHORT).show() }
+                Log.e("FriendProfileFragment", "Failed to fetch sender's username")
             }
         } else {
             context?.let { Toast.makeText(it, "User not authenticated", Toast.LENGTH_SHORT).show() }
+            Log.e("FriendProfileFragment", "User not authenticated")
         }
     }
 
     // Function to decrement numFriends in database
     private fun decrementNumFriends(userRef: DocumentReference) {
         userRef.update("numFriends", FieldValue.increment(-1))
+            .addOnSuccessListener {
+                Log.d("FriendProfileFragment", "numFriends decremented successfully")
+            }
+            .addOnFailureListener { e ->
+                Log.e("FriendProfileFragment", "Failed to decrement numFriends", e)
+            }
     }
-
 
     companion object {
         private const val ARG_FRIEND_USER_ID = "friendUserId"

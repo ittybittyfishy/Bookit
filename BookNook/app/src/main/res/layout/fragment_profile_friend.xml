@@ -102,14 +102,13 @@
 
             <!-- Third Rounded Rectangle below the second rectangle -->
             <TextView
-                android:id="@+id/rectangle3"
+                android:id="@+id/experienceTitleTextView"
                 android:layout_width="150dp"
                 android:layout_height="30dp"
                 android:background="@drawable/rounded_rectangle_3"
                 android:backgroundTint="@color/custom_tag_pink"
                 android:textSize="18dp"
                 android:gravity="center"
-                android:text="Experience title"
                 android:textColor="@color/sub_text_brown"
                 android:layout_below="@id/userUsername"
                 android:layout_centerHorizontal="true"
@@ -121,7 +120,7 @@
                 android:id="@+id/rectangle4_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/rectangle3"
+                android:layout_below="@id/experienceTitleTextView"
                 android:layout_marginTop="15dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
@@ -363,15 +362,16 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="placeholder"
+                    android:text="Achievements"
                     android:textStyle="bold"
                     android:textColor="@color/sub_text_brown"
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/numAchievementsTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="placeholder"
+                    android:text="0"
                     android:textSize="12sp" />
             </LinearLayout>
 

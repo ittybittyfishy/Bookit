@@ -296,6 +296,7 @@ class AchievementsFragment : Fragment() {
 
         // Load achievements and XP data from Firestore
         userId?.let {
+            updateUnlockedAchievementsCount(it)
             loadFantasyExplorerAchievement(it)
             loadHistoryAchievement(it)
             loadMysterySolverAchievement(it)
@@ -1464,4 +1465,52 @@ class AchievementsFragment : Fragment() {
             }
     }
 
+    //work review4
+    private fun updateUnlockedAchievementsCount(userId: String) {
+        val userDocRef = firestore.collection("users").document(userId)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                // List of achievement keys to check
+                val achievementKeys = listOf(
+                    "firstChapterAchieved",
+                    "readingRookieAchieved",
+                    "storySeekerAchieved",
+                    "novelNavigatorAchieved",
+                    "bookEnthusiastAchieved",
+                    "legendaryLibrarianAchieved",
+                    "bookGodAchieved",
+                    "fantasyExplorerAchieved",
+                    "historyAchieved",
+                    "mysterySolverAchieved",
+                    "psychAchieved"
+                    // Add any additional achievement keys here
+                )
+
+                // Count the number of unlocked achievements
+                val unlockedCount = achievementKeys.count { key ->
+                    document.getBoolean(key) == true
+                }
+
+                // Update the TextView in the fragment to show the count
+                val numAchievementsTextView: TextView = view?.findViewById(R.id.numAchievementsTextView)
+                    ?: return@addOnSuccessListener
+                numAchievementsTextView.text = "Achievements Unlocked: $unlockedCount / ${achievementKeys.size}"
+
+                // Optionally, update this data in Firestore for use in ProfileFragment
+                userDocRef.update("numAchievementsUnlocked", unlockedCount)
+                    .addOnSuccessListener {
+                        Log.d("AchievementsFragment", "Number of achievements updated in Firestore.")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("AchievementsFragment", "Failed to update number of achievements: ${e.message}")
+                    }
+            } else {
+                Log.e("AchievementsFragment", "Document not found for user: $userId")
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("AchievementsFragment", "Error fetching achievements: ", exception)
+            Toast.makeText(context, "Failed to retrieve achievements count. Please try again.", Toast.LENGTH_SHORT).show()
+        }
+    }
 }

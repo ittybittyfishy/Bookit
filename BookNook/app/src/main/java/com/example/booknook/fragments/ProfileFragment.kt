@@ -88,6 +88,7 @@ class ProfileFragment : Fragment() {
 
     //Work review 4
     private lateinit var userLevelTextView: TextView
+    private lateinit var numAchievementsTextView: TextView
 
 
     // Method called to create and return the view hierarchy associated with the fragment
@@ -123,6 +124,9 @@ class ProfileFragment : Fragment() {
         groupsSection = view.findViewById(R.id.groups_section)
         friendsSection = view.findViewById(R.id.friends_section)
         achievementsSection = view.findViewById(R.id.achievements_section)
+
+        //work review 4
+        numAchievementsTextView = view.findViewById(R.id.numAchievementsTextView)
 
         // Set click listeners to navigate to the respective fragments
         collectionsSection.setOnClickListener {
@@ -251,10 +255,9 @@ class ProfileFragment : Fragment() {
             updateNumReviews(userId)
             updateNumFriends(userId)
             updateUserLevel(userId)
-
+            loadUnlockedAchievements(userId) // Sets up and populates the Spinner
 
                 // Other data fetching methods...
-
 
             // Retrieve the username and other data from Firestore
             val userDocRef = firestore.collection("users").document(userId)
@@ -298,6 +301,7 @@ class ProfileFragment : Fragment() {
         //work review 4
         userId?.let {
             loadUnlockedAchievements(it)
+            displayNumAchievementsUnlocked(it)
         }
 
         // Return the created view
@@ -779,65 +783,114 @@ class ProfileFragment : Fragment() {
     }
 
 
-    //work review 4
+    // Updated loadUnlockedAchievements to call loadSavedTitle after setup
     private fun loadUnlockedAchievements(userId: String) {
         val userDocRef = firestore.collection("users").document(userId)
 
-        userDocRef.get().addOnSuccessListener { document ->
-            if (document != null && document.exists()) {
-                // Filter achievements based on unlocked status
-                val unlockedAchievements = mutableListOf<String>()
+        userDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    // Initialize the list for unlocked achievements
+                    val unlockedAchievements = mutableListOf<String>()
 
-                // Example achievement checks
-                if (document.getBoolean("firstChapterAchieved") == true) {
-                    unlockedAchievements.add("First Chapter")
-                }
-                if (document.getBoolean("readingRookieAchieved") == true) {
-                    unlockedAchievements.add("Reading Rookie")
-                }
-                // Add checks for other achievements as needed...
+                    // Check for each achievement and add it to the list if unlocked
+                    val achievementFields = mapOf(
+                        "firstChapterAchieved" to "First Chapter",
+                        "readingRookieAchieved" to "Reading Rookie",
+                        "storySeekerAchieved" to "Story Seeker",
+                        "novelNavigatorAchieved" to "Novel Navigator",
+                        "bookEnthusiastAchieved" to "Book Enthusiast",
+                        "legendaryLibrarianAchieved" to "Legendary Librarian",
+                        "bookGodAchieved" to "Book God",
+                        "fantasyExplorerAchieved" to "Fantasy Explorer",
+                        "historyAchieved" to "Historian",
+                        "mysterySolverAchieved" to "Mystery Solver",
+                        "psychAchieved" to "Psych Expert"
+                    )
 
-                // Populate the Spinner with unlocked achievements
-                setupSpinner(unlockedAchievements)
-            } else {
-                Log.e("ProfileFragment", "No document found for user: $userId")
+                    // Loop through the map and add achievements that are true
+                    for ((field, name) in achievementFields) {
+                        if (document.getBoolean(field) == true) {
+                            unlockedAchievements.add(name)
+                            Log.d("ProfileFragment", "Unlocked Achievement: $name")
+                        }
+                    }
+
+                    Log.d("ProfileFragment", "Total Unlocked Achievements: $unlockedAchievements")
+
+                    // Populate the Spinner with all unlocked achievements
+                    setupSpinner(unlockedAchievements) {
+                        // Callback after spinner is set up
+                        loadSavedTitle(userId)
+                    }
+
+                } else {
+                    Toast.makeText(context, "User data not found", Toast.LENGTH_SHORT).show()
+                    Log.e("ProfileFragment", "User document does not exist.")
+                }
             }
-        }.addOnFailureListener { exception ->
-            Log.e("ProfileFragment", "Error fetching achievements: ", exception)
-        }
+            .addOnFailureListener { e ->
+                Log.e("ProfileFragment", "Error fetching unlocked achievements: ${e.message}")
+                Toast.makeText(context, "Failed to retrieve achievements: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
-    //work review 4
-    private fun setupSpinner(achievements: List<String>) {
+    // Modified setupSpinner to accept a callback
+    private fun setupSpinner(unlockedAchievements: List<String>, onSetupComplete: () -> Unit) {
         val spinner: Spinner = view?.findViewById(R.id.rectangle3) ?: return
 
-        // Create an ArrayAdapter with a built-in layout that centers text
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item, // This layout centers text
-            achievements
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        if (unlockedAchievements.isNotEmpty()) {
+            // Create an ArrayAdapter with the unlocked achievements
+            val adapter = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                unlockedAchievements
+            )
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinner.adapter = adapter
 
-        // Set the adapter to the Spinner
-        spinner.adapter = adapter
+            Log.d("ProfileFragment", "Spinner Adapter Set with: $unlockedAchievements")
 
-        // Handle Spinner selection
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val selectedAchievement = parent.getItemAtPosition(position).toString()
-                saveSelectedTitleToUserProfile(selectedAchievement)
+            // Set an OnItemSelectedListener to handle item selection
+            spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                var isInitialSelection = true
+
+                override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                    val selectedTitle = parent.getItemAtPosition(position).toString()
+                    Log.d("ProfileFragment", "Spinner selected: $selectedTitle")
+
+                    if (isInitialSelection) {
+                        // Avoid saving the title when initially setting the selection
+                        isInitialSelection = false
+                        Log.d("ProfileFragment", "Initial selection, not saving.")
+                        return
+                    }
+
+                    // Call the function to save the selected title to Firestore
+                    saveSelectedTitleToUserProfile(selectedTitle)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    Log.d("ProfileFragment", "Spinner no selection")
+                }
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {
-                // Optional: Handle case where no item is selected
-            }
+            // Ensure that the spinner's adapter is set before calling onSetupComplete
+            onSetupComplete()
+        } else {
+            // Handle the case where no achievements are unlocked
+            Toast.makeText(context, "No achievements unlocked yet.", Toast.LENGTH_SHORT).show()
+            Log.d("ProfileFragment", "No achievements unlocked to populate spinner.")
         }
     }
 
-    //work review 4
     private fun saveSelectedTitleToUserProfile(title: String) {
-        val userId = auth.currentUser?.uid ?: return
+        Log.d("ProfileFragment", "Saving selected title: $title")
+        val userId = auth.currentUser?.uid ?: run {
+            Log.e("ProfileFragment", "User ID is null. Cannot save title.")
+            Toast.makeText(context, "User not authenticated", Toast.LENGTH_SHORT).show()
+            return
+        }
         val userDocRef = firestore.collection("users").document(userId)
 
         // Update the user's profile with the selected achievement title
@@ -852,8 +905,80 @@ class ProfileFragment : Fragment() {
             }
     }
 
+    private fun loadSavedTitle(userId: String) {
+        Log.d("ProfileFragment", "Loading saved title for user: $userId")
+        val userDocRef = firestore.collection("users").document(userId)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                val savedTitle = document.getString("profileExperienceTitle")
+                Log.d("ProfileFragment", "Loaded savedTitle: $savedTitle")
+                if (savedTitle != null && view != null) {
+                    val spinner: Spinner = view!!.findViewById(R.id.rectangle3)
+                    val adapter = spinner.adapter as? ArrayAdapter<String>
+                    if (adapter != null) {
+                        // Set the saved title as the selected item if it exists in the adapter
+                        val position = adapter.getPosition(savedTitle)
+                        Log.d("ProfileFragment", "Spinner position for savedTitle: $position")
+                        if (position != -1) {
+                            spinner.setSelection(position)
+                            Log.d("ProfileFragment", "Spinner set to position: $position")
+                        } else {
+                            Log.w("ProfileFragment", "Saved title '$savedTitle' not found in spinner adapter")
+                            // Optionally set a default selection or notify the user
+                            // spinner.setSelection(0)
+                            // Toast.makeText(context, "Saved title not found. Please select a new title.", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Log.e("ProfileFragment", "Spinner adapter is null")
+                    }
+                } else {
+                    Log.w("ProfileFragment", "Saved title is null or view is null")
+                }
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("ProfileFragment", "Error loading saved profile title: ", exception)
+        }
+    }
 
 
+    //work review 4
+    private fun displayNumAchievementsUnlocked(userId: String) {
+        val userDocRef = firestore.collection("users").document(userId)
+
+        userDocRef.get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                // List of achievement fields to check
+                val achievementFields = listOf(
+                    "firstChapterAchieved",
+                    "readingRookieAchieved",
+                    "storySeekerAchieved",
+                    "novelNavigatorAchieved",
+                    "bookEnthusiastAchieved",
+                    "legendaryLibrarianAchieved",
+                    "bookGodAchieved",
+                    "fantasyExplorerAchieved",
+                    "historyAchieved",
+                    "mysterySolverAchieved",
+                    "psychAchieved"
+                    // Add more achievement fields as needed
+                )
+
+                // Count achievements that are true (unlocked)
+                val unlockedCount = achievementFields.count { field ->
+                    document.getBoolean(field) == true
+                }
+
+                // Update the TextView
+                numAchievementsTextView.text = "$unlockedCount"
+            } else {
+                numAchievementsTextView.text = "0"
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("ProfileFragment", "Error fetching user achievements: ", exception)
+            Toast.makeText(context, "Failed to load achievements. Try again.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
 
     // Companion object to define constants

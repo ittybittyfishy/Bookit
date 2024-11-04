@@ -93,22 +93,17 @@
                 android:textColor="@color/sub_text_brown"
                 android:layout_marginTop="1dp" />
 
-            <!-- Third Rounded Rectangle below the second rectangle -->
             <Spinner
                 android:id="@+id/rectangle3"
                 android:layout_width="150dp"
-                android:layout_height="30dp"
+                android:layout_height="35dp"
                 android:background="@drawable/rounded_rectangle_3"
                 android:backgroundTint="@color/custom_tag_pink"
-                android:textSize="18dp"
-                android:text="Experience title"
-                android:textColor="@color/sub_text_brown"
                 android:layout_below="@id/userUsername"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="1dp" />
 
-            <!-- Fourth Rounded Rectangle (EditText) with icons -->
-            <!-- Fourth Rounded Rectangle (EditText) with icons -->
+
             <!-- Fourth Rounded Rectangle (EditText) with icons -->
             <LinearLayout
                 android:id="@+id/rectangle4_container"
@@ -382,15 +377,17 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="placeholder"
+                    android:layout_marginTop="10dp"
+                    android:text="Achievements"
                     android:textStyle="bold"
                     android:textColor="@color/sub_text_brown"
                     android:textSize="14sp" />
 
                 <TextView
+                    android:id="@+id/numAchievementsTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="placeholder"
+                    android:text="0"
                     android:textSize="12sp" />
             </LinearLayout>
 
