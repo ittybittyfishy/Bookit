@@ -43,7 +43,7 @@ class AddRecommendationFragment : Fragment() {
             val bundle = Bundle()
             bundle.putString("groupId", groupId)
             searchBookRecommendationFragment.arguments = bundle
-            (activity as MainActivity).replaceFragment(searchBookRecommendationFragment, "Search")
+            (activity as MainActivity).replaceFragment(searchBookRecommendationFragment, "Search", showBackButton = true)
         }
     }
 }

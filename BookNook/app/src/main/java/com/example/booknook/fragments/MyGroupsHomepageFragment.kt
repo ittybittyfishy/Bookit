@@ -129,7 +129,7 @@ class MyGroupsHomepageFragment : Fragment() {
             val bundle = Bundle()
             bundle.putString("groupId", groupId)
             groupMembersFragment.arguments = bundle
-            (activity as MainActivity).replaceFragment(groupMembersFragment, "Members")
+            (activity as MainActivity).replaceFragment(groupMembersFragment, "Members", showBackButton = true)
         }
 
         // Veronica Nguyen
@@ -139,7 +139,7 @@ class MyGroupsHomepageFragment : Fragment() {
             val bundle = Bundle()
             bundle.putString("groupId", groupId)
             recommendationsFragment.arguments = bundle
-            (activity as MainActivity).replaceFragment(recommendationsFragment, "Recommendations")
+            (activity as MainActivity).replaceFragment(recommendationsFragment, "Recommendations", showBackButton = true)
         }
 
     }

@@ -132,7 +132,7 @@ class FindGroupHomepageFragment : Fragment() {
             bundle.putString("groupId", groupId)
             groupMembersFragment.arguments = bundle
             // Opens Members fragment
-            (activity as MainActivity).replaceFragment(groupMembersFragment, "Members")
+            (activity as MainActivity).replaceFragment(groupMembersFragment, "Members", showBackButton = true)
         }
 
         // Veronica Nguyen
@@ -143,7 +143,7 @@ class FindGroupHomepageFragment : Fragment() {
             bundle.putString("groupId", groupId)
             recommendationsFragment.arguments = bundle
             // Opens Recommendations fragment
-            (activity as MainActivity).replaceFragment(recommendationsFragment, "Recommendations")
+            (activity as MainActivity).replaceFragment(recommendationsFragment, "Recommendations", showBackButton = true)
         }
 
     }

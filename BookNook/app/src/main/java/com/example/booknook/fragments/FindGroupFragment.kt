@@ -137,7 +137,7 @@ class FindGroupFragment  : Fragment(), FilterListener {
         bundle.putString("GROUP_CREATOR_ID", groupItem.createdBy)
         findGroupHomepageFragment.arguments = bundle
         // Navigates to the homepage of the group
-        (activity as MainActivity).replaceFragment(findGroupHomepageFragment, "${groupItem.groupName}")
+        (activity as MainActivity).replaceFragment(findGroupHomepageFragment, "${groupItem.groupName}", showBackButton = true)
     }
 
     // Method to load all groups from Firestore

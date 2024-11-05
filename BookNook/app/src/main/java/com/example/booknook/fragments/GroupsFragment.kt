@@ -172,7 +172,7 @@ class GroupsFragment : Fragment() {
         bundle.putString("GROUP_CREATOR_ID", groupItem.createdBy)
         myGroupsHomepageFragment.arguments = bundle
         // Navigates to the homepage of the group
-        (activity as MainActivity).replaceFragment(myGroupsHomepageFragment, "${groupItem.groupName}")
+        (activity as MainActivity).replaceFragment(myGroupsHomepageFragment, "${groupItem.groupName}", showBackButton = true)
     }
 
 

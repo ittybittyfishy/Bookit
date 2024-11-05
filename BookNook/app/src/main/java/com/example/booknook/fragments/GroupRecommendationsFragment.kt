@@ -53,7 +53,7 @@ class GroupRecommendationsFragment : Fragment() {
             val bundle = Bundle()
             bundle.putString("groupId", groupId)
             addRecommendationFragment.arguments = bundle
-            (activity as MainActivity).replaceFragment(addRecommendationFragment, "Add Recommendation")
+            (activity as MainActivity).replaceFragment(addRecommendationFragment, "Add Recommendation", showBackButton = true)
         }
 
         // Sets up recycler view to display recommendations

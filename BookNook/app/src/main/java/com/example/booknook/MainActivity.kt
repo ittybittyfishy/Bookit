@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
             when (menuItem.itemId) {
                 R.id.friends -> replaceFragment(friendsFragment, "Friends") // Navigate to Friends fragment
                 R.id.groups -> replaceFragment(groupsFragment, "Groups") // Navigate to Groups fragment
-                R.id.achievements -> replaceFragment(achievementsFragment, "Achievements") // Navigate to Achievements fragment
+                R.id.achievements -> replaceFragment(achievementsFragment, "Achievements", showBackButton = true) // Navigate to Achievements fragment
                 R.id.settings -> replaceFragment(settingsFragment, "Settings", showBackButton = true) // Navigate to Settings fragment
             }
             true // Return true to indicate the event has been handled
