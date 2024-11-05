@@ -29,6 +29,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.Comment
@@ -85,6 +86,7 @@ class BookDetailsFragment : Fragment() {
         val spinnerSelectCollection: Spinner = view.findViewById(R.id.spinnerSelectCollection)
         val btnAddToCustomCollection: Button = view.findViewById(R.id.btnAddToCustomCollection)
         val descriptionTextView: TextView = view.findViewById(R.id.bookDescription)
+        val genreHolder: LinearLayout = view.findViewById(R.id.tagContainer)
 
         // Calls views
         editButton = view.findViewById(R.id.edit_summary_button)
@@ -161,7 +163,26 @@ class BookDetailsFragment : Fragment() {
             )
         }
 
-        // Create a BookItem object
+        // Olivia Fishbough
+        // Load in Book Genres
+        if (!bookGenres.isNullOrEmpty()) {
+            for (genre in bookGenres) {
+                // Create a new TextView for each genre
+                val genreTextView = TextView(requireContext()).apply {
+                    text = genre
+                    setBackgroundResource(R.drawable.friend_username_border) // Set the background drawable
+                    setPadding(10, 10, 10, 10) //
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                    textSize = 14f
+                }
+
+                // Add the genreTextView to the genreHolder LinearLayout
+                genreHolder.addView(genreTextView)
+            }
+        }
+
+
+            // Create a BookItem object
         val bookId = arguments?.getString("bookId") ?: "Unknown ID" // You can adjust this based on your data source
         val book = volumeInfo?.let { BookItem(id = bookId, volumeInfo = it) }
 
@@ -284,6 +305,7 @@ class BookDetailsFragment : Fragment() {
 
         return view
     }
+
 
     // Method to save the book to a selected collection in Firestore.
     private fun saveBookToCollection(
