@@ -1,56 +1,72 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_tan"
-    tools:context=".MainActivity">
+    android:background="@color/background_tan">
 
-    <TextView
-        android:id="@+id/bannerTextView"
+    <!-- RecyclerView -->
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:gravity="center"
+        android:layout_height="75dp"
         android:background="@color/banner_green"
-        android:textColor="@android:color/white"
-        android:textSize="30sp"
-        android:text="Home"
-        android:ellipsize="end"
-        android:maxLines="1"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        tools:layout_editor_absoluteX="0dp">
+
+        <!-- Back Button -->
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_gravity="start|center_vertical"
+            android:background="@color/transparent"
+            android:contentDescription="Back"
+            android:scaleType="fitCenter"
+            android:src="@drawable/back_arrow"
+            android:visibility="gone"
+            app:tint="@color/white" />
+
+        <!-- Title TextView -->
+        <TextView
+            android:id="@+id/bannerTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Home"
+            android:textColor="@android:color/white"
+            android:textSize="25sp" />
+    </androidx.appcompat.widget.Toolbar>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/bannerTextView"
+        app:layout_constraintTop_toBottomOf="@id/toolBar"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         android:padding="16dp"
         android:clipToPadding="false" />
 
+    <!-- BottomNavigationView -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/bottom_nav"
         app:itemBackground="@color/banner_green"
-        app:itemActiveIndicatorStyle="@color/transparent"
         app:itemIconTint="@color/white"
-        app:itemTextColor="@color/white" />
+        app:itemTextColor="@color/white"
+        app:itemActiveIndicatorStyle="@color/transparent"/>
 
     <FrameLayout
         android:id="@+id/menu_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/bannerTextView"
+        app:layout_constraintTop_toBottomOf="@+id/toolBar"
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

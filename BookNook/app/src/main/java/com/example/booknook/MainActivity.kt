@@ -12,6 +12,7 @@ import com.example.booknook.fragments.*
 import com.example.booknook.utils.GenreUtils
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.view.View
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
@@ -19,8 +20,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.Stack
 
 class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
+
+    private val titleStack = Stack<String>() // Stack to track fragment titles
 
     private val homeFragment = HomeFragment()
     private val profileFragment = ProfileFragment()
@@ -31,7 +35,6 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
     private val achievementsFragment = AchievementsFragment()
     private val settingsFragment = SettingsFragment()
     private val genrePreferenceFragment = GenrePreferenceFragment()
-    private val accountFragment = AccountFragment()
 
     private val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM"
 
@@ -65,9 +68,21 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         // Itzel Medina
         val isFirstLogin = intent.getBooleanExtra("isFirstLogin", false)
         if (isFirstLogin) {
-            replaceFragment(genrePreferenceFragment, "Select Genres")
+            replaceFragment(genrePreferenceFragment, "Select Genres", false)
         } else {
-            replaceFragment(homeFragment, "Home")
+            replaceFragment(homeFragment, "Home", false)
+        }
+
+        // Olivia Fishbough
+        // Set up back button
+        findViewById<ImageButton>(R.id.backButton).setOnClickListener {
+            onBackPressed() // This will pop the back stack if a fragment is in it
+        }
+
+        // Olivia Fishbough
+        // Listener to detect changes in the back stack and update the banner title and back button as needed
+        supportFragmentManager.addOnBackStackChangedListener {
+            updateTitleAndBackButton()
         }
 
         // Olivia Fishbough
@@ -92,11 +107,69 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
 
     // Olivia Fishbough
     // Function to replace the current fragment with the new one and update the banner title
-    fun replaceFragment(fragment: Fragment, title: String) {
-        val transaction = supportFragmentManager.beginTransaction()
+    fun replaceFragment(fragment: Fragment, title: String, showBackButton: Boolean = false) {
+        val transaction = supportFragmentManager.beginTransaction() // Begin a new fragment transaction
         transaction.replace(R.id.menu_container, fragment) // Replace the fragment in the specified container
-        transaction.commit() // Commit the transaction
+
+        // If back navigation is enabled for this fragment
+        if (showBackButton) {
+            // Add the fragment's title to the stack to preserve it for back navigation
+            titleStack.push(title)
+            // Add this transaction to the back stack for navigation control
+            transaction.addToBackStack(null)
+        } else {
+            titleStack.clear() // Clear stack when navigating to a root fragment
+        }
+
+        transaction.commit() // Commit the transaction to apply changes
+        replaceBannerTitle(title, showBackButton) // Set the title
+    }
+
+    // Olivia Fishbough
+    // Helper function to replace the banner title and toggle back button visibility
+    private fun replaceBannerTitle(title: String, showBackButton: Boolean) {
+        // Sets the banner title
         findViewById<TextView>(R.id.bannerTextView).text = title
+        // Toggles back button visibility
+        findViewById<ImageButton>(R.id.backButton).visibility = if (showBackButton) View.VISIBLE else View.GONE
+    }
+
+    // Olivia Fishbough
+    override fun onBackPressed() {
+        // Check if there are any entries in the back stack
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            // Navigate back to the previous fragment in the back stack
+            supportFragmentManager.popBackStack()
+            // Remove the current title from the stack, since we're going back
+            titleStack.pop()
+            // Get the title for the previous fragment from the top of the stack
+            // If the stack is empty, use "Unknown Page" as a default title
+            val previousTitle = titleStack.peekOrNull() ?: "Unknown Page"
+            replaceBannerTitle(previousTitle, titleStack.isNotEmpty()) // Update banner with previous title
+        } else {
+            // If there are no more entries in the back stack, use the default back button behavior
+            super.onBackPressed()
+        }
+    }
+
+    // Olivia Fishbough
+    // Function to hard codes which fragments will never have a back button
+    private fun updateTitleAndBackButton() {
+        val fragment = supportFragmentManager.findFragmentById(R.id.menu_container)
+
+        // Check which fragment is displayed and set the title and back button visibility accordingly
+        when (fragment) {
+            is HomeFragment -> replaceBannerTitle("Home", showBackButton = false)
+            is CollectionFragment -> replaceBannerTitle("My Books", showBackButton = false)
+            is ProfileFragment -> replaceBannerTitle("Profile", showBackButton = false)
+            is FriendsFragment -> replaceBannerTitle("Friends", showBackButton = false)
+            is GroupsFragment -> replaceBannerTitle("Groups", showBackButton = false)
+            is FindGroupFragment -> replaceBannerTitle("Find Groups", showBackButton = false)
+            is ManageGroupsFragment -> replaceBannerTitle("Manage Groups", showBackButton = false)
+            is SettingsFragment -> replaceBannerTitle("Settings", showBackButton = false)
+            is SearchFragment -> replaceBannerTitle("Search", showBackButton = false)
+            // Add additional fragments as needed
+        }
     }
 
     // Olivia Fishbough
@@ -293,4 +366,7 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
         bookDetailsFragment.arguments = bundle
         replaceFragment(bookDetailsFragment, bookItem.volumeInfo.title)
     }
+
+    // Extension function to safely peek at the stack or return null if empty
+    private fun <T> Stack<T>.peekOrNull(): T? = if (isEmpty()) null else peek()
 }
