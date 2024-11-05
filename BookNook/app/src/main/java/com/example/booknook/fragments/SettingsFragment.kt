@@ -51,7 +51,7 @@ class SettingsFragment : Fragment() {
         accountButton.setOnClickListener {
             // Handle account button click
             val accountFragment = AccountFragment()
-            (activity as MainActivity).replaceFragment(accountFragment, "Account")
+            (activity as MainActivity).replaceFragment(accountFragment, "Account", showBackButton = true)
         }
 
         updateGenre.setOnClickListener {

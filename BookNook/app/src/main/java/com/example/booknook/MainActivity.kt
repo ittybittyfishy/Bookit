@@ -166,7 +166,6 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
             is GroupsFragment -> replaceBannerTitle("Groups", showBackButton = false)
             is FindGroupFragment -> replaceBannerTitle("Find Groups", showBackButton = false)
             is ManageGroupsFragment -> replaceBannerTitle("Manage Groups", showBackButton = false)
-            is SettingsFragment -> replaceBannerTitle("Settings", showBackButton = false)
             is SearchFragment -> replaceBannerTitle("Search", showBackButton = false)
             // Add additional fragments as needed
         }
@@ -184,7 +183,7 @@ class MainActivity : AppCompatActivity(), BookAdapter.RecyclerViewEvent {
                 R.id.friends -> replaceFragment(friendsFragment, "Friends") // Navigate to Friends fragment
                 R.id.groups -> replaceFragment(groupsFragment, "Groups") // Navigate to Groups fragment
                 R.id.achievements -> replaceFragment(achievementsFragment, "Achievements") // Navigate to Achievements fragment
-                R.id.settings -> replaceFragment(settingsFragment, "Settings") // Navigate to Settings fragment
+                R.id.settings -> replaceFragment(settingsFragment, "Settings", showBackButton = true) // Navigate to Settings fragment
             }
             true // Return true to indicate the event has been handled
         }
