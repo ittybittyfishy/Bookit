@@ -160,35 +160,49 @@ class BookDetailsFragment : Fragment() {
         spinnerSelectCollection.adapter = collectionAdapter
 
         // Handle spinner item selection
-        spinnerSelectCollection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                if (position == 5) {
-                    if (bookTitle != null) {
-                        if (bookAuthor != null) {
-                            removeBookFromStandardCollection(requireContext(), bookTitle, bookAuthor)
+        spinnerSelectCollection.post {
+            spinnerSelectCollection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                    // Check if view is null
+                    if (view == null) return
+
+                    when (position) {
+                        5 -> {  // Remove selected
+                            bookTitle?.let { title ->
+                                bookAuthor?.let { author ->
+                                    removeBookFromStandardCollection(
+                                        requireContext(),
+                                        title,
+                                        author
+                                    )
+                                }
+                            }
                         }
-                    }
-                } else if (position != 0) {
-                    val selectedCollection = standardCollections[position]
-                    if (bookTitle != null) {
-                        if (bookAuthor != null) {
-                            if (bookGenres != null) {
-                                saveBookToCollection(
-                                    requireContext(),
-                                    bookTitle,
-                                    bookAuthor,
-                                    bookImage,
-                                    selectedCollection,
-                                    bookGenres
-                                )
+                        else -> {
+                            if (position != 0) {  // Ignore "Select Collection"
+                                val selectedCollection = standardCollections[position]
+                                bookTitle?.let { title ->
+                                    bookAuthor?.let { author ->
+                                        bookGenres?.let { genres ->
+                                            saveBookToCollection(
+                                                requireContext(),
+                                                title,
+                                                author,
+                                                bookImage,
+                                                selectedCollection,
+                                                genres
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {
-                // Handle case when nothing is selected if necessary
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    // Handle if nothing is selected, if needed
+                }
             }
         }
 
@@ -355,7 +369,7 @@ class BookDetailsFragment : Fragment() {
             bundle.putStringArrayList("bookGenresList", bookGenres) // Add Genre list
 
             reviewActivityFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
-            (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review"  )  // Opens a new fragment
+            (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review", showBackButton = true)  // Opens a new fragment
         }
         //Yunjong Noh
         // Check if the ISBN is not null("?" statement) and then fetch reviews
