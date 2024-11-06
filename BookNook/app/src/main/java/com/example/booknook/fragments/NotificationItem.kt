@@ -1,12 +1,15 @@
 package com.example.booknook.fragments
 
-class NotificationItem (
-    val userId: String,
-    val senderId: String,
-    val message: String,
-    val timestamp: Long,
-    val type: NotificationType,
-    var isDismissed: Boolean = false
+// Yunjong Noh
+
+data class NotificationItem(
+    val notificationId: String = "", // Firestore document ID
+    val userId: String = "",
+    val senderId: String = "",
+    val message: String = "",
+    val timestamp: Long = 0L,
+    val type: NotificationType = NotificationType.FRIEND_REQUEST,
+    val isDismissed: Boolean = false
 )
 
 enum class NotificationType {

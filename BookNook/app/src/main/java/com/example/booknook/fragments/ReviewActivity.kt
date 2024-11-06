@@ -398,6 +398,9 @@ class ReviewActivity : Fragment() {
                                             // Increment the number of reviews field for the user
                                             incrementUserReviewNum(userId)
                                             updateUserAverageRating(userId)
+
+                                            // updates review and add notification (on 11/5)
+                                            bookTitle?.let { addReviewNotification(userId, it) }
                                         }
                                         .addOnFailureListener {
                                             // If saving the review fails, display an error message
@@ -412,28 +415,45 @@ class ReviewActivity : Fragment() {
                                             // Show success message for review update
                                             Toast.makeText(requireActivity(), "Review updated successfully!", Toast.LENGTH_SHORT).show()
                                             updateUserAverageRating(userId)
+
+                                            // updates review and add notification (on 11/5)
+                                            bookTitle?.let { addReviewNotification(userId, it) }
                                         }
                                         .addOnFailureListener {
                                             // If updating the review fails, display an error message
-                                            Toast.makeText(requireActivity(), "Failed to update review", Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(requireActivity(), "Failed to update review", Toast.LENGTH_SHORT).show()
                                         }
                                 }
                             }.addOnFailureListener {
                                 // If querying for the existing review fails, display an error message
-                                Toast.makeText(requireActivity(), "Failed to check existing reviews", Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(requireActivity(), "Failed to check existing reviews", Toast.LENGTH_SHORT).show()
                             }
                     } else {
                         // If userId or bookIsbn is null, display an error message
-                        Toast.makeText(activity, "Book ISBN or user not provided", Toast.LENGTH_SHORT)
-                            .show()
+                        Toast.makeText(activity, "Book ISBN or user not provided", Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+    }
+
+    // Yunjong Noh
+    private fun addReviewNotification(userId: String, bookTitle: String) {
+        val db = FirebaseFirestore.getInstance()
+        val notification = NotificationItem(
+            userId = userId,
+            senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "system",
+            message = "A review for \"$bookTitle\" has been added or updated.",
+            timestamp = System.currentTimeMillis(),
+            type = NotificationType.REVIEW_REPLY,
+            isDismissed = false
+        )
+
+        db.collection("notifications").add(notification)
+            .addOnSuccessListener { Log.d("ReviewNotification", "Review notification added successfully.") }
+            .addOnFailureListener { e -> Log.e("ReviewNotification", "Error adding notification: ${e.message}", e) }
     }
 
     // Veronica Nguyen

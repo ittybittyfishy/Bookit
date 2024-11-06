@@ -11,12 +11,16 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.booknook.BookItem
 import com.example.booknook.R
 import com.example.booknook.BookResponse
 import com.example.booknook.api.GoogleBooksApiService
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -46,6 +50,12 @@ class HomeFragment : Fragment() {
     private lateinit var bookTitleTextView3: TextView
     private lateinit var bookAuthorsTextView3: TextView
 
+    // Yunjong Noh
+    // RecyclerView for notifications
+    private lateinit var notificationsRecyclerView: RecyclerView
+    private lateinit var updatesAdapter: UpdatesAdapter
+    private val notificationList = mutableListOf<NotificationItem>()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -71,6 +81,15 @@ class HomeFragment : Fragment() {
         bookCoverImageView3 = view.findViewById(R.id.bookCoverImageView3)
         bookTitleTextView3 = view.findViewById(R.id.bookTitleTextView3)
         bookAuthorsTextView3 = view.findViewById(R.id.bookAuthorsTextView3)
+
+        // Yunjong Noh
+        // Initialize RecyclerView for notifications
+        notificationsRecyclerView = view.findViewById(R.id.notificationsRecyclerView)
+        notificationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        updatesAdapter = UpdatesAdapter(notificationList) { notificationId ->
+            dismissNotification(notificationId) // Firestore에서 알림 해제 함수 호출
+        }
+        notificationsRecyclerView.adapter = updatesAdapter
 
         return view
     }
@@ -106,7 +125,91 @@ class HomeFragment : Fragment() {
                 loggedInTextView.text = "Error: ${exception.message}"
             }
         }
+        // Yunjong Noh
+        // Initialize UpdatesAdapter with the dismiss callback
+        updatesAdapter = UpdatesAdapter(notificationList) { notificationId ->
+            dismissNotification(notificationId) // Firestore에서 알림 해제 함수 호출
+        }
+        notificationsRecyclerView.adapter = updatesAdapter
+
+        // Fetch and display notifications once and add real-time listener for updates
+        fetchNotifications()
+        listenToNotifications()
     }
+
+    // Yunjong Noh
+    // Fetch notifications from Firestore
+    private fun fetchNotifications() {
+        db.collection("notifications").get().addOnSuccessListener { result ->
+            if (result.isEmpty) {
+                Log.d("HomeFragment", "No notifications found in Firestore.")
+            } else {
+                for (document in result) {
+                    val notification = document.toObject(NotificationItem::class.java)
+                    if (!notification.isDismissed) {
+                        notificationList.add(notification)
+                    }
+                    Log.d("HomeFragment", "Fetched notification: $notification")
+                }
+                updatesAdapter.notifyDataSetChanged()
+            }
+        }.addOnFailureListener { e ->
+            Log.e("HomeFragment", "Error fetching notifications: ${e.message}", e)
+        }
+    }
+    // Yunjong Noh
+    // Dismiss the notification by updating Firestore
+    private fun dismissNotification(notificationId: String) {
+        if (notificationId.isNotEmpty()) {
+            db.collection("notifications").document(notificationId)
+                .update("isDismissed", true)
+                .addOnSuccessListener { Log.d("HomeFragment", "Notification dismissed successfully.") }
+                .addOnFailureListener { e -> Log.e("HomeFragment", "Error dismissing notification: ${e.message}", e) }
+        } else {
+            Log.e("HomeFragment", "Invalid notificationId provided.")
+        }
+    }
+    // Yunjong Noh
+    private fun listenToNotifications() {
+        db.collection("notifications")
+            .whereEqualTo("userId", auth.currentUser?.uid)
+            .whereEqualTo("isDismissed", false)
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    Log.w("HomeFragment", "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+
+                for (docChange in snapshots!!.documentChanges) {
+                    val notification = docChange.document.toObject(NotificationItem::class.java)
+                    when (docChange.type) {
+                        DocumentChange.Type.ADDED -> {
+                            Log.d("HomeFragment", "New notification: ${notification.message}")
+                            notificationList.add(notification)
+                            updatesAdapter.notifyDataSetChanged()
+                            showInAppNotification(notification.message)
+                        }
+                        DocumentChange.Type.MODIFIED -> {
+                            Log.d("HomeFragment", "Notification modified: ${notification.message}")
+                            // 필요 시 알림 수정 처리를 추가할 수 있습니다
+                        }
+                        DocumentChange.Type.REMOVED -> {
+                            Log.d("HomeFragment", "Notification removed: ${notification.message}")
+                            // 필요 시 알림 제거 처리를 추가할 수 있습니다
+                        }
+                    }
+                }
+            }
+    }
+    // Yunjong Noh
+    // 앱 내 알림 표시 함수 (Snackbar 사용)
+    private fun showInAppNotification(message: String) {
+        view?.let {
+            Snackbar.make(it, message, Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+
 
     // Yunjong Noh
     // Check if 24 hours have passed since the last fetch
@@ -264,7 +367,7 @@ class HomeFragment : Fragment() {
     // Yunjong Noh
     // Function to perform a Google Books API search based on the user's top genres
     private fun performGoogleBooksSearch(genres: List<String>, avgRating: Double) {
-        val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM" // Google Books API key
+        val apiKey = "Api here" // Google Books API key
         val genreBooksMap = mutableMapOf<String, MutableList<BookItem>>() // Map to store books by genre
         val recommendedBookIds = mutableSetOf<String>() // Set to track book IDs to avoid duplicates
         var apiCallsCompleted = 0 // Counter to track how many API calls have been completed
