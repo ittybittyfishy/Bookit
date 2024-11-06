@@ -350,7 +350,7 @@ class BookDetailsFragment : Fragment() {
             bundle.putStringArrayList("bookGenresList", bookGenres) // Add Genre list
 
             reviewActivityFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
-            (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review", showBackButton = true)  // Opens a new fragment
+            (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review"  )  // Opens a new fragment
         }
         //Yunjong Noh
         // Check if the ISBN is not null("?" statement) and then fetch reviews

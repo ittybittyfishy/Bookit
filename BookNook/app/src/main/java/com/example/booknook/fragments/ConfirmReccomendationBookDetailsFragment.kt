@@ -11,6 +11,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -64,28 +65,42 @@ class ConfirmRecommendationBookDetailsFragment : Fragment() {
         // Handles click of "Confirm Book" button
         confirmBookButton.setOnClickListener {
             val db = FirebaseFirestore.getInstance()
-            // Book recommendation information
-            val recommendation = hashMapOf(
-                "image" to bookImage,
-                "title" to bookTitle,
-                "authors" to bookAuthor
-            )
 
             if (isbn != null) {
-                // Adds the book under recommendations subcollection under groups in database
-                db.collection("books").document(isbn)
-                    .collection("recommendations")
-                    .add(recommendation)
-                    .addOnSuccessListener { documentReference ->
-                        val recommendationId = documentReference.id
-                        // Adds the recommendationId as a field
-                        documentReference.update("recommendationId", recommendationId)
-                            .addOnSuccessListener {
-                                Toast.makeText(activity, "Added book to recommendations", Toast.LENGTH_SHORT).show()
-                            }
+                // Reference to the recommendations collection
+                val recommendationsRef = db.collection("books").document(isbn).collection("recommendations")
+
+                // Query to check if the recommendation already exists
+                recommendationsRef
+                    .whereEqualTo("title", bookTitle)
+                    .whereEqualTo("authors", bookAuthor)
+                    .get()
+                    .addOnSuccessListener { documents ->
+                        if (documents.isEmpty) {
+                            // Recommendation does not exist; add new recommendation
+                            val newRecommendation = hashMapOf(
+                                "image" to bookImage,
+                                "title" to bookTitle,
+                                "authors" to bookAuthor,
+                                "upvotes" to 1 // Initialize upvotes to 1
+                            )
+                            recommendationsRef.add(newRecommendation)
+                                .addOnSuccessListener { documentReference ->
+                                    documentReference.update("recommendationId", documentReference.id)
+                                    Toast.makeText(activity, "Added book to recommendations", Toast.LENGTH_SHORT).show()
+                                    val searchFragment = SearchFragment()
+                                    (activity as MainActivity).replaceFragment(searchFragment, "Search")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.w("Firestore", "Error adding recommendation", e)
+                                }
+                        } else {
+                            // Recommendation exists; notify the user
+                            Toast.makeText(activity, "This book has already been recommended", Toast.LENGTH_SHORT).show()
+                        }
                     }
                     .addOnFailureListener { e ->
-                        Log.w("Firestore", "Error adding recommendation", e)
+                        Log.w("Firestore", "Error checking recommendation", e)
                     }
             }
         }

@@ -70,7 +70,7 @@ class BookRecommendationBookDetailsAdapter(
                 putString("bookAuthor", book.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")
             }
             ConfirmRecommendationBookDetailsFragment.arguments = bundle
-            (holder.itemView.context as MainActivity).replaceFragment(ConfirmRecommendationBookDetailsFragment, "Add Recommendation")
+            (holder.itemView.context as MainActivity).replaceFragment(ConfirmRecommendationBookDetailsFragment, "Add Recommendation", showBackButton = true)
         }
     }
 
