@@ -140,7 +140,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:text="Genres"
             android:textStyle="bold"
             android:textSize="20sp"
@@ -175,6 +175,7 @@
                 android:textColor="@color/star_green"/>
 
             <TextView
+                android:id="@+id/readingStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Not in a collection"/>
