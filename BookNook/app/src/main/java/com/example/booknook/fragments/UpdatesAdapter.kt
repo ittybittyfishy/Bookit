@@ -46,6 +46,7 @@ class UpdatesAdapter(
                 NotificationType.FRIEND_STARTED_BOOK -> "Friend Started a Book"
                 NotificationType.FRIEND_FINISHED_BOOK -> "Friend Finished a Book"
                 NotificationType.REVIEW_REPLY -> "Review Reply"
+                NotificationType.REVIEW_ADDED -> "Review Added"
             }
 
             Glide.with(itemView.context)
