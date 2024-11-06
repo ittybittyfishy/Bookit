@@ -67,41 +67,53 @@ class ConfirmRecommendationBookDetailsFragment : Fragment() {
             val db = FirebaseFirestore.getInstance()
 
             if (isbn != null) {
-                // Reference to the recommendations collection
-                val recommendationsRef = db.collection("books").document(isbn).collection("recommendations")
+                Log.d("ConfirmRecommendation", "Searching for ISBN: $isbn")
 
-                // Query to check if the recommendation already exists
-                recommendationsRef
-                    .whereEqualTo("title", bookTitle)
-                    .whereEqualTo("authors", bookAuthor)
-                    .get()
-                    .addOnSuccessListener { documents ->
-                        if (documents.isEmpty) {
-                            // Recommendation does not exist; add new recommendation
-                            val newRecommendation = hashMapOf(
-                                "image" to bookImage,
-                                "title" to bookTitle,
-                                "authors" to bookAuthor,
-                                "upvotes" to 1 // Initialize upvotes to 1
-                            )
-                            recommendationsRef.add(newRecommendation)
-                                .addOnSuccessListener { documentReference ->
-                                    documentReference.update("recommendationId", documentReference.id)
-                                    Toast.makeText(activity, "Added book to recommendations", Toast.LENGTH_SHORT).show()
-                                    val searchFragment = SearchFragment()
-                                    (activity as MainActivity).replaceFragment(searchFragment, "Search")
+                // Reference to the book document
+                val bookRef = db.collection("books").document(isbn)
+
+                // Check if the book exists in the database
+                bookRef.get().addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        // Reference to the recommendations collection
+                        val recommendationsRef = bookRef.collection("recommendations")
+
+                        // Query to check if the recommendation already exists
+                        recommendationsRef
+                            .whereEqualTo("title", bookTitle)
+                            .whereEqualTo("authors", bookAuthor)
+                            .get()
+                            .addOnSuccessListener { documents ->
+                                if (documents.isEmpty) {
+                                    // Recommendation does not exist; add new recommendation
+                                    val newRecommendation = hashMapOf(
+                                        "image" to bookImage,
+                                        "title" to bookTitle,
+                                        "authors" to bookAuthor,
+                                        "upvotes" to 1 // Initialize upvotes to 1
+                                    )
+                                    recommendationsRef.add(newRecommendation)
+                                        .addOnSuccessListener { documentReference ->
+                                            documentReference.update("recommendationId", documentReference.id)
+                                            Log.d("Firestore", "Recommendation added with ID: ${documentReference.id}")
+                                            Toast.makeText(activity, "Added book to recommendations", Toast.LENGTH_SHORT).show()
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.w("Firestore", "Error adding recommendation", e)
+                                        }
+                                } else {
+                                    // Recommendation exists; notify the user
+                                    Toast.makeText(activity, "This book has already been recommended", Toast.LENGTH_SHORT).show()
                                 }
-                                .addOnFailureListener { e ->
-                                    Log.w("Firestore", "Error adding recommendation", e)
-                                }
-                        } else {
-                            // Recommendation exists; notify the user
-                            Toast.makeText(activity, "This book has already been recommended", Toast.LENGTH_SHORT).show()
-                        }
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w("Firestore", "Error checking recommendation", e)
+                            }
+                    } else {
+                        Log.w("Firestore", "Book with ISBN $isbn does not exist")
+                        Toast.makeText(activity, "Book does not exist in database", Toast.LENGTH_SHORT).show()
                     }
-                    .addOnFailureListener { e ->
-                        Log.w("Firestore", "Error checking recommendation", e)
-                    }
+                }
             }
         }
 

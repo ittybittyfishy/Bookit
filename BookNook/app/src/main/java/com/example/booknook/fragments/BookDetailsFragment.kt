@@ -104,10 +104,11 @@ class BookDetailsFragment : Fragment() {
 
         // Olivia Fishbough
         // Set up RecommendationsAdapter
+        recHolder.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         recommendationsAdapter = RecommendationAdapterBookDetails(
             recommendationsList,
-            isbn ?: "",  // Provide empty string if isbn is null
-            userId ?: "" // Provide empty string if userId is null
+            isbn ?: "",
+            userId ?: ""
         )
         recHolder.adapter = recommendationsAdapter
 
@@ -386,9 +387,7 @@ class BookDetailsFragment : Fragment() {
         val db = FirebaseFirestore.getInstance()
         val recommendationsRef = db.collection("books").document(bookId).collection("recommendations")
 
-        recommendationsRef
-            .orderBy("numUpvotes", Query.Direction.DESCENDING)
-            .get()
+        recommendationsRef.get()
             .addOnSuccessListener { documents ->
                 recommendationsList.clear() // Clear old data before adding new
                 for (document in documents) {
