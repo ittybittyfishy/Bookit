@@ -339,6 +339,43 @@
                 android:padding="0dp"
                 android:visibility="gone"/>
         </RelativeLayout>
+        
+        <!--Book Recommendations-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_gravity="center_horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Readers also suggest..."
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="@color/green_to_purple"
+                android:layout_weight="1"/>
+            
+            <ImageButton
+                android:id="@+id/addRecommendationButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/add"
+                app:tint="@color/star_green"
+                android:background="@color/transparent"
+                android:layout_weight="0"
+                android:layout_marginEnd="10dp"
+                />
+
+        </LinearLayout>
+        
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recommendationsRecyclerView"
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+            
         <!-- Yunjong Noh -->
         <!-- User Review Section Title -->
         <TextView

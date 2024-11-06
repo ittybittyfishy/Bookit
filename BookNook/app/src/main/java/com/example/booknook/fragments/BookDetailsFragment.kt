@@ -36,6 +36,8 @@ import com.example.booknook.Comment
 import com.example.booknook.CommentsAdapter
 import com.example.booknook.ImageLinks
 import com.example.booknook.IndustryIdentifier
+import com.example.booknook.RecommendationAdapterBookDetails
+import com.example.booknook.RecommendationsAdapter
 import com.example.booknook.Reply
 import com.example.booknook.Review
 import com.example.booknook.ReviewsAdapter
@@ -58,6 +60,8 @@ class BookDetailsFragment : Fragment() {
     private var isDescriptionExpanded = false  // defaults the description to not be expanded
     // List of predefined collections that users can assign books to.
     private val standardCollections = listOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped", "Remove")
+    private val recommendationsList = mutableListOf<Map<String, Any>>() // Initialize an empty list to store recommendation
+    private lateinit var recommendationsAdapter: RecommendationAdapterBookDetails
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -90,7 +94,33 @@ class BookDetailsFragment : Fragment() {
         val readingStatus: TextView = view.findViewById(R.id.readingStatus)
         val personalRating: RatingBar = view.findViewById(R.id.personalBookRating)
         val personalRatingNum: TextView = view.findViewById(R.id.personalRatingNumber)
+        val addRec: ImageButton = view.findViewById(R.id.addRecommendationButton)
+        val recHolder: RecyclerView = view.findViewById(R.id.recommendationsRecyclerView)
 
+        // Initialize RecyclerView for recommendations
+        recHolder.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+        // Set up RecommendationsAdapter
+        recommendationsAdapter = RecommendationAdapterBookDetails(
+            recommendationsList,
+            isbn ?: "",  // Provide empty string if isbn is null
+            userId ?: "" // Provide empty string if userId is null
+        )
+        recHolder.adapter = recommendationsAdapter
+
+        // Fetch recommendations
+        if (isbn != null) {
+            fetchRecommendations(isbn)
+        }
+
+        // Opens page to add recommendations when button is pressed
+        addRec.setOnClickListener {
+            val AddRecommendationBookDetailsFragment = AddRecommendationBookDetailsFragment()
+            val bundle = Bundle()
+            bundle.putString("isbn", isbn)
+            AddRecommendationBookDetailsFragment.arguments = bundle
+            (activity as MainActivity).replaceFragment(AddRecommendationBookDetailsFragment, "Add Recommendation", showBackButton = true)
+        }
 
         // Calls views
         editButton = view.findViewById(R.id.edit_summary_button)
@@ -329,6 +359,26 @@ class BookDetailsFragment : Fragment() {
         }
 
         return view
+    }
+
+    // Olivia Fishbough
+    // Function to Load recommendations
+    private fun fetchRecommendations(bookId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val recommendationsRef = db.collection("books").document(bookId).collection("recommendations")
+
+        recommendationsRef.get()
+            .addOnSuccessListener { documents ->
+                recommendationsList.clear() // Clear old data before adding new
+                for (document in documents) {
+                    val recommendationData = document.data
+                    recommendationsList.add(recommendationData)
+                }
+                recommendationsAdapter.notifyDataSetChanged() // Notify adapter of data change
+            }
+            .addOnFailureListener { exception ->
+                Log.e("BookDetailsFragment", "Error fetching recommendations: ${exception.message}")
+            }
     }
 
     // Olivia Fishbough
