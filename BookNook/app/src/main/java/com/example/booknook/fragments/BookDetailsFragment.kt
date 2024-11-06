@@ -46,6 +46,7 @@ import com.example.booknook.VolumeInfo
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.Query
 import java.util.Locale
 
 
@@ -97,9 +98,11 @@ class BookDetailsFragment : Fragment() {
         val addRec: ImageButton = view.findViewById(R.id.addRecommendationButton)
         val recHolder: RecyclerView = view.findViewById(R.id.recommendationsRecyclerView)
 
+        // Olivia Fishbough
         // Initialize RecyclerView for recommendations
         recHolder.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
+        // Olivia Fishbough
         // Set up RecommendationsAdapter
         recommendationsAdapter = RecommendationAdapterBookDetails(
             recommendationsList,
@@ -108,11 +111,13 @@ class BookDetailsFragment : Fragment() {
         )
         recHolder.adapter = recommendationsAdapter
 
+        // Olivia Fishbough
         // Fetch recommendations
         if (isbn != null) {
             fetchRecommendations(isbn)
         }
 
+        // Olivia Fishbough
         // Opens page to add recommendations when button is pressed
         addRec.setOnClickListener {
             val AddRecommendationBookDetailsFragment = AddRecommendationBookDetailsFragment()
@@ -367,7 +372,9 @@ class BookDetailsFragment : Fragment() {
         val db = FirebaseFirestore.getInstance()
         val recommendationsRef = db.collection("books").document(bookId).collection("recommendations")
 
-        recommendationsRef.get()
+        recommendationsRef
+            .orderBy("numUpvotes", Query.Direction.DESCENDING)
+            .get()
             .addOnSuccessListener { documents ->
                 recommendationsList.clear() // Clear old data before adding new
                 for (document in documents) {
