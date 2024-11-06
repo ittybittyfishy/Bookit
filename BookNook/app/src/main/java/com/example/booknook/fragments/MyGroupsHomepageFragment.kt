@@ -192,9 +192,13 @@ class MyGroupsHomepageFragment : Fragment() {
                     getNumMembersOnline(groupId)
 
                     // Displays number of recommendations
-                    val recommendations = document.get("recommendations") as? List<Map<String, Any>>
-                    val numofRecommendations = recommendations?.size ?: 0
-                    numRecommendations.text = "$numofRecommendations"
+                    groupsDocRef.collection("recommendations")
+                        .get()
+                        .addOnSuccessListener { recommendationSnapshot ->
+                            val numOfRecommendations = recommendationSnapshot.size()
+                            numRecommendations.text = "$numOfRecommendations"
+
+                        }
                 }
             }
     }
