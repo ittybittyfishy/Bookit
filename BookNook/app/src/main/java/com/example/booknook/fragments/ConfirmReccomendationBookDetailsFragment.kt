@@ -97,6 +97,8 @@ class ConfirmRecommendationBookDetailsFragment : Fragment() {
                                             documentReference.update("recommendationId", documentReference.id)
                                             Log.d("Firestore", "Recommendation added with ID: ${documentReference.id}")
                                             Toast.makeText(activity, "Added book to recommendations", Toast.LENGTH_SHORT).show()
+                                            val SearchFragment = SearchFragment()
+                                            (activity as MainActivity).replaceFragment(SearchFragment, "Search")
                                         }
                                         .addOnFailureListener { e ->
                                             Log.w("Firestore", "Error adding recommendation", e)
