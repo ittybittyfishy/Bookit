@@ -407,7 +407,6 @@ class BookDetailsFragment : Fragment() {
                 bookRef.set(bookData)
                     .addOnSuccessListener {
                         Log.d("Firestore", "Book created successfully with ISBN: $bookIsbn")
-                        Toast.makeText(context, "Book added to Firestore", Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener { e ->
                         Log.e("Firestore", "Error creating book entry", e)
@@ -415,7 +414,6 @@ class BookDetailsFragment : Fragment() {
                     }
             } else {
                 Log.d("Firestore", "Book entry already exists with ISBN: $bookIsbn")
-                Toast.makeText(context, "Book already exists in Firestore", Toast.LENGTH_SHORT).show()
             }
         }.addOnFailureListener { e ->
             Log.e("Firestore", "Error checking for existing book entry", e)
