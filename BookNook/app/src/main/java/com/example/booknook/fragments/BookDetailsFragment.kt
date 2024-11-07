@@ -121,6 +121,7 @@ class BookDetailsFragment : Fragment() {
         // Olivia Fishbough
         // Opens page to add recommendations when button is pressed
         addRec.setOnClickListener {
+            createBookEntry()
             val AddRecommendationBookDetailsFragment = AddRecommendationBookDetailsFragment()
             val bundle = Bundle()
             bundle.putString("isbn", isbn)
@@ -379,6 +380,47 @@ class BookDetailsFragment : Fragment() {
         }
 
         return view
+    }
+
+    // helper function to create a book item
+    private fun createBookEntry() {
+        val bookIsbn = arguments?.getString("bookIsbn") ?: run {
+            Log.e("Firestore", "Book ISBN is required.")
+            return
+        }
+        val bookTitle = arguments?.getString("bookTitle") ?: "Unknown Title"
+        val bookAuthors = arguments?.getStringArrayList("bookAuthorsList") ?: listOf("Unknown Author")
+
+        // Initialize Firestore
+        val db = FirebaseFirestore.getInstance()
+        val bookRef = db.collection("books").document(bookIsbn)
+
+        // Check if the book entry with this ISBN already exists
+        bookRef.get().addOnSuccessListener { document ->
+            if (!document.exists()) {
+                // If the document does not exist, create the book entry
+                val bookData = mapOf(
+                    "bookTitle" to bookTitle,
+                    "authors" to bookAuthors
+                )
+
+                bookRef.set(bookData)
+                    .addOnSuccessListener {
+                        Log.d("Firestore", "Book created successfully with ISBN: $bookIsbn")
+                        Toast.makeText(context, "Book added to Firestore", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("Firestore", "Error creating book entry", e)
+                        Toast.makeText(context, "Failed to add book to Firestore", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                Log.d("Firestore", "Book entry already exists with ISBN: $bookIsbn")
+                Toast.makeText(context, "Book already exists in Firestore", Toast.LENGTH_SHORT).show()
+            }
+        }.addOnFailureListener { e ->
+            Log.e("Firestore", "Error checking for existing book entry", e)
+            Toast.makeText(context, "Error checking book entry", Toast.LENGTH_SHORT).show()
+        }
     }
 
     // Olivia Fishbough
