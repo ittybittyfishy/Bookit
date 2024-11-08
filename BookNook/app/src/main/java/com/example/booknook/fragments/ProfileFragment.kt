@@ -888,7 +888,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-
+    //work review 4
     private fun saveSelectedTitleToUserProfile(title: String) {
         Log.d("ProfileFragment", "Saving selected title: $title")
         val userId = auth.currentUser?.uid ?: run {
@@ -910,6 +910,8 @@ class ProfileFragment : Fragment() {
             }
     }
 
+
+    //work review 4
     private fun loadSavedTitle(userId: String) {
         Log.d("ProfileFragment", "Loading saved title for user: $userId")
         val userDocRef = firestore.collection("users").document(userId)
