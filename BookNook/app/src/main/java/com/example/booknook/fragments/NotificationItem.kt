@@ -9,7 +9,7 @@ data class NotificationItem(
     val message: String = "",
     val timestamp: Long = 0L,
     val type: NotificationType = NotificationType.FRIEND_REQUEST,
-    val isDismissed: Boolean = false
+    val dismissed: Boolean = false
 )
 
 enum class NotificationType {

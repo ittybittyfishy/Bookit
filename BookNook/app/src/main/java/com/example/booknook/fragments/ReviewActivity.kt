@@ -448,13 +448,28 @@ class ReviewActivity : Fragment() {
             message = "A review for \"$bookTitle\" has been added or updated.",
             timestamp = System.currentTimeMillis(),
             type = NotificationType.REVIEW_REPLY,
-            isDismissed = false
+            dismissed = false // 필드 이름 일치
         )
 
+        // Firestore에 알림 추가
         db.collection("notifications").add(notification)
-            .addOnSuccessListener { Log.d("ReviewNotification", "Review notification added successfully.") }
-            .addOnFailureListener { e -> Log.e("ReviewNotification", "Error adding notification: ${e.message}", e) }
+            .addOnSuccessListener { documentReference ->
+                // 문서가 성공적으로 추가되었을 때 자동 생성된 문서 ID를 설정
+                val notificationId = documentReference.id
+                db.collection("notifications").document(notificationId)
+                    .update("notificationId", notificationId) // notificationId 필드 업데이트
+                    .addOnSuccessListener {
+                        Log.d("ReviewNotification", "Notification added with ID: $notificationId")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("ReviewNotification", "Error updating notificationId: ${e.message}", e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("ReviewNotification", "Error adding notification: ${e.message}", e)
+            }
     }
+
 
     // Veronica Nguyen
     // Function updates the average rating of the user

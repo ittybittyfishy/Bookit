@@ -146,7 +146,7 @@ class HomeFragment : Fragment() {
             } else {
                 for (document in result) {
                     val notification = document.toObject(NotificationItem::class.java)
-                    if (!notification.isDismissed) {
+                    if (!notification.dismissed) {
                         notificationList.add(notification)
                     }
                     Log.d("HomeFragment", "Fetched notification: $notification")
@@ -160,14 +160,21 @@ class HomeFragment : Fragment() {
     // Yunjong Noh
     // Dismiss the notification by updating Firestore
     private fun dismissNotification(notificationId: String) {
-        if (notificationId.isNotEmpty()) {
-            db.collection("notifications").document(notificationId)
-                .update("isDismissed", true)
-                .addOnSuccessListener { Log.d("HomeFragment", "Notification dismissed successfully.") }
-                .addOnFailureListener { e -> Log.e("HomeFragment", "Error dismissing notification: ${e.message}", e) }
-        } else {
-            Log.e("HomeFragment", "Invalid notificationId provided.")
-        }
+        db.collection("notifications").document(notificationId)
+            .update("dismissed", true)
+            .addOnSuccessListener {
+                Log.d("HomeFragment", "Notification dismissed successfully.")
+
+                // 알림 목록에서 해당 알림을 찾아 제거합니다.
+                val index = notificationList.indexOfFirst { it.notificationId == notificationId }
+                if (index != -1) { // 알림이 목록에 존재하는 경우
+                    notificationList.removeAt(index) // 알림을 목록에서 제거
+                    updatesAdapter.notifyItemRemoved(index) // RecyclerView에 변경 사항 반영
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("HomeFragment", "Error dismissing notification: ${e.message}", e)
+            }
     }
     // Yunjong Noh
     private fun listenToNotifications() {
