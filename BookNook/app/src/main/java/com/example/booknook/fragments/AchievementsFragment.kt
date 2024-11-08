@@ -1465,7 +1465,7 @@ class AchievementsFragment : Fragment() {
             }
     }
 
-    //work review4
+    //work review 4
     private fun updateUnlockedAchievementsCount(userId: String) {
         val userDocRef = firestore.collection("users").document(userId)
 
