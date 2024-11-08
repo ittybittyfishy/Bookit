@@ -38,7 +38,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="30dp"
-        android:paddingStart="25dp"
+        android:paddingStart="35dp"
         android:paddingEnd="25dp">
     </androidx.recyclerview.widget.RecyclerView>
 </LinearLayout>

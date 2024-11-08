@@ -76,11 +76,17 @@ class ConfirmRecommendationFragment : Fragment() {
             )
 
             if (groupId != null) {
+                // Adds the book under recommendations subcollection under groups in database
                 db.collection("groups").document(groupId)
-                    // Adds the book into recommendations section in database
-                    .update("recommendations", FieldValue.arrayUnion(recommendation))
-                    .addOnSuccessListener {
-                        Toast.makeText(activity, "Added book to recommendations", Toast.LENGTH_SHORT).show()
+                    .collection("recommendations")
+                    .add(recommendation)
+                    .addOnSuccessListener { documentReference ->
+                        val recommendationId = documentReference.id
+                        // Adds the recommendationId as a field
+                        documentReference.update("recommendationId", recommendationId)
+                            .addOnSuccessListener {
+                                Toast.makeText(activity, "Added book to recommendations", Toast.LENGTH_SHORT).show()
+                            }
                     }
                     .addOnFailureListener { e ->
                         Log.w("Firestore", "Error adding recommendation", e)

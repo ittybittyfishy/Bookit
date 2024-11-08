@@ -10,15 +10,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.FirebaseFirestore
 
-// Define an adapter for displaying book recommendations in a RecyclerView
-class RecommendationsAdapter(
-    private val recommendationsList: List<Map<String, Any>>, // List of recommendations
-    private val groupId: String,
+class RecommendationAdapterBookDetails (
+    private val recommendationsList: List<Map<String, Any>>,
+    private val isbn: String, // Using ISBN instead of groupId
     private val userId: String
-) : RecyclerView.Adapter<RecommendationsAdapter.RecommendationViewHolder>() {
+) : RecyclerView.Adapter<RecommendationAdapterBookDetails.RecommendationBookDetailsViewHolder>() {
 
     // ViewHolder class that represents each recommendation item
-    class RecommendationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class RecommendationBookDetailsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val bookImage: ImageView = itemView.findViewById(R.id.bookImage)
         val bookTitle: TextView = itemView.findViewById(R.id.bookTitle)
         val bookAuthors: TextView = itemView.findViewById(R.id.bookAuthors)
@@ -27,13 +26,13 @@ class RecommendationsAdapter(
     }
 
     // Inflate the item layout and create a ViewHolder
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecommendationViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecommendationBookDetailsViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_recommendation, parent, false)
-        return RecommendationViewHolder(view)
+        return RecommendationBookDetailsViewHolder(view)
     }
 
     // Bind data to each item (book image, title, authors)
-    override fun onBindViewHolder(holder: RecommendationViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecommendationBookDetailsViewHolder, position: Int) {
         val recommendation = recommendationsList[position]
 
         // Bind book title
@@ -60,7 +59,7 @@ class RecommendationsAdapter(
         // Handle upvote button click
         holder.upvoteButton.setOnClickListener {
             val db = FirebaseFirestore.getInstance()
-            val recommendationRef = db.collection("groups").document(groupId)
+            val recommendationRef = db.collection("books").document(isbn)
                 .collection("recommendations").document(recommendationId)
 
             // If the user has already upvoted this book and presses the upvote button

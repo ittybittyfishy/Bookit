@@ -29,12 +29,15 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.Comment
 import com.example.booknook.CommentsAdapter
 import com.example.booknook.ImageLinks
 import com.example.booknook.IndustryIdentifier
+import com.example.booknook.RecommendationAdapterBookDetails
+import com.example.booknook.RecommendationsAdapter
 import com.example.booknook.Reply
 import com.example.booknook.Review
 import com.example.booknook.ReviewsAdapter
@@ -43,6 +46,7 @@ import com.example.booknook.VolumeInfo
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.Query
 import java.util.Locale
 
 
@@ -57,6 +61,8 @@ class BookDetailsFragment : Fragment() {
     private var isDescriptionExpanded = false  // defaults the description to not be expanded
     // List of predefined collections that users can assign books to.
     private val standardCollections = listOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped", "Remove")
+    private val recommendationsList = mutableListOf<Map<String, Any>>() // Initialize an empty list to store recommendation
+    private lateinit var recommendationsAdapter: RecommendationAdapterBookDetails
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -85,6 +91,43 @@ class BookDetailsFragment : Fragment() {
         val spinnerSelectCollection: Spinner = view.findViewById(R.id.spinnerSelectCollection)
         val btnAddToCustomCollection: Button = view.findViewById(R.id.btnAddToCustomCollection)
         val descriptionTextView: TextView = view.findViewById(R.id.bookDescription)
+        val genreHolder: LinearLayout = view.findViewById(R.id.tagContainer)
+        val readingStatus: TextView = view.findViewById(R.id.readingStatus)
+        val personalRating: RatingBar = view.findViewById(R.id.personalBookRating)
+        val personalRatingNum: TextView = view.findViewById(R.id.personalRatingNumber)
+        val addRec: ImageButton = view.findViewById(R.id.addRecommendationButton)
+        val recHolder: RecyclerView = view.findViewById(R.id.recommendationsRecyclerView)
+
+        // Olivia Fishbough
+        // Initialize RecyclerView for recommendations
+        recHolder.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+        // Olivia Fishbough
+        // Set up RecommendationsAdapter
+        recHolder.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        recommendationsAdapter = RecommendationAdapterBookDetails(
+            recommendationsList,
+            isbn ?: "",
+            userId ?: ""
+        )
+        recHolder.adapter = recommendationsAdapter
+
+        // Olivia Fishbough
+        // Fetch recommendations
+        if (isbn != null) {
+            fetchRecommendations(isbn)
+        }
+
+        // Olivia Fishbough
+        // Opens page to add recommendations when button is pressed
+        addRec.setOnClickListener {
+            createBookEntry()
+            val AddRecommendationBookDetailsFragment = AddRecommendationBookDetailsFragment()
+            val bundle = Bundle()
+            bundle.putString("isbn", isbn)
+            AddRecommendationBookDetailsFragment.arguments = bundle
+            (activity as MainActivity).replaceFragment(AddRecommendationBookDetailsFragment, "Add Recommendation", showBackButton = true)
+        }
 
         // Calls views
         editButton = view.findViewById(R.id.edit_summary_button)
@@ -119,35 +162,49 @@ class BookDetailsFragment : Fragment() {
         spinnerSelectCollection.adapter = collectionAdapter
 
         // Handle spinner item selection
-        spinnerSelectCollection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                if (position == 5) {
-                    if (bookTitle != null) {
-                        if (bookAuthor != null) {
-                            removeBookFromStandardCollection(requireContext(), bookTitle, bookAuthor)
+        spinnerSelectCollection.post {
+            spinnerSelectCollection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                    // Check if view is null
+                    if (view == null) return
+
+                    when (position) {
+                        5 -> {  // Remove selected
+                            bookTitle?.let { title ->
+                                bookAuthor?.let { author ->
+                                    removeBookFromStandardCollection(
+                                        requireContext(),
+                                        title,
+                                        author
+                                    )
+                                }
+                            }
                         }
-                    }
-                } else if (position != 0) {
-                    val selectedCollection = standardCollections[position]
-                    if (bookTitle != null) {
-                        if (bookAuthor != null) {
-                            if (bookGenres != null) {
-                                saveBookToCollection(
-                                    requireContext(),
-                                    bookTitle,
-                                    bookAuthor,
-                                    bookImage,
-                                    selectedCollection,
-                                    bookGenres
-                                )
+                        else -> {
+                            if (position != 0) {  // Ignore "Select Collection"
+                                val selectedCollection = standardCollections[position]
+                                bookTitle?.let { title ->
+                                    bookAuthor?.let { author ->
+                                        bookGenres?.let { genres ->
+                                            saveBookToCollection(
+                                                requireContext(),
+                                                title,
+                                                author,
+                                                bookImage,
+                                                selectedCollection,
+                                                genres
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {
-                // Handle case when nothing is selected if necessary
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    // Handle if nothing is selected, if needed
+                }
             }
         }
 
@@ -161,7 +218,42 @@ class BookDetailsFragment : Fragment() {
             )
         }
 
-        // Create a BookItem object
+        // Olivia Fishbough
+        // Get standard collection that book is in, if any
+        if (bookTitle != null && bookAuthorsList != null) {
+            findBookCollection(requireContext(), bookTitle, bookAuthorsList.joinToString(", ")) { collection ->
+                if (collection != null) {
+                    // Set text in reading status to collection name
+                    readingStatus.text = "$collection"
+                    readingStatus.visibility = View.VISIBLE
+                } else {
+                    // If the book is not in a collection just say N/A
+                    readingStatus.text = "N/A"
+                    readingStatus.visibility = View.VISIBLE
+                }
+            }
+        }
+
+        // Olivia Fishbough
+        // Load in Book Genres
+        if (!bookGenres.isNullOrEmpty()) {
+            for (genre in bookGenres) {
+                // Create a new TextView for each genre
+                val genreTextView = TextView(requireContext()).apply {
+                    text = genre
+                    setBackgroundResource(R.drawable.friend_username_border) // Set the background drawable
+                    setPadding(10, 10, 10, 10) //
+                    setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                    textSize = 14f
+                }
+
+                // Add the genreTextView to the genreHolder LinearLayout
+                genreHolder.addView(genreTextView)
+            }
+        }
+
+
+            // Create a BookItem object
         val bookId = arguments?.getString("bookId") ?: "Unknown ID" // You can adjust this based on your data source
         val book = volumeInfo?.let { BookItem(id = bookId, volumeInfo = it) }
 
@@ -227,6 +319,11 @@ class BookDetailsFragment : Fragment() {
             saveChangesButton.visibility = View.GONE
         }
 
+        // Load in users rating for book if it exists
+        if (isbn != null) {
+            loadUserRatingForBook(isbn, personalRating, personalRatingNum)
+        }
+
         // Fetch existing summary if the user has already submitted one for this book
         if (userId != null && isbn != null) {
             val db = FirebaseFirestore.getInstance()
@@ -274,7 +371,7 @@ class BookDetailsFragment : Fragment() {
             bundle.putStringArrayList("bookGenresList", bookGenres) // Add Genre list
 
             reviewActivityFragment.arguments = bundle  // sets reviewActivityFragment's arguments to the data in bundle
-            (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review")  // Opens a new fragment
+            (activity as MainActivity).replaceFragment(reviewActivityFragment, "Write a Review", showBackButton = true)  // Opens a new fragment
         }
         //Yunjong Noh
         // Check if the ISBN is not null("?" statement) and then fetch reviews
@@ -284,6 +381,151 @@ class BookDetailsFragment : Fragment() {
 
         return view
     }
+
+    // helper function to create a book item
+    private fun createBookEntry() {
+        val bookIsbn = arguments?.getString("bookIsbn") ?: run {
+            Log.e("Firestore", "Book ISBN is required.")
+            return
+        }
+        val bookTitle = arguments?.getString("bookTitle") ?: "Unknown Title"
+        val bookAuthors = arguments?.getStringArrayList("bookAuthorsList") ?: listOf("Unknown Author")
+
+        // Initialize Firestore
+        val db = FirebaseFirestore.getInstance()
+        val bookRef = db.collection("books").document(bookIsbn)
+
+        // Check if the book entry with this ISBN already exists
+        bookRef.get().addOnSuccessListener { document ->
+            if (!document.exists()) {
+                // If the document does not exist, create the book entry
+                val bookData = mapOf(
+                    "bookTitle" to bookTitle,
+                    "authors" to bookAuthors
+                )
+
+                bookRef.set(bookData)
+                    .addOnSuccessListener {
+                        Log.d("Firestore", "Book created successfully with ISBN: $bookIsbn")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("Firestore", "Error creating book entry", e)
+                        Toast.makeText(context, "Failed to add book to Firestore", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                Log.d("Firestore", "Book entry already exists with ISBN: $bookIsbn")
+            }
+        }.addOnFailureListener { e ->
+            Log.e("Firestore", "Error checking for existing book entry", e)
+            Toast.makeText(context, "Error checking book entry", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Olivia Fishbough
+    // Function to Load recommendations
+    private fun fetchRecommendations(bookId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val recommendationsRef = db.collection("books").document(bookId).collection("recommendations")
+
+        recommendationsRef.get()
+            .addOnSuccessListener { documents ->
+                recommendationsList.clear() // Clear old data before adding new
+                for (document in documents) {
+                    val recommendationData = document.data
+                    recommendationsList.add(recommendationData)
+                }
+                recommendationsAdapter.notifyDataSetChanged() // Notify adapter of data change
+            }
+            .addOnFailureListener { exception ->
+                Log.e("BookDetailsFragment", "Error fetching recommendations: ${exception.message}")
+            }
+    }
+
+    // Olivia Fishbough
+    // Function to retrieve users rating for a book
+    private fun loadUserRatingForBook(bookId: String, ratingBar: RatingBar, ratingTextView: TextView) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            Toast.makeText(context, "User not logged in", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        val bookRef = db.collection("books").document(bookId)
+
+        // Retrieve the list of reviews for this book
+        bookRef.collection("reviews").whereEqualTo("userId", userId).get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val userReview = querySnapshot.documents[0]
+                    val userRating = userReview.getDouble("rating") ?: 0.0
+
+                    // Set the retrieved rating to the RatingBar and TextView
+                    ratingBar.rating = userRating.toFloat()
+                    ratingTextView.text = "($userRating)"
+                } else {
+                    // If no rating is found, set default display
+                    ratingBar.rating = 0f
+                    ratingTextView.text = "(N/A)"
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Failed to load rating: ${e.message}", Toast.LENGTH_SHORT).show()
+                ratingBar.rating = 0f
+                ratingTextView.text = "(N/A)"
+            }
+    }
+
+    // Olivia Fishbough
+    // Finds the book if it is saved in a collection
+    private fun findBookCollection(
+        context: Context,
+        title: String,
+        authors: String,
+        callback: (String?) -> Unit // Callback to return the collection name or null if not found
+    ) {
+        // Get the current user's ID from Firebase Authentication
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        // Check if user is logged in
+        if (userId != null) {
+            val db = FirebaseFirestore.getInstance()
+            val userDocRef = db.collection("users").document(userId)
+
+            // Begin a Firestore transaction to access user data
+            db.runTransaction { transaction ->
+                // Get a snapshot of the user's document
+                val snapshot = transaction.get(userDocRef)
+
+                // Loop through standard collections to find the book
+                for (collection in standardCollections.drop(1).take(4)) { // Skip "Select Collection" and "Remove"
+                    // Get the list of books in the current collection, if any
+                    val booksInCollection = snapshot.get("standardCollections.$collection") as? List<Map<String, Any>>
+                    booksInCollection?.let {
+                        // Check each book in the collection to see if it matches the title and authors provided
+                        for (existingBook in it) {
+                            if (existingBook["title"] == title &&
+                                existingBook["authors"] == authors.split(", ").map { it.trim() }
+                            ) {
+                                // If a match is found, return the collection name
+                                return@runTransaction collection // Return collection name
+                            }
+                        }
+                    }
+                }
+                null // Return null if book is not in any collection
+            }.addOnSuccessListener { collection ->
+                // Pass the collection name to the callback if found, otherwise pass null
+                callback(collection as? String)
+            }.addOnFailureListener { e ->
+                // Display an error message if the transaction fails
+                Toast.makeText(context, "Failed to find book collection: ${e.message}", Toast.LENGTH_SHORT).show()
+                callback(null)
+            }
+        } else {
+            callback(null) // Return null if user is not logged in
+        }
+    }
+
 
     // Method to save the book to a selected collection in Firestore.
     private fun saveBookToCollection(
@@ -463,37 +705,65 @@ class BookDetailsFragment : Fragment() {
 
         if (userId != null) {
             val db = FirebaseFirestore.getInstance()
+            val userDocRef = db.collection("users").document(userId)
 
-            // Fetch the user's custom collections from Firestore.
-            db.collection("users").document(userId).get()
-                .addOnSuccessListener { document ->
-                    val customCollections = document.get("customCollections") as? Map<String, Any>
+            // Fetch the user's custom collections and identify collections the book is already in.
+            userDocRef.get().addOnSuccessListener { document ->
+                val customCollections = document.get("customCollections") as? Map<String, Map<String, Any>>
+                val collectionsBookIsIn = mutableListOf<String>()
 
-                    if (!customCollections.isNullOrEmpty()) {
-                        // Prepare a dialog to display the custom collections.
-                        val customCollectionNames = customCollections.keys.toMutableList()
-                        customCollectionNames.add("Remove from Custom Collections")
-
-                        AlertDialog.Builder(context)
-                            .setTitle("Select Custom Collection")
-                            .setItems(customCollectionNames.toTypedArray()) { dialog, which ->
-                                val selectedCollectionName = customCollectionNames[which]
-                                if (selectedCollectionName == "Remove from Custom Collections") {
-                                    removeBookFromCustomCollections(userId, book, context) // Remove the book from custom collections
-                                    calculateTopGenres(userId, context)  // Calculate top genres when removing book from custom collections
-                                } else {
-                                    addBookToCustomCollection(userId, book, selectedCollectionName, context) // Add the book to the selected custom collection
-                                }
-                            }
-                            .setNegativeButton("Cancel", null)
-                            .show()
-                    } else {
-                        Toast.makeText(context, "No custom collections found.", Toast.LENGTH_SHORT).show()
+                // Identify collections containing the book.
+                customCollections?.forEach { (collectionName, collectionData) ->
+                    val booksInCollection = collectionData["books"] as? List<Map<String, Any>>
+                    booksInCollection?.forEach { bookData ->
+                        if (bookData["title"] == book.volumeInfo.title &&
+                            bookData["authors"] == book.volumeInfo.authors
+                        ) {
+                            collectionsBookIsIn.add(collectionName)
+                        }
                     }
                 }
-                .addOnFailureListener {
-                    Toast.makeText(context, "Error loading custom collections.", Toast.LENGTH_SHORT).show()
+
+                // Check if there are any custom collections to display.
+                if (!customCollections.isNullOrEmpty()) {
+                    val customCollectionNames = customCollections.keys.toMutableList()
+                    customCollectionNames.add("Remove from ALL Custom Collections")
+
+                    // Filter out collections the book is already in
+                    val filteredCollections = customCollectionNames.filterNot { it in collectionsBookIsIn }
+                    val displayCollectionNames = filteredCollections.toMutableList()
+
+                    // Show a message if all collections contain the book
+                    if (displayCollectionNames.isEmpty()) {
+                        Toast.makeText(context, "Book is already in all custom collections.", Toast.LENGTH_SHORT).show()
+                        return@addOnSuccessListener
+                    }
+
+                    // Build and show the dialog with custom collections.
+                    AlertDialog.Builder(context)
+                        .setTitle("Select Custom Collection")
+                        .setItems(displayCollectionNames.toTypedArray()) { dialog, which ->
+                            val selectedCollectionName = displayCollectionNames[which]
+
+                            // Check if the user selected the option to remove from custom collections.
+                            if (selectedCollectionName == "Remove from ALL Custom Collections") {
+                                removeBookFromCustomCollections(userId, book, context) // Remove the book from custom collections
+                                calculateTopGenres(userId, context)  // Calculate top genres when removing book from custom collections
+                            } else {
+                                // Add the book to the selected custom collection.
+                                addBookToCustomCollection(userId, book, selectedCollectionName, context) // Add the book to the selected custom collection
+                            }
+                        }
+                        .setNegativeButton("Cancel", null) // Cancel button to dismiss the dialog
+                        .show() // Display the dialog
+                } else {
+                    // Inform the user if no custom collections are found.
+                    Toast.makeText(context, "No custom collections found.", Toast.LENGTH_SHORT).show()
                 }
+            }.addOnFailureListener {
+                // Handle failure to load custom collections.
+                Toast.makeText(context, "Error loading custom collections.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

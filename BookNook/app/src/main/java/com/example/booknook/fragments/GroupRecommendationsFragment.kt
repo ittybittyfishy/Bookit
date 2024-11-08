@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.example.booknook.RecommendationsAdapter
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class GroupRecommendationsFragment : Fragment() {
@@ -40,6 +41,7 @@ class GroupRecommendationsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val groupId = arguments?.getString("groupId")
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
         addRecommendationButton = view.findViewById(R.id.addRecommendationButton)
         recommendationsRecyclerView = view.findViewById(R.id.recommendationsRecyclerView)
@@ -58,7 +60,7 @@ class GroupRecommendationsFragment : Fragment() {
 
         // Sets up recycler view to display recommendations
         recommendationsRecyclerView.layoutManager = GridLayoutManager(context, 2)
-        recommendationsAdapter = RecommendationsAdapter(recommendationsList)
+        recommendationsAdapter = groupId?.let { RecommendationsAdapter(recommendationsList, it, userId) }!!
         recommendationsRecyclerView.adapter = recommendationsAdapter
 
         fetchRecommendations()
@@ -94,17 +96,16 @@ class GroupRecommendationsFragment : Fragment() {
 
         val groupId = arguments?.getString("groupId")
         if (groupId != null) {
-            db.collection("groups").document(groupId).get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
-                        // Gets the recommendations field and adds it to recommendations list
-                        val recommendations = document["recommendations"] as? List<Map<String, Any>>
-                        if (recommendations != null) {
-                            recommendationsList.clear()
-                            recommendationsList.addAll(recommendations)
-                            recommendationsAdapter.notifyDataSetChanged()
-                        }
+            db.collection("groups").document(groupId)
+                .collection("recommendations").get()
+                .addOnSuccessListener { querySnapshot ->
+                    // Loops through all the recommendations
+                    for (document in querySnapshot) {
+                        val recommendation = document.data
+                        // Adds recommendation to recommendations list
+                        recommendationsList.add(recommendation)
                     }
+                    recommendationsAdapter.notifyDataSetChanged()
                 }
                 .addOnFailureListener { e ->
                     Log.w("GroupRecommendations", "Error getting recommendations", e)

@@ -204,7 +204,7 @@ class ReviewActivity : Fragment() {
                         bundle.putString("bookIsbn", bookIsbn)
 
                         reviewActivityTemplateFragment.arguments = bundle // Set arguments for the fragment
-                        (activity as MainActivity).replaceFragment(reviewActivityTemplateFragment, "Write a Review"
+                        (activity as MainActivity).replaceFragment(reviewActivityTemplateFragment, "Write a Review", showBackButton = true
                         )
                     }
                 }

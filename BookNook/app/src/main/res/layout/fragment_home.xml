@@ -17,7 +17,7 @@
             android:layout_width="400dp"
             android:layout_height="50dp"
             android:background="@drawable/rounded_orange_rectangle"
-            android:backgroundTint="@color/banner_green"
+            android:backgroundTint="@color/custom_tag_pink"
             android:layout_gravity="center_horizontal" />
 
         <!-- TextView on top of orange rectangle -->
