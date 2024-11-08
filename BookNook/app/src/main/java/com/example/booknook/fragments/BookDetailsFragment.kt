@@ -427,7 +427,9 @@ class BookDetailsFragment : Fragment() {
         val db = FirebaseFirestore.getInstance()
         val recommendationsRef = db.collection("books").document(bookId).collection("recommendations")
 
-        recommendationsRef.get()
+        recommendationsRef
+            .orderBy("numUpvotes", Query.Direction.DESCENDING)
+            .get()
             .addOnSuccessListener { documents ->
                 recommendationsList.clear() // Clear old data before adding new
                 for (document in documents) {

@@ -90,7 +90,7 @@ class ConfirmRecommendationBookDetailsFragment : Fragment() {
                                         "image" to bookImage,
                                         "title" to bookTitle,
                                         "authors" to bookAuthor,
-                                        "upvotes" to 1 // Initialize upvotes to 1
+                                        "numUpvotes" to 1 // Initialize upvotes to 1
                                     )
                                     recommendationsRef.add(newRecommendation)
                                         .addOnSuccessListener { documentReference ->
