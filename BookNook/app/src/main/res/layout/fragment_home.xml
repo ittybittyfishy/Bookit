@@ -48,6 +48,7 @@
     <!-- Yunjong Noh -->
     <!-- XML for Personal recommendation -->
     <!-- Horizontal LinearLayout for Book Recommendations -->
+    <!-- Horizontal LinearLayout for Book Recommendations -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -99,9 +100,40 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:text="Charlotte Perkins Gilman" />
+
+            <!-- Like and Dislike Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="8dp">
+
+                <!-- X Button -->
+                <ImageButton
+                    android:id="@+id/dislikeButton1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_dislike"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:scaleX="0.8"
+                    android:scaleY="0.8"
+                    android:layout_marginEnd="0dp" />
+
+                <!-- Check Button -->
+                <ImageButton
+                    android:id="@+id/likeButton1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_like"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:scaleX="0.8"
+                    android:scaleY="0.8"
+                    android:layout_marginStart="7dp" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Book 2 -->
+        <!-- Repeat for Book 2 -->
         <LinearLayout
             android:id="@+id/bookItem2"
             android:layout_width="0dp"
@@ -124,7 +156,7 @@
             <TextView
                 android:id="@+id/bookTitleTextView2"
                 android:layout_height="wrap_content"
-                android:text="The Yellow Wall-Paper"
+                android:text="The Ballad of Black Tom"
                 android:textSize="12sp"
                 android:gravity="center"
                 android:layout_marginTop="8dp"
@@ -141,9 +173,40 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:text="Victor LaValle" />
+
+            <!-- Like and Dislike Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="8dp">
+
+                <!-- X Button -->
+                <ImageButton
+                    android:id="@+id/dislikeButton2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_dislike"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:scaleX="0.8"
+                    android:scaleY="0.8"
+                    android:layout_marginEnd="0dp" />
+
+                <!-- Check Button -->
+                <ImageButton
+                    android:id="@+id/likeButton2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_like"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:scaleX="0.8"
+                    android:scaleY="0.8"
+                    android:layout_marginStart="7dp" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Book 3 -->
+        <!-- Repeat for Book 3 -->
         <LinearLayout
             android:id="@+id/bookItem3"
             android:layout_width="0dp"
@@ -166,7 +229,7 @@
             <TextView
                 android:id="@+id/bookTitleTextView3"
                 android:layout_height="wrap_content"
-                android:text="The Yellow Wall-Paper"
+                android:text="House of Leaves"
                 android:textSize="12sp"
                 android:gravity="center"
                 android:layout_marginTop="8dp"
@@ -183,9 +246,40 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:text="Mark Z. Danielewski" />
-        </LinearLayout>
 
+            <!-- Like and Dislike Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="8dp">
+
+                <!-- X Button -->
+                <ImageButton
+                    android:id="@+id/dislikeButton3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_dislike"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:scaleX="0.8"
+                    android:scaleY="0.8"
+                    android:layout_marginEnd="0dp" />
+
+                <!-- Check Button -->
+                <ImageButton
+                    android:id="@+id/likeButton3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_like"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:scaleX="0.8"
+                    android:scaleY="0.8"
+                    android:layout_marginStart="7dp" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
+
 
     <!-- Divider -->
     <View
