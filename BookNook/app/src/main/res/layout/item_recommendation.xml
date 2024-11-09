@@ -44,10 +44,10 @@
         <!-- Upvote Button -->
         <ImageButton
             android:id="@+id/upvoteButton"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:background="@null"
-            android:src="@drawable/plus"
+            android:src="@drawable/plus_button"
             android:scaleType="centerInside"
             android:adjustViewBounds="true"
             android:padding="5dp" />
@@ -56,11 +56,12 @@
         <TextView
             android:id="@+id/numberUpvotes"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:layout_gravity="center"
             android:textSize="17sp"
             android:text="(0)"
-            android:gravity="center_vertical"
             android:layout_marginStart="5dp"
-            android:layout_gravity="center_vertical"/>
+            android:layout_marginTop="-2dp" />
     </LinearLayout>
 </LinearLayout>

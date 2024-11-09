@@ -57,6 +57,10 @@ class RecommendationsAdapter(
         var userHasUpvoted = upvotedByUsers[userId] == true  // Stores if the user has already upvoted the book
         holder.numberUpvotes.text = currentUpvotes.toString()  // Updates text view with number of upvotes
 
+        holder.upvoteButton.setImageResource(
+            if (userHasUpvoted) R.drawable.x_button else R.drawable.plus_button
+        )
+
         // Handle upvote button click
         holder.upvoteButton.setOnClickListener {
             val db = FirebaseFirestore.getInstance()
@@ -74,6 +78,7 @@ class RecommendationsAdapter(
                     userHasUpvoted = false  // Toggles user's upvoted status
                     // Update UI
                     holder.numberUpvotes.text = currentUpvotes.toString()
+                    holder.upvoteButton.setImageResource(R.drawable.plus_button)
                 }
             } else {
                 // Add upvote
@@ -85,6 +90,7 @@ class RecommendationsAdapter(
                     userHasUpvoted = true  // Toggles user's upvoted status
                     // Update UI
                     holder.numberUpvotes.text = currentUpvotes.toString()
+                    holder.upvoteButton.setImageResource(R.drawable.x_button)
                 }
             }
         }
