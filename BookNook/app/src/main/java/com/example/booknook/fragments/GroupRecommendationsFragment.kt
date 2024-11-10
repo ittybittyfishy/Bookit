@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.MainActivity
@@ -51,13 +52,8 @@ class GroupRecommendationsFragment : Fragment() {
 
         setupSortSpinner()  // Sets up the spinner to sort books
 
-        // Opens page to add recommendations when button is pressed
-        addRecommendationButton.setOnClickListener {
-            val addRecommendationFragment = AddRecommendationFragment()
-            val bundle = Bundle()
-            bundle.putString("groupId", groupId)
-            addRecommendationFragment.arguments = bundle
-            (activity as MainActivity).replaceFragment(addRecommendationFragment, "Add Recommendation", showBackButton = true)
+        if (groupId != null) {
+            checkJoinedGroupStatus(groupId)
         }
 
         // Sets up recycler view to display recommendations
@@ -132,4 +128,39 @@ class GroupRecommendationsFragment : Fragment() {
         recommendationsAdapter.notifyDataSetChanged() // Refreshes the adapter
     }
 
+    // Checks to see if the user has already joined the group
+    private fun checkJoinedGroupStatus(groupId: String) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        val groupsDocRef = FirebaseFirestore.getInstance().collection("groups").document(groupId)
+        groupsDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val members = document.get("members") as? List<String>
+                    // Loops through members to see if any of them is the current user
+                    val alreadyJoined = members?.any { membersItem -> membersItem == userId}
+                    // If user is already a group member
+                    if (alreadyJoined == true) {
+                        // Shows Add Recommendation button
+                        addRecommendationButton.visibility = View.VISIBLE
+                        // Handles Add Recommendation button click
+                        addRecommendationButton.setOnClickListener {
+                            val addRecommendationFragment = AddRecommendationFragment()
+                            val bundle = Bundle()
+                            bundle.putString("groupId", groupId)
+                            addRecommendationFragment.arguments = bundle
+                            (activity as MainActivity).replaceFragment(addRecommendationFragment, "Add Recommendation", showBackButton = true
+                            )
+                        }
+                    // If user is not a member
+                    } else {
+                        // Hide the Add Recommendation button
+                        addRecommendationButton.visibility = View.GONE
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(activity, "Error checking joined status: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
 }

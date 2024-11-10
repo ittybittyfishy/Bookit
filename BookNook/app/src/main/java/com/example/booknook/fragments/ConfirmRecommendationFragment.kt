@@ -75,7 +75,8 @@ class ConfirmRecommendationFragment : Fragment() {
             val recommendation = hashMapOf(
                 "image" to bookImage,
                 "title" to bookTitle,
-                "authors" to bookAuthor
+                "authors" to bookAuthor,
+                "numUpvotes" to 0
             )
 
             if (groupId != null) {
