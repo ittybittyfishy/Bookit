@@ -135,7 +135,7 @@
                         android:scaleX="0.8"
                         android:scaleY="0.8"
                         android:layout_marginStart="7dp"
-                         />
+                        />
                 </LinearLayout>
 
                 <!-- Message TextView -->
@@ -216,7 +216,7 @@
                         android:background="?selectableItemBackgroundBorderless"
                         android:scaleX="0.8"
                         android:scaleY="0.8"
-                       />
+                        />
 
                     <!-- Like Button -->
                     <ImageButton
@@ -228,7 +228,7 @@
                         android:scaleX="0.8"
                         android:scaleY="0.8"
                         android:layout_marginStart="7dp"
-                         />
+                        />
                 </LinearLayout>
 
                 <!-- Message TextView -->
@@ -349,7 +349,8 @@
         android:background="@drawable/rounded_rectangle"
         android:backgroundTint="@color/main_text_brown" />
 
-    <!-- While You Were Away Section -->
+    <!-- Yunjong Noh -->
+    <!-- While You Were Away Section Title -->
     <TextView
         android:id="@+id/recentActivityTitle"
         android:layout_width="wrap_content"
@@ -359,5 +360,16 @@
         android:textColor="@color/home_pink"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp" />
+
+    <!-- Yunjong Noh -->
+    <!-- RecyclerView for notifications -->
+    <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/notificationsRecyclerView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="-10dp"
+    android:layout_gravity="center_horizontal"
+    android:padding="8dp"
+    tools:listitem="@layout/item_notification" />
 
 </LinearLayout>
