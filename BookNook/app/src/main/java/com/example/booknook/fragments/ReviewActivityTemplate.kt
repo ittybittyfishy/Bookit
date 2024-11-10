@@ -469,73 +469,102 @@ class ReviewActivityTemplate : Fragment() {
 
                     // Reference to the specific book's document in the "books" collection
                     val bookRef = db.collection("books").document(bookIsbn)
-                    bookRef.set(
-                        bookData,
-                        SetOptions.merge()
-                    )  // Updates database with book details if not in database already
+                    bookRef.set(bookData, SetOptions.merge()) // Updates database with book details if not in database already
 
-                    // Check if the user has already submitted a review by querying reviews collection with the userId
+                    // Check if the user has already submitted a review
                     bookRef.collection("reviews").whereEqualTo("userId", userId).get()
                         .addOnSuccessListener { querySnapshot ->
                             if (querySnapshot.isEmpty) {
                                 // If no review exists for this user, add a new one
                                 bookRef.collection("reviews").add(reviewData)
                                     .addOnSuccessListener {
-                                        // Show success message
-                                        Toast.makeText(
-                                            activity,
-                                            "Review saved successfully!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        incrementUserReviewNum(userId)  // increments the number of reviews field
+                                        Toast.makeText(activity, "Review saved successfully!", Toast.LENGTH_SHORT).show()
+                                        incrementUserReviewNum(userId) // Increments the number of reviews field
                                         updateUserAverageRating(userId)
+                                        // Yunjong Noh
+                                        // Add a notification for the new review (11/10)
+                                        bookTitle?.let {
+                                            addReviewNotification(userId, it, NotificationType.REVIEW_ADDED)
+                                        }
                                     }
                                     .addOnFailureListener { e ->
-                                        // If saving the review fails, display an error message
-                                        Toast.makeText(
-                                            activity,
-                                            "Failed to save review: ${e.localizedMessage}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast.makeText(activity, "Failed to save review: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
                                     }
                             } else {
-                                // If a review already exists, update it with the new data
+                                // If a review already exists, update it
                                 val existingReviewId = querySnapshot.documents[0].id
-                                bookRef.collection("reviews").document(existingReviewId)
-                                    .set(reviewData)
+                                bookRef.collection("reviews").document(existingReviewId).set(reviewData)
                                     .addOnSuccessListener {
-                                        // Show success message for review update
-                                        Toast.makeText(
-                                            activity,
-                                            "Review updated successfully!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast.makeText(activity, "Review updated successfully!", Toast.LENGTH_SHORT).show()
                                         updateUserAverageRating(userId)
+                                        // Yunjong Noh
+                                        // Add a notification for the updated review (11/10)
+                                        bookTitle?.let {
+                                            addReviewNotification(userId, it, NotificationType.REVIEW_EDIT)
+                                        }
                                     }
                                     .addOnFailureListener {
-                                        // If updating the review fails, display an error message
-                                        Toast.makeText(
-                                            activity,
-                                            "Failed to update review",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast.makeText(activity, "Failed to update review", Toast.LENGTH_SHORT).show()
                                     }
                             }
                         }
                         .addOnFailureListener {
-                            // If querying for the existing review fails, display an error message
-                            Toast.makeText(
-                                activity,
-                                "Failed to check existing reviews",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(activity, "Failed to check existing reviews", Toast.LENGTH_SHORT).show()
                         }
                 } else {
-                    // If userId or bookIsbn is null, display an error message
-                    Toast.makeText(activity, "Book ISBN or user not provided", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(activity, "Book ISBN or user not provided", Toast.LENGTH_SHORT).show()
                 }
             }
+        }
+    }
+
+    // Yunjong Noh
+    // Function to add a review notification to Firestore
+    private fun addReviewNotification(userId: String, bookTitle: String, notificationType: NotificationType) {
+        val db = FirebaseFirestore.getInstance()
+        val currentTime = System.currentTimeMillis()
+        val expirationTime = currentTime + 10 * 24 * 60 * 60 * 1000 // Notification expiration time: 10 days from now
+
+        // Fetch the user's username and profile picture URL from Firestore
+        db.collection("users").document(userId).get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                // Get the profile image URL and username
+                val profileImageUrl = document.getString("profileImageUrl") ?: ""
+                val username = document.getString("username") ?: "Unknown User"
+
+                // Create a NotificationItem object
+                val notification = NotificationItem(
+                    userId = userId,
+                    senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "system",
+                    message = "A review for \"$bookTitle\" has been added or updated.", // Notification message
+                    timestamp = currentTime, // Current time as the notification timestamp
+                    type = notificationType, // Use the passed notificationType to distinguish between added or edited review
+                    dismissed = false, // Notification is initially not dismissed
+                    expirationTime = expirationTime,
+                    profileImageUrl = profileImageUrl,
+                    username = username
+                )
+
+                // Add the notification to the "notifications" collection in Firestore
+                db.collection("notifications").add(notification)
+                    .addOnSuccessListener { documentReference ->
+                        val notificationId = documentReference.id // Get the ID of the newly added document
+                        // Update the notification with its ID
+                        db.collection("notifications").document(notificationId)
+                            .update("notificationId", notificationId)
+                            .addOnSuccessListener {
+                                Log.d("ReviewNotification", "Notification added with ID: $notificationId") // Log success
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("ReviewNotification", "Error updating notificationId: ${e.message}", e) // Log any errors
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("ReviewNotification", "Error adding notification: ${e.message}", e) // Log any errors adding the notification
+                    }
+            }
+        }.addOnFailureListener {
+            Log.e("ReviewNotification", "Failed to retrieve user data for notification.") // Log any errors fetching user data
         }
     }
 
