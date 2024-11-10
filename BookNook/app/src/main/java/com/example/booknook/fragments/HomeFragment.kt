@@ -171,7 +171,7 @@ class HomeFragment : Fragment() {
         notificationsRecyclerView = view.findViewById(R.id.notificationsRecyclerView)
         notificationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         updatesAdapter = UpdatesAdapter(notificationList) { notificationId ->
-            dismissNotification(notificationId) // Firestore에서 알림 해제 함수 호출
+            dismissNotification(notificationId) // Call Notification Release Function in Firestore
         }
         notificationsRecyclerView.adapter = updatesAdapter
 
