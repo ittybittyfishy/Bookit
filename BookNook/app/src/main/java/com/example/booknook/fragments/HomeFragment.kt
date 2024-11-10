@@ -25,6 +25,10 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.Calendar
 import kotlin.random.Random
+import android.widget.ImageButton
+import androidx.core.content.ContextCompat
+import android.widget.LinearLayout // If not already imported
+
 
 class HomeFragment : Fragment() {
     // declare UI componets
@@ -45,6 +49,28 @@ class HomeFragment : Fragment() {
     private lateinit var bookCoverImageView3: ImageView
     private lateinit var bookTitleTextView3: TextView
     private lateinit var bookAuthorsTextView3: TextView
+
+    //work review 4 itzel medina
+    private lateinit var dislikeButton1: ImageButton
+    private lateinit var likeButton1: ImageButton
+    private lateinit var messageTextView1: TextView
+    private lateinit var buttonContainer1: View
+
+    private lateinit var dislikeButton2: ImageButton
+    private lateinit var likeButton2: ImageButton
+    private lateinit var messageTextView2: TextView
+    private lateinit var buttonContainer2: View
+
+    private lateinit var dislikeButton3: ImageButton
+    private lateinit var likeButton3: ImageButton
+    private lateinit var messageTextView3: TextView
+    private lateinit var buttonContainer3: View
+
+    // Variables to store genres for each book
+    private var genreBook1: String? = null
+    private var genreBook2: String? = null
+    private var genreBook3: String? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -72,6 +98,66 @@ class HomeFragment : Fragment() {
         bookTitleTextView3 = view.findViewById(R.id.bookTitleTextView3)
         bookAuthorsTextView3 = view.findViewById(R.id.bookAuthorsTextView3)
 
+        //work review 4
+        // Initialize Like and Dislike buttons
+        likeButton1 = view.findViewById<ImageButton>(R.id.likeButton1)
+        dislikeButton1 = view.findViewById<ImageButton>(R.id.dislikeButton1)
+        likeButton2 = view.findViewById<ImageButton>(R.id.likeButton2)
+        dislikeButton2 = view.findViewById<ImageButton>(R.id.dislikeButton2)
+        likeButton3 = view.findViewById<ImageButton>(R.id.likeButton3)
+        dislikeButton3 = view.findViewById<ImageButton>(R.id.dislikeButton3)
+
+        // Initialize Message TextViews
+        messageTextView1 = view.findViewById<TextView>(R.id.messageTextView1)
+        messageTextView2 = view.findViewById<TextView>(R.id.messageTextView2)
+        messageTextView3 = view.findViewById<TextView>(R.id.messageTextView3)
+
+        // Initialize Book 1 views
+        dislikeButton1 = view.findViewById(R.id.dislikeButton1)
+        likeButton1 = view.findViewById(R.id.likeButton1)
+        messageTextView1 = view.findViewById(R.id.messageTextView1)
+        buttonContainer1 = view.findViewById(R.id.buttonContainer1)
+
+        // Initialize Book 2 views
+        dislikeButton2 = view.findViewById(R.id.dislikeButton2)
+        likeButton2 = view.findViewById(R.id.likeButton2)
+        messageTextView2 = view.findViewById(R.id.messageTextView2)
+        buttonContainer2 = view.findViewById(R.id.buttonContainer2)
+
+        // Initialize Book 3 views
+        dislikeButton3 = view.findViewById(R.id.dislikeButton3)
+        likeButton3 = view.findViewById(R.id.likeButton3)
+        messageTextView3 = view.findViewById(R.id.messageTextView3)
+        buttonContainer3 = view.findViewById(R.id.buttonContainer3)
+
+        // Set up click listeners for Book 1
+        dislikeButton1.setOnClickListener {
+            onDislikeClicked(buttonContainer1, messageTextView1, "You disliked this book!")
+        }
+
+        likeButton1.setOnClickListener {
+            onLikeClicked(buttonContainer1, messageTextView1, "You liked this book!")
+        }
+
+        // Set up click listeners for Book 2
+        dislikeButton2.setOnClickListener {
+            onDislikeClicked(buttonContainer2, messageTextView2, "You disliked this book!")
+        }
+
+        likeButton2.setOnClickListener {
+            onLikeClicked(buttonContainer2, messageTextView2, "You liked this book!")
+        }
+
+        // Set up click listeners for Book 3
+        dislikeButton3.setOnClickListener {
+            onDislikeClicked(buttonContainer3, messageTextView3, "You disliked this book!")
+        }
+
+        likeButton3.setOnClickListener {
+            onLikeClicked(buttonContainer3, messageTextView3, "You liked this book!")
+        }
+
+
         return view
     }
 
@@ -80,6 +166,11 @@ class HomeFragment : Fragment() {
 
         // Get users UID
         val userId = auth.currentUser?.uid
+
+        //work review 4
+        // Set up Like and Dislike button listeners
+        setupButtonListeners()
+
 
         // If user is logged in, fetch username from Firebase
         userId?.let { uid ->
@@ -349,71 +440,282 @@ class HomeFragment : Fragment() {
     // Yunjong Noh
     // Display the recommended books in the UI
     private fun displayRecommendedBooks(books: List<BookItem>) {
-        // Save non-empty list of recommended books to SharedPreferences to reuse within 24 hours
         if (books.isNotEmpty()) {
+            // Save the list of recommended books to SharedPreferences for later use
             saveRecommendationsToPreferences(auth.currentUser?.uid ?: "", books)
-            // Update the first book's info
-            val book1 = books[0] // Get the first book from the list
-            bookTitleTextView1.text = book1.volumeInfo.title // Set the book title in the corresponding TextView
-            // Display the book authors or a default text if no authors are available
-            bookAuthorsTextView1.text = book1.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author"
 
-            val thumbnail1 = book1.volumeInfo.imageLinks?.thumbnail?.replace(
-                "http://",
-                "https://"
-            ) // Get the thumbnail URL and ensure it uses HTTPS instead of HTTP
-            // Load the book cover image using Glide
-            // If the thumbnail URL is null, load a default placeholder image
-            Log.d(
-                "HomeFragment",
-                "Book 1 Image URL: $thumbnail1"
-            ) // Log the image URL for debugging
-            if (isAdded && activity != null) {
+            // ---------------------
+            // Display Book 1 Details
+            // ---------------------
+            val book1 = books.getOrNull(0) // Safely get the first book or null
+            // Set the book title, defaulting to "Unknown Title" if null
+            bookTitleTextView1.text = book1?.volumeInfo?.title ?: "Unknown Title"
+            // Set the book authors, defaulting to "Unknown Author" if null
+            bookAuthorsTextView1.text = book1?.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
+
+            // Extract the primary genre, defaulting to "Various Genres" if null
+            genreBook1 = book1?.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
+
+            // Reset the message TextView visibility and text
+            messageTextView1.visibility = View.GONE
+            messageTextView1.text = "Message will appear here"
+
+            // Prepare the thumbnail URL, replacing "http://" with "https://" for security
+            val thumbnail1 = book1?.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
+            Log.d("HomeFragment", "Book 1 Image URL: $thumbnail1")
+
+            // Load the book cover image using Glide, or use a placeholder if the thumbnail is null
+            if (book1 != null) {
                 Glide.with(this)
-                    .load(
-                        thumbnail1 ?: R.drawable.placeholder_image
-                    ) // If the URL is null, use a default image
-                    .skipMemoryCache(true) // avoid cache for fresh load
-                    .into(bookCoverImageView1) // Display the image in the ImageView for the first book
+                    .load(thumbnail1 ?: R.drawable.placeholder_image)
+                    .skipMemoryCache(true) // Skip memory cache for fresh loading
+                    .into(bookCoverImageView1)
+            } else {
+                // If book1 is null, set a default placeholder image
+                bookCoverImageView1.setImageResource(R.drawable.placeholder_image)
             }
 
-            // Update the second book's info, ALL logic is the same as First one.
-            val book2 = books.getOrNull(1)
+            // ---------------------
+            // Display Book 2 Details
+            // ---------------------
+            val book2 = books.getOrNull(1) // Safely get the second book or null
             if (book2 != null) {
-                bookTitleTextView2.text = book2.volumeInfo.title
-                bookAuthorsTextView2.text =
-                    book2.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author"
+                // Set the book title, defaulting to "Unknown Title" if null
+                bookTitleTextView2.text = book2.volumeInfo?.title ?: "Unknown Title"
+                // Set the book authors, defaulting to "Unknown Author" if null
+                bookAuthorsTextView2.text = book2.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
 
+                // Extract the primary genre, defaulting to "Various Genres" if null
+                genreBook2 = book2.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
 
-                val thumbnail2 =
-                    book2.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
+                // Reset the message TextView visibility and text
+                messageTextView2.visibility = View.GONE
+                messageTextView2.text = "Message will appear here"
+
+                // Prepare the thumbnail URL, replacing "http://" with "https://" for security
+                val thumbnail2 = book2.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
                 Log.d("HomeFragment", "Book 2 Image URL: $thumbnail2")
-                if (isAdded && activity != null) {
-                    Glide.with(this)
-                        .load(thumbnail2 ?: R.drawable.placeholder_image)
-                        .skipMemoryCache(true)
-                        .into(bookCoverImageView2)
-                }
+
+                // Load the book cover image using Glide, or use a placeholder if the thumbnail is null
+                Glide.with(this)
+                    .load(thumbnail2 ?: R.drawable.placeholder_image)
+                    .skipMemoryCache(true) // Skip memory cache for fresh loading
+                    .into(bookCoverImageView2)
+            } else {
+                // Hide the entire Book 2 layout if the book is not available
+                view?.findViewById<LinearLayout>(R.id.bookItem2)?.visibility = View.GONE
             }
 
-            // Update the third book's info, ALL logic is the same as First one.
-            val book3 = books.getOrNull(2)
+            // ---------------------
+            // Display Book 3 Details
+            // ---------------------
+            val book3 = books.getOrNull(2) // Safely get the third book or null
             if (book3 != null) {
-                bookTitleTextView3.text = book3.volumeInfo.title
-                bookAuthorsTextView3.text =
-                    book3.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author"
+                // Set the book title, defaulting to "Unknown Title" if null
+                bookTitleTextView3.text = book3.volumeInfo?.title ?: "Unknown Title"
+                // Set the book authors, defaulting to "Unknown Author" if null
+                bookAuthorsTextView3.text = book3.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
 
+                // Extract the primary genre, defaulting to "Various Genres" if null
+                genreBook3 = book3.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
 
-                val thumbnail3 =
-                    book3.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
+                // Reset the message TextView visibility and text
+                messageTextView3.visibility = View.GONE
+                messageTextView3.text = "Message will appear here"
+
+                // Prepare the thumbnail URL, replacing "http://" with "https://" for security
+                val thumbnail3 = book3.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
                 Log.d("HomeFragment", "Book 3 Image URL: $thumbnail3")
-                if (isAdded && activity != null) {
-                    Glide.with(this)
-                        .load(thumbnail3 ?: R.drawable.placeholder_image)
-                        .skipMemoryCache(true)
-                        .into(bookCoverImageView3)
-                }
+
+                // Load the book cover image using Glide, or use a placeholder if the thumbnail is null
+                Glide.with(this)
+                    .load(thumbnail3 ?: R.drawable.placeholder_image)
+                    .skipMemoryCache(true) // Skip memory cache for fresh loading
+                    .into(bookCoverImageView3)
+            } else {
+                // Hide the entire Book 3 layout if the book is not available
+                view?.findViewById<LinearLayout>(R.id.bookItem3)?.visibility = View.GONE
             }
         }
     }
+
+    //work review 4 itzel medina
+    /**
+     * Set up Like and Dislike button listeners for all three books.
+     */
+    private fun setupButtonListeners() {
+        // Like Button 1
+        likeButton1.setOnClickListener {
+            handleUserFeedback(
+                bookId = getBookId(0),
+                feedback = "like",
+                genre = genreBook1,
+                messageTextView = messageTextView1,
+                likeButton = likeButton1,
+                dislikeButton = dislikeButton1
+            )
+        }
+
+        // Dislike Button 1
+        dislikeButton1.setOnClickListener {
+            handleUserFeedback(
+                bookId = getBookId(0),
+                feedback = "dislike",
+                genre = genreBook1,
+                messageTextView = messageTextView1,
+                likeButton = likeButton1,
+                dislikeButton = dislikeButton1
+            )
+        }
+
+        // Like Button 2
+        likeButton2.setOnClickListener {
+            handleUserFeedback(
+                bookId = getBookId(1),
+                feedback = "like",
+                genre = genreBook2,
+                messageTextView = messageTextView2,
+                likeButton = likeButton2,
+                dislikeButton = dislikeButton2
+            )
+        }
+
+        // Dislike Button 2
+        dislikeButton2.setOnClickListener {
+            handleUserFeedback(
+                bookId = getBookId(1),
+                feedback = "dislike",
+                genre = genreBook2,
+                messageTextView = messageTextView2,
+                likeButton = likeButton2,
+                dislikeButton = dislikeButton2
+            )
+        }
+
+        // Like Button 3
+        likeButton3.setOnClickListener {
+            handleUserFeedback(
+                bookId = getBookId(2),
+                feedback = "like",
+                genre = genreBook3,
+                messageTextView = messageTextView3,
+                likeButton = likeButton3,
+                dislikeButton = dislikeButton3
+            )
+        }
+
+        // Dislike Button 3
+        dislikeButton3.setOnClickListener {
+            handleUserFeedback(
+                bookId = getBookId(2),
+                feedback = "dislike",
+                genre = genreBook3,
+                messageTextView = messageTextView3,
+                likeButton = likeButton3,
+                dislikeButton = dislikeButton3
+            )
+        }
+    }
+
+    //work review 4 itzel medina
+    /**
+     * Retrieves the book ID based on the position.
+     * Ensure that the books list is accessible and not null.
+     */
+    private fun getBookId(position: Int): String? {
+        val recommendations = loadRecommendationsFromPreferences(auth.currentUser?.uid ?: "") ?: return null
+        return recommendations.getOrNull(position)?.id
+    }
+
+    //work review 4 itzel medina
+    /**
+     * Handles user feedback by updating Firestore and showing a message.
+     * @param bookId The ID of the book.
+     * @param feedback "like" or "dislike".
+     * @param genre The primary genre of the book.
+     * @param messageTextView The TextView to display the message.
+     * @param likeButton The like ImageButton.
+     * @param dislikeButton The dislike ImageButton.
+     */
+    private fun handleUserFeedback(
+        bookId: String?,
+        feedback: String,
+        genre: String?,
+        messageTextView: TextView,
+        likeButton: ImageButton,
+        dislikeButton: ImageButton
+    ) {
+        if (bookId == null) {
+            Log.e("HomeFragment", "Book ID is null. Cannot record feedback.")
+            return
+        }
+
+        val userId = auth.currentUser?.uid ?: return
+
+        // Optional: Prevent action if genre is null
+        if (genre == null) {
+            Log.e("HomeFragment", "Genre is null. Cannot display message.")
+            return
+        }
+
+        // Create feedback data
+        val feedbackData = mapOf(
+            "bookId" to bookId,
+            "feedback" to feedback,
+            "genre" to genre,
+            "timestamp" to Calendar.getInstance().time
+        )
+
+        // Save feedback to Firestore under the user's document
+        db.collection("users").document(userId).collection("bookFeedback").add(feedbackData)
+            .addOnSuccessListener {
+                Log.d("HomeFragment", "Feedback recorded: $feedback for book $bookId")
+                // Update the UI message based on feedback
+                val message = if (feedback == "like") {
+                    "More $genre books will be recommended now."
+                } else {
+                    "More $genre books will NOT be recommended now."
+                }
+                messageTextView.text = message
+                messageTextView.visibility = View.VISIBLE
+
+                likeButton.visibility = View.INVISIBLE
+                dislikeButton.visibility = View.INVISIBLE
+
+            }
+            .addOnFailureListener { e ->
+                Log.e("HomeFragment", "Error recording feedback: ${e.message}", e)
+                messageTextView.text = "Failed to record feedback."
+                messageTextView.visibility = View.VISIBLE
+            }
+    }
+
+    //work review 4 itzel medina
+    /**
+     * Handles the Like button click.
+     *
+     * @param buttonContainer The container holding the Like and Dislike buttons.
+     * @param messageTextView The TextView to display the message.
+     * @param message The message to display.
+     */
+    private fun onLikeClicked(buttonContainer: View, messageTextView: TextView, message: String) {
+        buttonContainer.visibility = View.GONE
+        messageTextView.text = message
+        messageTextView.visibility = View.VISIBLE
+    }
+
+    /**
+     * Handles the Dislike button click.
+     *
+     * @param buttonContainer The container holding the Like and Dislike buttons.
+     * @param messageTextView The TextView to display the message.
+     * @param message The message to display.
+     */
+    private fun onDislikeClicked(buttonContainer: View, messageTextView: TextView, message: String) {
+        buttonContainer.visibility = View.GONE
+        messageTextView.text = message
+        messageTextView.visibility = View.VISIBLE
+    }
+
+
 }
