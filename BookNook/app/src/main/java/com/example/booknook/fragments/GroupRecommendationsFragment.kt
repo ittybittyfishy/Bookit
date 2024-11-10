@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.MainActivity
@@ -18,6 +19,7 @@ import com.example.booknook.R
 import com.example.booknook.RecommendationsAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 
 class GroupRecommendationsFragment : Fragment() {
     private lateinit var recommendationsAdapter: RecommendationsAdapter
@@ -25,6 +27,7 @@ class GroupRecommendationsFragment : Fragment() {
     private lateinit var addRecommendationButton: Button
     private lateinit var recommendationsRecyclerView: RecyclerView
     private lateinit var sortBooksSpinner: Spinner
+    private var isDataLoaded = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,13 +52,8 @@ class GroupRecommendationsFragment : Fragment() {
 
         setupSortSpinner()  // Sets up the spinner to sort books
 
-        // Opens page to add recommendations when button is pressed
-        addRecommendationButton.setOnClickListener {
-            val addRecommendationFragment = AddRecommendationFragment()
-            val bundle = Bundle()
-            bundle.putString("groupId", groupId)
-            addRecommendationFragment.arguments = bundle
-            (activity as MainActivity).replaceFragment(addRecommendationFragment, "Add Recommendation", showBackButton = true)
+        if (groupId != null) {
+            checkJoinedGroupStatus(groupId)
         }
 
         // Sets up recycler view to display recommendations
@@ -92,20 +90,23 @@ class GroupRecommendationsFragment : Fragment() {
 
     // Function to fetch the recommendations from database
     private fun fetchRecommendations() {
-        val db = FirebaseFirestore.getInstance()
+        if (isDataLoaded) return // Skip fetching if already loaded
 
+        val db = FirebaseFirestore.getInstance()
         val groupId = arguments?.getString("groupId")
         if (groupId != null) {
+            recommendationsList.clear()
             db.collection("groups").document(groupId)
-                .collection("recommendations").get()
+                .collection("recommendations")
+                .orderBy("numUpvotes", Query.Direction.DESCENDING)
+                .get()
                 .addOnSuccessListener { querySnapshot ->
-                    // Loops through all the recommendations
                     for (document in querySnapshot) {
                         val recommendation = document.data
-                        // Adds recommendation to recommendations list
                         recommendationsList.add(recommendation)
                     }
                     recommendationsAdapter.notifyDataSetChanged()
+                    isDataLoaded = true // Mark data as loaded
                 }
                 .addOnFailureListener { e ->
                     Log.w("GroupRecommendations", "Error getting recommendations", e)
@@ -120,8 +121,46 @@ class GroupRecommendationsFragment : Fragment() {
             2 -> recommendationsList.sortByDescending { it["title"] as? String } // Title (Z-A)
             3 -> recommendationsList.sortBy { it["authors"] as? String } // Author (A-Z)
             4 -> recommendationsList.sortByDescending { it["authors"] as? String } // Author (Z-A)
+            5 -> recommendationsList.sortByDescending { (it["numUpvotes"] as? Long) ?: 0L } // Upvotes (High to Low)
+            6 -> recommendationsList.sortBy { (it["numUpvotes"] as? Long) ?: 0L } // Upvotes (Low to High)
         }
+
         recommendationsAdapter.notifyDataSetChanged() // Refreshes the adapter
     }
 
+    // Checks to see if the user has already joined the group
+    private fun checkJoinedGroupStatus(groupId: String) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        val groupsDocRef = FirebaseFirestore.getInstance().collection("groups").document(groupId)
+        groupsDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val members = document.get("members") as? List<String>
+                    // Loops through members to see if any of them is the current user
+                    val alreadyJoined = members?.any { membersItem -> membersItem == userId}
+                    // If user is already a group member
+                    if (alreadyJoined == true) {
+                        // Shows Add Recommendation button
+                        addRecommendationButton.visibility = View.VISIBLE
+                        // Handles Add Recommendation button click
+                        addRecommendationButton.setOnClickListener {
+                            val addRecommendationFragment = AddRecommendationFragment()
+                            val bundle = Bundle()
+                            bundle.putString("groupId", groupId)
+                            addRecommendationFragment.arguments = bundle
+                            (activity as MainActivity).replaceFragment(addRecommendationFragment, "Add Recommendation", showBackButton = true
+                            )
+                        }
+                    // If user is not a member
+                    } else {
+                        // Hide the Add Recommendation button
+                        addRecommendationButton.visibility = View.GONE
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(activity, "Error checking joined status: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
 }

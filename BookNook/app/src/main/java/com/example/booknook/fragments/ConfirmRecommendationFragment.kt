@@ -61,8 +61,11 @@ class ConfirmRecommendationFragment : Fragment() {
         // Handles click of "Change Book" button
         changeBookButton.setOnClickListener {
             // Takes user back to search page
-//            val searchBookRecommendationFragment = SearchBookRecommendationFragment()
-//            (activity as MainActivity).replaceFragment(searchBookRecommendationFragment, "Search")
+            val searchBookRecommendationFragment = SearchBookRecommendationFragment()
+            val bundle = Bundle()
+            bundle.putString("groupId", groupId)
+            searchBookRecommendationFragment.arguments = bundle
+            (activity as MainActivity).replaceFragment(searchBookRecommendationFragment, "Search")
         }
 
         // Handles click of "Confirm Book" button
@@ -72,24 +75,39 @@ class ConfirmRecommendationFragment : Fragment() {
             val recommendation = hashMapOf(
                 "image" to bookImage,
                 "title" to bookTitle,
-                "authors" to bookAuthor
+                "authors" to bookAuthor,
+                "numUpvotes" to 0
             )
 
             if (groupId != null) {
                 // Adds the book under recommendations subcollection under groups in database
                 db.collection("groups").document(groupId)
                     .collection("recommendations")
-                    .add(recommendation)
-                    .addOnSuccessListener { documentReference ->
-                        val recommendationId = documentReference.id
-                        // Adds the recommendationId as a field
-                        documentReference.update("recommendationId", recommendationId)
-                            .addOnSuccessListener {
-                                Toast.makeText(activity, "Added book to recommendations", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w("Firestore", "Error adding recommendation", e)
+                    .whereEqualTo("title", bookTitle)
+                    .whereEqualTo("authors", bookAuthor)
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        // If the recommendation hasn't been added previously
+                        if (querySnapshot.isEmpty) {
+                            // Adds the book recommendation
+                            db.collection("groups").document(groupId)
+                                .collection("recommendations")
+                                .add(recommendation)
+                                .addOnSuccessListener { documentReference ->
+                                    val recommendationId = documentReference.id
+                                    // Adds the recommendationId as a field
+                                    documentReference.update("recommendationId", recommendationId)
+                                        .addOnSuccessListener {
+                                            Toast.makeText(activity, "Added book to recommendations", Toast.LENGTH_SHORT).show()
+                                        }
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.w("Firestore", "Error adding recommendation", e)
+                                }
+                        // Tells user that the book has already been recommended
+                        } else {
+                            Toast.makeText(activity, "This book has already been recommended", Toast.LENGTH_SHORT).show()
+                        }
                     }
             }
         }
