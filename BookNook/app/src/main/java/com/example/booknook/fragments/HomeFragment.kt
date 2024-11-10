@@ -128,14 +128,48 @@ class HomeFragment : Fragment() {
         // Yunjong Noh
         // Initialize UpdatesAdapter with the dismiss callback
         updatesAdapter = UpdatesAdapter(notificationList) { notificationId ->
-            dismissNotification(notificationId) // Firestore에서 알림 해제 함수 호출
+            // Call the function to dismiss the notification in Firestore
+            dismissNotification(notificationId)
         }
         notificationsRecyclerView.adapter = updatesAdapter
 
         // Fetch and display notifications once and add real-time listener for updates
         fetchNotifications()
         listenToNotifications()
+
+        deleteExpiredNotifications() // Call the function to delete expired notifications
     }
+
+    // Yunjong Noh
+    // Function to delete expired notifications
+    private fun deleteExpiredNotifications() {
+        val db = FirebaseFirestore.getInstance() // Initialize Firestore instance
+        val now = System.currentTimeMillis() // Get current time
+
+        // Fetch all notifications from Firestore
+        db.collection("notifications").get()
+            .addOnSuccessListener { result ->
+                // Iterate through each notification
+                for (document in result) {
+                    val expirationTime = document.getLong("expirationTime") ?: 0L
+                    if (expirationTime <= now) {
+                        // Delete the notification if it has expired
+                        db.collection("notifications").document(document.id)
+                            .delete()
+                            .addOnSuccessListener {
+                                Log.d("HomeFragment", "Expired notification deleted: ${document.id}")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("HomeFragment", "Error deleting expired notification: ${e.message}", e)
+                            }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("HomeFragment", "Error fetching notifications: ${e.message}", e)
+            }
+    }
+
 
     // Yunjong Noh
     // Fetch notifications from Firestore
@@ -144,19 +178,38 @@ class HomeFragment : Fragment() {
             if (result.isEmpty) {
                 Log.d("HomeFragment", "No notifications found in Firestore.")
             } else {
+                // Check for new, non-dismissed notifications
+                val existingIds = notificationList.map { it.notificationId }.toSet()
+                // Iterate over each document in the result
                 for (document in result) {
+                    // Convert the document to a NotificationItem object
                     val notification = document.toObject(NotificationItem::class.java)
-                    if (!notification.dismissed) {
-                        notificationList.add(notification)
+                    if (!notification.dismissed && !existingIds.contains(notification.notificationId)) {
+                        // Fetch user details and update notification
+                        db.collection("users").document(notification.userId).get()
+                            .addOnSuccessListener { userDoc ->
+                                if (userDoc.exists()) {
+                                    // Set the profile image URL and username for the notification
+                                    notification.profileImageUrl = userDoc.getString("profileImageUrl") ?: ""
+                                    notification.username = userDoc.getString("username") ?: "Unknown User"
+                                    // Add the notification to the list and update the adapter
+                                    notificationList.add(notification)
+                                    updatesAdapter.notifyDataSetChanged()
+                                } else {
+                                    Log.d("HomeFragment", "User not found for userId: ${notification.userId}")
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("HomeFragment", "Error fetching user info: ${e.message}", e)
+                            }
                     }
-                    Log.d("HomeFragment", "Fetched notification: $notification")
                 }
-                updatesAdapter.notifyDataSetChanged()
             }
         }.addOnFailureListener { e ->
             Log.e("HomeFragment", "Error fetching notifications: ${e.message}", e)
         }
     }
+
     // Yunjong Noh
     // Dismiss the notification by updating Firestore
     private fun dismissNotification(notificationId: String) {
@@ -165,11 +218,11 @@ class HomeFragment : Fragment() {
             .addOnSuccessListener {
                 Log.d("HomeFragment", "Notification dismissed successfully.")
 
-                // 알림 목록에서 해당 알림을 찾아 제거합니다.
+                // Find and remove the notification from the notification list
                 val index = notificationList.indexOfFirst { it.notificationId == notificationId }
-                if (index != -1) { // 알림이 목록에 존재하는 경우
-                    notificationList.removeAt(index) // 알림을 목록에서 제거
-                    updatesAdapter.notifyItemRemoved(index) // RecyclerView에 변경 사항 반영
+                if (index != -1) { // If the notification exists in the list
+                    notificationList.removeAt(index) // Remove the notification from the list
+                    updatesAdapter.notifyItemRemoved(index) // Reflect the changes in the RecyclerView
                 }
             }
             .addOnFailureListener { e ->
@@ -177,42 +230,44 @@ class HomeFragment : Fragment() {
             }
     }
     // Yunjong Noh
+    // Function to listen for real-time updates to notifications
     private fun listenToNotifications() {
         db.collection("notifications")
-            .whereEqualTo("userId", auth.currentUser?.uid)
-            .whereEqualTo("isDismissed", false)
+            .whereEqualTo("userId", auth.currentUser?.uid) // Filter notifications for the current user
+            .whereEqualTo("isDismissed", false) // Only listen to non-dismissed notifications
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
-                    Log.w("HomeFragment", "Listen failed.", e)
+                    Log.w("HomeFragment", "Listen failed.", e) // Log if there is an error
                     return@addSnapshotListener
                 }
 
+                // Iterate through the document changes
                 for (docChange in snapshots!!.documentChanges) {
                     val notification = docChange.document.toObject(NotificationItem::class.java)
                     when (docChange.type) {
                         DocumentChange.Type.ADDED -> {
+                            // Handle newly added notifications
                             Log.d("HomeFragment", "New notification: ${notification.message}")
                             notificationList.add(notification)
                             updatesAdapter.notifyDataSetChanged()
-                            showInAppNotification(notification.message)
+                            showInAppNotification(notification.message) // Show in-app notification
                         }
+                        // Handling for checking log
                         DocumentChange.Type.MODIFIED -> {
                             Log.d("HomeFragment", "Notification modified: ${notification.message}")
-                            // 필요 시 알림 수정 처리를 추가할 수 있습니다
                         }
                         DocumentChange.Type.REMOVED -> {
                             Log.d("HomeFragment", "Notification removed: ${notification.message}")
-                            // 필요 시 알림 제거 처리를 추가할 수 있습니다
                         }
                     }
                 }
             }
     }
     // Yunjong Noh
-    // 앱 내 알림 표시 함수 (Snackbar 사용)
+    // Function to display an in-app notification using Snackbar
     private fun showInAppNotification(message: String) {
         view?.let {
-            Snackbar.make(it, message, Snackbar.LENGTH_LONG).show()
+            Snackbar.make(it, message, Snackbar.LENGTH_LONG).show() // Show message in a Snackbar
         }
     }
 
