@@ -11,16 +11,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.booknook.BookItem
 import com.example.booknook.R
 import com.example.booknook.BookResponse
 import com.example.booknook.api.GoogleBooksApiService
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -75,11 +71,6 @@ class HomeFragment : Fragment() {
     private var genreBook2: String? = null
     private var genreBook3: String? = null
 
-    // Yunjong Noh
-    // RecyclerView for notifications
-    private lateinit var notificationsRecyclerView: RecyclerView
-    private lateinit var updatesAdapter: UpdatesAdapter
-    private val notificationList = mutableListOf<NotificationItem>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -166,14 +157,6 @@ class HomeFragment : Fragment() {
             onLikeClicked(buttonContainer3, messageTextView3, "You liked this book!")
         }
 
-        // Yunjong Noh
-        // Initialize RecyclerView for notifications
-        notificationsRecyclerView = view.findViewById(R.id.notificationsRecyclerView)
-        notificationsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        updatesAdapter = UpdatesAdapter(notificationList) { notificationId ->
-            dismissNotification(notificationId) // Firestore에서 알림 해제 함수 호출
-        }
-        notificationsRecyclerView.adapter = updatesAdapter
 
         return view
     }
@@ -214,153 +197,7 @@ class HomeFragment : Fragment() {
                 loggedInTextView.text = "Error: ${exception.message}"
             }
         }
-        // Yunjong Noh
-        // Initialize UpdatesAdapter with the dismiss callback
-        updatesAdapter = UpdatesAdapter(notificationList) { notificationId ->
-            // Call the function to dismiss the notification in Firestore
-            dismissNotification(notificationId)
-        }
-        notificationsRecyclerView.adapter = updatesAdapter
-
-        // Fetch and display notifications once and add real-time listener for updates
-        fetchNotifications()
-        listenToNotifications()
-
-        deleteExpiredNotifications() // Call the function to delete expired notifications
     }
-
-    // Yunjong Noh
-    // Function to delete expired notifications
-    private fun deleteExpiredNotifications() {
-        val db = FirebaseFirestore.getInstance() // Initialize Firestore instance
-        val now = System.currentTimeMillis() // Get current time
-
-        // Fetch all notifications from Firestore
-        db.collection("notifications").get()
-            .addOnSuccessListener { result ->
-                // Iterate through each notification
-                for (document in result) {
-                    val expirationTime = document.getLong("expirationTime") ?: 0L
-                    if (expirationTime <= now) {
-                        // Delete the notification if it has expired
-                        db.collection("notifications").document(document.id)
-                            .delete()
-                            .addOnSuccessListener {
-                                Log.d("HomeFragment", "Expired notification deleted: ${document.id}")
-                            }
-                            .addOnFailureListener { e ->
-                                Log.e("HomeFragment", "Error deleting expired notification: ${e.message}", e)
-                            }
-                    }
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("HomeFragment", "Error fetching notifications: ${e.message}", e)
-            }
-    }
-
-
-    // Yunjong Noh
-    // Fetch notifications from Firestore
-    private fun fetchNotifications() {
-        db.collection("notifications").get().addOnSuccessListener { result ->
-            if (result.isEmpty) {
-                Log.d("HomeFragment", "No notifications found in Firestore.")
-            } else {
-                // Check for new, non-dismissed notifications
-                val existingIds = notificationList.map { it.notificationId }.toSet()
-                // Iterate over each document in the result
-                for (document in result) {
-                    // Convert the document to a NotificationItem object
-                    val notification = document.toObject(NotificationItem::class.java)
-                    if (!notification.dismissed && !existingIds.contains(notification.notificationId)) {
-                        // Fetch user details and update notification
-                        db.collection("users").document(notification.userId).get()
-                            .addOnSuccessListener { userDoc ->
-                                if (userDoc.exists()) {
-                                    // Set the profile image URL and username for the notification
-                                    notification.profileImageUrl = userDoc.getString("profileImageUrl") ?: ""
-                                    notification.username = userDoc.getString("username") ?: "Unknown User"
-                                    // Add the notification to the list and update the adapter
-                                    notificationList.add(notification)
-                                    updatesAdapter.notifyDataSetChanged()
-                                } else {
-                                    Log.d("HomeFragment", "User not found for userId: ${notification.userId}")
-                                }
-                            }
-                            .addOnFailureListener { e ->
-                                Log.e("HomeFragment", "Error fetching user info: ${e.message}", e)
-                            }
-                    }
-                }
-            }
-        }.addOnFailureListener { e ->
-            Log.e("HomeFragment", "Error fetching notifications: ${e.message}", e)
-        }
-    }
-
-    // Yunjong Noh
-    // Dismiss the notification by updating Firestore
-    private fun dismissNotification(notificationId: String) {
-        db.collection("notifications").document(notificationId)
-            .update("dismissed", true)
-            .addOnSuccessListener {
-                Log.d("HomeFragment", "Notification dismissed successfully.")
-
-                // Find and remove the notification from the notification list
-                val index = notificationList.indexOfFirst { it.notificationId == notificationId }
-                if (index != -1) { // If the notification exists in the list
-                    notificationList.removeAt(index) // Remove the notification from the list
-                    updatesAdapter.notifyItemRemoved(index) // Reflect the changes in the RecyclerView
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("HomeFragment", "Error dismissing notification: ${e.message}", e)
-            }
-    }
-    // Yunjong Noh
-    // Function to listen for real-time updates to notifications
-    private fun listenToNotifications() {
-        db.collection("notifications")
-            .whereEqualTo("userId", auth.currentUser?.uid) // Filter notifications for the current user
-            .whereEqualTo("isDismissed", false) // Only listen to non-dismissed notifications
-            .addSnapshotListener { snapshots, e ->
-                if (e != null) {
-                    Log.w("HomeFragment", "Listen failed.", e) // Log if there is an error
-                    return@addSnapshotListener
-                }
-
-                // Iterate through the document changes
-                for (docChange in snapshots!!.documentChanges) {
-                    val notification = docChange.document.toObject(NotificationItem::class.java)
-                    when (docChange.type) {
-                        DocumentChange.Type.ADDED -> {
-                            // Handle newly added notifications
-                            Log.d("HomeFragment", "New notification: ${notification.message}")
-                            notificationList.add(notification)
-                            updatesAdapter.notifyDataSetChanged()
-                            showInAppNotification(notification.message) // Show in-app notification
-                        }
-                        // Handling for checking log
-                        DocumentChange.Type.MODIFIED -> {
-                            Log.d("HomeFragment", "Notification modified: ${notification.message}")
-                        }
-                        DocumentChange.Type.REMOVED -> {
-                            Log.d("HomeFragment", "Notification removed: ${notification.message}")
-                        }
-                    }
-                }
-            }
-    }
-    // Yunjong Noh
-    // Function to display an in-app notification using Snackbar
-    private fun showInAppNotification(message: String) {
-        view?.let {
-            Snackbar.make(it, message, Snackbar.LENGTH_LONG).show() // Show message in a Snackbar
-        }
-    }
-
-
 
     // Yunjong Noh
     // Check if 24 hours have passed since the last fetch
@@ -518,7 +355,7 @@ class HomeFragment : Fragment() {
     // Yunjong Noh
     // Function to perform a Google Books API search based on the user's top genres
     private fun performGoogleBooksSearch(genres: List<String>, avgRating: Double) {
-        val apiKey = "Api here" // Google Books API key
+        val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM" // Google Books API key
         val genreBooksMap = mutableMapOf<String, MutableList<BookItem>>() // Map to store books by genre
         val recommendedBookIds = mutableSetOf<String>() // Set to track book IDs to avoid duplicates
         var apiCallsCompleted = 0 // Counter to track how many API calls have been completed

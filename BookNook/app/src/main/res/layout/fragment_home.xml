@@ -349,8 +349,7 @@
         android:background="@drawable/rounded_rectangle"
         android:backgroundTint="@color/main_text_brown" />
 
-    <!-- Yunjong Noh -->
-    <!-- While You Were Away Section Title -->
+    <!-- While You Were Away Section -->
     <TextView
         android:id="@+id/recentActivityTitle"
         android:layout_width="wrap_content"
@@ -362,17 +361,3 @@
         android:layout_marginTop="16dp" />
 
 </LinearLayout>
-        android:layout_marginTop="360dp" />
-
-    <!-- Yunjong Noh -->
-    <!-- RecyclerView for notifications -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/notificationsRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="400dp"
-        android:layout_gravity="center_horizontal"
-        android:padding="8dp"
-        tools:listitem="@layout/item_notification" />
-
-</FrameLayout>

@@ -1,79 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Yunjong Noh -->
-<!-- makes notification card layout -->
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="13dp"
-    app:cardElevation="3dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
     app:cardUseCompatPadding="true">
 
     <RelativeLayout
-        android:id="@+id/notificationsRecyclerView"
+        android:id="@+id/notification"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="4dp">
+        android:layout_height="wrap_content" >
 
         <!-- User's profile picture -->
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profileImage"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="4dp"
-            android:src="@drawable/profile_picture_placeholder"
-            android:contentDescription="Profile Image" />
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/profile_picture_placeholder" />
 
-        <!-- User's name -->
-        <TextView
-            android:id="@+id/userName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/profileImage"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp"
-            android:text="User Name"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@color/black" />
-
-        <!-- Message type or action -->
         <TextView
             android:id="@+id/messageType"
-            android:layout_width="wrap_content"
+            android:layout_width="235dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/userName"
-            android:layout_toEndOf="@id/profileImage"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="2dp"
             android:text="Message Type"
-            android:textSize="13sp"
-            android:textColor="@color/black" />
+            android:textSize="17dp"
+            android:textStyle="bold"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/profileImage"/>
 
-        <!-- Message body (e.g., details or book title) -->
         <TextView
             android:id="@+id/messageBody"
-            android:layout_width="wrap_content"
+            android:layout_width="235dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/messageType"
-            android:layout_toEndOf="@id/profileImage"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="2dp"
             android:text="Details of the message"
-            android:textSize="12sp"
-            android:textColor="@color/black" />
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/profileImage"
+            android:layout_below="@+id/messageType"/>
 
     </RelativeLayout>
 
-    <!-- Dismiss button -->
     <ImageButton
         android:id="@+id/dismiss_button"
         android:background="@color/transparent"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:padding="0dp"
         android:src="@drawable/ic_accept_button"
         android:layout_gravity="bottom|right"

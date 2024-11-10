@@ -398,11 +398,6 @@ class ReviewActivity : Fragment() {
                                             // Increment the number of reviews field for the user
                                             incrementUserReviewNum(userId)
                                             updateUserAverageRating(userId)
-                                            // Yunjong Noh
-                                            // updates review and add notification (on 11/5)
-                                            bookTitle?.let {
-                                                addReviewNotification(userId, it, NotificationType.REVIEW_ADDED)
-                                            }
                                         }
                                         .addOnFailureListener {
                                             // If saving the review fails, display an error message
@@ -417,25 +412,22 @@ class ReviewActivity : Fragment() {
                                             // Show success message for review update
                                             Toast.makeText(requireActivity(), "Review updated successfully!", Toast.LENGTH_SHORT).show()
                                             updateUserAverageRating(userId)
-
-                                            // Yunjong Noh
-                                            // updates review and add notification (on 11/5)
-                                            bookTitle?.let {
-                                                addReviewNotification(userId, it, NotificationType.REVIEW_EDIT)
-                                            }
                                         }
                                         .addOnFailureListener {
                                             // If updating the review fails, display an error message
-                                            Toast.makeText(requireActivity(), "Failed to update review", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(requireActivity(), "Failed to update review", Toast.LENGTH_SHORT
+                                            ).show()
                                         }
                                 }
                             }.addOnFailureListener {
                                 // If querying for the existing review fails, display an error message
-                                Toast.makeText(requireActivity(), "Failed to check existing reviews", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireActivity(), "Failed to check existing reviews", Toast.LENGTH_SHORT
+                                ).show()
                             }
                     } else {
                         // If userId or bookIsbn is null, display an error message
-                        Toast.makeText(activity, "Book ISBN or user not provided", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(activity, "Book ISBN or user not provided", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 } else {
                     Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
@@ -443,57 +435,6 @@ class ReviewActivity : Fragment() {
             }
         }
     }
-
-    // Yunjong Noh
-    // Function to add a review notification to Firestore
-    private fun addReviewNotification(userId: String, bookTitle: String, notificationType: NotificationType) {
-        val db = FirebaseFirestore.getInstance()
-        val currentTime = System.currentTimeMillis()
-        val expirationTime = currentTime + 10 * 24 * 60 * 60 * 1000 // Notification expiration time: 10 days from now
-
-        // Fetch the user's username and profile picture URL from Firestore
-        db.collection("users").document(userId).get().addOnSuccessListener { document ->
-            if (document.exists()) {
-                // Get the profile image URL and username
-                val profileImageUrl = document.getString("profileImageUrl") ?: ""
-                val username = document.getString("username") ?: "Unknown User"
-
-                // Create a NotificationItem object
-                val notification = NotificationItem(
-                    userId = userId,
-                    senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "system",
-                    message = "A review for \"$bookTitle\" has been added or updated.", // Notification message
-                    timestamp = currentTime, // Current time as the notification timestamp
-                    type = notificationType, // Use the passed notificationType to distinguish between added or edited review
-                    dismissed = false, // Notification is initially not dismissed
-                    expirationTime = expirationTime,
-                    profileImageUrl = profileImageUrl,
-                    username = username
-                )
-
-                // Add the notification to the "notifications" collection in Firestore
-                db.collection("notifications").add(notification)
-                    .addOnSuccessListener { documentReference ->
-                        val notificationId = documentReference.id // Get the ID of the newly added document
-                        // Update the notification with its ID
-                        db.collection("notifications").document(notificationId)
-                            .update("notificationId", notificationId)
-                            .addOnSuccessListener {
-                                Log.d("ReviewNotification", "Notification added with ID: $notificationId") // Log success
-                            }
-                            .addOnFailureListener { e ->
-                                Log.e("ReviewNotification", "Error updating notificationId: ${e.message}", e) // Log any errors
-                            }
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("ReviewNotification", "Error adding notification: ${e.message}", e) // Log any errors adding the notification
-                    }
-            }
-        }.addOnFailureListener {
-            Log.e("ReviewNotification", "Failed to retrieve user data for notification.") // Log any errors fetching user data
-        }
-    }
-
 
     // Veronica Nguyen
     // Function updates the average rating of the user
