@@ -47,6 +47,22 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp" />
 
+    <!-- Refresh Recommendations Button -->
+    <Button
+        android:id="@+id/refreshButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Refresh Recommendations"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center_horizontal" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        android:layout_marginTop="2dp"
+        android:padding="1dp">
     <!-- Horizontal LinearLayout for Book Recommendations -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -337,7 +353,100 @@
             </FrameLayout>
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/bookItem4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="8dp">
+
+            <!-- ImageView for Book Cover -->
+            <ImageView
+                android:id="@+id/bookCoverImageView4"
+                android:layout_width="110dp"
+                android:layout_height="150dp"
+                android:src="@drawable/placeholder_image"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center_horizontal" />
+
+            <!-- TextView for Book Title -->
+            <TextView
+                android:id="@+id/bookTitleTextView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Book Title"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <!-- TextView for Book Authors -->
+            <TextView
+                android:id="@+id/bookAuthorsTextView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Author Name"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <!-- Container for Like/Dislike Buttons and Message TextView -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <!-- Horizontal LinearLayout for Like and Dislike Buttons -->
+                <LinearLayout
+                    android:id="@+id/buttonContainer4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <!-- Dislike Button -->
+                    <ImageButton
+                        android:id="@+id/dislikeButton4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_dislike"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:scaleX="0.8"
+                        android:scaleY="0.8"
+                        />
+
+                    <!-- Like Button -->
+                    <ImageButton
+                        android:id="@+id/likeButton4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_like"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:scaleX="0.8"
+                        android:scaleY="0.8"
+                        android:layout_marginStart="7dp"
+                         />
+                </LinearLayout>
+
+                <!-- Message TextView -->
+                <TextView
+                    android:id="@+id/messageTextView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:text="Message will appear here"
+                    android:visibility="gone"
+                    android:layout_gravity="center"
+                    android:textColor="@color/home_pink" />
+            </FrameLayout>
+        </LinearLayout>
+
     </LinearLayout>
+    </HorizontalScrollView>
 
     <!-- Divider -->
     <View
@@ -361,3 +470,4 @@
         android:layout_marginTop="16dp" />
 
 </LinearLayout>
+
