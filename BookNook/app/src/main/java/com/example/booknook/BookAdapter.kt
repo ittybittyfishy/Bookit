@@ -229,7 +229,8 @@ class BookAdapter(
             // Create a map of the book's details to be saved.
             val book = hashMapOf(
                 "title" to title,
-                "authors" to bookAuthorsList, // Use bookAuthorsList here to standardize author data format
+                "authors" to bookAuthorsList,
+                "authorsList" to bookAuthorsList,
                 "imageLink" to bookImage,
                 "genres" to genres,
                 "description" to description,

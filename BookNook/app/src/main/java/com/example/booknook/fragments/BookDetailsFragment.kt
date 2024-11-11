@@ -187,12 +187,16 @@ class BookDetailsFragment : Fragment() {
                                     bookAuthor?.let { author ->
                                         bookGenres?.let { genres ->
                                             saveBookToCollection(
-                                                requireContext(),
-                                                title,
-                                                author,
-                                                bookImage,
-                                                selectedCollection,
-                                                genres
+                                                context = requireContext(),
+                                                title = bookTitle,
+                                                authors = bookAuthor,
+                                                bookImage = bookImage,
+                                                newCollectionName = selectedCollection,
+                                                genres = bookGenres,
+                                                description = bookDescription,
+                                                rating = bookRating,
+                                                isbn = isbn,
+                                                bookAuthorsList = bookAuthorsList
                                             )
                                         }
                                     }
@@ -536,27 +540,38 @@ class BookDetailsFragment : Fragment() {
         authors: String,
         bookImage: String?,
         newCollectionName: String,
-        genres: List<String>
+        genres: List<String>?,
+        description: String?,
+        rating: Float?,
+        isbn: String?,
+        bookAuthorsList: List<String>?
     ) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid // Get current user ID
         if (userId != null) {
             val db = FirebaseFirestore.getInstance() // Reference to Firestore
 
+
             // Create a map of the book's details to be saved.
             val book = hashMapOf(
                 "title" to title,
-                "authors" to authors.split(", "),
+                "authors" to bookAuthorsList,
+                "authorsList" to bookAuthorsList,
                 "imageLink" to bookImage,
-                "genres" to genres
+                "genres" to genres,
+                "description" to description,
+                "rating" to rating,
+                "isbn" to isbn
             )
 
-            val userDocRef = db.collection("users").document(userId) // Reference to the user's document
 
-            // Firestore transaction to update the database.
+            val userDocRef = db.collection("users").document(userId)
+
+
             db.runTransaction { transaction ->
-                val snapshot = transaction.get(userDocRef) // Get current document
+                val snapshot = transaction.get(userDocRef)
 
-                // Loop through standard collections and remove the book from old collections.
+
+                // Remove the book from old collections if it exists
                 for (collection in standardCollections) {
                     if (collection != "Select Collection" && collection != newCollectionName) {
                         val booksInCollection = snapshot.get("standardCollections.$collection") as? List<Map<String, Any>>
@@ -564,6 +579,12 @@ class BookDetailsFragment : Fragment() {
                             for (existingBook in it) {
                                 if (existingBook["title"] == title && existingBook["authors"] == authors.split(", ")) {
                                     transaction.update(userDocRef, "standardCollections.$collection", FieldValue.arrayRemove(existingBook))
+
+
+                                    // Decrement numBooksRead if the book was in the "Finished" collection
+                                    if (collection == "Finished") {
+                                        transaction.update(userDocRef, "numBooksRead", FieldValue.increment(-1))
+                                    }
                                     break
                                 }
                             }
@@ -571,12 +592,18 @@ class BookDetailsFragment : Fragment() {
                     }
                 }
 
-                // Add the book to the new collection.
+
+                // Add the book to the new collection
                 transaction.update(userDocRef, "standardCollections.$newCollectionName", FieldValue.arrayUnion(book))
+
+
+                // Increment numBooksRead if the new collection is "Finished"
+                if (newCollectionName == "Finished") {
+                    transaction.update(userDocRef, "numBooksRead", FieldValue.increment(1))
+                }
                 null
             }.addOnSuccessListener {
-                // Veronica Nguyen
-                calculateTopGenres(userId, context)  // Update top genres when adding book to default collection
+                calculateTopGenres(userId, context)
                 Toast.makeText(context, context.getString(R.string.book_added_to_collection, newCollectionName), Toast.LENGTH_SHORT).show()
             }.addOnFailureListener { e ->
                 Toast.makeText(context, context.getString(R.string.failed_to_add_book, e.message), Toast.LENGTH_SHORT).show()
@@ -623,24 +650,43 @@ class BookDetailsFragment : Fragment() {
     }
 
     // Method to add a book to a custom collection in Firestore.
-    private fun addBookToCustomCollection(userId: String, book: BookItem, collectionName: String, context: Context) {
+    private fun addBookToCustomCollection(
+        userId: String,
+        book: BookItem,
+        collectionName: String,
+        context: Context
+    ) {
         val db = FirebaseFirestore.getInstance()
+
+
+        // Extract additional book information
+        val isbn = book.volumeInfo.industryIdentifiers
+            ?.find { it.type == "ISBN_13" || it.type == "ISBN_10" }
+            ?.identifier ?: "No ISBN"
+        val description = book.volumeInfo.description ?: "No description available"
+        val rating = book.volumeInfo.averageRating ?: 0f
+        val authorsList = ArrayList(book.volumeInfo.authors ?: listOf("Unknown Author"))
+        val genres = ArrayList(book.volumeInfo.categories ?: listOf("Unknown Genre"))
+
 
         // Prepare book data for the collection.
         val bookData = hashMapOf(
             "title" to book.volumeInfo.title,
-            "authors" to book.volumeInfo.authors,
+            "authors" to authorsList,
             "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"),
-            "pages" to 0,
+            "pages" to 0, // Initialize pages count
             "tags" to emptyList<String>(),
-            "genres" to (book.volumeInfo.categories ?: listOf("Unknown Genre"))
+            "genres" to genres,
+            "description" to description,
+            "rating" to rating,
+            "isbn" to isbn
         )
+
 
         // Update Firestore to add the book to the custom collection.
         db.collection("users").document(userId)
             .update("customCollections.$collectionName.books", FieldValue.arrayUnion(bookData))
             .addOnSuccessListener {
-                // Veronica Nguyen
                 calculateTopGenres(userId, context)  // Update top genres when adding book to custom collection
                 Toast.makeText(context, "Book added to $collectionName", Toast.LENGTH_SHORT).show()
             }
