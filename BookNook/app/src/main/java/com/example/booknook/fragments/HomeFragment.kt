@@ -623,7 +623,7 @@ class HomeFragment : Fragment() {
 
                             apiCallsCompleted++ // Increment the API call completion counter
                             if (apiCallsCompleted == genres.size) { // Check if all genre searches are completed
-                                val finalBooks = genreBooksMap.values.flatten().take(3) // Take up to 3 books total
+                                val finalBooks = genreBooksMap.values.flatten().take(4) // Take up to 3 books total
                                 if (finalBooks.isNotEmpty()) {
                                     displayRecommendedBooks(finalBooks) // Display the final book recommendations
                                 } else {
@@ -684,7 +684,8 @@ class HomeFragment : Fragment() {
             // Set the book title, defaulting to "Unknown Title" if null
             bookTitleTextView1.text = book1?.volumeInfo?.title ?: "Unknown Title"
             // Set the book authors, defaulting to "Unknown Author" if null
-            bookAuthorsTextView1.text = book1?.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
+            bookAuthorsTextView1.text =
+                book1?.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
 
             // Extract the primary genre, defaulting to "Various Genres" if null
             genreBook1 = book1?.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
@@ -694,7 +695,8 @@ class HomeFragment : Fragment() {
             messageTextView1.text = "Message will appear here"
 
             // Prepare the thumbnail URL, replacing "http://" with "https://" for security
-            val thumbnail1 = book1?.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
+            val thumbnail1 =
+                book1?.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
             Log.d("HomeFragment", "Book 1 Image URL: $thumbnail1")
 
             // Load the book cover image using Glide, or use a placeholder if the thumbnail is null
@@ -716,7 +718,8 @@ class HomeFragment : Fragment() {
                 // Set the book title, defaulting to "Unknown Title" if null
                 bookTitleTextView2.text = book2.volumeInfo?.title ?: "Unknown Title"
                 // Set the book authors, defaulting to "Unknown Author" if null
-                bookAuthorsTextView2.text = book2.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
+                bookAuthorsTextView2.text =
+                    book2.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
 
                 // Extract the primary genre, defaulting to "Various Genres" if null
                 genreBook2 = book2.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
@@ -726,7 +729,8 @@ class HomeFragment : Fragment() {
                 messageTextView2.text = "Message will appear here"
 
                 // Prepare the thumbnail URL, replacing "http://" with "https://" for security
-                val thumbnail2 = book2.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
+                val thumbnail2 =
+                    book2.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
                 Log.d("HomeFragment", "Book 2 Image URL: $thumbnail2")
 
                 // Load the book cover image using Glide, or use a placeholder if the thumbnail is null
@@ -747,7 +751,8 @@ class HomeFragment : Fragment() {
                 // Set the book title, defaulting to "Unknown Title" if null
                 bookTitleTextView3.text = book3.volumeInfo?.title ?: "Unknown Title"
                 // Set the book authors, defaulting to "Unknown Author" if null
-                bookAuthorsTextView3.text = book3.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
+                bookAuthorsTextView3.text =
+                    book3.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
 
                 // Extract the primary genre, defaulting to "Various Genres" if null
                 genreBook3 = book3.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
@@ -757,7 +762,8 @@ class HomeFragment : Fragment() {
                 messageTextView3.text = "Message will appear here"
 
                 // Prepare the thumbnail URL, replacing "http://" with "https://" for security
-                val thumbnail3 = book3.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
+                val thumbnail3 =
+                    book3.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
                 Log.d("HomeFragment", "Book 3 Image URL: $thumbnail3")
 
                 // Load the book cover image using Glide, or use a placeholder if the thumbnail is null
@@ -774,25 +780,34 @@ class HomeFragment : Fragment() {
             // ---------------------
             // Display Book 4 Details
             // ---------------------
-            val book4 = books.getOrNull(3)
+            val book4 = books.getOrNull(3) // Safely get the fourth book or null
             if (book4 != null) {
                 bookTitleTextView4.text = book4.volumeInfo?.title ?: "Unknown Title"
-                bookAuthorsTextView4.text = book4.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
+                bookAuthorsTextView4.text =
+                    book4.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
                 genreBook4 = book4.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
+
+                // Reset the message TextView visibility and text
                 messageTextView4.visibility = View.GONE
                 messageTextView4.text = "Message will appear here"
-                val thumbnail4 = book4.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
+
+                // Prepare the thumbnail URL, replacing "http://" with "https://" for security
+                val thumbnail4 =
+                    book4.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
+                Log.d("HomeFragment", "Book 4 Image URL: $thumbnail4")
+
+                // Load the book cover image using Glide, or use a placeholder if the thumbnail is null
                 Glide.with(this)
                     .load(thumbnail4 ?: R.drawable.placeholder_image)
-                    .skipMemoryCache(true)
+                    .skipMemoryCache(true) // Skip memory cache for fresh loading
                     .into(bookCoverImageView4)
+
+                // Ensure the fourth book's layout is visible
+                view?.findViewById<LinearLayout>(R.id.bookItem4)?.visibility = View.VISIBLE
             } else {
                 // Hide the entire Book 4 layout if the book is not available
                 view?.findViewById<LinearLayout>(R.id.bookItem4)?.visibility = View.GONE
             }
-        } else {
-            Log.d("HomeFragment", "No books found to display.")
-            Toast.makeText(requireContext(), "No new recommendations found.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -872,6 +887,31 @@ class HomeFragment : Fragment() {
                 dislikeButton = dislikeButton3
             )
         }
+
+        // Like Button 4
+        likeButton4.setOnClickListener {
+            handleUserFeedback(
+                bookId = getBookId(3),
+                feedback = "like",
+                genre = genreBook4,
+                messageTextView = messageTextView4,
+                likeButton = likeButton4,
+                dislikeButton = dislikeButton4
+            )
+        }
+
+        // Dislike Button 4
+        dislikeButton4.setOnClickListener {
+            handleUserFeedback(
+                bookId = getBookId(3),
+                feedback = "dislike",
+                genre = genreBook4,
+                messageTextView = messageTextView4,
+                likeButton = likeButton4,
+                dislikeButton = dislikeButton4
+            )
+        }
+
     }
 
     //work review 4 itzel medina
@@ -1120,8 +1160,5 @@ class HomeFragment : Fragment() {
         // Ensure the fourth book's layout is visible
         view?.findViewById<LinearLayout>(R.id.bookItem4)?.visibility = View.VISIBLE
     }
-
-    //work review 4 itzel medina
-
 
 }
