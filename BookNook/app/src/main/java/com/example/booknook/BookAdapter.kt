@@ -224,6 +224,7 @@ class BookAdapter(
             // Firestore transaction to update the database.
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(userDocRef) // Get current document
+                val username = snapshot.getString("username") ?: "Unknown User"  // Gets username
 
                 // Loop through standard collections and remove the book from old collections.
                 for (collection in standardCollections) {
@@ -251,10 +252,47 @@ class BookAdapter(
                 transaction.update(userDocRef, "standardCollections.$newCollectionName", FieldValue.arrayUnion(book))
 
                 // Veronica Nguyen
-                // Increment numBooksRead if the new collection is "Finished"
+                // Gets the user's joined groups
+                val groupIds = snapshot.get("joinedGroups") as? List<String> ?: emptyList()
                 if (newCollectionName == "Finished") {
                     transaction.update(userDocRef, "numBooksRead", FieldValue.increment(1))
+
+                    // Veronica Nguyen
+                    // Data to store for group updates in group they're in
+                    val updateData = hashMapOf(
+                        "userId" to userId,
+                        "username" to username,
+                        "type" to "finishBook",
+                        "timestamp" to FieldValue.serverTimestamp(),
+                        "bookTitle" to title
+                    )
+
+                    // Loops through each group the user is a member of
+                    groupIds.forEach { groupId ->
+                        // Adds finished book data
+                        val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates").document()
+                        transaction.set(groupUpdatesRef, updateData)
+                    }
                 }
+
+                if (newCollectionName == "Reading") {
+                    // Data to store for group updates in group they're in
+                    val updateData = hashMapOf(
+                        "userId" to userId,
+                        "username" to username,
+                        "type" to "startBook",
+                        "timestamp" to FieldValue.serverTimestamp(),
+                        "bookTitle" to title
+                    )
+
+                    // Loops through each group the user is a member of
+                    groupIds.forEach { groupId ->
+                        // Adds finished book data
+                        val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates").document()
+                        transaction.set(groupUpdatesRef, updateData)
+                    }
+                }
+
                 null // Indicate successful transaction
             }.addOnSuccessListener {
                 // Veronica Nguyen

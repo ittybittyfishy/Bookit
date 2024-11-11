@@ -489,6 +489,13 @@ class ReviewActivityTemplate : Fragment() {
                                         ).show()
                                         incrementUserReviewNum(userId)  // increments the number of reviews field
                                         updateUserAverageRating(userId)
+                                        updateMemberUpdates(
+                                            userId, username, bookTitle, reviewText, rating, charactersChecked,
+                                            charactersRating, charactersReview, writingChecked, writingRating,
+                                            writingReview, plotChecked, plotRating, plotReview, themesChecked,
+                                            themesRating, themesReview, strengthsChecked, strengthsRating,
+                                            strengthsReview, weaknessesChecked, weaknessesRating, weaknessesReview
+                                        )
                                     }
                                     .addOnFailureListener { e ->
                                         // If saving the review fails, display an error message
@@ -590,5 +597,76 @@ class ReviewActivityTemplate : Fragment() {
             .addOnFailureListener {
                 Toast.makeText(activity, "Failed to update review count", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    // Veronica Nguyen
+    // Function to update that the user made a review for the groups the user is in
+    private fun updateMemberUpdates(
+        userId: String,
+        username: String?,
+        bookTitle: String?,
+        reviewText: String,
+        rating: Float,
+        charactersChecked: Boolean,
+        charactersRating: Float,
+        charactersReview: String,
+        writingChecked: Boolean,
+        writingRating: Float,
+        writingReview: String,
+        plotChecked: Boolean,
+        plotRating: Float,
+        plotReview: String,
+        themesChecked: Boolean,
+        themesRating: Float,
+        themesReview: String,
+        strengthsChecked: Boolean,
+        strengthsRating: Float,
+        strengthsReview: String,
+        weaknessesChecked: Boolean,
+        weaknessesRating: Float,
+        weaknessesReview: String,
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users").document(userId).get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                // Gets all the groups the user is in
+                val groupIds = document.get("joinedGroups") as? List<String> ?: emptyList()
+
+                // Data to be uploaded into database
+                val updateData = hashMapOf(
+                    "userId" to userId,
+                    "username" to username,
+                    "type" to "reviewBookTemplate",
+                    "timestamp" to FieldValue.serverTimestamp(),
+                    "bookTitle" to bookTitle,
+                    "reviewText" to reviewText,
+                    "rating" to rating,
+                    "charactersChecked" to charactersChecked,
+                    "charactersRating" to charactersRating,
+                    "charactersReview" to charactersReview,
+                    "writingChecked" to writingChecked,
+                    "writingRating" to writingRating,
+                    "writingReview" to writingReview,
+                    "plotChecked" to plotChecked,
+                    "plotRating" to plotRating,
+                    "plotReview" to plotReview,
+                    "themesChecked" to themesChecked,
+                    "themesRating" to themesRating,
+                    "themesReview" to themesReview,
+                    "strengthsChecked" to strengthsChecked,
+                    "strengthsRating" to strengthsRating,
+                    "strengthsReview" to strengthsReview,
+                    "weaknessesChecked" to weaknessesChecked,
+                    "weaknessesRating" to weaknessesRating,
+                    "weaknessesReview" to weaknessesReview,
+                )
+
+                // Loops through every group the user is in and adds update
+                groupIds.forEach { groupId ->
+                    val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates").document()
+                    groupUpdatesRef.set(updateData)
+                }
+            }
+        }
     }
 }

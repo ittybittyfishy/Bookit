@@ -149,8 +149,7 @@ class GroupRecommendationsFragment : Fragment() {
                             val bundle = Bundle()
                             bundle.putString("groupId", groupId)
                             addRecommendationFragment.arguments = bundle
-                            (activity as MainActivity).replaceFragment(addRecommendationFragment, "Add Recommendation", showBackButton = true
-                            )
+                            (activity as MainActivity).replaceFragment(addRecommendationFragment, "Add Recommendation", showBackButton = true)
                         }
                     // If user is not a member
                     } else {

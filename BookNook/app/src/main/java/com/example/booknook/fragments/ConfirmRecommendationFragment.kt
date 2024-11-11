@@ -65,7 +65,7 @@ class ConfirmRecommendationFragment : Fragment() {
             val bundle = Bundle()
             bundle.putString("groupId", groupId)
             searchBookRecommendationFragment.arguments = bundle
-            (activity as MainActivity).replaceFragment(searchBookRecommendationFragment, "Search")
+            (activity as MainActivity).replaceFragment(searchBookRecommendationFragment, "Search", showBackButton = true)
         }
 
         // Handles click of "Confirm Book" button
@@ -99,6 +99,11 @@ class ConfirmRecommendationFragment : Fragment() {
                                     documentReference.update("recommendationId", recommendationId)
                                         .addOnSuccessListener {
                                             Toast.makeText(activity, "Added book to recommendations", Toast.LENGTH_SHORT).show()
+//                                            val recommendationsFragment = GroupRecommendationsFragment()
+//                                            val bundle = Bundle()
+//                                            bundle.putString("groupId", groupId)
+//                                            recommendationsFragment.arguments = bundle
+//                                            (activity as MainActivity).replaceFragment(recommendationsFragment, "Recommendations", showBackButton = true)
                                         }
                                 }
                                 .addOnFailureListener { e ->

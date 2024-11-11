@@ -398,6 +398,7 @@ class ReviewActivity : Fragment() {
                                             // Increment the number of reviews field for the user
                                             incrementUserReviewNum(userId)
                                             updateUserAverageRating(userId)
+                                            updateMemberUpdates(userId, username, bookTitle, reviewText, rating, hasSpoilers, hasSensitiveTopics)
                                             // Yunjong Noh
                                             // updates review and add notification (on 11/5)
                                             bookTitle?.let {
@@ -547,5 +548,44 @@ class ReviewActivity : Fragment() {
             .addOnFailureListener {
                 Toast.makeText(activity, "Failed to update review count", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    // Veronica Nguyen
+    // Function to update that the user made a review for the groups the user is in
+    private fun updateMemberUpdates(
+        userId: String,
+        username: String?,
+        bookTitle: String?,
+        reviewText: String,
+        rating: Float,
+        hasSpoilers: Boolean,
+        hasSensitiveTopics: Boolean
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users").document(userId).get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                // Gets all the groups the user is in
+                val groupIds = document.get("joinedGroups") as? List<String> ?: emptyList()
+
+                // Data to be uploaded into database
+                val updateData = hashMapOf(
+                    "userId" to userId,
+                    "username" to username,
+                    "type" to "reviewBookNoTemplate",
+                    "timestamp" to FieldValue.serverTimestamp(),
+                    "bookTitle" to bookTitle,
+                    "reviewText" to reviewText,
+                    "rating" to rating,
+                    "hasSpoilers" to hasSpoilers,
+                    "hasSensitiveTopics" to hasSensitiveTopics
+                )
+
+                // Loops through every group the user is in and adds update
+                groupIds.forEach { groupId ->
+                    val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates").document()
+                    groupUpdatesRef.set(updateData)
+                }
+            }
+        }
     }
 }
