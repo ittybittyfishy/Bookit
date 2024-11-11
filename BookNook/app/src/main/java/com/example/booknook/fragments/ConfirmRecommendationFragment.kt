@@ -14,6 +14,7 @@ import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.example.booknook.MainActivity
 import com.example.booknook.R
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -38,6 +39,7 @@ class ConfirmRecommendationFragment : Fragment() {
         val bookImage = arguments?.getString("bookImage")
         val bookTitle = arguments?.getString("bookTitle")
         val bookAuthor = arguments?.getString("bookAuthor")
+        val bookRating = arguments?.getFloat("bookRating")
 
         val imageView: ImageView = view.findViewById(R.id.bookImage)
         val titleTextView: TextView = view.findViewById(R.id.bookTitleText)
@@ -71,53 +73,77 @@ class ConfirmRecommendationFragment : Fragment() {
         // Handles click of "Confirm Book" button
         confirmBookButton.setOnClickListener {
             val db = FirebaseFirestore.getInstance()
-            // Book recommendation information
-            val recommendation = hashMapOf(
-                "image" to bookImage,
-                "title" to bookTitle,
-                "authors" to bookAuthor,
-                "numUpvotes" to 0
-            )
+            val userId = FirebaseAuth.getInstance().currentUser?.uid
 
-            if (groupId != null) {
-                // Adds the book under recommendations subcollection under groups in database
-                db.collection("groups").document(groupId)
-                    .collection("recommendations")
-                    .whereEqualTo("title", bookTitle)
-                    .whereEqualTo("authors", bookAuthor)
-                    .get()
-                    .addOnSuccessListener { querySnapshot ->
-                        // If the recommendation hasn't been added previously
-                        if (querySnapshot.isEmpty) {
-                            // Adds the book recommendation
+            if (userId != null) {
+                db.collection("users").document(userId).get().addOnSuccessListener { userDoc ->
+                    if (userDoc.exists()) {
+                        val username = userDoc.getString("username")
+                        // Book recommendation information
+                        val recommendation = hashMapOf(
+                            "image" to bookImage,
+                            "title" to bookTitle,
+                            "authors" to bookAuthor,
+                            "numUpvotes" to 0
+                        )
+
+                        if (groupId != null) {
+                            // Adds the book under recommendations subcollection under groups in database
                             db.collection("groups").document(groupId)
                                 .collection("recommendations")
-                                .add(recommendation)
-                                .addOnSuccessListener { documentReference ->
-                                    val recommendationId = documentReference.id
-                                    // Adds the recommendationId as a field
-                                    documentReference.update("recommendationId", recommendationId)
-                                        .addOnSuccessListener {
-                                            Toast.makeText(activity, "Added book to recommendations", Toast.LENGTH_SHORT).show()
-//                                            val recommendationsFragment = GroupRecommendationsFragment()
-//                                            val bundle = Bundle()
-//                                            bundle.putString("groupId", groupId)
-//                                            recommendationsFragment.arguments = bundle
-//                                            (activity as MainActivity).replaceFragment(recommendationsFragment, "Recommendations", showBackButton = true)
-                                        }
+                                .whereEqualTo("title", bookTitle)
+                                .whereEqualTo("authors", bookAuthor)
+                                .get()
+                                .addOnSuccessListener { querySnapshot ->
+                                    // If the recommendation hasn't been added previously
+                                    if (querySnapshot.isEmpty) {
+                                        // Adds the book recommendation
+                                        db.collection("groups").document(groupId)
+                                            .collection("recommendations")
+                                            .add(recommendation)
+                                            .addOnSuccessListener { documentReference ->
+                                                val recommendationId = documentReference.id
+                                                // Adds the recommendationId as a field
+                                                documentReference.update("recommendationId", recommendationId)
+                                                    .addOnSuccessListener {
+                                                        Toast.makeText(activity, "Added book to recommendations", Toast.LENGTH_SHORT).show()
+
+                                                        // Recommendation data for memberUpdates
+                                                        val updateData = hashMapOf(
+                                                            "userId" to userId,
+                                                            "username" to username,
+                                                            "type" to "recommendation",
+                                                            "timestamp" to FieldValue.serverTimestamp(),
+                                                            "bookTitle" to bookTitle,
+                                                            "bookAuthors" to bookAuthor,
+                                                            "bookImage" to bookImage,
+                                                            "bookRating" to bookRating
+                                                        )
+                                                        // Add recommendation to memberUpdates
+                                                        db.collection("groups").document(groupId)
+                                                            .collection("memberUpdates")
+                                                            .add(updateData)
+
+//                                                        val recommendationsFragment = GroupRecommendationsFragment()
+//                                                        val bundle = Bundle()
+//                                                        bundle.putString("groupId", groupId)
+//                                                        recommendationsFragment.arguments = bundle
+//                                                        (activity as MainActivity).replaceFragment(recommendationsFragment, "Recommendations", showBackButton = true)
+                                                    }
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Log.w("Firestore", "Error adding recommendation", e)
+                                            }
+                                        // Tells user that the book has already been recommended
+                                    } else {
+                                        Toast.makeText(activity, "This book has already been recommended", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
-                                .addOnFailureListener { e ->
-                                    Log.w("Firestore", "Error adding recommendation", e)
-                                }
-                        // Tells user that the book has already been recommended
-                        } else {
-                            Toast.makeText(activity, "This book has already been recommended", Toast.LENGTH_SHORT).show()
                         }
                     }
+                }
             }
         }
-
         return view
     }
-
 }

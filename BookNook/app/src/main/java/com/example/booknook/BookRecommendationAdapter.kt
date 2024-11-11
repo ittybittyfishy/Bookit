@@ -75,6 +75,7 @@ class BookRecommendationAdapter(
                 putString("bookImage", book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"))
                 putString("bookTitle", book.volumeInfo.title)
                 putString("bookAuthor", book.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")
+                putFloat("bookRating", book.volumeInfo.averageRating ?: 0f)
             }
             confirmRecommendationFragment.arguments = bundle
             (holder.itemView.context as MainActivity).replaceFragment(confirmRecommendationFragment, "Add Recommendation")

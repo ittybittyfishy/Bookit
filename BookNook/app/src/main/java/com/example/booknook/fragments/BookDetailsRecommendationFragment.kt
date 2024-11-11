@@ -142,6 +142,7 @@ class BookDetailsRecommendationFragment : Fragment() {
                 putString("bookImage", volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://"))
                 putString("bookTitle", volumeInfo?.title)
                 putString("bookAuthor", volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author")
+                putFloat("bookRating", volumeInfo?.averageRating ?: 0f)
             }
             confirmRecommendationFragment.arguments = bundle
             (activity as MainActivity).replaceFragment(confirmRecommendationFragment, "Add Recommendation")
