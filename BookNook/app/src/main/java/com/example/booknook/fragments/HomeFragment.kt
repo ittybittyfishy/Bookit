@@ -263,45 +263,52 @@ class HomeFragment : Fragment() {
     // Yunjong Noh
     // Fetch notifications from Firestore
     private fun fetchNotifications() {
-        db.collection("notifications").get().addOnSuccessListener { result ->
-            if (result.isEmpty) {
-                Log.d("HomeFragment", "No notifications found in Firestore.")
-            } else {
-                // Check for new, non-dismissed notifications
-                val existingIds = notificationList.map { it.notificationId }.toSet()
-                // Iterate over each document in the result
-                for (document in result) {
-                    // Convert the document to a NotificationItem object
-                    val notification = document.toObject(NotificationItem::class.java)
-                    if (!notification.dismissed && !existingIds.contains(notification.notificationId)) {
-                        // Fetch user details and update notification
-                        db.collection("users").document(notification.userId).get()
-                            .addOnSuccessListener { userDoc ->
-                                if (userDoc.exists()) {
-                                    // Set the profile image URL and username for the notification
-                                    notification.profileImageUrl = userDoc.getString("profileImageUrl") ?: ""
-                                    notification.username = userDoc.getString("username") ?: "Unknown User"
-                                    // Add the notification to the list and update the adapter
-                                    notificationList.add(notification)
-                                    updatesAdapter.notifyDataSetChanged()
-                                } else {
-                                    Log.d("HomeFragment", "User not found for userId: ${notification.userId}")
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        db.collection("notifications")
+            .whereEqualTo("userId", currentUserId) // Only fetch notifications for the current user
+            .get()
+            .addOnSuccessListener { result ->
+                if (result.isEmpty) {
+                    Log.d("HomeFragment", "No notifications found for current user.")
+                } else {
+                    // Check for new, non-dismissed notifications
+                    val existingIds = notificationList.map { it.notificationId }.toSet()
+                    // Iterate over each document in the result
+                    for (document in result) {
+                        val notification = document.toObject(NotificationItem::class.java)
+                        if (!notification.dismissed && !existingIds.contains(notification.notificationId)) {
+                            // Fetch user details for sender (not receiver)
+                            db.collection("users").document(notification.senderId).get()
+                                .addOnSuccessListener { senderDoc ->
+                                    if (senderDoc.exists()) {
+                                        // Set the profile image URL and username for the sender (not receiver)
+                                        notification.profileImageUrl = senderDoc.getString("profileImageUrl") ?: ""
+                                        notification.username = senderDoc.getString("username") ?: "Unknown User"
+
+                                        // Add the notification to the list and update the adapter
+                                        notificationList.add(notification)
+                                        updatesAdapter.notifyDataSetChanged()
+                                    } else {
+                                        Log.d("HomeFragment", "Sender not found for senderId: ${notification.senderId}")
+                                    }
                                 }
-                            }
-                            .addOnFailureListener { e ->
-                                Log.e("HomeFragment", "Error fetching user info: ${e.message}", e)
-                            }
+                                .addOnFailureListener { e ->
+                                    Log.e("HomeFragment", "Error fetching sender info: ${e.message}", e)
+                                }
+                        }
                     }
                 }
             }
-        }.addOnFailureListener { e ->
-            Log.e("HomeFragment", "Error fetching notifications: ${e.message}", e)
-        }
+            .addOnFailureListener { e ->
+                Log.e("HomeFragment", "Error fetching notifications: ${e.message}", e)
+            }
     }
 
     // Yunjong Noh
     // Dismiss the notification by updating Firestore
     private fun dismissNotification(notificationId: String) {
+        // Only allow dismissing notifications for the current user
         db.collection("notifications").document(notificationId)
             .update("dismissed", true)
             .addOnSuccessListener {
@@ -321,8 +328,10 @@ class HomeFragment : Fragment() {
     // Yunjong Noh
     // Function to listen for real-time updates to notifications
     private fun listenToNotifications() {
+        val currentUserId = auth.currentUser?.uid ?: return
+
         db.collection("notifications")
-            .whereEqualTo("userId", auth.currentUser?.uid) // Filter notifications for the current user
+            .whereEqualTo("userId", currentUserId) // Only listen to notifications for the current user
             .whereEqualTo("isDismissed", false) // Only listen to non-dismissed notifications
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
@@ -337,11 +346,22 @@ class HomeFragment : Fragment() {
                         DocumentChange.Type.ADDED -> {
                             // Handle newly added notifications
                             Log.d("HomeFragment", "New notification: ${notification.message}")
-                            notificationList.add(notification)
-                            updatesAdapter.notifyDataSetChanged()
-                            showInAppNotification(notification.message) // Show in-app notification
+                            // Fetch sender's details
+                            db.collection("users").document(notification.senderId).get()
+                                .addOnSuccessListener { senderDoc ->
+                                    if (senderDoc.exists()) {
+                                        notification.profileImageUrl = senderDoc.getString("profileImageUrl") ?: ""
+                                        notification.username = senderDoc.getString("username") ?: "Unknown User"
+                                        notificationList.add(notification)
+                                        updatesAdapter.notifyDataSetChanged()
+                                    } else {
+                                        Log.d("HomeFragment", "Sender not found for senderId: ${notification.senderId}")
+                                    }
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("HomeFragment", "Error fetching sender info: ${e.message}", e)
+                                }
                         }
-                        // Handling for checking log
                         DocumentChange.Type.MODIFIED -> {
                             Log.d("HomeFragment", "Notification modified: ${notification.message}")
                         }
@@ -352,6 +372,7 @@ class HomeFragment : Fragment() {
                 }
             }
     }
+
     // Yunjong Noh
     // Function to display an in-app notification using Snackbar
     private fun showInAppNotification(message: String) {
@@ -359,7 +380,6 @@ class HomeFragment : Fragment() {
             Snackbar.make(it, message, Snackbar.LENGTH_LONG).show() // Show message in a Snackbar
         }
     }
-
 
 
     // Yunjong Noh

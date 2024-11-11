@@ -6,6 +6,7 @@ data class NotificationItem(
     val notificationId: String = "", // Unique ID for the notification
     val userId: String = "", // ID of the user associated with the notification
     val senderId: String = "", // ID of the sender of the notification
+    val receiverId: String = "", // ID of the receiver of the notification (newly added)
     val message: String = "", // Message content of the notification
     val timestamp: Long = 0L, // Timestamp when the notification was created
     val type: NotificationType = NotificationType.FRIEND_REQUEST, // Type of the notification (default)
