@@ -17,7 +17,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import androidx.fragment.app.FragmentActivity
 
 // handles displaying the list of books within a collection in a RecyclerView
-class BookAdapterCollection (private val books: List<BookItemCollection>) : RecyclerView.Adapter<BookAdapterCollection.BookViewHolder>()
+class BookAdapterCollection (private val books: List<BookItemCollection>,
+                             private val onBookClick: (BookItemCollection) -> Unit
+) : RecyclerView.Adapter<BookAdapterCollection.BookViewHolder>()
 {
     // class that holds the views for each book item in the RecyclerView
     class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -102,6 +104,11 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
             }
             // pulls up dialog to add tags
             addTagsDialog.show(fragmentManager, "AddTagsDialog")
+        }
+
+        // Handle book item click
+        holder.itemView.setOnClickListener {
+            onBookClick(book)
         }
 
     }
@@ -319,6 +326,8 @@ class BookAdapterCollection (private val books: List<BookItemCollection>) : Recy
                 // Update user's favoriteTag field in Firestore
                 db.collection("users").document(userId).update("favoriteTag", favoriteTag)
             }
+
+
     }
 
     // This function returns the total number of books to display in the RecyclerView

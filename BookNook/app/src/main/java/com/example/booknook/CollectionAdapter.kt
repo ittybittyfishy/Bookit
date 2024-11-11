@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 // adapter handles displaying the list of book collections in a RecyclerView FOR STANDARD COLLECTIONS
-class CollectionAdapter(private val collections: List<CollectionItem>) : RecyclerView.Adapter<CollectionAdapter.CollectionViewHolder>()
+class CollectionAdapter(private val collections: List<CollectionItem>,
+                        private val onBookClick: (BookItemCollection) -> Unit )
+    : RecyclerView.Adapter<CollectionAdapter.CollectionViewHolder>()
 {
     // ViewHolder class that holds the views for each item in the RecyclerView
     class CollectionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -36,7 +38,7 @@ class CollectionAdapter(private val collections: List<CollectionItem>) : Recycle
         // Use a horizontal LinearLayoutManager to lay out the books side by side
         holder.booksRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context, LinearLayoutManager.HORIZONTAL, false)
         // Set the adapter for the books RecyclerView, passing in the list of books in this collection
-        holder.booksRecyclerView.adapter = BookAdapterCollection(collection.books)
+        holder.booksRecyclerView.adapter = BookAdapterCollection(collection.books, onBookClick) // need to chage this parameter
     }
     // This function returns the total number of collections to display
     override fun getItemCount(): Int = collections.size

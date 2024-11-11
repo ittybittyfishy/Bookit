@@ -1,5 +1,6 @@
 package com.example.booknook.fragments
 
+import android.content.Context
 import android.media.Image
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +12,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Spinner
+import android.widget.Toast
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,7 +29,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 //This class displays and manages a users book collection
-class CollectionFragment : Fragment(){
+class  CollectionFragment : Fragment(){
 
     //Declare UI elements
     private lateinit var myCollectionButton: Button // Button takes you to cutsom collections
@@ -54,7 +56,18 @@ class CollectionFragment : Fragment(){
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
         // Initialize the collectionAdapter with the empty collectionList and set it to the recyclerview
-        collectionAdapter = CollectionAdapter(collectionList)
+        collectionAdapter = CollectionAdapter(collectionList) { book ->
+            // When a book is clicked, first find which collection it belongs to
+            findBookCollection(requireContext(), book.title, book.authors.joinToString(", ")) { collectionName ->
+                if (collectionName != null) {
+                    // If collection is found, fetch the book details from Firestore
+                    fetchBookDetailsFromCollection(book, requireContext())
+                } else {
+                    Toast.makeText(context, "Book not found in any collection.", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        }
         recyclerView.adapter = collectionAdapter
 
 
@@ -182,4 +195,111 @@ class CollectionFragment : Fragment(){
         // Notify the adapter to update the UI
         collectionAdapter.notifyDataSetChanged()
     }
+
+    private fun findBookCollection(
+        context: Context,
+        title: String,
+        authors: String?,
+        callback: (String?) -> Unit // Callback to return collection name
+    ) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val db = FirebaseFirestore.getInstance()
+            val userDocRef = db.collection("users").document(userId)
+
+            db.runTransaction { transaction ->
+                val snapshot = transaction.get(userDocRef)
+
+                // Loop through standard collections to find the book
+                for (collection in listOf("Reading", "Finished", "Want to Read", "Dropped")) {
+                    val booksInCollection = snapshot.get("standardCollections.$collection") as? List<Map<String, Any>>
+                    booksInCollection?.let {
+                        for (existingBook in it) {
+                            if (existingBook["title"] == title &&
+                                existingBook["authors"] == (authors?.split(", ") ?: listOf("Unknown Author"))
+                            ) {
+                                return@runTransaction collection // Return the collection name
+                            }
+                        }
+                    }
+                }
+                null // Return null if not found in any collection
+            }.addOnSuccessListener { collection ->
+                callback(collection as? String) // Pass the collection name to the callback
+            }.addOnFailureListener { e ->
+                Toast.makeText(context, "Failed to find book collection: ${e.message}", Toast.LENGTH_SHORT).show()
+                callback(null) // Pass null if there's an error
+            }
+        } else {
+            callback(null) // Return null if user is not logged in
+        }
+    }
+
+    private fun fetchBookDetailsFromCollection(book: BookItemCollection, context: Context) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val db = FirebaseFirestore.getInstance()
+            val userDocRef = db.collection("users").document(userId)
+
+            userDocRef.get().addOnSuccessListener { document ->
+                if (document != null) {
+                    val standardCollections = document.get("standardCollections") as? Map<String, Any>
+                    if (standardCollections != null) {
+                        // Loop through each standard collection to find the book
+                        for (collectionName in listOf("Reading", "Finished", "Want to Read", "Dropped")) {
+                            val booksInCollection = standardCollections[collectionName] as? List<Map<String, Any>>
+
+                            booksInCollection?.let { books ->
+                                for (existingBook in books) {
+                                    // Check if this book matches the clicked book
+                                    if (existingBook["title"] == book.title &&
+                                        (existingBook["authors"] as? List<*>) == book.authors
+                                    ) {
+                                        // Book found, prepare the bundle
+                                        val bookDetailsFragment = BookDetailsFragment()
+                                        val bundle = Bundle()
+
+                                        // Title and Authors
+                                        bundle.putString("bookTitle", existingBook["title"] as? String ?: "")
+                                        bundle.putString("bookAuthor", (existingBook["authors"] as? List<*>)?.joinToString(", ") ?: "")
+                                        bundle.putStringArrayList("bookAuthorsList", ArrayList(existingBook["authors"] as? List<String> ?: emptyList()))
+
+                                        // Image Link
+                                        bundle.putString("bookImage", existingBook["imageLink"] as? String)
+
+                                        // Handling Rating
+                                        val rating = when (val ratingValue = existingBook["rating"]) {
+                                            is Double -> ratingValue.toFloat()
+                                            is Long -> ratingValue.toFloat()
+                                            else -> 0f
+                                        }
+                                        bundle.putFloat("bookRating", rating)
+
+                                        // ISBN
+                                        bundle.putString("bookIsbn", existingBook["isbn"] as? String ?: "No ISBN")
+
+                                        // Handling Description
+                                        val description = existingBook["description"] as? String ?: "No Description"
+                                        bundle.putString("bookDescription", description)
+
+                                        // Genres
+                                        bundle.putStringArrayList("bookGenres", ArrayList(existingBook["genres"] as? List<String> ?: emptyList()))
+
+                                        bookDetailsFragment.arguments = bundle
+
+                                        // Navigate to BookDetailsFragment
+                                        (context as MainActivity).replaceFragment(bookDetailsFragment, "Book Details", showBackButton = true)
+                                        return@addOnSuccessListener // Exit after navigating to avoid redundant processing
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }.addOnFailureListener { e ->
+                Toast.makeText(context, "Error fetching collections: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 }

@@ -10,6 +10,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.BookItemCollection
@@ -50,7 +51,10 @@ class CustomCollectionTab : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
         // Initialize the collection adapter with the collection list (empty at first)
-        customCollectionAdapter = CollectionCustomAdapter(customCollectionList)  // Initialize with mutable list
+        customCollectionAdapter = CollectionCustomAdapter(customCollectionList) { book ->
+            // Handle book click here, for example:
+            Toast.makeText(context, "Clicked on: ${book.title}", Toast.LENGTH_SHORT).show()
+        }
         recyclerView.adapter = customCollectionAdapter
 
         // Return the view to be displayed

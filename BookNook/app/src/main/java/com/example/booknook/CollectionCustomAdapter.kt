@@ -12,7 +12,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.CollectionAdapter.CollectionViewHolder
 import com.example.booknook.fragments.EditCollectionFragment
 
-class CollectionCustomAdapter(private val collections: List<CollectionCustomItem>) : RecyclerView.Adapter<CollectionCustomAdapter.CollectionViewHolder>()
+class CollectionCustomAdapter(private val collections: List<CollectionCustomItem>,
+                              private val onBookClick: (BookItemCollection) -> Unit
+) : RecyclerView.Adapter<CollectionCustomAdapter.CollectionViewHolder>()
 {
 
     // ViewHolder class that holds the views for each item in the RecyclerView
@@ -47,7 +49,7 @@ class CollectionCustomAdapter(private val collections: List<CollectionCustomItem
         // Use a horizontal LinearLayoutManager to lay out the books side by side
         holder.booksRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context, LinearLayoutManager.HORIZONTAL, false)
         // Set the adapter for the books RecyclerView, passing in the list of books in this collection
-        holder.booksRecyclerView.adapter = BookAdapterCollection(collection.books)
+        holder.booksRecyclerView.adapter = BookAdapterCollection(collection.books, onBookClick)
 
         // Set the click listener on the edit button
         holder.editButton.setOnClickListener {
