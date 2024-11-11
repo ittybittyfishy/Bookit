@@ -29,6 +29,7 @@
     <color name="achievement_unlocked_color">#826aa8</color> <!-- Gold color for achievements progress bar -->
     <color name="light_green">#A7CCAF</color> <!-- Example light green color -->
     <color name="black_achievements">#9E9E9E</color>
+    <color name="disabled_button">#CECECE</color>
 
 
     <color name="home_pink">#E88CA7</color>
