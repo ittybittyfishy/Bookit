@@ -452,49 +452,113 @@ class ReviewActivity : Fragment() {
         val currentTime = System.currentTimeMillis()
         val expirationTime = currentTime + 10 * 24 * 60 * 60 * 1000 // Notification expiration time: 10 days from now
 
-        // Fetch the user's username and profile picture URL from Firestore
-        db.collection("users").document(userId).get().addOnSuccessListener { document ->
-            if (document.exists()) {
-                // Get the profile image URL and username
-                val profileImageUrl = document.getString("profileImageUrl") ?: ""
-                val username = document.getString("username") ?: "Unknown User"
+        // Get the current user ID (this will be the senderId)
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-                // Create a NotificationItem object
-                val notification = NotificationItem(
-                    userId = userId,
-                    senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "system",
-                    message = "A review for \"$bookTitle\" has been added or updated.", // Notification message
-                    timestamp = currentTime, // Current time as the notification timestamp
-                    type = notificationType, // Use the passed notificationType to distinguish between added or edited review
-                    dismissed = false, // Notification is initially not dismissed
-                    expirationTime = expirationTime,
-                    profileImageUrl = profileImageUrl,
-                    username = username
-                )
+        // Fetch the current user's profile details
+        val currentUserDocRef = db.collection("users").document(currentUserId)
+        currentUserDocRef.get().addOnSuccessListener { currentUserDoc ->
+            if (currentUserDoc.exists()) {
+                // Fetch the sender's profile details
+                val senderProfileImageUrl = currentUserDoc.getString("profileImageUrl") ?: ""
+                val senderUsername = currentUserDoc.getString("username") ?: "Unknown User"
 
-                // Add the notification to the "notifications" collection in Firestore
-                db.collection("notifications").add(notification)
-                    .addOnSuccessListener { documentReference ->
-                        val notificationId = documentReference.id // Get the ID of the newly added document
-                        // Update the notification with its ID
-                        db.collection("notifications").document(notificationId)
-                            .update("notificationId", notificationId)
-                            .addOnSuccessListener {
-                                Log.d("ReviewNotification", "Notification added with ID: $notificationId") // Log success
+                // Fetch the user's friends and groups to check if they are eligible for the notification
+                db.collection("users").document(userId).get().addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        // Fetch the user's friends (List<Map<String, String>>) and groups (List<String>) data
+                        val friends = document.get("friends") as? List<Map<String, String>> ?: emptyList()
+                        val joinedGroups = document.get("joinedGroups") as? List<String> ?: emptyList()
+
+                        // Notification message
+                        val notificationMessage = "A review for \"$bookTitle\" has been added or updated."
+
+                        // Loop through friends and send notifications to eligible friends
+                        friends.forEach { friend ->
+                            if (friend["friendId"] == currentUserId) {
+                                // Send notification to friend with receiverId as the friend
+                                sendNotification(friend["friendId"]!!, notificationMessage, notificationType, expirationTime, currentUserId, friend["friendId"]!!, senderProfileImageUrl, senderUsername)
                             }
-                            .addOnFailureListener { e ->
-                                Log.e("ReviewNotification", "Error updating notificationId: ${e.message}", e) // Log any errors
-                            }
+                        }
+
+                        // Loop through groups and send notifications to eligible group members
+                        joinedGroups.forEach { groupId ->
+                            sendNotificationToGroupMembers(groupId, notificationMessage, notificationType, expirationTime, currentUserId, senderProfileImageUrl, senderUsername)
+                        }
                     }
-                    .addOnFailureListener { e ->
-                        Log.e("ReviewNotification", "Error adding notification: ${e.message}", e) // Log any errors adding the notification
-                    }
+                }
             }
         }.addOnFailureListener {
-            Log.e("ReviewNotification", "Failed to retrieve user data for notification.") // Log any errors fetching user data
+            Log.e("ReviewNotification", "Failed to retrieve current user data for notification.") // Log any errors fetching current user data
         }
     }
+    // Yunjong Noh
+    // Function to send notification (with sender's details like profile image and username)
+    private fun sendNotification(userId: String, message: String, notificationType: NotificationType, expirationTime: Long, senderId: String, receiverId: String, senderProfileImageUrl: String, senderUsername: String) {
+        val db = FirebaseFirestore.getInstance()
 
+        // Skip sending notification if the current user is the sender (userId is the same as currentUserId)
+        if (userId == FirebaseAuth.getInstance().currentUser?.uid) {
+            Log.d("ReviewNotification", "Notification not sent to the sender (userId = currentUserId).")
+            return
+        }
+
+        val notification = NotificationItem(
+            userId = userId,  // Receiver's ID
+            senderId = senderId,  // Sender's ID
+            receiverId = receiverId,  // Receiver's ID
+            message = message,
+            timestamp = System.currentTimeMillis(),
+            type = notificationType,
+            dismissed = false,
+            expirationTime = expirationTime,
+            profileImageUrl = senderProfileImageUrl, // Use sender's profile image
+            username = senderUsername // Use sender's username
+        )
+
+        // Add the notification to the "notifications" collection in Firestore
+        db.collection("notifications").add(notification)
+            .addOnSuccessListener { documentReference ->
+                val notificationId = documentReference.id
+                db.collection("notifications").document(notificationId)
+                    .update("notificationId", notificationId)
+                    .addOnSuccessListener {
+                        Log.d("ReviewNotification", "Notification added with ID: $notificationId") // Log success
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("ReviewNotification", "Error updating notificationId: ${e.message}", e) // Log any errors
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("ReviewNotification", "Error adding notification: ${e.message}", e) // Log any errors adding the notification
+            }
+    }
+    // Yunjong Noh
+    // Function to send notification to group members (with sender's details like profile image and username)
+    private fun sendNotificationToGroupMembers(groupId: String, message: String, notificationType: NotificationType, expirationTime: Long, senderId: String, senderProfileImageUrl: String, senderUsername: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Fetch group members (assuming the group data contains the members' IDs)
+        db.collection("groups").document(groupId).get()
+            .addOnSuccessListener { groupDoc ->
+                if (groupDoc.exists()) {
+                    val groupMembers = groupDoc.get("members") as? List<String> ?: emptyList()
+
+                    // Send notification to each member in the group
+                    groupMembers.forEach { memberId ->
+                        // Only send notification to non-current users (excluding sender)
+                        if (memberId != FirebaseAuth.getInstance().currentUser?.uid) {
+                            sendNotification(
+                                memberId, message, notificationType, expirationTime, senderId, memberId, senderProfileImageUrl, senderUsername
+                            )
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("ReviewNotification", "Error fetching group members: ${e.message}", e)
+            }
+    }
 
     // Veronica Nguyen
     // Function updates the average rating of the user

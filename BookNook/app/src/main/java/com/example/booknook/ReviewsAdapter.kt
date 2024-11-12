@@ -741,7 +741,8 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                             commentId = doc.id
                         )
                     }
-                    commentsAdapter.updateComments(comments) // Update the adapter with new comments
+                    // Load comments from Firestore
+                    commentsAdapter.loadComments(isbn, reviewId)
                 }
                 .addOnFailureListener { exception ->
                     Log.e("TemplateReviewViewHolder", "Error loading comments", exception)
