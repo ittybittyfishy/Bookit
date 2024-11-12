@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="370dp"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:layout_margin="8dp"
+    android:background="@drawable/friend_req_border"
+    android:elevation="4dp">
+
+    <!-- Member's profile picture -->
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profileImage"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center"
+        android:src="@drawable/profile_picture_placeholder" />
+
+    <!-- Finish Book update text -->
+    <TextView
+        android:id="@+id/messageTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:gravity="center"
+        android:textSize="15sp"
+        android:textColor="#9c9779"
+        android:text="Finished Book" />
+
+</LinearLayout>

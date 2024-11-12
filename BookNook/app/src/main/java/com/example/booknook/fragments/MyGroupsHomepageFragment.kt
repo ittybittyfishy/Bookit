@@ -1,5 +1,6 @@
 package com.example.booknook.fragments
 
+import GroupUpdateAdapter
 import android.app.AlertDialog
 import android.health.connect.datatypes.units.Length
 import android.os.Bundle
@@ -13,8 +14,12 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.booknook.GroupMemberUpdate
 import com.example.booknook.MainActivity
 import com.example.booknook.R
 import com.google.android.material.chip.Chip
@@ -36,6 +41,9 @@ class MyGroupsHomepageFragment : Fragment() {
     private lateinit var expandButton: ImageButton
     private lateinit var membersSection: LinearLayout
     private lateinit var recommendationsSection: LinearLayout
+    private lateinit var memberUpdatesRecyclerView: RecyclerView
+    private lateinit var memberUpdatesAdapter: GroupUpdateAdapter
+    private lateinit var memberUpdatesList: MutableList<GroupMemberUpdate>
     private var isExpanded = false  // Tracks if chips are expanded or collapsed
 
     // Get bundled input from group item
@@ -62,10 +70,19 @@ class MyGroupsHomepageFragment : Fragment() {
         expandButton = view.findViewById(R.id.expandButton)
         membersSection = view.findViewById(R.id.membersSection)
         recommendationsSection = view.findViewById(R.id.recommendationsSection)
+        memberUpdatesRecyclerView = view.findViewById(R.id.memberUpdatesRecyclerView)
+
+        // Sets up adapter and recycler view for the group updates
+        memberUpdatesList = mutableListOf()
+        memberUpdatesAdapter = GroupUpdateAdapter(memberUpdatesList)
+
+        memberUpdatesRecyclerView.layoutManager = LinearLayoutManager(context)
+        memberUpdatesRecyclerView.adapter = memberUpdatesAdapter
 
         if (groupId != null) {
             // Calls function to load the group's information
             loadGroupData(groupId!!)
+            fetchMemberUpdates(groupId!!)
         }
         return view
     }
@@ -202,6 +219,36 @@ class MyGroupsHomepageFragment : Fragment() {
                 }
             }
     }
+
+    // Veronica Nguyen
+    // Function to get the group member updates
+    private fun fetchMemberUpdates(groupId: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Fetch the memberUpdates collection for the given group
+        db.collection("groups").document(groupId)
+            .collection("memberUpdates")
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (querySnapshot != null) {
+                    // Clear the list before adding new data
+                    memberUpdatesList.clear()
+
+                    // Iterate through the snapshot and create MemberUpdate objects
+                    for (document in querySnapshot.documents) {
+                        val memberUpdate = document.toObject(GroupMemberUpdate::class.java)
+                        memberUpdate?.let { memberUpdatesList.add(it) }
+                    }
+
+                    // Notify the adapter that the data has been updated
+                    memberUpdatesAdapter.notifyDataSetChanged()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firestore", "Error fetching member updates", e)
+            }
+    }
+
 
     // Veronica Nguyen
     // Get group tags

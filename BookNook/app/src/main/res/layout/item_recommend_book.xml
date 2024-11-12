@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="370dp"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:layout_margin="8dp"
+    android:background="@drawable/friend_req_border"
+    android:elevation="4dp">
+
+    <!-- Member's profile and message -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Member's profile picture -->
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profileImage"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_gravity="center"
+            android:src="@drawable/profile_picture_placeholder" />
+
+        <!-- Recommend Book update text -->
+        <TextView
+            android:id="@+id/messageText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:textColor="#9c9779"
+            android:text="Recommended Book" />
+    </LinearLayout>
+
+    <!-- Book details section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <!-- Book image -->
+        <ImageView
+            android:id="@+id/bookImage"
+            android:layout_width="120dp"
+            android:layout_height="150dp"
+            android:src="@drawable/placeholder_image"
+            android:contentDescription="Book Image" />
+
+        <!-- Book information (title, authors, rating) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Book title -->
+            <TextView
+                android:id="@+id/bookTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Book Title"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:textStyle="bold" />
+
+            <!-- Authors -->
+            <TextView
+                android:id="@+id/bookAuthors"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Author(s)"
+                android:textColor="#666666"
+                android:textSize="14sp" />
+
+            <!-- Rating -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp">
+
+                <!-- Star rating bar -->
+                <RatingBar
+                    android:id="@+id/bookRatingBar"
+                    style="@style/Widget.AppCompat.RatingBar.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    android:stepSize="0.5"
+                    android:layout_marginTop="3dp"/>
+
+                <TextView
+                    android:id="@+id/ratingNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="N/A"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    android:layout_toEndOf="@id/bookRating"
+                    android:layout_marginStart="10dp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

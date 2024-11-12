@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="370dp"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:layout_margin="8dp"
+    android:background="@drawable/friend_req_border"
+    android:elevation="4dp">
+
+    <!-- Member's profile and message -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Member's profile picture -->
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profileImage"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_gravity="center"
+            android:src="@drawable/profile_picture_placeholder" />
+
+        <!-- Review Book update text -->
+        <TextView
+            android:id="@+id/messageText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:textColor="#9c9779"
+            android:text="Left No Template Review" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+            <!-- Star rating bar -->
+            <RatingBar
+                android:id="@+id/ratingBar"
+                style="@style/Widget.AppCompat.RatingBar.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:layout_marginTop="3dp"/>
+
+            <TextView
+                android:id="@+id/ratingNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="N/A"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:layout_toEndOf="@id/bookRating"
+                android:layout_marginStart="10dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/reviewText"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Review"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_toEndOf="@id/bookRating"
+        android:layout_marginStart="10dp"/>
+
+    <!-- Spoilers and Sensitive Topics indicators -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        android:gravity="start">
+
+        <!-- Spoiler indication -->
+        <TextView
+            android:id="@+id/spoilerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Contains Spoilers"
+            android:textColor="#be2528"
+            android:textSize="12sp"
+            android:visibility="gone"/>
+
+        <!-- Sensitive Topics indication -->
+        <TextView
+            android:id="@+id/sensitiveTopicsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Contains Sensitive Topics"
+            android:textColor="#be2528"
+            android:textSize="12sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</LinearLayout>
