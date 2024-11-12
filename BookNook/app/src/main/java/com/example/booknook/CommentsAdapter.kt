@@ -7,12 +7,10 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
 import java.util.Date
 
 // Yunjong Noh
@@ -72,5 +70,31 @@ class CommentsAdapter(private var comments: List<Comment>) : RecyclerView.Adapte
     fun updateComments(newComments: List<Comment>) {
         comments = newComments // Update the comments list with new data
         notifyDataSetChanged() // Notify the RecyclerView to refresh its data
+    }
+
+    // Function to load comments from Firestore
+    fun loadComments(isbn: String, reviewId: String) {
+        FirebaseFirestore.getInstance()
+            .collection("books")
+            .document(isbn)
+            .collection("reviews")
+            .document(reviewId)
+            .collection("comments")
+            .get()
+            .addOnSuccessListener { documents ->
+                val commentsList = mutableListOf<Comment>()
+                for (document in documents) {
+                    val comment = document.toObject(Comment::class.java)
+                    // You can access the document ID directly without saving it in the Comment class
+                    val commentId = document.id
+                    // Optionally, you can use the document ID for other purposes
+                    Log.d("CommentsAdapter", "Loaded comment with ID: $commentId")
+                    commentsList.add(comment)
+                }
+                updateComments(commentsList) // Update the RecyclerView with the loaded comments
+            }
+            .addOnFailureListener { exception ->
+                Log.e("CommentsAdapter", "Error loading comments", exception)
+            }
     }
 }

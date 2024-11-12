@@ -1,4 +1,10 @@
 <!-- res/layout/fragment_home.xml -->
+<!-- Yunjong Noh -->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
 <!-- Work review 4 Itzel Medina -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -481,5 +487,5 @@
     android:padding="8dp"
     tools:listitem="@layout/item_notification" />
 
-</LinearLayout>
-
+    </LinearLayout>
+</ScrollView>

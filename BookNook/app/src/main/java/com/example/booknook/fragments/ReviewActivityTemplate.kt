@@ -469,25 +469,17 @@ class ReviewActivityTemplate : Fragment() {
 
                     // Reference to the specific book's document in the "books" collection
                     val bookRef = db.collection("books").document(bookIsbn)
-                    bookRef.set(
-                        bookData,
-                        SetOptions.merge()
-                    )  // Updates database with book details if not in database already
+                    bookRef.set(bookData, SetOptions.merge()) // Updates database with book details if not in database already
 
-                    // Check if the user has already submitted a review by querying reviews collection with the userId
+                    // Check if the user has already submitted a review
                     bookRef.collection("reviews").whereEqualTo("userId", userId).get()
                         .addOnSuccessListener { querySnapshot ->
                             if (querySnapshot.isEmpty) {
                                 // If no review exists for this user, add a new one
                                 bookRef.collection("reviews").add(reviewData)
                                     .addOnSuccessListener {
-                                        // Show success message
-                                        Toast.makeText(
-                                            activity,
-                                            "Review saved successfully!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        incrementUserReviewNum(userId)  // increments the number of reviews field
+                                        Toast.makeText(activity, "Review saved successfully!", Toast.LENGTH_SHORT).show()
+                                        incrementUserReviewNum(userId) // Increments the number of reviews field
                                         updateUserAverageRating(userId)
                                         updateMemberUpdates(
                                             userId, username, bookTitle, reviewText, rating, charactersChecked,
@@ -496,54 +488,157 @@ class ReviewActivityTemplate : Fragment() {
                                             themesRating, themesReview, strengthsChecked, strengthsRating,
                                             strengthsReview, weaknessesChecked, weaknessesRating, weaknessesReview
                                         )
+                                        // Yunjong Noh
+                                        // Add a notification for the new review (11/10)
+                                        bookTitle?.let {
+                                            addReviewNotification(userId, it, NotificationType.REVIEW_ADDED)
+                                        }
                                     }
                                     .addOnFailureListener { e ->
-                                        // If saving the review fails, display an error message
-                                        Toast.makeText(
-                                            activity,
-                                            "Failed to save review: ${e.localizedMessage}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast.makeText(activity, "Failed to save review: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
                                     }
                             } else {
-                                // If a review already exists, update it with the new data
+                                // If a review already exists, update it
                                 val existingReviewId = querySnapshot.documents[0].id
-                                bookRef.collection("reviews").document(existingReviewId)
-                                    .set(reviewData)
+                                bookRef.collection("reviews").document(existingReviewId).set(reviewData)
                                     .addOnSuccessListener {
-                                        // Show success message for review update
-                                        Toast.makeText(
-                                            activity,
-                                            "Review updated successfully!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast.makeText(activity, "Review updated successfully!", Toast.LENGTH_SHORT).show()
                                         updateUserAverageRating(userId)
+                                        // Yunjong Noh
+                                        // Add a notification for the updated review (11/10)
+                                        bookTitle?.let {
+                                            addReviewNotification(userId, it, NotificationType.REVIEW_EDIT)
+                                        }
                                     }
                                     .addOnFailureListener {
-                                        // If updating the review fails, display an error message
-                                        Toast.makeText(
-                                            activity,
-                                            "Failed to update review",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        Toast.makeText(activity, "Failed to update review", Toast.LENGTH_SHORT).show()
                                     }
                             }
                         }
                         .addOnFailureListener {
-                            // If querying for the existing review fails, display an error message
-                            Toast.makeText(
-                                activity,
-                                "Failed to check existing reviews",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(activity, "Failed to check existing reviews", Toast.LENGTH_SHORT).show()
                         }
                 } else {
-                    // If userId or bookIsbn is null, display an error message
-                    Toast.makeText(activity, "Book ISBN or user not provided", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(activity, "Book ISBN or user not provided", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+    }
+
+    // Yunjong Noh
+    // Function to add a review notification to Firestore
+    private fun addReviewNotification(userId: String, bookTitle: String, notificationType: NotificationType) {
+        val db = FirebaseFirestore.getInstance()
+        val currentTime = System.currentTimeMillis()
+        val expirationTime = currentTime + 10 * 24 * 60 * 60 * 1000 // Notification expiration time: 10 days from now
+
+        // Get the current user ID (this will be the senderId)
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        // Fetch the current user's profile details
+        val currentUserDocRef = db.collection("users").document(currentUserId)
+        currentUserDocRef.get().addOnSuccessListener { currentUserDoc ->
+            if (currentUserDoc.exists()) {
+                // Fetch the sender's profile details
+                val senderProfileImageUrl = currentUserDoc.getString("profileImageUrl") ?: ""
+                val senderUsername = currentUserDoc.getString("username") ?: "Unknown User"
+
+                // Fetch the user's friends and groups to check if they are eligible for the notification
+                db.collection("users").document(userId).get().addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        // Fetch the user's friends (List<Map<String, String>>) and groups (List<String>) data
+                        val friends = document.get("friends") as? List<Map<String, String>> ?: emptyList()
+                        val joinedGroups = document.get("joinedGroups") as? List<String> ?: emptyList()
+
+                        // Notification message
+                        val notificationMessage = "A review for \"$bookTitle\" has been added or updated."
+
+                        // Loop through friends and send notifications to eligible friends
+                        friends.forEach { friend ->
+                            if (friend["friendId"] == currentUserId) {
+                                // Send notification to friend with receiverId as the friend
+                                sendNotification(friend["friendId"]!!, notificationMessage, notificationType, expirationTime, currentUserId, friend["friendId"]!!, senderProfileImageUrl, senderUsername)
+                            }
+                        }
+
+                        // Loop through groups and send notifications to eligible group members
+                        joinedGroups.forEach { groupId ->
+                            sendNotificationToGroupMembers(groupId, notificationMessage, notificationType, expirationTime, currentUserId, senderProfileImageUrl, senderUsername)
+                        }
+                    }
+                }
+            }
+        }.addOnFailureListener {
+            Log.e("ReviewNotification", "Failed to retrieve current user data for notification.") // Log any errors fetching current user data
+        }
+    }
+    // Yunjong Noh
+    // Function to send notification (with sender's details like profile image and username)
+    private fun sendNotification(userId: String, message: String, notificationType: NotificationType, expirationTime: Long, senderId: String, receiverId: String, senderProfileImageUrl: String, senderUsername: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Skip sending notification if the current user is the sender (userId is the same as currentUserId)
+        if (userId == FirebaseAuth.getInstance().currentUser?.uid) {
+            Log.d("ReviewNotification", "Notification not sent to the sender (userId = currentUserId).")
+            return
+        }
+
+        // Create the notification object
+        val notification = NotificationItem(
+            userId = userId,  // Receiver's ID
+            senderId = senderId,  // Sender's ID
+            receiverId = receiverId,  // Receiver's ID
+            message = message,
+            timestamp = System.currentTimeMillis(),
+            type = notificationType,
+            dismissed = false,
+            expirationTime = expirationTime,
+            profileImageUrl = senderProfileImageUrl, // Use sender's profile image
+            username = senderUsername // Use sender's username
+        )
+
+        // Add the notification to the "notifications" collection in Firestore
+        db.collection("notifications").add(notification)
+            .addOnSuccessListener { documentReference ->
+                val notificationId = documentReference.id
+                db.collection("notifications").document(notificationId)
+                    .update("notificationId", notificationId)
+                    .addOnSuccessListener {
+                        Log.d("ReviewNotification", "Notification added with ID: $notificationId") // Log success
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("ReviewNotification", "Error updating notificationId: ${e.message}", e) // Log any errors
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("ReviewNotification", "Error adding notification: ${e.message}", e) // Log any errors adding the notification
+            }
+    }
+    // Yunjong Noh
+    // Function to send notification to group members (with sender's details like profile image and username)
+    private fun sendNotificationToGroupMembers(groupId: String, message: String, notificationType: NotificationType, expirationTime: Long, senderId: String, senderProfileImageUrl: String, senderUsername: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Fetch group members (assuming the group data contains the members' IDs)
+        db.collection("groups").document(groupId).get()
+            .addOnSuccessListener { groupDoc ->
+                if (groupDoc.exists()) {
+                    val groupMembers = groupDoc.get("members") as? List<String> ?: emptyList()
+
+                    // Send notification to each member in the group
+                    groupMembers.forEach { memberId ->
+                        // Only send notification to non-current users (excluding sender)
+                        if (memberId != FirebaseAuth.getInstance().currentUser?.uid) {
+                            sendNotification(
+                                memberId, message, notificationType, expirationTime, senderId, memberId, senderProfileImageUrl, senderUsername
+                            )
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("ReviewNotification", "Error fetching group members: ${e.message}", e)
+            }
     }
 
     // Veronica Nguyen

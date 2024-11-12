@@ -4,18 +4,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.booknook.fragments.NotificationItem
+import com.example.booknook.fragments.NotificationType
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Date
 
-//Yunjong Noh
+// Yunjong Noh
 // RepliesAdapter class to manage replies to comments in the app
 class RepliesAdapter(private var replies: List<Reply>, private val comment: Comment) : RecyclerView.Adapter<RepliesAdapter.ReplyViewHolder>() {
 
@@ -55,8 +53,8 @@ class RepliesAdapter(private var replies: List<Reply>, private val comment: Comm
 
     // Function to post a reply to Firestore
     fun postReply(replyText: String, replyInput: EditText) {
-        val user = FirebaseAuth.getInstance().currentUser // Get the current user
-        val userId = user?.uid ?: "" // Get the user ID or set to empty if not logged in
+        val user = FirebaseAuth.getInstance().currentUser
+        val userId = user?.uid ?: ""
 
         // Fetch user information to get the username
         FirebaseFirestore.getInstance()
@@ -64,14 +62,14 @@ class RepliesAdapter(private var replies: List<Reply>, private val comment: Comm
             .document(userId)
             .get()
             .addOnSuccessListener { document ->
-                val username = document.getString("username") ?: "Anonymous" // Get username or set default
+                val username = document.getString("username") ?: "Anonymous"
 
                 // Create a Reply object
                 val reply = Reply(
                     userId = userId,
                     username = username,
                     text = replyText,
-                    timestamp = Date() // Current timestamp
+                    timestamp = Date()
                 )
 
                 // Retrieve necessary IDs for Firestore
@@ -81,8 +79,7 @@ class RepliesAdapter(private var replies: List<Reply>, private val comment: Comm
 
                 // Ensure valid IDs before adding reply to Firestore
                 if (isbn.isNotEmpty() && reviewId.isNotEmpty() && commentId.isNotEmpty()) {
-                    // Add the reply to Firestore
-                    FirebaseFirestore.getInstance()
+                    val replyRef = FirebaseFirestore.getInstance()
                         .collection("books")
                         .document(isbn)
                         .collection("reviews")
@@ -90,19 +87,55 @@ class RepliesAdapter(private var replies: List<Reply>, private val comment: Comm
                         .collection("comments")
                         .document(commentId)
                         .collection("replies")
-                        .add(reply) // Add reply to the replies sub-collection
+                        .document() // Auto-generate the reply ID
+
+                    replyRef.set(reply) // Add reply to Firestore
                         .addOnSuccessListener {
-                            Log.d("RepliesAdapter", "Reply added successfully") // Log success
+                            Log.d("RepliesAdapter", "Reply added successfully")
                             replyInput.text.clear() // Clear the input field
                             loadReplies() // Reload replies to update the display
+
+                            // Send notification to the original commenter
+                            sendNotification(userId, comment.userId, replyText)
                         }
                         .addOnFailureListener { exception ->
-                            Log.e("RepliesAdapter", "Error adding reply", exception) // Log any errors
+                            Log.e("RepliesAdapter", "Error adding reply", exception)
                         }
                 }
             }
             .addOnFailureListener { exception ->
-                Log.e("RepliesAdapter", "Error fetching user info", exception) // Log any errors fetching user info
+                Log.e("RepliesAdapter", "Error fetching user info", exception)
+            }
+    }
+    // Yunjong Noh
+    // Function to send a notification to Firestore
+    private fun sendNotification(senderId: String, receiverId: String, replyText: String) {
+        if (receiverId.isEmpty()) {
+            Log.e("RepliesAdapter", "Receiver ID is empty, notification not sent")
+            return
+        }
+
+        // Create the notification item
+        val notification = NotificationItem(
+            notificationId = FirebaseFirestore.getInstance().collection("notifications").document().id,
+            userId = receiverId, // The user who will receive the notification
+            senderId = senderId, // The user who sent the reply
+            message = "You have a new reply: $replyText",
+            timestamp = System.currentTimeMillis(),
+            type = NotificationType.REVIEW_REPLY, // Type of the notification
+            dismissed = false
+        )
+
+        // Save the notification to Firestore
+        FirebaseFirestore.getInstance()
+            .collection("notifications")
+            .document(notification.notificationId)
+            .set(notification)
+            .addOnSuccessListener {
+                Log.d("RepliesAdapter", "Notification sent successfully")
+            }
+            .addOnFailureListener { exception ->
+                Log.e("RepliesAdapter", "Error sending notification", exception)
             }
     }
 
