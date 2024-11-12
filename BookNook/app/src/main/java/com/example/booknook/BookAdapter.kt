@@ -40,6 +40,15 @@ class BookAdapter(
         holder.authors.text = book.volumeInfo.authors?.joinToString(", ")
             ?: holder.itemView.context.getString(R.string.unknown_author)
 
+        val genres = ArrayList(book.volumeInfo.categories ?: listOf("Unknown Genre"))
+        val description = book.volumeInfo.description
+        val rating = book.volumeInfo.averageRating
+        val isbn = book.volumeInfo.industryIdentifiers
+            ?.find { it.type == "ISBN_13" || it.type == "ISBN_10" }
+            ?.identifier ?: "No ISBN"
+        val authorList = ArrayList(book.volumeInfo.authors ?: listOf("Unknown Author"))
+
+
         // Load the book's thumbnail image using the Glide library.
         // Glide is used to load images from a URL and handle image downloading/caching efficiently.
         val imageUrl = book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
@@ -79,8 +88,6 @@ class BookAdapter(
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         holder.spinnerSelectCollection.adapter = adapter // Assign the adapter to the spinner
 
-        val genres = book.volumeInfo.categories ?: listOf("Unknown Genre")
-
         // Set the listener to handle selection changes
         holder.spinnerSelectCollection.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
@@ -107,7 +114,12 @@ class BookAdapter(
                                 holder.authors.text.toString(),
                                 imageUrl,
                                 selectedCollection,
-                                genres
+                                genres,
+                                description,
+                                rating,
+                                isbn,
+                                authorList
+
                             )
                         }
                     }
@@ -198,111 +210,82 @@ class BookAdapter(
     // Method to save the book to a selected standard collection in Firestore.
     // only allows a user to save it in ONE standard collection
     private fun saveBookToCollection(
-        // Create a map of the book's details to be saved.
         context: Context,
         title: String,
         authors: String,
         bookImage: String?,
         newCollectionName: String,
-        genres: List<String>
+        genres: List<String>?,
+        description: String?,
+        rating: Float?,
+        isbn: String?,
+        bookAuthorsList: List<String>?
     ) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid // Get current user ID
         if (userId != null) {
             val db = FirebaseFirestore.getInstance() // Reference to Firestore
 
+
             // Create a map of the book's details to be saved.
             val book = hashMapOf(
                 "title" to title,
-                "authors" to authors.split(", "),
+                "authors" to bookAuthorsList,
+                "authorsList" to bookAuthorsList,
                 "imageLink" to bookImage,
-                "genres" to genres
+                "genres" to genres,
+                "description" to description,
+                "rating" to rating,
+                "isbn" to isbn
             )
 
-            // Reference to the user's document
-            val userDocRef = db.collection("users").document(userId) // Reference to the user's document
 
-            // Firestore transaction to update the database.
+            val userDocRef = db.collection("users").document(userId)
+
+
             db.runTransaction { transaction ->
-                val snapshot = transaction.get(userDocRef) // Get current document
-                val username = snapshot.getString("username") ?: "Unknown User"  // Gets username
+                val snapshot = transaction.get(userDocRef)
 
-                // Loop through standard collections and remove the book from old collections.
+
+                // Remove the book from old collections if it exists
                 for (collection in standardCollections) {
                     if (collection != "Select Collection" && collection != newCollectionName) {
                         val booksInCollection = snapshot.get("standardCollections.$collection") as? List<Map<String, Any>>
                         booksInCollection?.let {
-                            // Check for existing book and remove it if found. Ehat makes sure book is only in one collection
                             for (existingBook in it) {
                                 if (existingBook["title"] == title && existingBook["authors"] == authors.split(", ")) {
                                     transaction.update(userDocRef, "standardCollections.$collection", FieldValue.arrayRemove(existingBook))
 
-                                    // Veronica Nguyen
-                                    // If the book was in "Finished", decrement numBooksRead
+
+                                    // Decrement numBooksRead if the book was in the "Finished" collection
                                     if (collection == "Finished") {
                                         transaction.update(userDocRef, "numBooksRead", FieldValue.increment(-1))
                                     }
-                                    break // Exit loop after removing the book
+                                    break
                                 }
                             }
                         }
                     }
                 }
 
-                // Add the book to the new collection.
+
+                // Add the book to the new collection
                 transaction.update(userDocRef, "standardCollections.$newCollectionName", FieldValue.arrayUnion(book))
 
-                // Veronica Nguyen
-                // Gets the user's joined groups
-                val groupIds = snapshot.get("joinedGroups") as? List<String> ?: emptyList()
+
+                // Increment numBooksRead if the new collection is "Finished"
                 if (newCollectionName == "Finished") {
                     transaction.update(userDocRef, "numBooksRead", FieldValue.increment(1))
-
-                    // Veronica Nguyen
-                    // Data to store for group updates in group they're in
-                    val updateData = hashMapOf(
-                        "userId" to userId,
-                        "username" to username,
-                        "type" to "finishBook",
-                        "timestamp" to FieldValue.serverTimestamp(),
-                        "bookTitle" to title
-                    )
-
-                    // Loops through each group the user is a member of
-                    groupIds.forEach { groupId ->
-                        // Adds finished book data
-                        val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates").document()
-                        transaction.set(groupUpdatesRef, updateData)
-                    }
                 }
-
-                if (newCollectionName == "Reading") {
-                    // Data to store for group updates in group they're in
-                    val updateData = hashMapOf(
-                        "userId" to userId,
-                        "username" to username,
-                        "type" to "startBook",
-                        "timestamp" to FieldValue.serverTimestamp(),
-                        "bookTitle" to title
-                    )
-
-                    // Loops through each group the user is a member of
-                    groupIds.forEach { groupId ->
-                        // Adds finished book data
-                        val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates").document()
-                        transaction.set(groupUpdatesRef, updateData)
-                    }
-                }
-
-                null // Indicate successful transaction
+                null
             }.addOnSuccessListener {
-                // Veronica Nguyen
-                calculateTopGenres(userId, context)  // Update top genres when adding book to default collection
+                calculateTopGenres(userId, context)
                 Toast.makeText(context, context.getString(R.string.book_added_to_collection, newCollectionName), Toast.LENGTH_SHORT).show()
             }.addOnFailureListener { e ->
                 Toast.makeText(context, context.getString(R.string.failed_to_add_book, e.message), Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
     // Olivia Fishbough
     // Method to show a dialog where the user can select a custom collection.
@@ -376,24 +359,43 @@ class BookAdapter(
     // Olivia Fishbough
     // Method to add a book to a custom collection in Firestore.
     // User can add a book to multiple collections
-    private fun addBookToCustomCollection(userId: String, book: BookItem, collectionName: String, context: Context) {
+    private fun addBookToCustomCollection(
+        userId: String,
+        book: BookItem,
+        collectionName: String,
+        context: Context
+    ) {
         val db = FirebaseFirestore.getInstance()
+
+
+        // Extract additional book information
+        val isbn = book.volumeInfo.industryIdentifiers
+            ?.find { it.type == "ISBN_13" || it.type == "ISBN_10" }
+            ?.identifier ?: "No ISBN"
+        val description = book.volumeInfo.description ?: "No description available"
+        val rating = book.volumeInfo.averageRating ?: 0f
+        val authorsList = ArrayList(book.volumeInfo.authors ?: listOf("Unknown Author"))
+        val genres = ArrayList(book.volumeInfo.categories ?: listOf("Unknown Genre"))
+
 
         // Prepare book data for the collection.
         val bookData = hashMapOf(
             "title" to book.volumeInfo.title,
-            "authors" to book.volumeInfo.authors,
+            "authors" to authorsList,
             "imageLink" to book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"),
             "pages" to 0, // Initialize pages count
             "tags" to emptyList<String>(),
-            "genres" to (book.volumeInfo.categories ?: listOf("Unknown Genre"))
+            "genres" to genres,
+            "description" to description,
+            "rating" to rating,
+            "isbn" to isbn
         )
+
 
         // Update Firestore to add the book to the custom collection.
         db.collection("users").document(userId)
             .update("customCollections.$collectionName.books", FieldValue.arrayUnion(bookData))
             .addOnSuccessListener {
-                // Veronica Nguyen
                 calculateTopGenres(userId, context)  // Update top genres when adding book to custom collection
                 Toast.makeText(context, "Book added to $collectionName", Toast.LENGTH_SHORT).show()
             }
