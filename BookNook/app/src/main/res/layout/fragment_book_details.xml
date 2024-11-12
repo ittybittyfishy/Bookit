@@ -21,13 +21,14 @@
             <!-- Book Image -->
             <ImageView
                 android:id="@+id/bookImage"
-                android:layout_width="191dp"
+                android:layout_width="170dp"
                 android:layout_height="250dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/placeholder_image"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_gravity="center_horizontal"/>
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"/>
 
             <TextView
                 android:id="@+id/bookTitle"
