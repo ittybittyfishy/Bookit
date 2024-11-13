@@ -240,7 +240,8 @@
             android:numStars="5"
             android:stepSize="0.5"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="4dp"
+            android:progressTint="@color/star_green"/>
 
         <!-- Book Rating Number -->
         <TextView

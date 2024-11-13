@@ -31,9 +31,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Username"
-                android:textColor="@android:color/black"
+                android:textColor="@color/star_green"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_weight="1"/>
 
             <!-- Timestamp TextView -->
             <TextView
@@ -42,47 +43,9 @@
                 android:layout_height="wrap_content"
                 android:text="2 days ago"
                 android:textColor="@android:color/darker_gray"
-                android:textSize="12sp" />
+                android:textSize="10sp" />
         </LinearLayout>
 
-        <!-- Likes and Dislikes Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <!-- Button for liking the review -->
-            <ImageButton
-                android:id="@+id/likeButton"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_like" />
-
-            <!-- TextView to show the count of likes -->
-            <TextView
-                android:id="@+id/likeCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:paddingStart="4dp"
-                android:paddingEnd="16dp" />
-
-            <!-- Button for disliking the review -->
-            <ImageButton
-                android:id="@+id/dislikeButton"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_dislike" />
-
-            <!-- TextView to show the count of dislikes -->
-            <TextView
-                android:id="@+id/dislikeCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:paddingStart="4dp" />
-        </LinearLayout>
 
         <!-- Overall Review Heading and Rating -->
         <LinearLayout
@@ -114,10 +77,21 @@
                 android:isIndicator="true"
                 android:numStars="5"
                 android:rating="4.5"
-                android:stepSize="0.5" />
+                android:stepSize="0.5"
+                android:progressTint="@color/star_green"/>
         </LinearLayout>
 
         <!-- Overall Review Text -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Overall Review: "
+            android:textColor="@color/main_text_brown"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp"
+            android:paddingRight="5dp" />
+
         <TextView
             android:id="@+id/OverallReviewText"
             android:layout_width="match_parent"
@@ -125,7 +99,8 @@
             android:text="Overall review text. This is the user's overall opinion of the book."
             android:textColor="@android:color/black"
             android:textSize="14sp"
-            android:paddingTop="8dp" />
+            android:paddingTop="8dp"
+            android:padding="5dp"/>
 
         <!-- Ratings and Reviews for Each Template Part -->
 
@@ -142,11 +117,13 @@
                 android:id="@+id/CharactersHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Characters"
+                android:text="Characters: "
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:paddingTop="8dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:textColor="@color/main_text_brown"
+                />
 
             <!-- RatingBar for character ratings, read-only -->
             <RatingBar
@@ -159,7 +136,8 @@
                 android:isIndicator="true"
                 android:rating="4.5"
                 android:layout_marginStart="5dp"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                android:progressTint="@color/star_green"/>
         </LinearLayout>
 
         <!-- TextView for Characters Review, initially hidden -->
@@ -186,11 +164,12 @@
                 android:id="@+id/WritingHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Writing"
+                android:text="Writing: "
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:paddingTop="8dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:textColor="@color/main_text_brown"/>
 
             <!-- RatingBar for writing ratings, read-only -->
             <RatingBar
@@ -203,7 +182,8 @@
                 android:isIndicator="true"
                 android:rating="4.5"
                 android:layout_marginStart="5dp"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                android:progressTint="@color/star_green"/>
         </LinearLayout>
 
         <!-- TextView for Writing Review, initially hidden -->
@@ -230,11 +210,12 @@
                 android:id="@+id/PlotHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Plot"
+                android:text="Plot: "
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:paddingTop="8dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:textColor="@color/main_text_brown"/>
 
             <!-- RatingBar for plot ratings, read-only -->
             <RatingBar
@@ -247,7 +228,8 @@
                 android:isIndicator="true"
                 android:rating="4.5"
                 android:layout_marginStart="5dp"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                android:progressTint="@color/star_green"/>
         </LinearLayout>
 
         <!-- TextView for Plot Review, initially hidden -->
@@ -274,11 +256,12 @@
                 android:id="@+id/ThemesHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Themes"
+                android:text="Themes: "
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:paddingTop="8dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:textColor="@color/main_text_brown"/>
 
             <!-- RatingBar for themes ratings, read-only -->
             <RatingBar
@@ -291,7 +274,8 @@
                 android:isIndicator="true"
                 android:rating="4.5"
                 android:layout_marginStart="5dp"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                android:progressTint="@color/star_green"/>
         </LinearLayout>
 
         <!-- TextView for Themes Review, initially hidden -->
@@ -318,11 +302,12 @@
                 android:id="@+id/StrengthsHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Strengths"
+                android:text="Strengths: "
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:paddingTop="8dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:textColor="@color/main_text_brown"/>
 
             <!-- RatingBar for strengths ratings, read-only -->
             <RatingBar
@@ -335,7 +320,8 @@
                 android:isIndicator="true"
                 android:rating="4.5"
                 android:layout_marginStart="5dp"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                android:progressTint="@color/star_green"/>
         </LinearLayout>
 
         <!-- TextView for Strengths Review, initially hidden -->
@@ -362,11 +348,12 @@
                 android:id="@+id/WeaknessesHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Weaknesses"
+                android:text="Weaknesses: "
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:paddingTop="8dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:textColor="@color/main_text_brown"/>
 
             <!-- RatingBar for weaknesses ratings, read-only -->
             <RatingBar
@@ -379,7 +366,8 @@
                 android:isIndicator="true"
                 android:rating="4.5"
                 android:layout_marginStart="5dp"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                android:progressTint="@color/star_green"/>
         </LinearLayout>
 
         <!-- TextView for Weaknesses Review, initially hidden -->
@@ -392,6 +380,96 @@
             android:textSize="14sp"
             android:paddingTop="4dp"
             android:visibility="gone" />
+
+        <!-- Likes and Dislikes Section -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_gravity="end">
+
+            <!-- Button for liking the review -->
+            <ImageButton
+                android:id="@+id/likeButton"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:scaleType="center"
+                android:src="@drawable/ic_accept_button"
+                android:backgroundTint="@color/transparent"
+                app:tint="@color/banner_green"/>
+
+            <!-- TextView to show the count of likes -->
+            <TextView
+                android:id="@+id/likeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="16dp" />
+
+            <!-- Button for disliking the review -->
+            <ImageButton
+                android:id="@+id/dislikeButton"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_reject_button"
+                app:tint="@color/red"
+                android:backgroundTint="@color/transparent" />
+
+            <!-- TextView to show the count of dislikes -->
+            <TextView
+                android:id="@+id/dislikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="16dp"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#ddd5c6"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_gravity="center_horizontal"/>
+
+        <!-- Input field for adding a comment -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <!-- EditText for user to type a comment -->
+            <EditText
+                android:id="@+id/commentInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Write a comment" />
+
+            <!-- Button to post the comment -->
+            <Button
+                android:id="@+id/postCommentButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Post"
+                android:backgroundTint="@color/star_green"/>
+        </LinearLayout>
+
+        <!-- Heading for Replies -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Replies: "
+            android:textColor="@color/main_text_brown"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp"
+            android:paddingRight="5dp" />
 
         <!-- Comments Section -->
         <LinearLayout
@@ -407,28 +485,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- Input field for adding a comment -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <!-- EditText for user to type a comment -->
-                <EditText
-                    android:id="@+id/commentInput"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Write a comment" />
-
-                <!-- Button to post the comment -->
-                <Button
-                    android:id="@+id/postCommentButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Post" />
-            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
