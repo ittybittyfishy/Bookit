@@ -49,6 +49,7 @@
         android:layout_height="wrap_content"
         android:text="Daily Recommendations"
         android:textColor="@color/home_pink"
+        android:textStyle="bold"
         android:textSize="30sp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp" />
@@ -358,7 +359,9 @@
         android:id="@+id/basedOnYourInputTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Based on your input"
+        android:textSize="20dp"
+        android:textColor="@color/home_pink"
+        android:text="Based on your input..."
         android:textStyle="bold"
         android:visibility="gone"
         android:layout_marginTop="16dp"
@@ -371,8 +374,10 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="8dp"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:layout_marginTop="5dp"
+        android:padding="10dp"
+        >
 
         <!-- ImageView for Book Cover -->
         <ImageView
@@ -472,6 +477,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="24sp"
+        android:textStyle="bold"
         android:text="While you were away..."
         android:textColor="@color/home_pink"
         android:layout_gravity="center_horizontal"
