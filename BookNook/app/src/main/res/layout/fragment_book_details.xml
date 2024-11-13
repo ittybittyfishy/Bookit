@@ -377,6 +377,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" />
+
+        <View
+            android:layout_width="380dp"
+            android:layout_height="1dp"
+            android:background="#ddd5c6"
+            android:paddingTop="10dp"/>
             
         <!-- Yunjong Noh -->
         <!-- User Review Section Title -->
@@ -386,7 +392,7 @@
             android:layout_height="wrap_content"
             android:text="User Review"
             android:textSize="20sp"
-            android:layout_marginTop="35dp"
+            android:layout_marginTop="20dp"
             android:textStyle="bold"
             android:textColor="@color/green_to_purple"
             android:layout_gravity="center_horizontal" />
