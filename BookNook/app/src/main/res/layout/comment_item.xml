@@ -30,9 +30,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Username"
-                android:textColor="@android:color/black"
+                android:textColor="@color/banner_green"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_weight="1" />
 
             <!-- TextView to display the timestamp of the comment -->
             <TextView
@@ -40,8 +41,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2 days ago"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="12sp" />
+                android:layout_gravity="center_vertical"
+                android:textSize="10sp"
+                android:textColor="@android:color/darker_gray" />
         </LinearLayout>
 
         <!-- TextView to display the actual comment text -->
@@ -51,7 +53,16 @@
             android:layout_height="wrap_content"
             android:text="This is the comment text."
             android:textColor="@android:color/black"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#ddd5c6"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_gravity="center_horizontal"/>
 
         <!-- RecyclerView for displaying replies to this comment -->
         <androidx.recyclerview.widget.RecyclerView
@@ -64,7 +75,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="8dp">
+            android:padding="8dp"
+            android:layout_marginStart="32dp">
 
             <!-- EditText for the user to type their reply -->
             <EditText
@@ -79,7 +91,10 @@
                 android:id="@+id/postReplyButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Post" />
+                android:background="@color/transparent"
+                android:textColor="@color/banner_green"
+                android:text="Reply"
+                android:textStyle="bold"/>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

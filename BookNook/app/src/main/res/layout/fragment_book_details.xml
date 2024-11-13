@@ -21,13 +21,14 @@
             <!-- Book Image -->
             <ImageView
                 android:id="@+id/bookImage"
-                android:layout_width="191dp"
+                android:layout_width="170dp"
                 android:layout_height="250dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/placeholder_image"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_gravity="center_horizontal"/>
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"/>
 
             <TextView
                 android:id="@+id/bookTitle"
@@ -239,7 +240,8 @@
             android:numStars="5"
             android:stepSize="0.5"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="4dp"
+            android:progressTint="@color/star_green"/>
 
         <!-- Book Rating Number -->
         <TextView
@@ -375,6 +377,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" />
+
+        <View
+            android:layout_width="380dp"
+            android:layout_height="1dp"
+            android:background="#ddd5c6"
+            android:paddingTop="10dp"/>
             
         <!-- Yunjong Noh -->
         <!-- User Review Section Title -->
@@ -384,7 +392,7 @@
             android:layout_height="wrap_content"
             android:text="User Review"
             android:textSize="20sp"
-            android:layout_marginTop="35dp"
+            android:layout_marginTop="20dp"
             android:textStyle="bold"
             android:textColor="@color/green_to_purple"
             android:layout_gravity="center_horizontal" />

@@ -8,14 +8,30 @@
     android:padding="8dp"
     android:layout_marginStart="32dp">
 
-    <!-- Username of the reply author -->
-    <TextView
-        android:id="@+id/replyUsername"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:text="Reply Username"
-        android:textColor="@android:color/holo_blue_dark" /> <!-- hightlight username -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <!-- Username of the reply author -->
+        <TextView
+            android:id="@+id/replyUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="Reply Username"
+            android:textColor="@color/reply_purple"
+            android:layout_weight="1"/> <!-- hightlight username -->
+
+        <!-- Reply timestamp -->
+        <TextView
+            android:id="@+id/replyTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Timestamp"
+            android:layout_gravity="center_vertical"
+            android:textSize="10sp"
+            android:textColor="@android:color/darker_gray" />
+
+    </LinearLayout>
 
     <!-- Reply content -->
     <TextView
@@ -23,13 +39,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Reply text"
-        android:textColor="@android:color/black" />
 
-    <!-- Reply timestamp -->
-    <TextView
-        android:id="@+id/replyTimestamp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Timestamp"
-        android:textColor="@android:color/darker_gray" />
+        android:textColor="@android:color/black" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#ddd5c6"
+        android:layout_marginTop="2dp"
+        android:layout_gravity="center_horizontal"/>
+
+
 </LinearLayout>
