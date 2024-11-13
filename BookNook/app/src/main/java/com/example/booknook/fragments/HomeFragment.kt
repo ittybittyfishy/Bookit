@@ -1,6 +1,7 @@
 package com.example.booknook.fragments
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -87,6 +88,9 @@ class HomeFragment : Fragment() {
 
     // Add this variable inside the HomeFragment class to track the number of rated books
     private var ratedBooksCount = 0
+
+    // Add this variable inside the HomeFragment class
+    private var fourthBookShown = false
 
 
     // Variables to store genres for each book
@@ -241,6 +245,11 @@ class HomeFragment : Fragment() {
         // Set up Like and Dislike button listeners
         setupButtonListeners()
 
+        // Load the fourthBookShown flag
+        fourthBookShown = getSharedPreferences().getBoolean("fourthBookShown", false)
+
+        // Initialize ratedBooksCount
+        ratedBooksCount = getSharedPreferences().getInt("ratedBooksCount", 0)
 
         // If user is logged in, fetch username from Firebase
         userId?.let { uid ->
@@ -713,6 +722,13 @@ class HomeFragment : Fragment() {
 
         val userId = auth.currentUser?.uid ?: return
 
+        // Reset ratedBooksCount and fourthBookShown
+        ratedBooksCount = 0
+        getSharedPreferences().edit().putInt("ratedBooksCount", ratedBooksCount).apply()
+        fourthBookShown = false
+        getSharedPreferences().edit().putBoolean("fourthBookShown", fourthBookShown).apply()
+        Log.d("HomeFragment", "ratedBooksCount and fourthBookShown reset.")
+
         // Save recommended books to Firestore
         books.forEach { book ->
             db.collection("users").document(userId).collection("recommendedBooks").document(book.id)
@@ -807,8 +823,14 @@ class HomeFragment : Fragment() {
     /**
      * Set up Like and Dislike button listeners for all three books.
      */
+    /**
+     * Set up Like and Dislike button listeners for all four books.
+     */
+    /**
+     * Set up Like and Dislike button listeners for all four books.
+     */
     private fun setupButtonListeners() {
-        // Like Button 1
+        // Like Button 1 (Position 0)
         likeButton1.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(0),
@@ -816,11 +838,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook1,
                 messageTextView = messageTextView1,
                 likeButton = likeButton1,
-                dislikeButton = dislikeButton1
+                dislikeButton = dislikeButton1,
+                position = 0
             )
         }
 
-        // Dislike Button 1
+        // Dislike Button 1 (Position 0)
         dislikeButton1.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(0),
@@ -828,11 +851,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook1,
                 messageTextView = messageTextView1,
                 likeButton = likeButton1,
-                dislikeButton = dislikeButton1
+                dislikeButton = dislikeButton1,
+                position = 0
             )
         }
 
-        // Like Button 2
+        // Like Button 2 (Position 1)
         likeButton2.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(1),
@@ -840,11 +864,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook2,
                 messageTextView = messageTextView2,
                 likeButton = likeButton2,
-                dislikeButton = dislikeButton2
+                dislikeButton = dislikeButton2,
+                position = 1
             )
         }
 
-        // Dislike Button 2
+        // Dislike Button 2 (Position 1)
         dislikeButton2.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(1),
@@ -852,11 +877,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook2,
                 messageTextView = messageTextView2,
                 likeButton = likeButton2,
-                dislikeButton = dislikeButton2
+                dislikeButton = dislikeButton2,
+                position = 1
             )
         }
 
-        // Like Button 3
+        // Like Button 3 (Position 2)
         likeButton3.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(2),
@@ -864,11 +890,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook3,
                 messageTextView = messageTextView3,
                 likeButton = likeButton3,
-                dislikeButton = dislikeButton3
+                dislikeButton = dislikeButton3,
+                position = 2
             )
         }
 
-        // Dislike Button 3
+        // Dislike Button 3 (Position 2)
         dislikeButton3.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(2),
@@ -876,11 +903,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook3,
                 messageTextView = messageTextView3,
                 likeButton = likeButton3,
-                dislikeButton = dislikeButton3
+                dislikeButton = dislikeButton3,
+                position = 2
             )
         }
 
-        // Like Button 4
+        // Like Button 4 (Position 3) - Does NOT affect ratedBooksCount
         likeButton4.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(3),
@@ -888,11 +916,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook4,
                 messageTextView = messageTextView4,
                 likeButton = likeButton4,
-                dislikeButton = dislikeButton4
+                dislikeButton = dislikeButton4,
+                position = 3
             )
         }
 
-        // Dislike Button 4
+        // Dislike Button 4 (Position 3) - Does NOT affect ratedBooksCount
         dislikeButton4.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(3),
@@ -900,11 +929,13 @@ class HomeFragment : Fragment() {
                 genre = genreBook4,
                 messageTextView = messageTextView4,
                 likeButton = likeButton4,
-                dislikeButton = dislikeButton4
+                dislikeButton = dislikeButton4,
+                position = 3
             )
         }
-
     }
+
+
 
     //work review 4 itzel medina
     /**
@@ -953,13 +984,25 @@ class HomeFragment : Fragment() {
      * Modified function to handle user feedback for a book.
      * Increments the ratedBooksCount and fetches the fourth recommendation when all three books are rated.
      */
+    /**
+     * Handles user feedback for a book.
+     *
+     * @param bookId The ID of the book.
+     * @param feedback The type of feedback ("like" or "dislike").
+     * @param genre The genre of the book.
+     * @param messageTextView The TextView to display messages.
+     * @param likeButton The Like button.
+     * @param dislikeButton The Dislike button.
+     * @param position The position of the book (0, 1, 2, 3).
+     */
     private fun handleUserFeedback(
         bookId: String?,
         feedback: String,
         genre: String?,
         messageTextView: TextView,
         likeButton: ImageButton,
-        dislikeButton: ImageButton
+        dislikeButton: ImageButton,
+        position: Int
     ) {
         if (bookId == null) {
             Log.e("HomeFragment", "Book ID is null. Cannot record feedback.")
@@ -968,21 +1011,12 @@ class HomeFragment : Fragment() {
 
         val userId = auth.currentUser?.uid ?: return
 
-        // Prevent action if genre is null
         if (genre == null) {
             Log.e("HomeFragment", "Genre is null. Cannot display message.")
             return
         }
 
-        // Create feedback data
-        val feedbackData = mapOf(
-            "bookId" to bookId,
-            "feedback" to feedback,
-            "genre" to genre,
-            "timestamp" to Calendar.getInstance().time
-        )
-
-        // Save book to dismissedBooks collection
+        // Save book to dismissedBooks
         db.collection("users").document(userId).collection("dismissedBooks").document(bookId).set(
             mapOf(
                 "bookId" to bookId,
@@ -995,44 +1029,50 @@ class HomeFragment : Fragment() {
             Log.e("HomeFragment", "Error adding book to dismissedBooks: ${e.message}", e)
         }
 
-        // Save feedback to Firestore under the user's document
-        db.collection("users").document(userId).collection("bookFeedback").add(feedbackData)
-            .addOnSuccessListener {
-                Log.d("HomeFragment", "Feedback recorded: $feedback for book $bookId")
-                // Update the UI message based on feedback
-                val message = if (feedback == "like") {
-                    "$genre books will now be recommended more."
-                } else {
-                    "$genre books will be recommended less now"
-                }
-                messageTextView.text = message
-                messageTextView.visibility = View.VISIBLE
+        // Save feedback to Firestore
+        db.collection("users").document(userId).collection("bookFeedback").add(
+            mapOf(
+                "bookId" to bookId,
+                "feedback" to feedback,
+                "genre" to genre,
+                "timestamp" to Calendar.getInstance().time
+            )
+        ).addOnSuccessListener {
+            Log.d("HomeFragment", "Feedback recorded: $feedback for book $bookId")
 
-                likeButton.visibility = View.INVISIBLE
-                dislikeButton.visibility = View.INVISIBLE
+            // Update the UI message based on feedback
+            val message = if (feedback == "like") {
+                "$genre books will now be recommended more."
+            } else {
+                "$genre books will be recommended less now."
+            }
+            messageTextView.text = message
+            messageTextView.visibility = View.VISIBLE
 
-                // Increment the rated books count
-                ratedBooksCount++
+            likeButton.visibility = View.INVISIBLE
+            dislikeButton.visibility = View.INVISIBLE
 
-                // Check if all three books have been rated
-                if (ratedBooksCount == 3) {
-                    // Display the "Based on your input" text
+            // Increment the rated books count only for the first three books
+            if (position < 3) {
+                incrementRatedBooksCount()
+                Log.d("HomeFragment", "RatedBooksCount after increment: $ratedBooksCount")
+
+                // Check if all three books have been rated and the fourth book hasn't been shown yet
+                if (ratedBooksCount >= 3 && !fourthBookShown) {
+                    Log.d("HomeFragment", "All three books rated. Fetching fourth recommendation.")
                     view?.findViewById<TextView>(R.id.basedOnYourInputTextView)?.visibility = View.VISIBLE
-                    // Fetch and display the fourth recommendation
                     determineFourthRecommendation(userId)
                 }
+            }
 
-                // Update genre feedback counts
-                updateGenreFeedback(userId, genre, feedback)
-            }
-            .addOnFailureListener { e ->
-                Log.e("HomeFragment", "Error recording feedback: ${e.message}", e)
-                messageTextView.text = "Failed to record feedback."
-                messageTextView.visibility = View.VISIBLE
-            }
+            // Update genre feedback counts
+            updateGenreFeedback(userId, genre, feedback)
+        }.addOnFailureListener { e ->
+            Log.e("HomeFragment", "Error recording feedback: ${e.message}", e)
+            messageTextView.text = "Failed to record feedback."
+            messageTextView.visibility = View.VISIBLE
+        }
     }
-
-
 
     /**
      * Updates the genre feedback counts in Firestore.
@@ -1067,8 +1107,8 @@ class HomeFragment : Fragment() {
                     "dislikes", updatedDislikes
                 ).addOnSuccessListener {
                     Log.d("HomeFragment", "Updated genre feedback for $genre: Likes=$updatedLikes, Dislikes=$updatedDislikes")
-                    // After updating feedback, fetch a new fourth recommendation
-                    determineFourthRecommendation(userId)
+                    // **Do not call determineFourthRecommendation here**
+                    // If you need to fetch recommendations based on updated feedback, ensure it's controlled
                 }.addOnFailureListener { e ->
                     Log.e("HomeFragment", "Error updating genre feedback: ${e.message}", e)
                 }
@@ -1080,8 +1120,7 @@ class HomeFragment : Fragment() {
                     "dislikes" to initialDislikes
                 )).addOnSuccessListener {
                     Log.d("HomeFragment", "Initialized genre feedback for $genre: Likes=$initialLikes, Dislikes=$initialDislikes")
-                    // After initializing feedback, fetch a new fourth recommendation
-                    determineFourthRecommendation(userId)
+                    // **Do not call determineFourthRecommendation here**
                 }.addOnFailureListener { e ->
                     Log.e("HomeFragment", "Error initializing genre feedback: ${e.message}", e)
                 }
@@ -1099,6 +1138,11 @@ class HomeFragment : Fragment() {
      * Function to determine and fetch the fourth recommendation based on user feedback.
      */
     private fun determineFourthRecommendation(userId: String) {
+        if (fourthBookShown) {
+            Log.d("HomeFragment", "Fourth book has already been shown. Skipping fetch.")
+            return
+        }
+
         Log.d("HomeFragment", "Determining fourth recommendation for user: $userId")
         db.collection("users").document(userId)
             .collection("genreFeedback").get()
@@ -1134,7 +1178,7 @@ class HomeFragment : Fragment() {
      */
     private fun fetchAndDisplayFourthRecommendation(userId: String, preferredGenre: String) {
         Log.d("fetchAndDisplayFourthRecommendation", "Fetching book for genre: $preferredGenre")
-        val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM" // Google Books API key
+        val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM" // Ensure this is your valid API key
         val query = "subject:$preferredGenre"
         val randomStartIndex = Random.nextInt(0, 30)
         val call = GoogleBooksApiService.create().searchBooks(query, randomStartIndex, 1, apiKey)
@@ -1143,6 +1187,7 @@ class HomeFragment : Fragment() {
             override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
                 if (response.isSuccessful) {
                     val books = response.body()?.items ?: emptyList()
+                    Log.d("fetchAndDisplayFourth", "Books retrieved: ${books.size}")
                     if (books.isNotEmpty()) {
                         val fourthBook = books[0]
                         displayFourthBook(fourthBook)
@@ -1163,12 +1208,24 @@ class HomeFragment : Fragment() {
         })
     }
 
+
+    /**
+     * Displays the fourth book in the UI with the "Based on your input" text.
+     *
+     * @param book The BookItem to display as the fourth recommendation.
+     */
     /**
      * Displays the fourth book in the UI with the "Based on your input" text.
      *
      * @param book The BookItem to display as the fourth recommendation.
      */
     private fun displayFourthBook(book: BookItem) {
+        if (fourthBookShown) {
+            Log.d("HomeFragment", "Fourth book has already been shown. Skipping display.")
+            return
+        }
+
+        Log.d("HomeFragment", "Displaying fourth book: ${book.volumeInfo?.title}")
         // Set the "Based on your input" TextView to visible
         view?.findViewById<TextView>(R.id.basedOnYourInputTextView)?.visibility = View.VISIBLE
 
@@ -1189,8 +1246,12 @@ class HomeFragment : Fragment() {
 
         // Make the fourth book's layout visible
         view?.findViewById<LinearLayout>(R.id.bookItem4)?.visibility = View.VISIBLE
-    }
 
+        Log.d("HomeFragment", "Fourth book displayed successfully.")
+
+        // Set the flag after successful display
+        markFourthBookAsShown()
+    }
 
 
     //work review 4 itzel medina
@@ -1256,6 +1317,23 @@ class HomeFragment : Fragment() {
         // Ensure the fourth book's layout is visible
         view?.findViewById<LinearLayout>(R.id.bookItem4)?.visibility = View.VISIBLE
     }
+
+    //itzel medina
+    private fun getSharedPreferences(): SharedPreferences {
+        return requireContext().getSharedPreferences("booknook_prefs", Context.MODE_PRIVATE)
+    }
+
+    //itzel medina
+    private fun markFourthBookAsShown() {
+        getSharedPreferences().edit().putBoolean("fourthBookShown", true).apply()
+    }
+
+    //itzel medina
+    private fun incrementRatedBooksCount() {
+        ratedBooksCount += 1
+        getSharedPreferences().edit().putInt("ratedBooksCount", ratedBooksCount).apply()
+    }
+
 
 
 }
