@@ -81,8 +81,6 @@ class HomeFragment : Fragment() {
     private lateinit var bookCoverImageView4: ImageView
     private lateinit var bookTitleTextView4: TextView
     private lateinit var bookAuthorsTextView4: TextView
-    private lateinit var dislikeButton4: ImageButton
-    private lateinit var likeButton4: ImageButton
     private lateinit var messageTextView4: TextView
     private lateinit var buttonContainer4: View
 
@@ -107,6 +105,11 @@ class HomeFragment : Fragment() {
     //work review 4 itzel medina
     // Variable to store genre for Book 4
     private var genreBook4: String? = null
+
+    //itzel medina
+    private lateinit var expandButton: ImageButton
+    private lateinit var booksContainer: LinearLayout
+
 
 
     override fun onCreateView(
@@ -170,10 +173,30 @@ class HomeFragment : Fragment() {
         bookCoverImageView4 = view.findViewById(R.id.bookCoverImageView4)
         bookTitleTextView4 = view.findViewById(R.id.bookTitleTextView4)
         bookAuthorsTextView4 = view.findViewById(R.id.bookAuthorsTextView4)
-        dislikeButton4 = view.findViewById(R.id.dislikeButton4)
-        likeButton4 = view.findViewById(R.id.likeButton4)
         messageTextView4 = view.findViewById(R.id.messageTextView4)
         buttonContainer4 = view.findViewById(R.id.buttonContainer4)
+
+        //itzel medina
+        // Initialize Expand Button and Books Container
+        expandButton = view.findViewById(R.id.expandButton)
+        booksContainer = view.findViewById(R.id.booksContainer)
+
+        //itzel medina
+        // Retrieve the expanded/collapsed state from SharedPreferences
+        val isExpanded = getSharedPreferences().getBoolean("isBooksContainerExpanded", true)
+        setBooksContainerVisibility(isExpanded, animate = false)
+        updateExpandButtonIcon(isExpanded)
+
+        // Set up click listener for Expand Button
+        expandButton.setOnClickListener {
+            val currentlyExpanded = booksContainer.visibility == View.VISIBLE
+            val newExpandedState = !currentlyExpanded
+            setBooksContainerVisibility(newExpandedState, animate = true)
+            updateExpandButtonIcon(newExpandedState)
+            // Save the new state
+            getSharedPreferences().edit().putBoolean("isBooksContainerExpanded", newExpandedState).apply()
+        }
+
 
 
         // Set up click listeners for Book 1
@@ -211,16 +234,6 @@ class HomeFragment : Fragment() {
             dismissNotification(notificationId) // Call Notification Release Function in Firestore
         }
         notificationsRecyclerView.adapter = updatesAdapter
-
-        //Itzel medina work review 4
-        // Set up click listeners for Book 4
-        dislikeButton4.setOnClickListener {
-            onDislikeClicked(buttonContainer4, messageTextView4, "You disliked this book!")
-        }
-
-        likeButton4.setOnClickListener {
-            onLikeClicked(buttonContainer4, messageTextView4, "You liked this book!")
-        }
 
         //testing
         // Initialize Refresh Button
@@ -908,31 +921,6 @@ class HomeFragment : Fragment() {
             )
         }
 
-        // Like Button 4 (Position 3) - Does NOT affect ratedBooksCount
-        likeButton4.setOnClickListener {
-            handleUserFeedback(
-                bookId = getBookId(3),
-                feedback = "like",
-                genre = genreBook4,
-                messageTextView = messageTextView4,
-                likeButton = likeButton4,
-                dislikeButton = dislikeButton4,
-                position = 3
-            )
-        }
-
-        // Dislike Button 4 (Position 3) - Does NOT affect ratedBooksCount
-        dislikeButton4.setOnClickListener {
-            handleUserFeedback(
-                bookId = getBookId(3),
-                feedback = "dislike",
-                genre = genreBook4,
-                messageTextView = messageTextView4,
-                likeButton = likeButton4,
-                dislikeButton = dislikeButton4,
-                position = 3
-            )
-        }
     }
 
 
@@ -1333,6 +1321,44 @@ class HomeFragment : Fragment() {
         ratedBooksCount += 1
         getSharedPreferences().edit().putInt("ratedBooksCount", ratedBooksCount).apply()
     }
+
+    //itzel medina
+    /**
+     * Sets the visibility of the booksContainer with optional animation.
+     *
+     * @param isVisible Boolean indicating whether the container should be visible.
+     * @param animate Boolean indicating whether to animate the visibility change.
+     */
+    private fun setBooksContainerVisibility(isVisible: Boolean, animate: Boolean) {
+        if (animate) {
+            if (isVisible) {
+                booksContainer.visibility = View.VISIBLE
+                booksContainer.animate().alpha(1.0f).setDuration(300).start()
+            } else {
+                booksContainer.animate()
+                    .alpha(0.0f)
+                    .setDuration(300)
+                    .withEndAction { booksContainer.visibility = View.GONE }
+                    .start()
+            }
+        } else {
+            booksContainer.visibility = if (isVisible) View.VISIBLE else View.GONE
+        }
+    }
+
+    /**
+     * Updates the expandButton icon based on the expanded state.
+     *
+     * @param isExpanded Boolean indicating whether the container is expanded.
+     */
+    private fun updateExpandButtonIcon(isExpanded: Boolean) {
+        if (isExpanded) {
+            expandButton.setImageResource(R.drawable.collapse_button) // Up arrow
+        } else {
+            expandButton.setImageResource(R.drawable.expand_button) // Down arrow
+        }
+    }
+
 
 
 
