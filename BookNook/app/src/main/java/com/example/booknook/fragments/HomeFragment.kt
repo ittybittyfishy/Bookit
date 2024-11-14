@@ -1,6 +1,7 @@
 package com.example.booknook.fragments
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -84,6 +85,13 @@ class HomeFragment : Fragment() {
     private lateinit var likeButton4: ImageButton
     private lateinit var messageTextView4: TextView
     private lateinit var buttonContainer4: View
+
+    // Add this variable inside the HomeFragment class to track the number of rated books
+    private var ratedBooksCount = 0
+
+    // Add this variable inside the HomeFragment class
+    private var fourthBookShown = false
+
 
     // Variables to store genres for each book
     private var genreBook1: String? = null
@@ -237,6 +245,11 @@ class HomeFragment : Fragment() {
         // Set up Like and Dislike button listeners
         setupButtonListeners()
 
+        // Load the fourthBookShown flag
+        fourthBookShown = getSharedPreferences().getBoolean("fourthBookShown", false)
+
+        // Initialize ratedBooksCount
+        ratedBooksCount = getSharedPreferences().getInt("ratedBooksCount", 0)
 
         // If user is logged in, fetch username from Firebase
         userId?.let { uid ->
@@ -431,7 +444,6 @@ class HomeFragment : Fragment() {
     }
 
 
-
     //testing
     /**
      * Handles the Refresh Recommendations button click.
@@ -606,238 +618,219 @@ class HomeFragment : Fragment() {
         }
     }
 
+    //"AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM"
     // Yunjong Noh
     // Function to perform a Google Books API search based on the user's top genres
+    /**
+     * Function to perform a Google Books API search based on the user's combined genres.
+     * Fetches up to 4 books in a single API call by combining all genres into one query.
+     */
+    /**
+     * Modified function to perform a Google Books API search based on the user's combined genres.
+     * Fetches up to 3 books in a single API call by combining all genres into one query.
+     */
     private fun performGoogleBooksSearch(genres: List<String>, avgRating: Double) {
         val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM" // Google Books API key
-        val genreBooksMap = mutableMapOf<String, MutableList<BookItem>>() // Map to store books by genre
-        val recommendedBookIds = mutableSetOf<String>() // Set to track book IDs to avoid duplicates
-        var apiCallsCompleted = 0 // Counter to track how many API calls have been completed
+        val userId = auth.currentUser?.uid ?: return
 
-        Log.d("HomeFragment", "Combined recommendation for the user (genrePreferences + topGenres): $genres")
+        if (genres.isEmpty()) {
+            Log.w("HomeFragment", "No genres available for searching books.")
+            Toast.makeText(requireContext(), "No genres available for recommendations.", Toast.LENGTH_LONG).show()
+            return
+        }
 
-        // For each genre, make a single Google Books API request
-        genres.forEach { genre ->
-            genreBooksMap[genre] = mutableListOf() // Initialize a list for each genre in the map
+        // Combine all genres into a single query separated by OR
+        val combinedQuery = genres.joinToString(" OR ") { "subject:$it" }
+        Log.d("HomeFragment", "Combined query for Google Books API: $combinedQuery")
 
-            // Generate a random starting index between 0 and 30 to get varied search results
-            val randomStartIndex = Random.nextInt(0, 30)
+        // Generate a random start index to vary the search results
+        val randomStartIndex = Random.nextInt(0, 30)
 
-            // Nested function to fetch books for a specific genre with an attempt counter for retries
-            fun fetchBooksForGenre(attempt: Int) {
-                val query = "subject:$genre" // Google Books API query parameter for subject/genre
-                val call = GoogleBooksApiService.create().searchBooks(query, randomStartIndex, 20, apiKey) // API call to search books
+        // Make a single API call to fetch up to 3 books
+        val call = GoogleBooksApiService.create().searchBooks(combinedQuery, randomStartIndex, 3, apiKey)
 
-                // Handle the API response
-                call.enqueue(object : Callback<BookResponse> {
-                    override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
-                        if (response.isSuccessful) {
-                            // Retrieve the list of books from the response
-                            val books = response.body()?.items ?: emptyList()
-                            Log.d("HomeFragment", "Books retrieved for genre '$genre': ${books.size}")
+        call.enqueue(object : Callback<BookResponse> {
+            override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
+                if (response.isSuccessful) {
+                    val books = response.body()?.items ?: emptyList()
+                    Log.d("HomeFragment", "Books retrieved for combined genres: ${books.size}")
+                    if (books.isNotEmpty()) {
+                        // Filter out books that are dismissed or already recommended
+                        db.collection("users").document(userId).collection("dismissedBooks").get()
+                            .addOnSuccessListener { dismissedSnapshot ->
+                                val dismissedBookIds = dismissedSnapshot.documents.mapNotNull { it.id }.toSet()
 
-                            // Add unique books to the genreBooksMap, limiting to 1 book per genre
-                            books.firstOrNull { !recommendedBookIds.contains(it.id) }?.let { book ->
-                                genreBooksMap[genre]?.add(book) // Add book to the map for the genre
-                                recommendedBookIds.add(book.id) // Track book ID to avoid duplicates
+                                db.collection("users").document(userId).collection("recommendedBooks").get()
+                                    .addOnSuccessListener { recommendedSnapshot ->
+                                        val previouslyRecommendedBookIds =
+                                            recommendedSnapshot.documents.mapNotNull { it.id }.toSet()
+
+                                        // Exclude dismissed and previously recommended books
+                                        val excludedBookIds = dismissedBookIds + previouslyRecommendedBookIds
+
+                                        // Filter the books
+                                        val filteredBooks = books.filter { book ->
+                                            !excludedBookIds.contains(book.id)
+                                        }.take(3) // Ensure only up to 3 books are taken
+
+                                        if (filteredBooks.isNotEmpty()) {
+                                            displayRecommendedBooks(filteredBooks)
+                                        } else {
+                                            Log.d("HomeFragment", "No suitable books found after filtering.")
+                                            Toast.makeText(requireContext(), "No suitable recommendations found.", Toast.LENGTH_LONG).show()
+                                        }
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("HomeFragment", "Error fetching recommended books: ${e.message}", e)
+                                        Toast.makeText(requireContext(), "Error fetching recommendations.", Toast.LENGTH_LONG).show()
+                                    }
                             }
-
-                            apiCallsCompleted++ // Increment the API call completion counter
-                            if (apiCallsCompleted == genres.size) { // Check if all genre searches are completed
-                                val finalBooks = genreBooksMap.values.flatten().take(4) // Take up to 3 books total
-                                if (finalBooks.isNotEmpty()) {
-                                    displayRecommendedBooks(finalBooks) // Display the final book recommendations
-                                } else {
-                                    Log.d("HomeFragment", "No books found across all genres.")
-                                }
+                            .addOnFailureListener { e ->
+                                Log.e("HomeFragment", "Error fetching dismissed books: ${e.message}", e)
+                                Toast.makeText(requireContext(), "Error fetching recommendations.", Toast.LENGTH_LONG).show()
                             }
-                        } else {
-                            // Handle API error response and retry if necessary
-                            Log.d("HomeFragment", "Google Books API Error for genre '$genre': ${response.errorBody()?.string()}")
-                            handleApiRetryOrFailure(attempt)
-                        }
+                    } else {
+                        Log.d("HomeFragment", "No books found for combined genres.")
+                        Toast.makeText(requireContext(), "No recommendations available.", Toast.LENGTH_LONG).show()
                     }
-
-                    override fun onFailure(call: Call<BookResponse>, t: Throwable) {
-                        // Log failure and retry if needed
-                        Log.d("HomeFragment", "Google Books API Failure for genre '$genre': ${t.message}")
-                        handleApiRetryOrFailure(attempt)
-                    }
-
-                    // Nested function to handle retry or failure logic
-                    private fun handleApiRetryOrFailure(attempt: Int) {
-                        if (attempt < 5) { // Limit to 5 retry attempts
-                            val delay = (1000 * Math.pow(2.0, attempt.toDouble())).toLong() // Exponential backoff (1s, 2s, 4s, 8s, etc.)
-                            Log.d("HomeFragment", "Retrying in ${delay / 1000}s for genre '$genre' (attempt $attempt)")
-                            Handler(Looper.getMainLooper()).postDelayed({ fetchBooksForGenre(attempt + 1) }, delay)
-                        } else {
-                            // Final attempt failed; increment completed counter
-                            apiCallsCompleted++
-                            if (apiCallsCompleted == genres.size) { // Check if all genre searches are completed
-                                val finalBooks = genreBooksMap.values.flatten().take(3) // Take up to 3 books total
-                                if (finalBooks.isNotEmpty()) {
-                                    displayRecommendedBooks(finalBooks) // Display the final book recommendations
-                                } else {
-                                    Log.d("HomeFragment", "No books found across all genres.")
-                                }
-                            }
-                        }
-                    }
-                })
+                } else {
+                    Log.e("HomeFragment", "Google Books API Error: ${response.errorBody()?.string()}")
+                    Toast.makeText(requireContext(), "Failed to fetch recommendations.", Toast.LENGTH_LONG).show()
+                }
             }
 
-            // Start the first attempt to fetch books for the current genre
-            fetchBooksForGenre(0)
-        }
+            override fun onFailure(call: Call<BookResponse>, t: Throwable) {
+                Log.e("HomeFragment", "Google Books API Failure: ${t.message}")
+                Toast.makeText(requireContext(), "Failed to fetch recommendations.", Toast.LENGTH_LONG).show()
+            }
+        })
     }
+
+
 
     // Yunjong Noh
     // Display the recommended books in the UI
+    /**
+     * Function to display the recommended books in the UI.
+     * Handles up to four books and updates the respective UI components.
+     */
+    /**
+     * Modified function to display the recommended books in the UI.
+     * Handles up to three books and hides the fourth book initially.
+     */
     private fun displayRecommendedBooks(books: List<BookItem>) {
+
+        val userId = auth.currentUser?.uid ?: return
+
+        // Reset ratedBooksCount and fourthBookShown
+        ratedBooksCount = 0
+        getSharedPreferences().edit().putInt("ratedBooksCount", ratedBooksCount).apply()
+        fourthBookShown = false
+        getSharedPreferences().edit().putBoolean("fourthBookShown", fourthBookShown).apply()
+        Log.d("HomeFragment", "ratedBooksCount and fourthBookShown reset.")
+
+        // Save recommended books to Firestore
+        books.forEach { book ->
+            db.collection("users").document(userId).collection("recommendedBooks").document(book.id)
+                .set(
+                    mapOf("bookId" to book.id)
+                ).addOnSuccessListener {
+                    Log.d("HomeFragment", "Book ${book.id} added to recommendedBooks.")
+                }.addOnFailureListener { e ->
+                    Log.e("HomeFragment", "Error saving recommended book ${book.id}: ${e.message}", e)
+                }
+        }
+
         if (books.isNotEmpty()) {
             // Save the list of recommended books to SharedPreferences for later use
-            saveRecommendationsToPreferences(auth.currentUser?.uid ?: "", books)
+            saveRecommendationsToPreferences(userId, books)
 
             // ---------------------
             // Display Book 1 Details
             // ---------------------
-            val book1 = books.getOrNull(0) // Safely get the first book or null
-            // Set the book title, defaulting to "Unknown Title" if null
+            val book1 = books.getOrNull(0)
             bookTitleTextView1.text = book1?.volumeInfo?.title ?: "Unknown Title"
-            // Set the book authors, defaulting to "Unknown Author" if null
-            bookAuthorsTextView1.text =
-                book1?.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
-
-            // Extract the primary genre, defaulting to "Various Genres" if null
+            bookAuthorsTextView1.text = book1?.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
             genreBook1 = book1?.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
-
-            // Reset the message TextView visibility and text
             messageTextView1.visibility = View.GONE
             messageTextView1.text = "Message will appear here"
 
-            // Prepare the thumbnail URL, replacing "http://" with "https://" for security
-            val thumbnail1 =
-                book1?.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
+            val thumbnail1 = book1?.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
             Log.d("HomeFragment", "Book 1 Image URL: $thumbnail1")
 
-            // Load the book cover image using Glide, or use a placeholder if the thumbnail is null
             if (book1 != null) {
                 Glide.with(this)
                     .load(thumbnail1 ?: R.drawable.placeholder_image)
-                    .skipMemoryCache(true) // Skip memory cache for fresh loading
+                    .skipMemoryCache(true)
                     .into(bookCoverImageView1)
             } else {
-                // If book1 is null, set a default placeholder image
                 bookCoverImageView1.setImageResource(R.drawable.placeholder_image)
             }
 
             // ---------------------
             // Display Book 2 Details
             // ---------------------
-            val book2 = books.getOrNull(1) // Safely get the second book or null
+            val book2 = books.getOrNull(1)
             if (book2 != null) {
-                // Set the book title, defaulting to "Unknown Title" if null
                 bookTitleTextView2.text = book2.volumeInfo?.title ?: "Unknown Title"
-                // Set the book authors, defaulting to "Unknown Author" if null
-                bookAuthorsTextView2.text =
-                    book2.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
-
-                // Extract the primary genre, defaulting to "Various Genres" if null
+                bookAuthorsTextView2.text = book2.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
                 genreBook2 = book2.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
-
-                // Reset the message TextView visibility and text
                 messageTextView2.visibility = View.GONE
                 messageTextView2.text = "Message will appear here"
 
-                // Prepare the thumbnail URL, replacing "http://" with "https://" for security
-                val thumbnail2 =
-                    book2.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
+                val thumbnail2 = book2.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
                 Log.d("HomeFragment", "Book 2 Image URL: $thumbnail2")
 
-                // Load the book cover image using Glide, or use a placeholder if the thumbnail is null
                 Glide.with(this)
                     .load(thumbnail2 ?: R.drawable.placeholder_image)
-                    .skipMemoryCache(true) // Skip memory cache for fresh loading
+                    .skipMemoryCache(true)
                     .into(bookCoverImageView2)
             } else {
-                // Hide the entire Book 2 layout if the book is not available
                 view?.findViewById<LinearLayout>(R.id.bookItem2)?.visibility = View.GONE
             }
 
             // ---------------------
             // Display Book 3 Details
             // ---------------------
-            val book3 = books.getOrNull(2) // Safely get the third book or null
+            val book3 = books.getOrNull(2)
             if (book3 != null) {
-                // Set the book title, defaulting to "Unknown Title" if null
                 bookTitleTextView3.text = book3.volumeInfo?.title ?: "Unknown Title"
-                // Set the book authors, defaulting to "Unknown Author" if null
-                bookAuthorsTextView3.text =
-                    book3.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
-
-                // Extract the primary genre, defaulting to "Various Genres" if null
+                bookAuthorsTextView3.text = book3.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
                 genreBook3 = book3.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
-
-                // Reset the message TextView visibility and text
                 messageTextView3.visibility = View.GONE
                 messageTextView3.text = "Message will appear here"
 
-                // Prepare the thumbnail URL, replacing "http://" with "https://" for security
-                val thumbnail3 =
-                    book3.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
+                val thumbnail3 = book3.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
                 Log.d("HomeFragment", "Book 3 Image URL: $thumbnail3")
 
-                // Load the book cover image using Glide, or use a placeholder if the thumbnail is null
                 Glide.with(this)
                     .load(thumbnail3 ?: R.drawable.placeholder_image)
-                    .skipMemoryCache(true) // Skip memory cache for fresh loading
+                    .skipMemoryCache(true)
                     .into(bookCoverImageView3)
             } else {
-                // Hide the entire Book 3 layout if the book is not available
                 view?.findViewById<LinearLayout>(R.id.bookItem3)?.visibility = View.GONE
             }
 
-            //work review 4 itzel medina
-            // ---------------------
-            // Display Book 4 Details
-            // ---------------------
-            val book4 = books.getOrNull(3) // Safely get the fourth book or null
-            if (book4 != null) {
-                bookTitleTextView4.text = book4.volumeInfo?.title ?: "Unknown Title"
-                bookAuthorsTextView4.text =
-                    book4.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
-                genreBook4 = book4.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
-
-                // Reset the message TextView visibility and text
-                messageTextView4.visibility = View.GONE
-                messageTextView4.text = "Message will appear here"
-
-                // Prepare the thumbnail URL, replacing "http://" with "https://" for security
-                val thumbnail4 =
-                    book4.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
-                Log.d("HomeFragment", "Book 4 Image URL: $thumbnail4")
-
-                // Load the book cover image using Glide, or use a placeholder if the thumbnail is null
-                Glide.with(this)
-                    .load(thumbnail4 ?: R.drawable.placeholder_image)
-                    .skipMemoryCache(true) // Skip memory cache for fresh loading
-                    .into(bookCoverImageView4)
-
-                // Ensure the fourth book's layout is visible
-                view?.findViewById<LinearLayout>(R.id.bookItem4)?.visibility = View.VISIBLE
-            } else {
-                // Hide the entire Book 4 layout if the book is not available
-                view?.findViewById<LinearLayout>(R.id.bookItem4)?.visibility = View.GONE
-            }
+            // Hide the fourth book layout initially
+            view?.findViewById<LinearLayout>(R.id.bookItem4)?.visibility = View.GONE
+            // Hide the "Based on your input" TextView initially
+            view?.findViewById<TextView>(R.id.basedOnYourInputTextView)?.visibility = View.GONE
         }
     }
+
 
     //work review 4 itzel medina
     /**
      * Set up Like and Dislike button listeners for all three books.
      */
+    /**
+     * Set up Like and Dislike button listeners for all four books.
+     */
+    /**
+     * Set up Like and Dislike button listeners for all four books.
+     */
     private fun setupButtonListeners() {
-        // Like Button 1
+        // Like Button 1 (Position 0)
         likeButton1.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(0),
@@ -845,11 +838,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook1,
                 messageTextView = messageTextView1,
                 likeButton = likeButton1,
-                dislikeButton = dislikeButton1
+                dislikeButton = dislikeButton1,
+                position = 0
             )
         }
 
-        // Dislike Button 1
+        // Dislike Button 1 (Position 0)
         dislikeButton1.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(0),
@@ -857,11 +851,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook1,
                 messageTextView = messageTextView1,
                 likeButton = likeButton1,
-                dislikeButton = dislikeButton1
+                dislikeButton = dislikeButton1,
+                position = 0
             )
         }
 
-        // Like Button 2
+        // Like Button 2 (Position 1)
         likeButton2.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(1),
@@ -869,11 +864,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook2,
                 messageTextView = messageTextView2,
                 likeButton = likeButton2,
-                dislikeButton = dislikeButton2
+                dislikeButton = dislikeButton2,
+                position = 1
             )
         }
 
-        // Dislike Button 2
+        // Dislike Button 2 (Position 1)
         dislikeButton2.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(1),
@@ -881,11 +877,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook2,
                 messageTextView = messageTextView2,
                 likeButton = likeButton2,
-                dislikeButton = dislikeButton2
+                dislikeButton = dislikeButton2,
+                position = 1
             )
         }
 
-        // Like Button 3
+        // Like Button 3 (Position 2)
         likeButton3.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(2),
@@ -893,11 +890,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook3,
                 messageTextView = messageTextView3,
                 likeButton = likeButton3,
-                dislikeButton = dislikeButton3
+                dislikeButton = dislikeButton3,
+                position = 2
             )
         }
 
-        // Dislike Button 3
+        // Dislike Button 3 (Position 2)
         dislikeButton3.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(2),
@@ -905,11 +903,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook3,
                 messageTextView = messageTextView3,
                 likeButton = likeButton3,
-                dislikeButton = dislikeButton3
+                dislikeButton = dislikeButton3,
+                position = 2
             )
         }
 
-        // Like Button 4
+        // Like Button 4 (Position 3) - Does NOT affect ratedBooksCount
         likeButton4.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(3),
@@ -917,11 +916,12 @@ class HomeFragment : Fragment() {
                 genre = genreBook4,
                 messageTextView = messageTextView4,
                 likeButton = likeButton4,
-                dislikeButton = dislikeButton4
+                dislikeButton = dislikeButton4,
+                position = 3
             )
         }
 
-        // Dislike Button 4
+        // Dislike Button 4 (Position 3) - Does NOT affect ratedBooksCount
         dislikeButton4.setOnClickListener {
             handleUserFeedback(
                 bookId = getBookId(3),
@@ -929,11 +929,13 @@ class HomeFragment : Fragment() {
                 genre = genreBook4,
                 messageTextView = messageTextView4,
                 likeButton = likeButton4,
-                dislikeButton = dislikeButton4
+                dislikeButton = dislikeButton4,
+                position = 3
             )
         }
-
     }
+
+
 
     //work review 4 itzel medina
     /**
@@ -944,6 +946,7 @@ class HomeFragment : Fragment() {
         val recommendations = loadRecommendationsFromPreferences(auth.currentUser?.uid ?: "") ?: return null
         return recommendations.getOrNull(position)?.id
     }
+
 
 
     //work review 4 itzel medina
@@ -974,13 +977,32 @@ class HomeFragment : Fragment() {
     }
 
     //work review 4 itzel medina
+    /**
+     * Handles user feedback for a book.
+     */
+    /**
+     * Modified function to handle user feedback for a book.
+     * Increments the ratedBooksCount and fetches the fourth recommendation when all three books are rated.
+     */
+    /**
+     * Handles user feedback for a book.
+     *
+     * @param bookId The ID of the book.
+     * @param feedback The type of feedback ("like" or "dislike").
+     * @param genre The genre of the book.
+     * @param messageTextView The TextView to display messages.
+     * @param likeButton The Like button.
+     * @param dislikeButton The Dislike button.
+     * @param position The position of the book (0, 1, 2, 3).
+     */
     private fun handleUserFeedback(
         bookId: String?,
         feedback: String,
         genre: String?,
         messageTextView: TextView,
         likeButton: ImageButton,
-        dislikeButton: ImageButton
+        dislikeButton: ImageButton,
+        position: Int
     ) {
         if (bookId == null) {
             Log.e("HomeFragment", "Book ID is null. Cannot record feedback.")
@@ -989,46 +1011,76 @@ class HomeFragment : Fragment() {
 
         val userId = auth.currentUser?.uid ?: return
 
-        // Prevent action if genre is null
         if (genre == null) {
             Log.e("HomeFragment", "Genre is null. Cannot display message.")
             return
         }
 
-        // Create feedback data
-        val feedbackData = mapOf(
-            "bookId" to bookId,
-            "feedback" to feedback,
-            "genre" to genre,
-            "timestamp" to Calendar.getInstance().time
-        )
+        // Save book to dismissedBooks
+        db.collection("users").document(userId).collection("dismissedBooks").document(bookId).set(
+            mapOf(
+                "bookId" to bookId,
+                "feedback" to feedback,
+                "timestamp" to Calendar.getInstance().time
+            )
+        ).addOnSuccessListener {
+            Log.d("HomeFragment", "Book $bookId added to dismissedBooks with feedback: $feedback")
+        }.addOnFailureListener { e ->
+            Log.e("HomeFragment", "Error adding book to dismissedBooks: ${e.message}", e)
+        }
 
-        // Save feedback to Firestore under the user's document
-        db.collection("users").document(userId).collection("bookFeedback").add(feedbackData)
-            .addOnSuccessListener {
-                Log.d("HomeFragment", "Feedback recorded: $feedback for book $bookId")
-                // Update the UI message based on feedback
-                val message = if (feedback == "like") {
-                    "More $genre books like this will be recommended.."
-                } else {
-                    "This $genre books will no longer be recommended."
+        // Save feedback to Firestore
+        db.collection("users").document(userId).collection("bookFeedback").add(
+            mapOf(
+                "bookId" to bookId,
+                "feedback" to feedback,
+                "genre" to genre,
+                "timestamp" to Calendar.getInstance().time
+            )
+        ).addOnSuccessListener {
+            Log.d("HomeFragment", "Feedback recorded: $feedback for book $bookId")
+
+            // Update the UI message based on feedback
+            val message = if (feedback == "like") {
+                "$genre books will now be recommended more."
+            } else {
+                "$genre books will be recommended less now."
+            }
+            messageTextView.text = message
+            messageTextView.visibility = View.VISIBLE
+
+            likeButton.visibility = View.INVISIBLE
+            dislikeButton.visibility = View.INVISIBLE
+
+            // Increment the rated books count only for the first three books
+            if (position < 3) {
+                incrementRatedBooksCount()
+                Log.d("HomeFragment", "RatedBooksCount after increment: $ratedBooksCount")
+
+                // Check if all three books have been rated and the fourth book hasn't been shown yet
+                if (ratedBooksCount >= 3 && !fourthBookShown) {
+                    Log.d("HomeFragment", "All three books rated. Fetching fourth recommendation.")
+                    view?.findViewById<TextView>(R.id.basedOnYourInputTextView)?.visibility = View.VISIBLE
+                    determineFourthRecommendation(userId)
                 }
-                messageTextView.text = message
-                messageTextView.visibility = View.VISIBLE
-
-                likeButton.visibility = View.INVISIBLE
-                dislikeButton.visibility = View.INVISIBLE
-
-                // Update genre feedback counts
-                updateGenreFeedback(userId, genre, feedback)
             }
-            .addOnFailureListener { e ->
-                Log.e("HomeFragment", "Error recording feedback: ${e.message}", e)
-                messageTextView.text = "Failed to record feedback."
-                messageTextView.visibility = View.VISIBLE
-            }
+
+            // Update genre feedback counts
+            updateGenreFeedback(userId, genre, feedback)
+        }.addOnFailureListener { e ->
+            Log.e("HomeFragment", "Error recording feedback: ${e.message}", e)
+            messageTextView.text = "Failed to record feedback."
+            messageTextView.visibility = View.VISIBLE
+        }
     }
 
+    /**
+     * Updates the genre feedback counts in Firestore.
+     *
+     * @param userId The UID of the user.
+     * @param genre The genre to update.
+     * @param feedback The feedback type: "like" or "dislike".
+     */
     /**
      * Updates the genre feedback counts in Firestore.
      *
@@ -1043,7 +1095,6 @@ class HomeFragment : Fragment() {
                 val currentLikes = document.getLong("likes") ?: 0
                 val currentDislikes = document.getLong("dislikes") ?: 0
 
-                // Update likes and dislikes based on feedback
                 val updatedLikes = when (feedback) {
                     "like" -> currentLikes + 1
                     "dislike" -> (currentLikes - 1).coerceAtLeast(0) // Decrement likes but not below 0
@@ -1051,19 +1102,17 @@ class HomeFragment : Fragment() {
                 }
                 val updatedDislikes = if (feedback == "dislike") currentDislikes + 1 else currentDislikes
 
-                // Update the counts in Firestore
                 genreFeedbackDoc.update(
                     "likes", updatedLikes,
                     "dislikes", updatedDislikes
                 ).addOnSuccessListener {
                     Log.d("HomeFragment", "Updated genre feedback for $genre: Likes=$updatedLikes, Dislikes=$updatedDislikes")
-                    // Determine which genre to recommend based on updated feedback
-                    determineFourthRecommendation(userId)
+                    // **Do not call determineFourthRecommendation here**
+                    // If you need to fetch recommendations based on updated feedback, ensure it's controlled
                 }.addOnFailureListener { e ->
                     Log.e("HomeFragment", "Error updating genre feedback: ${e.message}", e)
                 }
             } else {
-                // If the genre document doesn't exist, create it with initial counts
                 val initialLikes = if (feedback == "like") 1 else 0
                 val initialDislikes = if (feedback == "dislike") 1 else 0
                 genreFeedbackDoc.set(mapOf(
@@ -1071,46 +1120,137 @@ class HomeFragment : Fragment() {
                     "dislikes" to initialDislikes
                 )).addOnSuccessListener {
                     Log.d("HomeFragment", "Initialized genre feedback for $genre: Likes=$initialLikes, Dislikes=$initialDislikes")
-                    // After initialization, determine recommendation
-                    determineFourthRecommendation(userId)
+                    // **Do not call determineFourthRecommendation here**
                 }.addOnFailureListener { e ->
                     Log.e("HomeFragment", "Error initializing genre feedback: ${e.message}", e)
                 }
             }
-        }.addOnFailureListener { e -> Log.e("HomeFragment", "Error retrieving genre feedback: ${e.message}", e)
+        }.addOnFailureListener { e ->
+            Log.e("HomeFragment", "Error retrieving genre feedback: ${e.message}", e)
         }
     }
 
     //work review 4 itzel medina
+    /**
+     * Determines the fourth recommendation based on genre feedback.
+     */
+    /**
+     * Function to determine and fetch the fourth recommendation based on user feedback.
+     */
     private fun determineFourthRecommendation(userId: String) {
+        if (fourthBookShown) {
+            Log.d("HomeFragment", "Fourth book has already been shown. Skipping fetch.")
+            return
+        }
+
+        Log.d("HomeFragment", "Determining fourth recommendation for user: $userId")
         db.collection("users").document(userId)
             .collection("genreFeedback").get()
             .addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
-                    // Create a map of genres with their like counts
-                    val genreLikes = mutableMapOf<String, Long>()
-                    querySnapshot.documents.forEach { doc ->
-                        val genre = doc.id
-                        val likes = doc.getLong("likes") ?: 0L
-                        genreLikes[genre] = likes
+                    val genreLikes = querySnapshot.documents.associate {
+                        it.id to (it.getLong("likes") ?: 0L)
                     }
 
-                    // Find the genre with the highest likes
                     val topGenre = genreLikes.maxByOrNull { it.value }?.key
+                    Log.d("determineFourthRecommendation", "Top genre: $topGenre")
                     if (topGenre != null && genreLikes[topGenre]!! > 0) {
-                        fetchAndDisplayPreferredGenreBook(userId, topGenre)
+                        fetchAndDisplayFourthRecommendation(userId, topGenre)
                     } else {
-                        // No likes yet; use a default genre
-                        fetchAndDisplayPreferredGenreBook(userId, "Fiction")
+                        Log.d("determineFourthRecommendation", "No genres with likes found. Using default genre.")
+                        fetchAndDisplayFourthRecommendation(userId, "Fiction")
                     }
                 } else {
-                    // No feedback found; use a default genre
-                    fetchAndDisplayPreferredGenreBook(userId, "Fiction")
+                    Log.d("determineFourthRecommendation", "No genre feedback found. Using default genre.")
+                    fetchAndDisplayFourthRecommendation(userId, "Fiction")
                 }
             }
             .addOnFailureListener { e ->
                 Log.e("HomeFragment", "Error fetching genre feedback for recommendation: ${e.message}", e)
             }
+    }
+
+    /**
+     * Fetches a book from the preferred genre and updates the fourth recommendation.
+     *
+     * @param userId The UID of the user.
+     * @param preferredGenre The genre to fetch the book from.
+     */
+    private fun fetchAndDisplayFourthRecommendation(userId: String, preferredGenre: String) {
+        Log.d("fetchAndDisplayFourthRecommendation", "Fetching book for genre: $preferredGenre")
+        val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM" // Ensure this is your valid API key
+        val query = "subject:$preferredGenre"
+        val randomStartIndex = Random.nextInt(0, 30)
+        val call = GoogleBooksApiService.create().searchBooks(query, randomStartIndex, 1, apiKey)
+
+        call.enqueue(object : Callback<BookResponse> {
+            override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
+                if (response.isSuccessful) {
+                    val books = response.body()?.items ?: emptyList()
+                    Log.d("fetchAndDisplayFourth", "Books retrieved: ${books.size}")
+                    if (books.isNotEmpty()) {
+                        val fourthBook = books[0]
+                        displayFourthBook(fourthBook)
+                    } else {
+                        Log.d("fetchAndDisplayFourth", "No books found for genre $preferredGenre")
+                        Toast.makeText(requireContext(), "No additional recommendations available.", Toast.LENGTH_LONG).show()
+                    }
+                } else {
+                    Log.e("fetchAndDisplayFourth", "Google Books API Error: ${response.errorBody()?.string()}")
+                    Toast.makeText(requireContext(), "Failed to fetch additional recommendation.", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<BookResponse>, t: Throwable) {
+                Log.e("fetchAndDisplayFourth", "Google Books API Failure: ${t.message}")
+                Toast.makeText(requireContext(), "Failed to fetch additional recommendation.", Toast.LENGTH_LONG).show()
+            }
+        })
+    }
+
+
+    /**
+     * Displays the fourth book in the UI with the "Based on your input" text.
+     *
+     * @param book The BookItem to display as the fourth recommendation.
+     */
+    /**
+     * Displays the fourth book in the UI with the "Based on your input" text.
+     *
+     * @param book The BookItem to display as the fourth recommendation.
+     */
+    private fun displayFourthBook(book: BookItem) {
+        if (fourthBookShown) {
+            Log.d("HomeFragment", "Fourth book has already been shown. Skipping display.")
+            return
+        }
+
+        Log.d("HomeFragment", "Displaying fourth book: ${book.volumeInfo?.title}")
+        // Set the "Based on your input" TextView to visible
+        view?.findViewById<TextView>(R.id.basedOnYourInputTextView)?.visibility = View.VISIBLE
+
+        // Set the fourth book details
+        bookTitleTextView4.text = book.volumeInfo?.title ?: "Unknown Title"
+        bookAuthorsTextView4.text = book.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
+        genreBook4 = book.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
+        messageTextView4.visibility = View.GONE
+        messageTextView4.text = "Message will appear here"
+
+        val thumbnail4 = book.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
+        Log.d("HomeFragment", "Book 4 Image URL: $thumbnail4")
+
+        Glide.with(this)
+            .load(thumbnail4 ?: R.drawable.placeholder_image)
+            .skipMemoryCache(true)
+            .into(bookCoverImageView4)
+
+        // Make the fourth book's layout visible
+        view?.findViewById<LinearLayout>(R.id.bookItem4)?.visibility = View.VISIBLE
+
+        Log.d("HomeFragment", "Fourth book displayed successfully.")
+
+        // Set the flag after successful display
+        markFourthBookAsShown()
     }
 
 
@@ -1121,9 +1261,15 @@ class HomeFragment : Fragment() {
      * @param userId The UID of the user.
      * @param preferredGenre The genre to fetch the book from.
      */
+    /**
+     * Fetches a book from the preferred genre and updates the fourth recommendation.
+     *
+     * @param userId The UID of the user.
+     * @param preferredGenre The genre to fetch the book from.
+     */
     private fun fetchAndDisplayPreferredGenreBook(userId: String, preferredGenre: String) {
-        // Replace with your actual Google Books API key management approach
-        val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM"
+        Log.d("fetchAndDisplayPreferredGenreBook", "Fetching book for genre: $preferredGenre")
+        val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM" // Google Books API key
         val query = "subject:$preferredGenre"
         val randomStartIndex = Random.nextInt(0, 30)
         val call = GoogleBooksApiService.create().searchBooks(query, randomStartIndex, 1, apiKey)
@@ -1136,20 +1282,20 @@ class HomeFragment : Fragment() {
                         val preferredBook = books[0]
                         updateFourthRecommendation(preferredBook)
                     } else {
-                        Log.d("HomeFragment", "No books found for genre $preferredGenre")
-                        // Optionally, set a placeholder or hide the fourth book
+                        Log.d("fetchAndDisplayPreferredGenreBook", "No books found for genre $preferredGenre")
                         view?.findViewById<LinearLayout>(R.id.bookItem4)?.visibility = View.GONE
                     }
                 } else {
-                    Log.d("HomeFragment", "Google Books API Error: ${response.errorBody()?.string()}")
+                    Log.e("fetchAndDisplayPreferredGenreBook", "API Error: ${response.errorBody()?.string()}")
                 }
             }
 
             override fun onFailure(call: Call<BookResponse>, t: Throwable) {
-                Log.d("HomeFragment", "Google Books API Failure: ${t.message}")
+                Log.e("fetchAndDisplayPreferredGenreBook", "API Failure: ${t.message}")
             }
         })
     }
+
 
     /**
      * Updates the fourth book's UI with the preferred book details.
@@ -1157,29 +1303,37 @@ class HomeFragment : Fragment() {
      * @param book The BookItem to display.
      */
     private fun updateFourthRecommendation(book: BookItem) {
-        // Update title and authors
         bookTitleTextView4.text = book.volumeInfo?.title ?: "Unknown Title"
         bookAuthorsTextView4.text = book.volumeInfo?.authors?.joinToString(", ") ?: "Unknown Author"
-
-        // Update genre
         genreBook4 = book.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
 
-        // Reset the message TextView visibility and text
-        messageTextView4.visibility = View.GONE
-        messageTextView4.text = "Message will appear here"
-
-        // Prepare the thumbnail URL, replacing "http://" with "https://" for security
         val thumbnail4 = book.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
-        Log.d("HomeFragment", "Book 4 Image URL: $thumbnail4")
+        Log.d("updateFourthRecommendation", "Updating fourth book: $thumbnail4")
 
-        // Load the book cover image using Glide, or use a placeholder if the thumbnail is null
         Glide.with(this)
             .load(thumbnail4 ?: R.drawable.placeholder_image)
-            .skipMemoryCache(true) // Skip memory cache for fresh loading
             .into(bookCoverImageView4)
 
         // Ensure the fourth book's layout is visible
         view?.findViewById<LinearLayout>(R.id.bookItem4)?.visibility = View.VISIBLE
     }
+
+    //itzel medina
+    private fun getSharedPreferences(): SharedPreferences {
+        return requireContext().getSharedPreferences("booknook_prefs", Context.MODE_PRIVATE)
+    }
+
+    //itzel medina
+    private fun markFourthBookAsShown() {
+        getSharedPreferences().edit().putBoolean("fourthBookShown", true).apply()
+    }
+
+    //itzel medina
+    private fun incrementRatedBooksCount() {
+        ratedBooksCount += 1
+        getSharedPreferences().edit().putInt("ratedBooksCount", ratedBooksCount).apply()
+    }
+
+
 
 }

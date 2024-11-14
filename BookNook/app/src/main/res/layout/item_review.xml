@@ -9,6 +9,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="8dp"
     android:background="?android:attr/selectableItemBackground"
+    android:backgroundTint="@color/white"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp">
 
@@ -32,9 +33,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Username"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textColor="@color/star_green"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_weight="1"/>
 
             <!-- Timestamp TextView -->
             <TextView
@@ -43,46 +45,9 @@
                 android:layout_height="wrap_content"
                 android:text="2 days ago"
                 android:textColor="@android:color/darker_gray"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <!-- Like/Dislike section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="8dp">
-
-            <!-- Button for liking the review -->
-            <ImageButton
-                android:id="@+id/likeButton"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_like" />
-
-            <!-- TextView to show the count of likes -->
-            <TextView
-                android:id="@+id/likeCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:paddingStart="4dp"
-                android:paddingEnd="16dp" />
-
-            <!-- Button for disliking the review -->
-            <ImageButton
-                android:id="@+id/dislikeButton"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_dislike" />
-
-            <!-- TextView to show the count of dislikes -->
-            <TextView
-                android:id="@+id/dislikeCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:paddingStart="4dp" />
+                android:textSize="10sp"
+                android:layout_weight="0"/>
         </LinearLayout>
 
         <!-- Container for overall review content -->
@@ -98,16 +63,18 @@
                 android:id="@+id/OverallReviewHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Overall"
+                android:text="Overall Rating: "
+                android:textColor="@color/main_text_brown"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:paddingTop="8dp"
+                android:paddingRight="5dp"
                 android:visibility="gone" />
 
             <!-- RatingBar for overall review, read-only -->
             <RatingBar
                 android:id="@+id/ratingBar"
-                style="?android:attr/ratingBarStyleSmall"
+                style="@style/Widget.AppCompat.RatingBar.Small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:numStars="5"
@@ -115,8 +82,19 @@
                 android:isIndicator="true"
                 android:rating="4.5"
                 android:layout_marginStart="5dp"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                android:progressTint="@color/star_green" />
         </LinearLayout>
+
+        <!-- Heading for Review, initially hidden -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Review: "
+            android:textColor="@color/main_text_brown"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp" />
 
         <!-- Review Text content for overall -->
         <TextView
@@ -126,7 +104,98 @@
             android:text="This is the review text. It can be quite long, so we should wrap it correctly."
             android:textColor="@android:color/black"
             android:textSize="14sp"
-            android:paddingTop="8dp" />
+            android:paddingTop="8dp"
+            android:padding="5dp"/>
+
+        <!-- Like/Dislike section -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_gravity="end">
+
+            <!-- Button for liking the review -->
+            <ImageButton
+                android:id="@+id/likeButton"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:scaleType="center"
+                android:src="@drawable/ic_accept_button"
+                android:backgroundTint="@color/transparent"
+                app:tint="@color/banner_green" />
+
+            <!-- TextView to show the count of likes -->
+            <TextView
+                android:id="@+id/likeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="16dp" />
+
+            <!-- Button for disliking the review -->
+            <ImageButton
+                android:id="@+id/dislikeButton"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_reject_button"
+                app:tint="@color/red"
+                android:backgroundTint="@color/transparent" />
+
+            <!-- TextView to show the count of dislikes -->
+            <TextView
+                android:id="@+id/dislikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="4dp"
+                android:paddingEnd="16dp"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#ddd5c6"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_gravity="center_horizontal"/>
+
+        <!-- Input field for adding a comment -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <!-- EditText for user to type a comment -->
+            <EditText
+                android:id="@+id/commentInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Write a comment" />
+
+            <!-- Button to post the comment -->
+            <Button
+                android:id="@+id/postCommentButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Post"
+                android:backgroundTint="@color/star_green"/>
+        </LinearLayout>
+
+        <!-- Heading for Replies -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Replies: "
+            android:textColor="@color/main_text_brown"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp"
+            android:paddingRight="5dp" />
 
         <!-- Spoiler warning TextView, hidden by default -->
         <TextView
@@ -166,28 +235,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- Input field for adding a comment -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <!-- EditText for user to type a comment -->
-                <EditText
-                    android:id="@+id/commentInput"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Write a comment" />
-
-                <!-- Button to post the comment -->
-                <Button
-                    android:id="@+id/postCommentButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Post" />
-            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
