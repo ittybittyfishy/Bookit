@@ -18,7 +18,7 @@ data class NotificationItem(
 
 // Enum class representing different types of notifications
 enum class NotificationType {
-    FRIEND_REQUEST, // Notification for a friend request
+    FRIEND_REQUEST, // Notification for a friend request (done)
     GROUP_JOIN_REQUEST, // Notification for a group join request
     GROUP_MESSAGES, // Notification for group messages
     FRIEND_STARTED_BOOK, // Notification when a friend starts a book
