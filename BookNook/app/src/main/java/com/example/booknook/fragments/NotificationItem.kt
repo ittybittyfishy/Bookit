@@ -23,7 +23,7 @@ enum class NotificationType {
     GROUP_MESSAGES, // Notification for group messages
     FRIEND_STARTED_BOOK, // Notification when a friend starts a book
     FRIEND_FINISHED_BOOK, // Notification when a friend finishes a book
-    REVIEW_REPLY, // Notification for a reply to a review
-    REVIEW_EDIT, // Notification when a review is edited
-    REVIEW_ADDED // Notification when a review is added
+    REVIEW_REPLY, // Notification for a reply to a review (done)
+    REVIEW_EDIT, // Notification when a review is edited (done)
+    REVIEW_ADDED, // Notification when a review is added (done)
 }
