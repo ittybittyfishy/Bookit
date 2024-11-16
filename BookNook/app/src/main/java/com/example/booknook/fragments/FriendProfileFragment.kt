@@ -131,7 +131,7 @@ class FriendProfileFragment : Fragment() {
 
         // Load initial friend status
         friendUserId?.let { friendId ->
-            checkFriendshipStatus(friendId)  // Check the initial status
+            checkFriendshipStatus(friendId)
         }
 
         // Set up Add Friend button
@@ -157,10 +157,10 @@ class FriendProfileFragment : Fragment() {
     // Function to send a friend request
     private fun sendFriendRequest(receiverId: String) {
         val db = FirebaseFirestore.getInstance()
-        val currentUser = FirebaseAuth.getInstance().currentUser  // Gets the current user
+        val currentUser = FirebaseAuth.getInstance().currentUser
 
         if (currentUser != null) {
-            val senderId = currentUser.uid  // senderId is the current user
+            val senderId = currentUser.uid
             val senderRef = db.collection("users").document(senderId)
 
             // Fetch sender's username
@@ -168,7 +168,7 @@ class FriendProfileFragment : Fragment() {
                 val senderUsername = senderDoc?.getString("username")
 
                 if (senderUsername != null) {
-                    // Creates a map of friend request details
+                    // Create a map of friend request details
                     val friendRequest = hashMapOf(
                         "senderId" to senderId,
                         "senderUsername" to senderUsername,
@@ -176,12 +176,15 @@ class FriendProfileFragment : Fragment() {
                         "status" to "pending"
                     )
 
-                    // Update receiver's friend requests array in database
+                    // Update receiver's friend requests array in Firestore
                     db.collection("users").document(receiverId)
                         .update("friendRequests", FieldValue.arrayUnion(friendRequest))
                         .addOnSuccessListener {
                             Toast.makeText(activity, "Friend request sent", Toast.LENGTH_SHORT).show()
                             addFriendButton.text = "Pending"
+                            // Yunjong Noh
+                            // Send a notification to the receiver
+                            sendFriendRequestNotification(receiverId, senderId, senderUsername)
                         }
                         .addOnFailureListener { e ->
                             Toast.makeText(activity, "Failed to send friend request: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -193,6 +196,44 @@ class FriendProfileFragment : Fragment() {
                 }
             }
         }
+    }
+    // Yunjong Noh
+    // Function to send a friend request notification
+    private fun sendFriendRequestNotification(receiverId: String, senderId: String, senderUsername: String) {
+        val db = FirebaseFirestore.getInstance()
+        val currentTime = System.currentTimeMillis()
+        val expirationTime = currentTime + 10 * 24 * 60 * 60 * 1000 // Notification expires in 10 days
+
+        // Create the notification item
+        val notification = NotificationItem(
+            userId = receiverId, // Receiver's ID
+            senderId = senderId,  // Sender's ID
+            receiverId = receiverId,  // Receiver's ID
+            message = "$senderUsername has sent you a friend request.",
+            timestamp = currentTime,
+            type = NotificationType.FRIEND_REQUEST,
+            dismissed = false,
+            expirationTime = expirationTime,
+            profileImageUrl = "", // You may fetch and add the profile image URL if needed
+            username = senderUsername // Use sender's username
+        )
+
+        // Add the notification to Firestore
+        db.collection("notifications").add(notification)
+            .addOnSuccessListener { documentReference ->
+                val notificationId = documentReference.id
+                db.collection("notifications").document(notificationId)
+                    .update("notificationId", notificationId)
+                    .addOnSuccessListener {
+                        Log.d("FriendProfileFragment", "Notification sent successfully with ID: $notificationId")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("FriendProfileFragment", "Failed to update notification ID: ${e.message}", e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FriendProfileFragment", "Failed to send notification: ${e.message}", e)
+            }
     }
 
     // Function to remove a friend

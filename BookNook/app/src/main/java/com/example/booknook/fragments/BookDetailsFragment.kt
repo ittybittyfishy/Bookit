@@ -604,13 +604,18 @@ class BookDetailsFragment : Fragment() {
                 }
 
 
+
+
                 // Add the book to the new collection
                 transaction.update(userDocRef, "standardCollections.$newCollectionName", FieldValue.arrayUnion(book))
 
-
-                // Increment numBooksRead if the new collection is "Finished"
+                // Yunjong Noh
+                // Increment numBooksRead if the new collection is "Finished", adds corresponding Notification
                 if (newCollectionName == "Finished") {
                     transaction.update(userDocRef, "numBooksRead", FieldValue.increment(1))
+                    sendBookNotification(userId, title, NotificationType.FRIEND_FINISHED_BOOK)
+                } else if (newCollectionName == "Reading") {
+                    sendBookNotification(userId, title, NotificationType.FRIEND_STARTED_BOOK)
                 }
                 null
             }.addOnSuccessListener {
@@ -619,6 +624,75 @@ class BookDetailsFragment : Fragment() {
             }.addOnFailureListener { e ->
                 Toast.makeText(context, context.getString(R.string.failed_to_add_book, e.message), Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+    // Yunjong Noh
+    // Function to send book notifications to friends
+    private fun sendBookNotification(userId: String, bookTitle: String, notificationType: NotificationType) {
+        val db = FirebaseFirestore.getInstance()
+        val currentTime = System.currentTimeMillis()
+        val expirationTime = currentTime + 10 * 24 * 60 * 60 * 1000 // Notification expiration time: 10 days from now
+
+        // Get the current user ID
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        // Fetch the current user's profile details
+        val currentUserDocRef = db.collection("users").document(currentUserId)
+        currentUserDocRef.get().addOnSuccessListener { currentUserDoc ->
+            if (currentUserDoc.exists()) {
+                val senderProfileImageUrl = currentUserDoc.getString("profileImageUrl") ?: ""
+                val senderUsername = currentUserDoc.getString("username") ?: "Unknown User"
+
+                // Fetch the user's friends and send notifications
+                db.collection("users").document(userId).get().addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val friends = document.get("friends") as? List<Map<String, String>> ?: emptyList()
+
+                        // Create a notification message based on the type of notification
+                        val notificationMessage = when (notificationType) {
+                            NotificationType.FRIEND_STARTED_BOOK -> "$senderUsername has started reading \"$bookTitle\"."
+                            NotificationType.FRIEND_FINISHED_BOOK -> "$senderUsername has finished reading \"$bookTitle\"."
+                            else -> return@addOnSuccessListener
+                        }
+
+                        // Send notifications to friends
+                        friends.forEach { friend ->
+                            val friendId = friend["friendId"] ?: return@forEach
+                            val notification = NotificationItem(
+                                userId = friendId, // The receiver's ID
+                                senderId = currentUserId, // The sender's ID
+                                receiverId = friendId, // The receiver's ID
+                                message = notificationMessage,
+                                timestamp = currentTime,
+                                type = notificationType,
+                                dismissed = false,
+                                expirationTime = expirationTime,
+                                profileImageUrl = senderProfileImageUrl,
+                                username = senderUsername // The sender's username
+                            )
+
+                            // Add the notification to Firestore
+                            db.collection("notifications").add(notification)
+                                .addOnSuccessListener { documentReference ->
+                                    val notificationId = documentReference.id
+                                    db.collection("notifications").document(notificationId)
+                                        .update("notificationId", notificationId)
+                                        .addOnSuccessListener {
+                                            Log.d("BookDetailsFragment", "Notification sent successfully with ID: $notificationId")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.e("BookDetailsFragment", "Failed to update notification ID: ${e.message}", e)
+                                        }
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("BookDetailsFragment", "Failed to send notification: ${e.message}", e)
+                                }
+                        }
+                    }
+                }
+            }
+        }.addOnFailureListener {
+            Log.e("BookDetailsFragment", "Failed to retrieve current user data for notification.")
         }
     }
 

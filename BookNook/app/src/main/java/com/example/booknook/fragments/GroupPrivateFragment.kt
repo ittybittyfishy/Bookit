@@ -8,10 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import com.example.booknook.Login
 import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -23,11 +21,12 @@ class GroupPrivateFragment : DialogFragment() {
     private lateinit var groupId: String
     private lateinit var groupCreatorId: String
 
+    // UI elements
+    private lateinit var sendRequest: Button
+    private lateinit var cancel: Button
 
-    lateinit var sendRequest: Button
-    lateinit var cancel: Button
-
-    lateinit var auth: FirebaseAuth
+    // Firebase Auth
+    private lateinit var auth: FirebaseAuth
 
     override fun onStart() {
         super.onStart()
@@ -64,15 +63,12 @@ class GroupPrivateFragment : DialogFragment() {
         auth = FirebaseAuth.getInstance()
 
         sendRequest.setOnClickListener {
-
-            // send a join request
+            // Send a join request
             sendJoinRequest(groupId, groupCreatorId)
             dismiss()
-
         }
 
-        cancel.setOnClickListener()
-        {
+        cancel.setOnClickListener {
             dismiss()
         }
     }
@@ -113,15 +109,9 @@ class GroupPrivateFragment : DialogFragment() {
                                 Toast.makeText(requireContext(), "Failed to send join request: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
                         }
-                    // notify owner of group request
-                    db.collection("users").document(groupCreatorId)
-                        .update("groupJoinRequests", FieldValue.arrayUnion(joinRequest))
-                        .addOnSuccessListener {
-                            // Successfully added to the creator's notification array
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e("SendJoinRequest", "Failed to notify group creator: ${e.message}")
-                        }
+
+                    // Notify the owner of the group request
+                    sendGroupJoinNotification(groupCreatorId, senderId, senderUsername)
                 } else {
                     if (isAdded) {
                         Toast.makeText(requireContext(), "Sender username not found", Toast.LENGTH_SHORT).show()
@@ -129,5 +119,43 @@ class GroupPrivateFragment : DialogFragment() {
                 }
             }
         }
+    }
+    // Yunjong Noh
+    // Function to send a group join request notification to the group creator
+    private fun sendGroupJoinNotification(receiverId: String, senderId: String, senderUsername: String) {
+        val db = FirebaseFirestore.getInstance()
+        val currentTime = System.currentTimeMillis()
+        val expirationTime = currentTime + 10 * 24 * 60 * 60 * 1000 // Notification expires in 10 days
+
+        // Create the notification item
+        val notification = NotificationItem(
+            userId = receiverId, // The ID of the user who will receive the notification (group creator)
+            senderId = senderId, // The ID of the user who sent the join request
+            receiverId = receiverId, // The ID of the receiver (same as userId)
+            message = "$senderUsername has requested to join your group.",
+            timestamp = currentTime,
+            type = NotificationType.GROUP_JOIN_REQUEST, // Notification type for group join request
+            dismissed = false,
+            expirationTime = expirationTime,
+            profileImageUrl = "", // Optional: Fetch and add the profile image URL if needed
+            username = senderUsername // Sender's username
+        )
+
+        // Add the notification to Firestore
+        db.collection("notifications").add(notification)
+            .addOnSuccessListener { documentReference ->
+                val notificationId = documentReference.id
+                db.collection("notifications").document(notificationId)
+                    .update("notificationId", notificationId)
+                    .addOnSuccessListener {
+                        Log.d("GroupPrivateFragment", "Notification sent successfully with ID: $notificationId")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("GroupPrivateFragment", "Failed to update notification ID: ${e.message}", e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("GroupPrivateFragment", "Failed to send notification: ${e.message}", e)
+            }
     }
 }

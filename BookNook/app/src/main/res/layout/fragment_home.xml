@@ -63,14 +63,37 @@
         android:layout_marginTop="16dp"
         android:layout_gravity="center_horizontal" />
 
+    <!-- Toggle Button for Book Recommendations -->
+    <ImageButton
+        android:id="@+id/expandButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="5dp"
+        android:padding="8dp"
+        android:backgroundTint="@color/transparent"
+        android:scaleType="fitCenter"
+        android:src="@drawable/expand_button" />
+
+    <LinearLayout
+        android:id="@+id/booksContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="0dp"
+        android:padding="2dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp">
+
     <!-- Horizontal LinearLayout for Book Recommendations -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginTop="16dp"
-        android:padding="8dp"
+        android:layout_marginTop="0dp"
+        android:padding="1dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp">
 
@@ -137,8 +160,8 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_dislike"
                         android:background="?selectableItemBackgroundBorderless"
-                        android:scaleX="0.8"
-                        android:scaleY="0.8"
+                        android:scaleX="0.7"
+                        android:scaleY="0.7"
                         />
 
                     <!-- Like Button -->
@@ -148,8 +171,8 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_like"
                         android:background="?selectableItemBackgroundBorderless"
-                        android:scaleX="0.8"
-                        android:scaleY="0.8"
+                        android:scaleX="0.7"
+                        android:scaleY="0.7"
                         android:layout_marginStart="7dp"
                         />
                 </LinearLayout>
@@ -230,8 +253,8 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_dislike"
                         android:background="?selectableItemBackgroundBorderless"
-                        android:scaleX="0.8"
-                        android:scaleY="0.8"
+                        android:scaleX="0.7"
+                        android:scaleY="0.7"
                         />
 
                     <!-- Like Button -->
@@ -241,8 +264,8 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_like"
                         android:background="?selectableItemBackgroundBorderless"
-                        android:scaleX="0.8"
-                        android:scaleY="0.8"
+                        android:scaleX="0.7"
+                        android:scaleY="0.7"
                         android:layout_marginStart="7dp"
                         />
                 </LinearLayout>
@@ -323,8 +346,8 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_dislike"
                         android:background="?selectableItemBackgroundBorderless"
-                        android:scaleX="0.8"
-                        android:scaleY="0.8"
+                        android:scaleX="0.7"
+                        android:scaleY="0.7"
                         />
 
                     <!-- Like Button -->
@@ -334,8 +357,8 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_like"
                         android:background="?selectableItemBackgroundBorderless"
-                        android:scaleX="0.8"
-                        android:scaleY="0.8"
+                        android:scaleX="0.7"
+                        android:scaleY="0.7"
                         android:layout_marginStart="7dp"
                         />
                 </LinearLayout>
@@ -352,6 +375,7 @@
                     android:textColor="@color/home_pink" />
             </FrameLayout>
         </LinearLayout>
+    </LinearLayout>
     </LinearLayout>
 
     <!-- "Based on your input" TextView -->
@@ -424,27 +448,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center">
-
-                <!-- Dislike Button -->
-                <ImageButton
-                    android:id="@+id/dislikeButton4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_dislike"
-                    android:background="?selectableItemBackgroundBorderless"
-                    android:scaleX="0.8"
-                    android:scaleY="0.8" />
-
-                <!-- Like Button -->
-                <ImageButton
-                    android:id="@+id/likeButton4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_like"
-                    android:background="?selectableItemBackgroundBorderless"
-                    android:scaleX="0.8"
-                    android:scaleY="0.8"
-                    android:layout_marginStart="7dp" />
             </LinearLayout>
 
             <!-- Message TextView -->
