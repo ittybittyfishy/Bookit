@@ -21,8 +21,8 @@ enum class NotificationType {
     FRIEND_REQUEST, // Notification for a friend request (done)
     GROUP_JOIN_REQUEST, // Notification for a group join request (done)
     GROUP_MESSAGES, // Notification for group messages
-    FRIEND_STARTED_BOOK, // Notification when a friend starts a book
-    FRIEND_FINISHED_BOOK, // Notification when a friend finishes a book
+    FRIEND_STARTED_BOOK, // Notification when a friend starts a book (done)
+    FRIEND_FINISHED_BOOK, // Notification when a friend finishes a book (done)
     REVIEW_REPLY, // Notification for a reply to a review (done)
     REVIEW_EDIT, // Notification when a review is edited (done)
     REVIEW_ADDED, // Notification when a review is added (done)
