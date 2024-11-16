@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="370dp"
     android:layout_height="wrap_content"
@@ -27,7 +28,6 @@
             android:id="@+id/messageText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
             android:paddingLeft="8dp"
@@ -38,12 +38,20 @@
             android:text="Left Template Review" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/ratingTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Overall Rating: "
+        android:textColor="@color/main_text_brown"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:orientation="horizontal">
 
         <!-- Star rating bar -->
         <RatingBar
@@ -68,16 +76,395 @@
             android:layout_marginStart="10dp"/>
     </LinearLayout>
 
+    <!-- Heading for Review, initially hidden -->
     <TextView
-        android:id="@+id/reviewText"
-        android:layout_marginTop="10dp"
+        android:id="@+id/reviewTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Review"
+        android:text="Overall Review: "
+        android:textColor="@color/main_text_brown"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/reviewText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Overall Review Content"
         android:textColor="@color/black"
         android:textSize="14sp"
         android:layout_toEndOf="@id/bookRating"
-        android:layout_marginStart="10dp"/>
+        android:visibility="gone"/>
+
+    <!-- Heading for Characters, initially hidden -->
+    <TextView
+        android:id="@+id/charactersTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Characters: "
+        android:textColor="@color/main_text_brown"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/charactersData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <!-- Star rating bar -->
+        <RatingBar
+            android:id="@+id/charactersRatingBar"
+            style="@style/Widget.AppCompat.RatingBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:isIndicator="true"
+            android:numStars="5"
+            android:stepSize="0.5"
+            android:layout_marginTop="3dp"/>
+
+        <TextView
+            android:id="@+id/charactersRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="N/A"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:layout_toEndOf="@id/bookRating"
+            android:layout_marginStart="10dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/charactersText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Characters Content"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_toEndOf="@id/bookRating"
+        android:visibility="gone"/>
+
+    <!-- Heading for Characters, initially hidden -->
+    <TextView
+        android:id="@+id/writingTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Writing: "
+        android:textColor="@color/main_text_brown"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/writingData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <!-- Star rating bar -->
+        <RatingBar
+            android:id="@+id/writingRatingBar"
+            style="@style/Widget.AppCompat.RatingBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:isIndicator="true"
+            android:numStars="5"
+            android:stepSize="0.5"
+            android:layout_marginTop="3dp"/>
+
+        <TextView
+            android:id="@+id/writingRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="N/A"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:layout_toEndOf="@id/bookRating"
+            android:layout_marginStart="10dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/writingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Writing Content"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_toEndOf="@id/bookRating"
+        android:visibility="gone"/>
+
+    <!-- Heading for Characters, initially hidden -->
+    <TextView
+        android:id="@+id/plotTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Plot: "
+        android:textColor="@color/main_text_brown"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/plotData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <!-- Star rating bar -->
+        <RatingBar
+            android:id="@+id/plotRatingBar"
+            style="@style/Widget.AppCompat.RatingBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:isIndicator="true"
+            android:numStars="5"
+            android:stepSize="0.5"
+            android:layout_marginTop="3dp"/>
+
+        <TextView
+            android:id="@+id/plotRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="N/A"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:layout_toEndOf="@id/bookRating"
+            android:layout_marginStart="10dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/plotText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Plot Content"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_toEndOf="@id/bookRating"
+        android:visibility="gone"/>
+
+    <!-- Heading for Characters, initially hidden -->
+    <TextView
+        android:id="@+id/themesTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Themes: "
+        android:textColor="@color/main_text_brown"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/themesData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <!-- Star rating bar -->
+        <RatingBar
+            android:id="@+id/themesRatingBar"
+            style="@style/Widget.AppCompat.RatingBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:isIndicator="true"
+            android:numStars="5"
+            android:stepSize="0.5"
+            android:layout_marginTop="3dp"/>
+
+        <TextView
+            android:id="@+id/themesRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="N/A"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:layout_toEndOf="@id/bookRating"
+            android:layout_marginStart="10dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/themesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Themes Content"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_toEndOf="@id/bookRating"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/strengthsTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Strengths: "
+        android:textColor="@color/main_text_brown"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/strengthsData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <!-- Star rating bar -->
+        <RatingBar
+            android:id="@+id/strengthsRatingBar"
+            style="@style/Widget.AppCompat.RatingBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:isIndicator="true"
+            android:numStars="5"
+            android:stepSize="0.5"
+            android:layout_marginTop="3dp"/>
+
+        <TextView
+            android:id="@+id/strengthsRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="N/A"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:layout_toEndOf="@id/bookRating"
+            android:layout_marginStart="10dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/strengthsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Strengths Content"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_toEndOf="@id/bookRating"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/weaknessesTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Weaknesses: "
+        android:textColor="@color/main_text_brown"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/weaknessesData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <!-- Star rating bar -->
+        <RatingBar
+            android:id="@+id/weaknessesRatingBar"
+            style="@style/Widget.AppCompat.RatingBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:isIndicator="true"
+            android:numStars="5"
+            android:stepSize="0.5"
+            android:layout_marginTop="3dp"/>
+
+        <TextView
+            android:id="@+id/weaknessesRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="N/A"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:layout_toEndOf="@id/bookRating"
+            android:layout_marginStart="10dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/weaknessesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Weaknesses Content"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_toEndOf="@id/bookRating"
+        android:visibility="gone"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#ddd5c6"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_gravity="center_horizontal"/>
+
+    <!-- Input field for adding a comment -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <!-- EditText for user to type a comment -->
+        <EditText
+            android:id="@+id/commentInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Write a comment" />
+
+        <!-- Button to post the comment -->
+        <Button
+            android:id="@+id/postCommentButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Post"
+            android:backgroundTint="@color/star_green"/>
+    </LinearLayout>
+
+    <!-- Heading for Replies -->
+    <TextView
+        android:id="@+id/repliesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Replies: "
+        android:textColor="@color/main_text_brown"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:paddingRight="5dp" />
+
+    <!-- Comments Section -->
+    <LinearLayout
+        android:id="@+id/commentsSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="8dp">
+
+        <!-- RecyclerView for displaying comments -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/commentsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
 </LinearLayout>

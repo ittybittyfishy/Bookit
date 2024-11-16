@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="370dp"
     android:layout_height="wrap_content"
@@ -27,7 +29,6 @@
             android:id="@+id/messageText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
             android:paddingLeft="8dp"
@@ -35,15 +36,24 @@
             android:gravity="center"
             android:textSize="15sp"
             android:textColor="#9c9779"
-            android:text="Left No Template Review" />
+            android:text="User Left No Template Review" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/ratingTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Overall Rating: "
+        android:textColor="@color/main_text_brown"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+
+        android:orientation="horizontal">
 
             <!-- Star rating bar -->
             <RatingBar
@@ -68,45 +78,107 @@
                 android:layout_marginStart="10dp"/>
     </LinearLayout>
 
+    <!-- Heading for Review, initially hidden -->
     <TextView
-        android:id="@+id/reviewText"
-        android:layout_marginTop="10dp"
+        android:id="@+id/reviewTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Review"
+        android:text="Overall Review: "
+        android:textColor="@color/main_text_brown"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/reviewText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Review content"
         android:textColor="@color/black"
         android:textSize="14sp"
         android:layout_toEndOf="@id/bookRating"
-        android:layout_marginStart="10dp"/>
+        android:visibility="gone"/>
 
-    <!-- Spoilers and Sensitive Topics indicators -->
+    <!-- Spoiler warning TextView, hidden by default -->
+    <TextView
+        android:id="@+id/spoilerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⚠️ Contains Spoilers"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="12sp"
+        android:visibility="gone"
+        android:paddingTop="4dp"
+        tools:ignore="HardcodedText" />
+
+    <!-- Sensitive topics warning TextView, hidden by default -->
+    <TextView
+        android:id="@+id/sensitiveTopicsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⚠️ Contains Sensitive Topics"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="12sp"
+        android:visibility="gone"
+        android:paddingTop="2dp"
+        tools:ignore="HardcodedText" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#ddd5c6"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_gravity="center_horizontal"/>
+
+    <!-- Input field for adding a comment -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="vertical"
-        android:gravity="start">
+        android:orientation="horizontal"
+        android:padding="8dp">
 
-        <!-- Spoiler indication -->
-        <TextView
-            android:id="@+id/spoilerText"
+        <!-- EditText for user to type a comment -->
+        <EditText
+            android:id="@+id/commentInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Write a comment" />
+
+        <!-- Button to post the comment -->
+        <Button
+            android:id="@+id/postCommentButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Contains Spoilers"
-            android:textColor="#be2528"
-            android:textSize="12sp"
-            android:visibility="gone"/>
-
-        <!-- Sensitive Topics indication -->
-        <TextView
-            android:id="@+id/sensitiveTopicsText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Contains Sensitive Topics"
-            android:textColor="#be2528"
-            android:textSize="12sp"
-            android:visibility="gone" />
+            android:text="Post"
+            android:backgroundTint="@color/star_green"/>
     </LinearLayout>
 
+    <!-- Heading for Replies -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Replies: "
+        android:textColor="@color/main_text_brown"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:paddingRight="5dp" />
+
+    <!-- Comments Section -->
+    <LinearLayout
+        android:id="@+id/commentsSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="8dp">
+
+        <!-- RecyclerView for displaying comments -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/commentsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 </LinearLayout>

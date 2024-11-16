@@ -225,6 +225,9 @@ class MyGroupsHomepageFragment : Fragment() {
     private fun fetchMemberUpdates(groupId: String) {
         val db = FirebaseFirestore.getInstance()
 
+        // Get the current user's username or ID (replace with your actual method of getting the current user)
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+
         // Fetch the memberUpdates collection for the given group
         db.collection("groups").document(groupId)
             .collection("memberUpdates")
@@ -237,9 +240,12 @@ class MyGroupsHomepageFragment : Fragment() {
                     // Iterate through the snapshot and create MemberUpdate objects
                     for (document in querySnapshot.documents) {
                         val memberUpdate = document.toObject(GroupMemberUpdate::class.java)
-                        memberUpdate?.let { memberUpdatesList.add(it) }
-                    }
 
+                        // Only add the update if it is not from the current user
+                        if (memberUpdate?.userId != currentUserId) {
+                            memberUpdate?.let { memberUpdatesList.add(it) }
+                        }
+                    }
                     // Notify the adapter that the data has been updated
                     memberUpdatesAdapter.notifyDataSetChanged()
                 }
@@ -248,6 +254,7 @@ class MyGroupsHomepageFragment : Fragment() {
                 Log.w("Firestore", "Error fetching member updates", e)
             }
     }
+
 
 
     // Veronica Nguyen

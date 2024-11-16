@@ -3,6 +3,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -123,6 +124,7 @@ class GroupUpdateAdapter(
     // Sets up view for writing a review without a template update
     inner class ReviewBookNoTemplateViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val reviewTextView: TextView = itemView.findViewById(R.id.messageText)
+        private val reviewTitle: TextView = itemView.findViewById(R.id.reviewTitle)
         private val ratingBar: RatingBar = itemView.findViewById(R.id.ratingBar)
         private val ratingNumber: TextView = itemView.findViewById(R.id.ratingNumber)
         private val reviewText: TextView = itemView.findViewById(R.id.reviewText)
@@ -138,8 +140,10 @@ class GroupUpdateAdapter(
             // Show reviewText only if it's not empty
             if (!update.reviewText.isNullOrEmpty()) {
                 reviewText.text = update.reviewText
+                reviewTitle.visibility = View.VISIBLE
                 reviewText.visibility = View.VISIBLE
             } else {
+                reviewTitle.visibility = View.GONE
                 reviewText.visibility = View.GONE
             }
 
@@ -149,17 +153,157 @@ class GroupUpdateAdapter(
         }
     }
 
-    // Sets up view for view for writing a review with a template update
+    // Sets up view for writing a review with a template update
     inner class ReviewBookTemplateViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val reviewTextView: TextView = itemView.findViewById(R.id.messageText)
+        private val reviewTitle: TextView = itemView.findViewById(R.id.reviewTitle)
         private val ratingBar: RatingBar = itemView.findViewById(R.id.ratingBar)
         private val ratingNumber: TextView = itemView.findViewById(R.id.ratingNumber)
         private val reviewText: TextView = itemView.findViewById(R.id.reviewText)
+
+        private val charactersTitle: TextView = itemView.findViewById(R.id.charactersTitle)
+        private val charactersData: LinearLayout = itemView.findViewById(R.id.charactersData)
+        private val charactersRatingBar: RatingBar = itemView.findViewById(R.id.charactersRatingBar)
+        private val charactersRating: TextView = itemView.findViewById(R.id.charactersRating)
+        private val charactersReview: TextView = itemView.findViewById(R.id.charactersText)
+
+        private val writingTitle: TextView = itemView.findViewById(R.id.writingTitle)
+        private val writingData: LinearLayout = itemView.findViewById(R.id.writingData)
+        private val writingRatingBar: RatingBar = itemView.findViewById(R.id.writingRatingBar)
+        private val writingRating: TextView = itemView.findViewById(R.id.writingRating)
+        private val writingReview: TextView = itemView.findViewById(R.id.writingText)
+
+        private val plotTitle: TextView = itemView.findViewById(R.id.plotTitle)
+        private val plotData: LinearLayout = itemView.findViewById(R.id.plotData)
+        private val plotRatingBar: RatingBar = itemView.findViewById(R.id.plotRatingBar)
+        private val plotRating: TextView = itemView.findViewById(R.id.plotRating)
+        private val plotReview: TextView = itemView.findViewById(R.id.plotText)
+
+        private val themesTitle: TextView = itemView.findViewById(R.id.themesTitle)
+        private val themesData: LinearLayout = itemView.findViewById(R.id.themesData)
+        private val themesRatingBar: RatingBar = itemView.findViewById(R.id.themesRatingBar)
+        private val themesRating: TextView = itemView.findViewById(R.id.themesRating)
+        private val themesReview: TextView = itemView.findViewById(R.id.themesText)
+
+        private val strengthsTitle: TextView = itemView.findViewById(R.id.strengthsTitle)
+        private val strengthsData: LinearLayout = itemView.findViewById(R.id.strengthsData)
+        private val strengthsRatingBar: RatingBar = itemView.findViewById(R.id.strengthsRatingBar)
+        private val strengthsRating: TextView = itemView.findViewById(R.id.strengthsRating)
+        private val strengthsReview: TextView = itemView.findViewById(R.id.strengthsText)
+
+        private val weaknessesTitle: TextView = itemView.findViewById(R.id.weaknessesTitle)
+        private val weaknessesData: LinearLayout = itemView.findViewById(R.id.weaknessesData)
+        private val weaknessesRatingBar: RatingBar = itemView.findViewById(R.id.weaknessesRatingBar)
+        private val weaknessesRating: TextView = itemView.findViewById(R.id.weaknessesRating)
+        private val weaknessesReview: TextView = itemView.findViewById(R.id.weaknessesText)
+
+
         fun bind(update: GroupMemberUpdate) {
+            // Configure main review text
             reviewTextView.text = "${update.username} left a review for: ${update.bookTitle}"
-            ratingBar.rating = update.rating!!
-            ratingNumber.text = update.rating.toString()
-            reviewText.text = update.reviewText
+            ratingBar.rating = update.rating ?: 0f
+            ratingNumber.text = update.rating?.toString() ?: "No Rating"
+
+            // Show review text if present
+            if (!update.reviewText.isNullOrEmpty()) {
+                reviewText.text = update.reviewText
+                reviewTitle.visibility = View.VISIBLE
+                reviewText.visibility = View.VISIBLE
+            } else {
+                reviewTitle.visibility = View.GONE
+                reviewText.visibility = View.GONE
+            }
+
+            // Helper function to manage title, rating, and review visibility
+            fun configureCategory(
+                titleView: TextView,
+                dataView: View,
+                reviewView: TextView,
+                ratingBar: RatingBar,
+                ratingText: TextView,
+                rating: Float?,
+                review: String?
+            ) {
+                var hasContent = false
+
+                // Show rating if available and hides it if not
+                if (rating != null) {
+                    dataView.visibility = View.VISIBLE
+                    ratingBar.rating = rating
+                    ratingText.text = rating.toString()
+                    hasContent = true
+                } else {
+                    dataView.visibility = View.GONE
+                }
+
+                // Show review if available and hides it if not
+                if (!review.isNullOrEmpty()) {
+                    reviewView.visibility = View.VISIBLE
+                    reviewView.text = review
+                    hasContent = true
+                } else {
+                    reviewView.visibility = View.GONE
+                }
+
+                // Show title if either rating or review exists
+                titleView.visibility = if (hasContent) View.VISIBLE else View.GONE
+            }
+
+            // Configure each category
+            configureCategory(
+                charactersTitle,
+                charactersData,
+                charactersReview,
+                charactersRatingBar,
+                charactersRating,
+                update.charactersRating,
+                update.charactersReview
+            )
+            configureCategory(
+                writingTitle,
+                writingData,
+                writingReview,
+                writingRatingBar,
+                writingRating,
+                update.writingRating,
+                update.writingReview
+            )
+            configureCategory(
+                plotTitle,
+                plotData,
+                plotReview,
+                plotRatingBar,
+                plotRating,
+                update.plotRating,
+                update.plotReview
+            )
+            configureCategory(
+                themesTitle,
+                themesData,
+                themesReview,
+                themesRatingBar,
+                themesRating,
+                update.themesRating,
+                update.themesReview
+            )
+            configureCategory(
+                strengthsTitle,
+                strengthsData,
+                strengthsReview,
+                strengthsRatingBar,
+                strengthsRating,
+                update.strengthsRating,
+                update.strengthsReview
+            )
+            configureCategory(
+                weaknessesTitle,
+                weaknessesData,
+                weaknessesReview,
+                weaknessesRatingBar,
+                weaknessesRating,
+                update.weaknessesRating,
+                update.weaknessesReview
+            )
         }
     }
 }

@@ -137,7 +137,7 @@ class GroupMembersFragment : Fragment() {
         // If the group member is the current user, open their own profile
         if (currentUserId == selectedMember.friendId) {
             val profileFragment = ProfileFragment()
-            (activity as MainActivity).replaceFragment(profileFragment, "Profile")
+            (activity as MainActivity).replaceFragment(profileFragment, "Profile", showBackButton = true)
         // Otherwise open the member's  profile as another user's profile
         } else {
             val friendProfileFragment = FriendProfileFragment()
@@ -145,7 +145,7 @@ class GroupMembersFragment : Fragment() {
             bundle.putString("receiverId", selectedMember.friendId)
             bundle.putString("receiverUsername", selectedMember.friendUsername)
             friendProfileFragment.arguments = bundle
-            (activity as MainActivity).replaceFragment(friendProfileFragment, "Profile")
+            (activity as MainActivity).replaceFragment(friendProfileFragment, "Profile", showBackButton = true)
         }
     }
 }
