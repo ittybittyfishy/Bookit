@@ -1,9 +1,9 @@
 <!-- res/layout/fragment_home.xml -->
 <!-- Yunjong Noh -->
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
 <!-- Work review 4 Itzel Medina -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -75,6 +75,7 @@
         android:scaleType="fitCenter"
         android:src="@drawable/expand_button" />
 
+    <!-- Updated booksContainer without nested LinearLayout -->
     <LinearLayout
         android:id="@+id/booksContainer"
         android:layout_width="match_parent"
@@ -83,17 +84,6 @@
         android:gravity="center"
         android:layout_marginTop="0dp"
         android:padding="2dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp">
-
-    <!-- Horizontal LinearLayout for Book Recommendations -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="0dp"
-        android:padding="1dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp">
 
@@ -161,8 +151,7 @@
                         android:src="@drawable/ic_dislike"
                         android:background="?selectableItemBackgroundBorderless"
                         android:scaleX="0.7"
-                        android:scaleY="0.7"
-                        />
+                        android:scaleY="0.7" />
 
                     <!-- Like Button -->
                     <ImageButton
@@ -173,8 +162,7 @@
                         android:background="?selectableItemBackgroundBorderless"
                         android:scaleX="0.7"
                         android:scaleY="0.7"
-                        android:layout_marginStart="7dp"
-                        />
+                        android:layout_marginStart="7dp" />
                 </LinearLayout>
 
                 <!-- Message TextView -->
@@ -254,8 +242,7 @@
                         android:src="@drawable/ic_dislike"
                         android:background="?selectableItemBackgroundBorderless"
                         android:scaleX="0.7"
-                        android:scaleY="0.7"
-                        />
+                        android:scaleY="0.7" />
 
                     <!-- Like Button -->
                     <ImageButton
@@ -266,8 +253,7 @@
                         android:background="?selectableItemBackgroundBorderless"
                         android:scaleX="0.7"
                         android:scaleY="0.7"
-                        android:layout_marginStart="7dp"
-                        />
+                        android:layout_marginStart="7dp" />
                 </LinearLayout>
 
                 <!-- Message TextView -->
@@ -347,8 +333,7 @@
                         android:src="@drawable/ic_dislike"
                         android:background="?selectableItemBackgroundBorderless"
                         android:scaleX="0.7"
-                        android:scaleY="0.7"
-                        />
+                        android:scaleY="0.7" />
 
                     <!-- Like Button -->
                     <ImageButton
@@ -359,8 +344,7 @@
                         android:background="?selectableItemBackgroundBorderless"
                         android:scaleX="0.7"
                         android:scaleY="0.7"
-                        android:layout_marginStart="7dp"
-                        />
+                        android:layout_marginStart="7dp" />
                 </LinearLayout>
 
                 <!-- Message TextView -->
@@ -375,7 +359,6 @@
                     android:textColor="@color/home_pink" />
             </FrameLayout>
         </LinearLayout>
-    </LinearLayout>
     </LinearLayout>
 
     <!-- "Based on your input" TextView -->
@@ -448,6 +431,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center">
+
             </LinearLayout>
 
             <!-- Message TextView -->
@@ -462,7 +446,6 @@
                 android:textColor="@color/home_pink" />
         </FrameLayout>
     </LinearLayout>
-
     <!-- Divider -->
     <View
         android:id="@+id/divider1"
@@ -492,10 +475,10 @@
     android:id="@+id/notificationsRecyclerView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="-10dp"
+    android:layout_marginTop="0dp"
     android:layout_gravity="center_horizontal"
     android:padding="8dp"
     tools:listitem="@layout/item_notification" />
-
     </LinearLayout>
+
 </ScrollView>

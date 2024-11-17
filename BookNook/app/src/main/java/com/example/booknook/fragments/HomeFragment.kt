@@ -126,49 +126,33 @@ class HomeFragment : Fragment() {
         // Initialize views
         loggedInTextView = view.findViewById(R.id.loggedInTextView)
 
+        // Initialize Book 1 views
         bookCoverImageView1 = view.findViewById(R.id.bookCoverImageView1)
         bookTitleTextView1 = view.findViewById(R.id.bookTitleTextView1)
         bookAuthorsTextView1 = view.findViewById(R.id.bookAuthorsTextView1)
-
-        bookCoverImageView2 = view.findViewById(R.id.bookCoverImageView2)
-        bookTitleTextView2 = view.findViewById(R.id.bookTitleTextView2)
-        bookAuthorsTextView2 = view.findViewById(R.id.bookAuthorsTextView2)
-
-        bookCoverImageView3 = view.findViewById(R.id.bookCoverImageView3)
-        bookTitleTextView3 = view.findViewById(R.id.bookTitleTextView3)
-        bookAuthorsTextView3 = view.findViewById(R.id.bookAuthorsTextView3)
-
-        //work review 4
-        // Initialize Like and Dislike buttons
-        likeButton2 = view.findViewById<ImageButton>(R.id.likeButton2)
-        dislikeButton2 = view.findViewById<ImageButton>(R.id.dislikeButton2)
-        likeButton3 = view.findViewById<ImageButton>(R.id.likeButton3)
-        dislikeButton3 = view.findViewById<ImageButton>(R.id.dislikeButton3)
-
-        // Initialize Message TextViews
-        messageTextView1 = view.findViewById<TextView>(R.id.messageTextView1)
-        messageTextView2 = view.findViewById<TextView>(R.id.messageTextView2)
-        messageTextView3 = view.findViewById<TextView>(R.id.messageTextView3)
-
-        // Initialize Book 1 views
         dislikeButton1 = view.findViewById(R.id.dislikeButton1)
         likeButton1 = view.findViewById(R.id.likeButton1)
         messageTextView1 = view.findViewById(R.id.messageTextView1)
         buttonContainer1 = view.findViewById(R.id.buttonContainer1)
 
         // Initialize Book 2 views
+        bookCoverImageView2 = view.findViewById(R.id.bookCoverImageView2)
+        bookTitleTextView2 = view.findViewById(R.id.bookTitleTextView2)
+        bookAuthorsTextView2 = view.findViewById(R.id.bookAuthorsTextView2)
         dislikeButton2 = view.findViewById(R.id.dislikeButton2)
         likeButton2 = view.findViewById(R.id.likeButton2)
         messageTextView2 = view.findViewById(R.id.messageTextView2)
         buttonContainer2 = view.findViewById(R.id.buttonContainer2)
 
         // Initialize Book 3 views
+        bookCoverImageView3 = view.findViewById(R.id.bookCoverImageView3)
+        bookTitleTextView3 = view.findViewById(R.id.bookTitleTextView3)
+        bookAuthorsTextView3 = view.findViewById(R.id.bookAuthorsTextView3)
         dislikeButton3 = view.findViewById(R.id.dislikeButton3)
         likeButton3 = view.findViewById(R.id.likeButton3)
         messageTextView3 = view.findViewById(R.id.messageTextView3)
         buttonContainer3 = view.findViewById(R.id.buttonContainer3)
 
-        //work review 4 itzel medina
         // Initialize Book 4 views
         bookCoverImageView4 = view.findViewById(R.id.bookCoverImageView4)
         bookTitleTextView4 = view.findViewById(R.id.bookTitleTextView4)
@@ -473,9 +457,28 @@ class HomeFragment : Fragment() {
         // Update the last fetch date to current time to prevent immediate refetching (optional)
         saveLastFetchDate(userId)
 
-        // Optionally, clear existing recommendations before fetching new ones
-        // clearExistingRecommendations(userId)
+        // Reset UI elements for Books 1-3
+        messageTextView1.visibility = View.GONE
+        buttonContainer1.visibility = View.VISIBLE
+        likeButton1.visibility = View.VISIBLE
+        dislikeButton1.visibility = View.VISIBLE
+
+        messageTextView2.visibility = View.GONE
+        buttonContainer2.visibility = View.VISIBLE
+        likeButton2.visibility = View.VISIBLE
+        dislikeButton2.visibility = View.VISIBLE
+
+        messageTextView3.visibility = View.GONE
+        buttonContainer3.visibility = View.VISIBLE
+        likeButton3.visibility = View.VISIBLE
+        dislikeButton3.visibility = View.VISIBLE
+
+        // Hide the fourth book layout and related views
+        view?.findViewById<LinearLayout>(R.id.bookItem4)?.visibility = View.GONE
+        view?.findViewById<TextView>(R.id.basedOnYourInputTextView)?.visibility = View.GONE
     }
+
+
 
 
     // Yunjong Noh
@@ -764,6 +767,13 @@ class HomeFragment : Fragment() {
             messageTextView1.visibility = View.GONE
             messageTextView1.text = "Message will appear here"
 
+            // Reset buttonContainer1 to visible
+            buttonContainer1.visibility = View.VISIBLE
+
+            // **Reset Like and Dislike Buttons to Visible**
+            likeButton1.visibility = View.VISIBLE
+            dislikeButton1.visibility = View.VISIBLE
+
             val thumbnail1 = book1?.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
             Log.d("HomeFragment", "Book 1 Image URL: $thumbnail1")
 
@@ -787,6 +797,13 @@ class HomeFragment : Fragment() {
                 messageTextView2.visibility = View.GONE
                 messageTextView2.text = "Message will appear here"
 
+                // Reset buttonContainer2 to visible
+                buttonContainer2.visibility = View.VISIBLE
+
+                // **Reset Like and Dislike Buttons to Visible**
+                likeButton2.visibility = View.VISIBLE
+                dislikeButton2.visibility = View.VISIBLE
+
                 val thumbnail2 = book2.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
                 Log.d("HomeFragment", "Book 2 Image URL: $thumbnail2")
 
@@ -808,6 +825,13 @@ class HomeFragment : Fragment() {
                 genreBook3 = book3.volumeInfo?.categories?.firstOrNull() ?: "Various Genres"
                 messageTextView3.visibility = View.GONE
                 messageTextView3.text = "Message will appear here"
+
+                // Reset buttonContainer3 to visible
+                buttonContainer3.visibility = View.VISIBLE
+
+                // **Reset Like and Dislike Buttons to Visible**
+                likeButton3.visibility = View.VISIBLE
+                dislikeButton3.visibility = View.VISIBLE
 
                 val thumbnail3 = book3.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
                 Log.d("HomeFragment", "Book 3 Image URL: $thumbnail3")
@@ -1220,6 +1244,9 @@ class HomeFragment : Fragment() {
         messageTextView4.visibility = View.GONE
         messageTextView4.text = "Message will appear here"
 
+        // Reset buttonContainer4 to visible if applicable
+        buttonContainer4.visibility = View.VISIBLE
+
         val thumbnail4 = book.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
         Log.d("HomeFragment", "Book 4 Image URL: $thumbnail4")
 
@@ -1236,6 +1263,7 @@ class HomeFragment : Fragment() {
         // Set the flag after successful display
         markFourthBookAsShown()
     }
+
 
 
     //work review 4 itzel medina
