@@ -2,20 +2,25 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RatingBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.booknook.GroupMemberUpdate
 import com.example.booknook.R
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 
 class GroupUpdateAdapter(
-    private val memberUpdates: List<GroupMemberUpdate>
+    private val memberUpdates: List<GroupMemberUpdate>,
+    private val groupId: String
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    // Types of group updates
     companion object {
         const val TYPE_START_BOOK = 1
         const val TYPE_FINISH_BOOK = 2
@@ -24,12 +29,9 @@ class GroupUpdateAdapter(
         const val TYPE_REVIEW_BOOK_TEMPLATE = 5
     }
 
-    // Gets the type of the update
     override fun getItemViewType(position: Int): Int {
-        val type = memberUpdates[position].type  // Gets the type of the update
-        Log.d("GroupUpdateAdapter", "Item type: $type")  // Log the type value
-        // Returns the corresponding type in the companion object
-        return when (memberUpdates[position].type) {
+        val type = memberUpdates[position].type
+        return when (type) {
             "startBook" -> TYPE_START_BOOK
             "finishBook" -> TYPE_FINISH_BOOK
             "recommendation" -> TYPE_RECOMMEND_BOOK
@@ -41,7 +43,6 @@ class GroupUpdateAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        // Inflates different views based on the update type
         return when (viewType) {
             TYPE_START_BOOK -> {
                 val view = inflater.inflate(R.layout.item_start_book, parent, false)
@@ -69,7 +70,6 @@ class GroupUpdateAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val update = memberUpdates[position]
-        // Sets up view holders for each type
         when (holder) {
             is StartBookViewHolder -> holder.bind(update)
             is FinishBookViewHolder -> holder.bind(update)
@@ -81,24 +81,80 @@ class GroupUpdateAdapter(
 
     override fun getItemCount(): Int = memberUpdates.size
 
-    // Sets up view for start book update
-    inner class StartBookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    // BaseViewHolder with comment handling
+    open class BaseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val commentInput: EditText = itemView.findViewById(R.id.commentInput)
+        private val postCommentButton: Button = itemView.findViewById(R.id.postCommentButton)
+
+        fun setOnClickListener(update: GroupMemberUpdate, groupId: String) {
+            postCommentButton.setOnClickListener {
+                val commentText = commentInput.text.toString().trim()
+                if (commentText.isNotEmpty()) {
+                    saveCommentToDatabase(groupId, update.updateId, commentText, update.username, update.userId)
+                    commentInput.text.clear()
+                } else {
+                    Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        // Utility function for saving comments to the database
+        private fun saveCommentToDatabase(groupId: String, updateId: String, commentText: String, username: String, userId: String) {
+            val db = FirebaseFirestore.getInstance()
+            val commentId = db.collection("groups")
+                .document(groupId)
+                .collection("memberUpdates")
+                .document(updateId)
+                .collection("comments")
+                .document()
+                .id
+
+            val comment = mapOf(
+                "commentText" to commentText,
+                "username" to username,
+                "userId" to userId,
+                "timestamp" to FieldValue.serverTimestamp()
+            )
+
+            db.collection("groups")
+                .document(groupId)
+                .collection("memberUpdates")
+                .document(updateId)
+                .collection("comments")
+                .document(commentId)
+                .set(comment)
+                .addOnSuccessListener {
+                    Toast.makeText(itemView.context, "Comment posted", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(itemView.context, "Failed to post comment: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
+
+    // Handles view for starting a book
+    inner class StartBookViewHolder(itemView: View) : BaseViewHolder(itemView) {
         private val messageTextView: TextView = itemView.findViewById(R.id.messageTextView)
+
         fun bind(update: GroupMemberUpdate) {
             messageTextView.text = "${update.username} started a book: ${update.bookTitle}"
+            setOnClickListener(update, groupId)
         }
     }
 
-    // Sets up view for finish book update
-    inner class FinishBookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    // Handles view for finishing a book
+    inner class FinishBookViewHolder(itemView: View) : BaseViewHolder(itemView) {
         private val messageTextView: TextView = itemView.findViewById(R.id.messageTextView)
+
         fun bind(update: GroupMemberUpdate) {
             messageTextView.text = "${update.username} finished a book: ${update.bookTitle}"
+            setOnClickListener(update, groupId)
         }
     }
 
-    // Sets up view for recommending a book update
-    inner class RecommendBookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    // Handles view for recommending a book
+    inner class RecommendBookViewHolder(itemView: View) : BaseViewHolder(itemView) {
         private val messageTextView: TextView = itemView.findViewById(R.id.messageText)
         private val bookImageView: ImageView = itemView.findViewById(R.id.bookImage)
         private val titleTextView: TextView = itemView.findViewById(R.id.bookTitle)
@@ -113,16 +169,17 @@ class GroupUpdateAdapter(
             bookRatingBar.rating = update.bookRating!!
             ratingTextView.text = update.bookRating.toString()
 
-            // Load book image
             Glide.with(itemView.context)
                 .load(update.bookImage)
                 .placeholder(R.drawable.placeholder_image)
                 .into(bookImageView)
+
+            setOnClickListener(update, groupId)
         }
     }
 
-    // Sets up view for writing a review without a template update
-    inner class ReviewBookNoTemplateViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    // Handles view for writing a review without a template
+    inner class ReviewBookNoTemplateViewHolder(itemView: View) : BaseViewHolder(itemView) {
         private val reviewTextView: TextView = itemView.findViewById(R.id.messageText)
         private val reviewTitle: TextView = itemView.findViewById(R.id.reviewTitle)
         private val ratingBar: RatingBar = itemView.findViewById(R.id.ratingBar)
@@ -137,7 +194,6 @@ class GroupUpdateAdapter(
             ratingNumber.text = update.rating.toString()
             reviewText.text = update.reviewText
 
-            // Show reviewText only if it's not empty
             if (!update.reviewText.isNullOrEmpty()) {
                 reviewText.text = update.reviewText
                 reviewTitle.visibility = View.VISIBLE
@@ -147,14 +203,15 @@ class GroupUpdateAdapter(
                 reviewText.visibility = View.GONE
             }
 
-            // Shows/hides the spoilers and sensitive topics text based on boolean value
             spoilerText.visibility = if (update.hasSpoilers == true) View.VISIBLE else View.GONE
             sensitiveTopicsText.visibility = if (update.hasSensitiveTopics == true) View.VISIBLE else View.GONE
+
+            setOnClickListener(update, groupId)
         }
     }
 
     // Sets up view for writing a review with a template update
-    inner class ReviewBookTemplateViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ReviewBookTemplateViewHolder(itemView: View) : BaseViewHolder(itemView) {
         private val reviewTextView: TextView = itemView.findViewById(R.id.messageText)
         private val reviewTitle: TextView = itemView.findViewById(R.id.reviewTitle)
         private val ratingBar: RatingBar = itemView.findViewById(R.id.ratingBar)
@@ -203,6 +260,7 @@ class GroupUpdateAdapter(
             reviewTextView.text = "${update.username} left a review for: ${update.bookTitle}"
             ratingBar.rating = update.rating ?: 0f
             ratingNumber.text = update.rating?.toString() ?: "No Rating"
+
 
             // Show review text if present
             if (!update.reviewText.isNullOrEmpty()) {
@@ -304,6 +362,7 @@ class GroupUpdateAdapter(
                 update.weaknessesRating,
                 update.weaknessesReview
             )
+            setOnClickListener(update, groupId)
         }
     }
 }

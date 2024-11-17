@@ -74,7 +74,7 @@ class MyGroupsHomepageFragment : Fragment() {
 
         // Sets up adapter and recycler view for the group updates
         memberUpdatesList = mutableListOf()
-        memberUpdatesAdapter = GroupUpdateAdapter(memberUpdatesList)
+        memberUpdatesAdapter = groupId?.let { GroupUpdateAdapter(memberUpdatesList, it) }!!
 
         memberUpdatesRecyclerView.layoutManager = LinearLayoutManager(context)
         memberUpdatesRecyclerView.adapter = memberUpdatesAdapter
@@ -225,7 +225,7 @@ class MyGroupsHomepageFragment : Fragment() {
     private fun fetchMemberUpdates(groupId: String) {
         val db = FirebaseFirestore.getInstance()
 
-        // Get the current user's username or ID (replace with your actual method of getting the current user)
+        // Get the current user's id
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
         // Fetch the memberUpdates collection for the given group
@@ -471,6 +471,43 @@ class MyGroupsHomepageFragment : Fragment() {
                 Toast.makeText(activity, "Error checking joined status: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
+
+    private fun postComment(updateId: String, groupId: String, commentText: String) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        val currentUsername = userId?.let {
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(it)
+                .get()
+                .addOnSuccessListener { document ->
+                    val username = document.getString("username") ?: "Anonymous"
+
+                    val comment = hashMapOf(
+                        "username" to username, // Replace with actual username
+                        "commentText" to commentText,
+                        "timestamp" to System.currentTimeMillis()
+                    )
+
+                    val db = FirebaseFirestore.getInstance()
+                    val commentRef = db.collection("groups")
+                        .document(groupId)
+                        .collection("memberUpdates")
+                        .document(updateId)
+                        .collection("comments")
+                        .document() // Auto-generate ID for the comment
+
+                    commentRef.set(comment)
+                        .addOnSuccessListener {
+                            Toast.makeText(context, "Comment posted!", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(context, "Failed to post comment: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                }
+        }
+    }
+
 
 
     // Olivia Fishbough

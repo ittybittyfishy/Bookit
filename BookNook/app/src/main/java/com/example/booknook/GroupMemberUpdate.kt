@@ -2,6 +2,7 @@ package com.example.booknook
 import com.google.firebase.Timestamp
 
 data class GroupMemberUpdate(
+    val updateId : String = "",
     val userId: String = "",
     val username: String = "",
     val type: String = "",

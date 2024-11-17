@@ -244,7 +244,7 @@ class BookAdapter(
 
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(userDocRef)
-
+                val username = snapshot.getString("username") ?: "Unknown User"  // Gets username
 
                 // Remove the book from old collections if it exists
                 for (collection in standardCollections) {
@@ -271,14 +271,65 @@ class BookAdapter(
                 // Add the book to the new collection
                 transaction.update(userDocRef, "standardCollections.$newCollectionName", FieldValue.arrayUnion(book))
 
+                // Veronica Nguyen
+                // Gets the user's joined groups
+                val groupIds = snapshot.get("joinedGroups") as? List<String> ?: emptyList()
 
-                // Increment numBooksRead if the new collection is "Finished"
                 if (newCollectionName == "Finished") {
                     transaction.update(userDocRef, "numBooksRead", FieldValue.increment(1))
+
+                    // Loops through each group the user is a member of
+                    groupIds.forEach { groupId ->
+                        val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates")
+
+                        // Generate a document ID
+                        val updateId = groupUpdatesRef.document().id
+
+                        // Data to store for group updates in the group they're in
+                        val updateData = hashMapOf(
+                            "updateId" to updateId, // Include the ID in the data
+                            "userId" to userId,
+                            "username" to username,
+                            "type" to "finishBook",
+                            "timestamp" to FieldValue.serverTimestamp(),
+                            "bookTitle" to title
+                        )
+
+                        // Write the data with the predefined document ID
+                        val specificDocRef = groupUpdatesRef.document(updateId)
+                        transaction.set(specificDocRef, updateData)
+                    }
                 }
-                null
+
+                if (newCollectionName == "Reading") {
+                    // Loops through each group the user is a member of
+                    groupIds.forEach { groupId ->
+                        val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates")
+
+                        // Generate a document ID
+                        val updateId = groupUpdatesRef.document().id
+
+                        // Data to store for group updates in the group they're in
+                        val updateData = hashMapOf(
+                            "updateId" to updateId, // Include the ID in the data
+                            "userId" to userId,
+                            "username" to username,
+                            "type" to "startBook",
+                            "timestamp" to FieldValue.serverTimestamp(),
+                            "bookTitle" to title
+                        )
+
+                        // Write the data with the predefined document ID
+                        val specificDocRef = groupUpdatesRef.document(updateId)
+                        transaction.set(specificDocRef, updateData)
+                    }
+                }
+
+
+                null // Indicate successful transaction
             }.addOnSuccessListener {
-                calculateTopGenres(userId, context)
+                // Veronica Nguyen
+                calculateTopGenres(userId, context)  // Update top genres when adding book to default collection
                 Toast.makeText(context, context.getString(R.string.book_added_to_collection, newCollectionName), Toast.LENGTH_SHORT).show()
             }.addOnFailureListener { e ->
                 Toast.makeText(context, context.getString(R.string.failed_to_add_book, e.message), Toast.LENGTH_SHORT).show()

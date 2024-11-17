@@ -844,39 +844,45 @@ class ReviewActivityTemplate : Fragment() {
                 // Gets all the groups the user is in
                 val groupIds = document.get("joinedGroups") as? List<String> ?: emptyList()
 
-                // Data to be uploaded into database
-                val updateData = hashMapOf(
-                    "userId" to userId,
-                    "username" to username,
-                    "type" to "reviewBookTemplate",
-                    "timestamp" to FieldValue.serverTimestamp(),
-                    "bookTitle" to bookTitle,
-                    "reviewText" to reviewText,
-                    "rating" to rating,
-                    "charactersChecked" to charactersChecked,
-                    "charactersRating" to charactersRating,
-                    "charactersReview" to charactersReview,
-                    "writingChecked" to writingChecked,
-                    "writingRating" to writingRating,
-                    "writingReview" to writingReview,
-                    "plotChecked" to plotChecked,
-                    "plotRating" to plotRating,
-                    "plotReview" to plotReview,
-                    "themesChecked" to themesChecked,
-                    "themesRating" to themesRating,
-                    "themesReview" to themesReview,
-                    "strengthsChecked" to strengthsChecked,
-                    "strengthsRating" to strengthsRating,
-                    "strengthsReview" to strengthsReview,
-                    "weaknessesChecked" to weaknessesChecked,
-                    "weaknessesRating" to weaknessesRating,
-                    "weaknessesReview" to weaknessesReview,
-                )
-
                 // Loops through every group the user is in and adds update
                 groupIds.forEach { groupId ->
-                    val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates").document()
-                    groupUpdatesRef.set(updateData)
+                    val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates")
+
+                    // Generate a unique document ID
+                    val updateId = groupUpdatesRef.document().id
+
+                    // Data to be uploaded into database
+                    val updateData = hashMapOf(
+                        "updateId" to updateId,
+                        "userId" to userId,
+                        "username" to username,
+                        "type" to "reviewBookTemplate",
+                        "timestamp" to FieldValue.serverTimestamp(),
+                        "bookTitle" to bookTitle,
+                        "reviewText" to reviewText,
+                        "rating" to rating,
+                        "charactersChecked" to charactersChecked,
+                        "charactersRating" to charactersRating,
+                        "charactersReview" to charactersReview,
+                        "writingChecked" to writingChecked,
+                        "writingRating" to writingRating,
+                        "writingReview" to writingReview,
+                        "plotChecked" to plotChecked,
+                        "plotRating" to plotRating,
+                        "plotReview" to plotReview,
+                        "themesChecked" to themesChecked,
+                        "themesRating" to themesRating,
+                        "themesReview" to themesReview,
+                        "strengthsChecked" to strengthsChecked,
+                        "strengthsRating" to strengthsRating,
+                        "strengthsReview" to strengthsReview,
+                        "weaknessesChecked" to weaknessesChecked,
+                        "weaknessesRating" to weaknessesRating,
+                        "weaknessesReview" to weaknessesReview,
+                    )
+
+                    // Write the data with the predefined document ID
+                    groupUpdatesRef.document(updateId).set(updateData)
                 }
             }
         }

@@ -123,6 +123,11 @@ class ConfirmRecommendationFragment : Fragment() {
                                                         db.collection("groups").document(groupId)
                                                             .collection("memberUpdates")
                                                             .add(updateData)
+                                                            .addOnSuccessListener { updateRef ->
+                                                                val updateId = updateRef.id
+                                                                // Update the memberUpdate with its ID
+                                                                updateRef.update("updateId", updateId)
+                                                            }
 
 //                                                        val recommendationsFragment = GroupRecommendationsFragment()
 //                                                        val bundle = Bundle()

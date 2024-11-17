@@ -626,28 +626,35 @@ class ReviewActivity : Fragment() {
         hasSensitiveTopics: Boolean
     ) {
         val db = FirebaseFirestore.getInstance()
+
         db.collection("users").document(userId).get().addOnSuccessListener { document ->
             if (document.exists()) {
                 // Gets all the groups the user is in
                 val groupIds = document.get("joinedGroups") as? List<String> ?: emptyList()
 
-                // Data to be uploaded into database
-                val updateData = hashMapOf(
-                    "userId" to userId,
-                    "username" to username,
-                    "type" to "reviewBookNoTemplate",
-                    "timestamp" to FieldValue.serverTimestamp(),
-                    "bookTitle" to bookTitle,
-                    "reviewText" to reviewText,
-                    "rating" to rating,
-                    "hasSpoilers" to hasSpoilers,
-                    "hasSensitiveTopics" to hasSensitiveTopics
-                )
-
                 // Loops through every group the user is in and adds update
                 groupIds.forEach { groupId ->
-                    val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates").document()
-                    groupUpdatesRef.set(updateData)
+                    val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates")
+
+                    // Generate a unique document ID
+                    val updateId = groupUpdatesRef.document().id
+
+                    // Data to be uploaded into database, including the generated ID
+                    val updateData = hashMapOf(
+                        "updateId" to updateId, // Include the ID in the data
+                        "userId" to userId,
+                        "username" to username,
+                        "type" to "reviewBookNoTemplate",
+                        "timestamp" to FieldValue.serverTimestamp(),
+                        "bookTitle" to bookTitle,
+                        "reviewText" to reviewText,
+                        "rating" to rating,
+                        "hasSpoilers" to hasSpoilers,
+                        "hasSensitiveTopics" to hasSensitiveTopics
+                    )
+
+                    // Write the data with the predefined document ID
+                    groupUpdatesRef.document(updateId).set(updateData)
                 }
             }
         }
