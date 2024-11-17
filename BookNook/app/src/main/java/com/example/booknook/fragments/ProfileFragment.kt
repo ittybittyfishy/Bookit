@@ -576,7 +576,7 @@ class ProfileFragment : Fragment() {
 
     // Veronica Nguyen
     // Function updates the average rating of the user
-    fun updateAverageRating(userId: String) {
+    private fun updateAverageRating(userId: String) {
         val db = FirebaseFirestore.getInstance()
         val userDocRef = db.collection("users").document(userId)
 
@@ -594,23 +594,30 @@ class ProfileFragment : Fragment() {
 
                     // Update the user's averageRating in Firestore
                     userDocRef.update("averageRating", averageRating)
-                        .addOnFailureListener {
-                            context?.let {
-                                Toast.makeText(it, "Error updating average rating", Toast.LENGTH_SHORT).show()
-                            }
+                        .addOnSuccessListener {
+                            Log.d("ProfileFragment", "Average rating updated to $averageRating")
+                            // **Update the TextView with the new average rating**
+                            averageRatingTextView.text = String.format("%.2f", averageRating)
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("ProfileFragment", "Error updating average rating: ${e.message}", e)
+                            Toast.makeText(context, "Error updating average rating", Toast.LENGTH_SHORT).show()
                         }
                 } else {
-                    context?.let {
-                        Toast.makeText(it, "No ratings found", Toast.LENGTH_SHORT).show()
-                    }
+                    Log.d("ProfileFragment", "No ratings found for user $userId")
+                    Toast.makeText(context, "No ratings found", Toast.LENGTH_SHORT).show()
+                    // Optionally, set average rating to a default value or indicate no ratings
+                    averageRatingTextView.text = "N/A"
                 }
             }
-            .addOnFailureListener {
-                context?.let {
-                    Toast.makeText(it, "Error getting user ratings", Toast.LENGTH_SHORT).show()
-                }
+            .addOnFailureListener { e ->
+                Log.e("ProfileFragment", "Error getting user ratings: ${e.message}", e)
+                Toast.makeText(context, "Error getting user ratings", Toast.LENGTH_SHORT).show()
+                // Optionally, set average rating to a default value or indicate an error
+                averageRatingTextView.text = "Error"
             }
     }
+
 
 
     // Veronica Nguyen

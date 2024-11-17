@@ -32,6 +32,14 @@ class ReviewActivityTemplate : Fragment() {
     private lateinit var ratingPromptText: TextView  // TextView for "Rate it!"
     private var userRating: Float? = null  // Start with null to indicate no rating
 
+    //itzel medina
+    private var charactersRatingTouched = false
+    private var writingRatingTouched = false
+    private var plotRatingTouched = false
+    private var themesRatingTouched = false
+    private var strengthsRatingTouched = false
+    private var weaknessesRatingTouched = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -104,6 +112,33 @@ class ReviewActivityTemplate : Fragment() {
         val weaknessesRatingBar = view.findViewById<RatingBar>(R.id.weaknessesRatingBar)
         val weaknessesReviewEditText = view.findViewById<EditText>(R.id.input6)
 
+
+        //itzel medina
+        // Set up listeners to track user interaction
+        charactersRatingBar.setOnRatingBarChangeListener { _, _, _ ->
+            charactersRatingTouched = true
+        }
+
+        writingRatingBar.setOnRatingBarChangeListener { _, _, _ ->
+            writingRatingTouched = true
+        }
+
+        plotRatingBar.setOnRatingBarChangeListener { _, _, _ ->
+            plotRatingTouched = true
+        }
+
+        themesRatingBar.setOnRatingBarChangeListener { _, _, _ ->
+            themesRatingTouched = true
+        }
+
+        strengthsRatingBar.setOnRatingBarChangeListener { _, _, _ ->
+            strengthsRatingTouched = true
+        }
+
+        weaknessesRatingBar.setOnRatingBarChangeListener { _, _, _ ->
+            weaknessesRatingTouched = true
+        }
+
         // Fetch the existing review from Firebase if review exists and populate fields
         if (userId != null && bookIsbn != null) {
             val db = FirebaseFirestore.getInstance()
@@ -118,57 +153,106 @@ class ReviewActivityTemplate : Fragment() {
 
                         // Populate the fields with the fetched data
                         reviewEditText.setText(reviewData?.get("reviewText") as? String ?: "")
-                        ratingBar.rating = (reviewData?.get("rating") as? Double)?.toFloat() ?: 0f
+                        val overallRatingValue = reviewData?.get("rating") as? Double
+                        ratingBar.rating = overallRatingValue?.toFloat() ?: 0f
 
+                        if (overallRatingValue != null) {
+                            userRating = overallRatingValue.toFloat()
+                        } else {
+                            userRating = null
+                        }
+
+                        // Characters
                         charactersCheckbox.isChecked =
                             reviewData?.get("charactersChecked") as? Boolean ?: false
-                        charactersRatingBar.rating =
-                            (reviewData?.get("charactersRating") as? Double)?.toFloat() ?: 0f
+                        val charactersRatingValue = reviewData?.get("charactersRating") as? Double
+                        if (charactersRatingValue != null) {
+                            charactersRatingBar.rating = charactersRatingValue.toFloat()
+                            charactersRatingTouched = true
+                        } else {
+                            charactersRatingBar.rating = 0f // Set to default or hide if preferred
+                            charactersRatingTouched = false
+                        }
                         charactersReviewEditText.setText(
                             reviewData?.get("charactersReview") as? String ?: ""
                         )
 
+                        // Writing
                         writingCheckbox.isChecked =
                             reviewData?.get("writingChecked") as? Boolean ?: false
-                        writingRatingBar.rating =
-                            (reviewData?.get("writingRating") as? Double)?.toFloat() ?: 0f
+                        val writingRatingValue = reviewData?.get("writingRating") as? Double
+                        if (writingRatingValue != null) {
+                            writingRatingBar.rating = writingRatingValue.toFloat()
+                            writingRatingTouched = true
+                        } else {
+                            writingRatingBar.rating = 0f
+                            writingRatingTouched = false
+                        }
                         writingReviewEditText.setText(
                             reviewData?.get("writingReview") as? String ?: ""
                         )
 
-                        plotCheckbox.isChecked = reviewData?.get("plotChecked") as? Boolean ?: false
-                        plotRatingBar.rating =
-                            (reviewData?.get("plotRating") as? Double)?.toFloat() ?: 0f
+                        // Plot
+                        plotCheckbox.isChecked =
+                            reviewData?.get("plotChecked") as? Boolean ?: false
+                        val plotRatingValue = reviewData?.get("plotRating") as? Double
+                        if (plotRatingValue != null) {
+                            plotRatingBar.rating = plotRatingValue.toFloat()
+                            plotRatingTouched = true
+                        } else {
+                            plotRatingBar.rating = 0f
+                            plotRatingTouched = false
+                        }
                         plotReviewEditText.setText(reviewData?.get("plotReview") as? String ?: "")
 
+                        // Themes
                         themesCheckbox.isChecked =
                             reviewData?.get("themesChecked") as? Boolean ?: false
-                        themesRatingBar.rating =
-                            (reviewData?.get("themesRating") as? Double)?.toFloat() ?: 0f
+                        val themesRatingValue = reviewData?.get("themesRating") as? Double
+                        if (themesRatingValue != null) {
+                            themesRatingBar.rating = themesRatingValue.toFloat()
+                            themesRatingTouched = true
+                        } else {
+                            themesRatingBar.rating = 0f
+                            themesRatingTouched = false
+                        }
                         themesReviewEditText.setText(
                             reviewData?.get("themesReview") as? String ?: ""
                         )
 
+                        // Strengths
                         strengthsCheckbox.isChecked =
                             reviewData?.get("strengthsChecked") as? Boolean ?: false
-                        strengthsRatingBar.rating =
-                            (reviewData?.get("strengthsRating") as? Double)?.toFloat() ?: 0f
+                        val strengthsRatingValue = reviewData?.get("strengthsRating") as? Double
+                        if (strengthsRatingValue != null) {
+                            strengthsRatingBar.rating = strengthsRatingValue.toFloat()
+                            strengthsRatingTouched = true
+                        } else {
+                            strengthsRatingBar.rating = 0f
+                            strengthsRatingTouched = false
+                        }
                         strengthsReviewEditText.setText(
                             reviewData?.get("strengthsReview") as? String ?: ""
                         )
 
+                        // Weaknesses
                         weaknessesCheckbox.isChecked =
                             reviewData?.get("weaknessesChecked") as? Boolean ?: false
-                        weaknessesRatingBar.rating =
-                            (reviewData?.get("weaknessesRating") as? Double)?.toFloat() ?: 0f
+                        val weaknessesRatingValue = reviewData?.get("weaknessesRating") as? Double
+                        if (weaknessesRatingValue != null) {
+                            weaknessesRatingBar.rating = weaknessesRatingValue.toFloat()
+                            weaknessesRatingTouched = true
+                        } else {
+                            weaknessesRatingBar.rating = 0f
+                            weaknessesRatingTouched = false
+                        }
                         weaknessesReviewEditText.setText(
                             reviewData?.get("weaknessesReview") as? String ?: ""
                         )
-
                     }
                 }
                 .addOnFailureListener {
-                            Toast.makeText(activity, "Failed to load review data", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, "Failed to load review data", Toast.LENGTH_SHORT).show()
                 }
         }
 
@@ -339,7 +423,7 @@ class ReviewActivityTemplate : Fragment() {
             }
     }
 
-    //Deletion of review with temp
+    // Deletion of review with temp
     private fun deleteOldReview(userId: String, bookIsbn: String, onComplete: () -> Unit) {
         val db = FirebaseFirestore.getInstance()
 
@@ -368,6 +452,14 @@ class ReviewActivityTemplate : Fragment() {
                             decrementUserReviewNum(userId)  // Decrease the user's review count
                             updateUserAverageRating(userId)
                             onComplete() // Call onComplete after deletion
+
+                            // Reset interaction flags after deletion
+                            charactersRatingTouched = false
+                            writingRatingTouched = false
+                            plotRatingTouched = false
+                            themesRatingTouched = false
+                            strengthsRatingTouched = false
+                            weaknessesRatingTouched = false
                         }
                         .addOnFailureListener {
                             Toast.makeText(activity, "Failed to delete old review", Toast.LENGTH_SHORT).show()
@@ -381,6 +473,8 @@ class ReviewActivityTemplate : Fragment() {
             }
     }
 
+
+    // Function for saving with Template review Data
     // Function for saving with Template review Data
     private fun saveReview(
         userId: String?, bookIsbn: String?, reviewText: String, rating: Float, charactersChecked: Boolean,
@@ -391,17 +485,18 @@ class ReviewActivityTemplate : Fragment() {
         strengthsRating: Float, strengthsReview: String, weaknessesChecked: Boolean,
         weaknessesRating: Float, weaknessesReview: String
     ) {
-        //Get the current user from Firebase Auth
+        // Get the current user from Firebase Auth
         val user = FirebaseAuth.getInstance().currentUser
         val userId = user?.uid // Current logged-in user ID
 
         // Check both userId and bookIsbn are not null before proceeding
         if (userId != null) {
-            // initialize Firebase Instance
+            // Initialize Firebase Instance
             val db = FirebaseFirestore.getInstance()
             val bookTitle = arguments?.getString("bookTitle")
             val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
             var bookIsbn = arguments?.getString("bookIsbn") // Use this to identify the book for the review
+
             // Yunjong Noh
             // Delivered Genre list
             val rawBookGenres = arguments?.getStringArrayList("bookGenresList") ?: listOf("default genre")
@@ -430,40 +525,45 @@ class ReviewActivityTemplate : Fragment() {
                 if (document.exists()) {
                     val username = document.getString("username") // Get username if exists
 
-                    // Create a map for review data to save into Firebase
-                    val reviewData = mapOf(
+                    // Create a mutable map for review data to save into Firebase
+                    val reviewData = mutableMapOf<String, Any?>(
                         "userId" to userId,
                         "username" to username,
                         "reviewText" to reviewText,
                         "rating" to rating.toDouble(),
                         "charactersChecked" to charactersChecked,
-                        "charactersRating" to charactersRating.toDouble(),
-                        "charactersReview" to charactersReview,
                         "writingChecked" to writingChecked,
-                        "writingRating" to writingRating.toDouble(),
-                        "writingReview" to writingReview,
                         "plotChecked" to plotChecked,
-                        "plotRating" to plotRating.toDouble(),
-                        "plotReview" to plotReview,
                         "themesChecked" to themesChecked,
-                        "themesRating" to themesRating.toDouble(),
-                        "themesReview" to themesReview,
                         "strengthsChecked" to strengthsChecked,
-                        "strengthsRating" to strengthsRating.toDouble(),
-                        "strengthsReview" to strengthsReview,
                         "weaknessesChecked" to weaknessesChecked,
-                        "weaknessesRating" to weaknessesRating.toDouble(),
-                        "weaknessesReview" to weaknessesReview,
                         "timestamp" to FieldValue.serverTimestamp(),
                         "isTemplateUsed" to true
                     )
+
+                    // Assign nullable ratings based on user interaction
+                    reviewData["charactersRating"] = if (charactersRatingTouched) charactersRating.toDouble() else null
+                    reviewData["charactersReview"] = charactersReview
+
+                    reviewData["writingRating"] = if (writingRatingTouched) writingRating.toDouble() else null
+                    reviewData["writingReview"] = writingReview
+
+                    reviewData["plotRating"] = if (plotRatingTouched) plotRating.toDouble() else null
+                    reviewData["plotReview"] = plotReview
+
+                    reviewData["themesRating"] = if (themesRatingTouched) themesRating.toDouble() else null
+                    reviewData["themesReview"] = themesReview
+
+                    reviewData["strengthsRating"] = if (strengthsRatingTouched) strengthsRating.toDouble() else null
+                    reviewData["strengthsReview"] = strengthsReview
+
+                    reviewData["weaknessesRating"] = if (weaknessesRatingTouched) weaknessesRating.toDouble() else null
+                    reviewData["weaknessesReview"] = weaknessesReview
 
                     // Map to store book data
                     val bookData = mapOf(
                         "bookTitle" to bookTitle,
                         "authors" to bookAuthors,
-                        // Yunjong Noh
-                        // Save normalized genres
                         "genres" to bookGenres
                     )
 
@@ -493,6 +593,14 @@ class ReviewActivityTemplate : Fragment() {
                                         bookTitle?.let {
                                             addReviewNotification(userId, it, NotificationType.REVIEW_ADDED)
                                         }
+
+                                        // Reset interaction flags after saving
+                                        charactersRatingTouched = false
+                                        writingRatingTouched = false
+                                        plotRatingTouched = false
+                                        themesRatingTouched = false
+                                        strengthsRatingTouched = false
+                                        weaknessesRatingTouched = false
                                     }
                                     .addOnFailureListener { e ->
                                         Toast.makeText(activity, "Failed to save review: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
@@ -509,6 +617,14 @@ class ReviewActivityTemplate : Fragment() {
                                         bookTitle?.let {
                                             addReviewNotification(userId, it, NotificationType.REVIEW_EDIT)
                                         }
+
+                                        // Reset interaction flags after updating
+                                        charactersRatingTouched = false
+                                        writingRatingTouched = false
+                                        plotRatingTouched = false
+                                        themesRatingTouched = false
+                                        strengthsRatingTouched = false
+                                        weaknessesRatingTouched = false
                                     }
                                     .addOnFailureListener {
                                         Toast.makeText(activity, "Failed to update review", Toast.LENGTH_SHORT).show()
@@ -525,7 +641,8 @@ class ReviewActivityTemplate : Fragment() {
         }
     }
 
-    // Yunjong Noh
+
+        // Yunjong Noh
     // Function to add a review notification to Firestore
     private fun addReviewNotification(userId: String, bookTitle: String, notificationType: NotificationType) {
         val db = FirebaseFirestore.getInstance()

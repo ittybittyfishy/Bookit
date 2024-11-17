@@ -1,468 +1,476 @@
 <!-- res/layout/fragment_home.xml -->
 <!-- Yunjong Noh -->
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-<!-- Work review 4 Itzel Medina -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/homeFragmentLayout"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    tools:context=".fragments.HomeFragment">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- FrameLayout for orange rectangle and text -->
-    <FrameLayout
+    <!-- Work review 4 Itzel Medina -->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/homeFragmentLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp">
-
-        <!-- Orange rectangle with rounded corners -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/rounded_orange_rectangle"
-            android:backgroundTint="@color/custom_tag_pink"
-            android:layout_gravity="center_horizontal" />
-
-        <!-- TextView on top of orange rectangle -->
-        <TextView
-            android:id="@+id/loggedInTextView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Welcome back user"
-            android:textSize="20sp"
-            android:gravity="center"
-            android:singleLine="true"
-            android:textStyle="bold"
-            android:textColor="@color/sub_text_brown" />
-    </FrameLayout>
-
-    <!-- Title for recommendations -->
-    <TextView
-        android:id="@+id/dailyRecommendationsTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Daily Recommendations"
-        android:textColor="@color/home_pink"
-        android:textStyle="bold"
-        android:textSize="30sp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp" />
-
-    <!-- Refresh Recommendations Button -->
-    <Button
-        android:id="@+id/refreshButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Refresh Recommendations"
-        android:layout_marginTop="16dp"
-        android:layout_gravity="center_horizontal" />
-
-    <!-- Toggle Button for Book Recommendations -->
-    <ImageButton
-        android:id="@+id/expandButton"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_gravity="end"
-        android:layout_marginTop="5dp"
-        android:padding="8dp"
-        android:backgroundTint="@color/transparent"
-        android:scaleType="fitCenter"
-        android:src="@drawable/expand_button" />
-
-    <LinearLayout
-        android:id="@+id/booksContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="0dp"
-        android:padding="2dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp">
-
-    <!-- Horizontal LinearLayout for Book Recommendations -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="0dp"
-        android:padding="1dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp">
-
-        <!-- Book 1 -->
-        <LinearLayout
-            android:id="@+id/bookItem1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="8dp">
-
-            <!-- ImageView for Book Cover -->
-            <ImageView
-                android:id="@+id/bookCoverImageView1"
-                android:layout_width="110dp"
-                android:layout_height="150dp"
-                android:src="@drawable/placeholder_image"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                android:layout_gravity="center_horizontal" />
-
-            <!-- TextView for Book Title -->
-            <TextView
-                android:id="@+id/bookTitleTextView1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Book Title"
-                android:textSize="12sp"
-                android:gravity="center"
-                android:layout_marginTop="8dp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
-
-            <!-- TextView for Book Authors -->
-            <TextView
-                android:id="@+id/bookAuthorsTextView1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Author Name"
-                android:maxLines="1"
-                android:ellipsize="end" />
-
-            <!-- Container for Like/Dislike Buttons and Message TextView -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
-
-                <!-- Horizontal LinearLayout for Like and Dislike Buttons -->
-                <LinearLayout
-                    android:id="@+id/buttonContainer1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center">
-
-                    <!-- Dislike Button -->
-                    <ImageButton
-                        android:id="@+id/dislikeButton1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_dislike"
-                        android:background="?selectableItemBackgroundBorderless"
-                        android:scaleX="0.7"
-                        android:scaleY="0.7"
-                        />
-
-                    <!-- Like Button -->
-                    <ImageButton
-                        android:id="@+id/likeButton1"
-                        android:layout_width="45dp"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_like"
-                        android:background="?selectableItemBackgroundBorderless"
-                        android:scaleX="0.7"
-                        android:scaleY="0.7"
-                        android:layout_marginStart="7dp"
-                        />
-                </LinearLayout>
-
-                <!-- Message TextView -->
-                <TextView
-                    android:id="@+id/messageTextView1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:text="You liked this book!"
-                    android:visibility="gone"
-                    android:layout_gravity="center"
-                    android:textColor="@color/home_pink" />
-            </FrameLayout>
-        </LinearLayout>
-
-        <!-- Book 2 -->
-        <LinearLayout
-            android:id="@+id/bookItem2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="8dp">
-
-            <!-- ImageView for Book Cover -->
-            <ImageView
-                android:id="@+id/bookCoverImageView2"
-                android:layout_width="110dp"
-                android:layout_height="150dp"
-                android:src="@drawable/placeholder_image"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                android:layout_gravity="center_horizontal" />
-
-            <!-- TextView for Book Title -->
-            <TextView
-                android:id="@+id/bookTitleTextView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Book Title"
-                android:textSize="12sp"
-                android:gravity="center"
-                android:layout_marginTop="8dp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
-
-            <!-- TextView for Book Authors -->
-            <TextView
-                android:id="@+id/bookAuthorsTextView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Author Name"
-                android:maxLines="1"
-                android:ellipsize="end" />
-
-            <!-- Container for Like/Dislike Buttons and Message TextView -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
-
-                <!-- Horizontal LinearLayout for Like and Dislike Buttons -->
-                <LinearLayout
-                    android:id="@+id/buttonContainer2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center">
-
-                    <!-- Dislike Button -->
-                    <ImageButton
-                        android:id="@+id/dislikeButton2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_dislike"
-                        android:background="?selectableItemBackgroundBorderless"
-                        android:scaleX="0.7"
-                        android:scaleY="0.7"
-                        />
-
-                    <!-- Like Button -->
-                    <ImageButton
-                        android:id="@+id/likeButton2"
-                        android:layout_width="45dp"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_like"
-                        android:background="?selectableItemBackgroundBorderless"
-                        android:scaleX="0.7"
-                        android:scaleY="0.7"
-                        android:layout_marginStart="7dp"
-                        />
-                </LinearLayout>
-
-                <!-- Message TextView -->
-                <TextView
-                    android:id="@+id/messageTextView2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:text="You disliked this book!"
-                    android:visibility="gone"
-                    android:layout_gravity="center"
-                    android:textColor="@color/home_pink" />
-            </FrameLayout>
-        </LinearLayout>
-
-        <!-- Book 3 -->
-        <LinearLayout
-            android:id="@+id/bookItem3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="8dp">
-
-            <!-- ImageView for Book Cover -->
-            <ImageView
-                android:id="@+id/bookCoverImageView3"
-                android:layout_width="110dp"
-                android:layout_height="150dp"
-                android:src="@drawable/placeholder_image"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                android:layout_gravity="center_horizontal" />
-
-            <!-- TextView for Book Title -->
-            <TextView
-                android:id="@+id/bookTitleTextView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Book Title"
-                android:textSize="12sp"
-                android:gravity="center"
-                android:layout_marginTop="8dp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
-
-            <!-- TextView for Book Authors -->
-            <TextView
-                android:id="@+id/bookAuthorsTextView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Author Name"
-                android:maxLines="1"
-                android:ellipsize="end" />
-
-            <!-- Container for Like/Dislike Buttons and Message TextView -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
-
-                <!-- Horizontal LinearLayout for Like and Dislike Buttons -->
-                <LinearLayout
-                    android:id="@+id/buttonContainer3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center">
-
-                    <!-- Dislike Button -->
-                    <ImageButton
-                        android:id="@+id/dislikeButton3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_dislike"
-                        android:background="?selectableItemBackgroundBorderless"
-                        android:scaleX="0.7"
-                        android:scaleY="0.7"
-                        />
-
-                    <!-- Like Button -->
-                    <ImageButton
-                        android:id="@+id/likeButton3"
-                        android:layout_width="45dp"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_like"
-                        android:background="?selectableItemBackgroundBorderless"
-                        android:scaleX="0.7"
-                        android:scaleY="0.7"
-                        android:layout_marginStart="7dp"
-                        />
-                </LinearLayout>
-
-                <!-- Message TextView -->
-                <TextView
-                    android:id="@+id/messageTextView3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:text="You liked this book!"
-                    android:visibility="gone"
-                    android:layout_gravity="center"
-                    android:textColor="@color/home_pink" />
-            </FrameLayout>
-        </LinearLayout>
-    </LinearLayout>
-    </LinearLayout>
-
-    <!-- "Based on your input" TextView -->
-    <TextView
-        android:id="@+id/basedOnYourInputTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:textColor="@color/home_pink"
-        android:text="Based on your input..."
-        android:textStyle="bold"
-        android:visibility="gone"
-        android:layout_marginTop="16dp"
-        android:layout_gravity="center_horizontal" />
-
-    <!-- Book 4 -->
-    <LinearLayout
-        android:id="@+id/bookItem4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone"
-        android:layout_marginTop="5dp"
-        android:padding="10dp"
-        >
+        android:padding="16dp"
+        tools:context=".fragments.HomeFragment">
 
-        <!-- ImageView for Book Cover -->
-        <ImageView
-            android:id="@+id/bookCoverImageView4"
-            android:layout_width="110dp"
-            android:layout_height="150dp"
-            android:src="@drawable/placeholder_image"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:layout_gravity="center_horizontal" />
-
-        <!-- TextView for Book Title -->
-        <TextView
-            android:id="@+id/bookTitleTextView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Book Title"
-            android:textSize="12sp"
-            android:gravity="center"
-            android:layout_marginTop="8dp"
-            android:textStyle="bold"
-            android:maxLines="1"
-            android:ellipsize="end" />
-
-        <!-- TextView for Book Authors -->
-        <TextView
-            android:id="@+id/bookAuthorsTextView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Author Name"
-            android:maxLines="1"
-            android:ellipsize="end" />
-
-        <!-- Container for Like/Dislike Buttons and Message TextView -->
+        <!-- FrameLayout for orange rectangle and text -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="5dp">
 
-            <!-- Horizontal LinearLayout for Like and Dislike Buttons -->
-            <LinearLayout
-                android:id="@+id/buttonContainer4"
+            <!-- Orange rectangle with rounded corners -->
+            <View
                 android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/rounded_orange_rectangle"
+                android:backgroundTint="@color/custom_tag_pink"
+                android:layout_gravity="center_horizontal" />
+
+            <!-- TextView on top of orange rectangle -->
+            <TextView
+                android:id="@+id/loggedInTextView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Welcome back user"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:singleLine="true"
+                android:textStyle="bold"
+                android:textColor="@color/sub_text_brown" />
+        </FrameLayout>
+
+        <!-- Title for recommendations -->
+        <TextView
+            android:id="@+id/dailyRecommendationsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Daily Recommendations"
+            android:textColor="@color/home_pink"
+            android:textStyle="bold"
+            android:textSize="30sp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp" />
+
+
+        <!-- Toggle Button for Book Recommendations -->
+        <ImageButton
+            android:id="@+id/expandButton"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_gravity="end"
+            android:layout_marginTop="5dp"
+            android:padding="8dp"
+            android:backgroundTint="@color/transparent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/expand_button" />
+
+        <!-- Updated booksContainer without nested LinearLayout -->
+        <LinearLayout
+            android:id="@+id/booksContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="0dp"
+            android:padding="2dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp">
+
+            <!-- Book 1 -->
+            <LinearLayout
+                android:id="@+id/bookItem1"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center">
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp">
+
+                <!-- ImageView for Book Cover -->
+                <ImageView
+                    android:id="@+id/bookCoverImageView1"
+                    android:layout_width="110dp"
+                    android:layout_height="150dp"
+                    android:src="@drawable/placeholder_image"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:layout_gravity="center_horizontal" />
+
+                <!-- TextView for Book Title -->
+                <TextView
+                    android:id="@+id/bookTitleTextView1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Book Title"
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <!-- TextView for Book Authors -->
+                <TextView
+                    android:id="@+id/bookAuthorsTextView1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Author Name"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <!-- Container for Like/Dislike Buttons and Message TextView -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+
+                    <!-- Horizontal LinearLayout for Like and Dislike Buttons -->
+                    <LinearLayout
+                        android:id="@+id/buttonContainer1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <!-- Dislike Button -->
+                        <ImageButton
+                            android:id="@+id/dislikeButton1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_dislike"
+                            android:background="?selectableItemBackgroundBorderless"
+                            android:scaleX="0.7"
+                            android:scaleY="0.7" />
+
+                        <!-- Like Button -->
+                        <ImageButton
+                            android:id="@+id/likeButton1"
+                            android:layout_width="45dp"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_like"
+                            android:background="?selectableItemBackgroundBorderless"
+                            android:scaleX="0.7"
+                            android:scaleY="0.7"
+                            android:layout_marginStart="7dp" />
+                    </LinearLayout>
+
+                    <!-- Message TextView -->
+                    <TextView
+                        android:id="@+id/messageTextView1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:text="You liked this book!"
+                        android:visibility="gone"
+                        android:layout_gravity="center"
+                        android:textColor="@color/home_pink" />
+                </FrameLayout>
             </LinearLayout>
 
-            <!-- Message TextView -->
+            <!-- Book 2 -->
+            <LinearLayout
+                android:id="@+id/bookItem2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp">
+
+                <!-- ImageView for Book Cover -->
+                <ImageView
+                    android:id="@+id/bookCoverImageView2"
+                    android:layout_width="110dp"
+                    android:layout_height="150dp"
+                    android:src="@drawable/placeholder_image"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:layout_gravity="center_horizontal" />
+
+                <!-- TextView for Book Title -->
+                <TextView
+                    android:id="@+id/bookTitleTextView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Book Title"
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <!-- TextView for Book Authors -->
+                <TextView
+                    android:id="@+id/bookAuthorsTextView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Author Name"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <!-- Container for Like/Dislike Buttons and Message TextView -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+
+                    <!-- Horizontal LinearLayout for Like and Dislike Buttons -->
+                    <LinearLayout
+                        android:id="@+id/buttonContainer2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <!-- Dislike Button -->
+                        <ImageButton
+                            android:id="@+id/dislikeButton2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_dislike"
+                            android:background="?selectableItemBackgroundBorderless"
+                            android:scaleX="0.7"
+                            android:scaleY="0.7" />
+
+                        <!-- Like Button -->
+                        <ImageButton
+                            android:id="@+id/likeButton2"
+                            android:layout_width="45dp"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_like"
+                            android:background="?selectableItemBackgroundBorderless"
+                            android:scaleX="0.7"
+                            android:scaleY="0.7"
+                            android:layout_marginStart="7dp" />
+                    </LinearLayout>
+
+                    <!-- Message TextView -->
+                    <TextView
+                        android:id="@+id/messageTextView2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:text="You disliked this book!"
+                        android:visibility="gone"
+                        android:layout_gravity="center"
+                        android:textColor="@color/home_pink" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- Book 3 -->
+            <LinearLayout
+                android:id="@+id/bookItem3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp">
+
+                <!-- ImageView for Book Cover -->
+                <ImageView
+                    android:id="@+id/bookCoverImageView3"
+                    android:layout_width="110dp"
+                    android:layout_height="150dp"
+                    android:src="@drawable/placeholder_image"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:layout_gravity="center_horizontal" />
+
+                <!-- TextView for Book Title -->
+                <TextView
+                    android:id="@+id/bookTitleTextView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Book Title"
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <!-- TextView for Book Authors -->
+                <TextView
+                    android:id="@+id/bookAuthorsTextView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Author Name"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <!-- Container for Like/Dislike Buttons and Message TextView -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+
+                    <!-- Horizontal LinearLayout for Like and Dislike Buttons -->
+                    <LinearLayout
+                        android:id="@+id/buttonContainer3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <!-- Dislike Button -->
+                        <ImageButton
+                            android:id="@+id/dislikeButton3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_dislike"
+                            android:background="?selectableItemBackgroundBorderless"
+                            android:scaleX="0.7"
+                            android:scaleY="0.7" />
+
+                        <!-- Like Button -->
+                        <ImageButton
+                            android:id="@+id/likeButton3"
+                            android:layout_width="45dp"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_like"
+                            android:background="?selectableItemBackgroundBorderless"
+                            android:scaleX="0.7"
+                            android:scaleY="0.7"
+                            android:layout_marginStart="7dp" />
+                    </LinearLayout>
+
+                    <!-- Message TextView -->
+                    <TextView
+                        android:id="@+id/messageTextView3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:text="You liked this book!"
+                        android:visibility="gone"
+                        android:layout_gravity="center"
+                        android:textColor="@color/home_pink" />
+                </FrameLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- "Based on your input" TextView -->
+        <TextView
+            android:id="@+id/basedOnYourInputTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textColor="@color/home_pink"
+            android:text="Based on your input..."
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:layout_marginTop="16dp"
+            android:layout_gravity="center_horizontal" />
+
+        <!-- Book 4 -->
+        <LinearLayout
+            android:id="@+id/bookItem4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="visible"
+            android:layout_marginTop="5dp"
+            android:padding="10dp">
+
+            <!-- ImageView for Book Cover -->
+            <ImageView
+                android:id="@+id/bookCoverImageView4"
+                android:layout_width="110dp"
+                android:layout_height="150dp"
+                android:src="@drawable/placeholder_image"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center_horizontal" />
+
+            <!-- TextView for Book Title -->
             <TextView
-                android:id="@+id/messageTextView4"
+                android:id="@+id/bookTitleTextView4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Book Title"
                 android:textSize="12sp"
-                android:text="Message will appear here"
-                android:visibility="gone"
-                android:layout_gravity="center"
-                android:textColor="@color/home_pink" />
+                android:gravity="center"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <!-- TextView for Book Authors -->
+            <TextView
+                android:id="@+id/bookAuthorsTextView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Author Name"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <!-- Container for Like/Dislike Buttons and Message TextView -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <!-- Horizontal LinearLayout for Like and Dislike Buttons -->
+                <LinearLayout
+                    android:id="@+id/buttonContainer4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                </LinearLayout>
+
+                <!-- Message TextView -->
+                <TextView
+                    android:id="@+id/messageTextView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:text="Message will appear here"
+                    android:visibility="gone"
+                    android:layout_gravity="center"
+                    android:textColor="@color/home_pink" />
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_horizontal"
+                    android:layout_marginTop="16dp">
+
+                    <!-- Refresh Recommendations Button -->
+                    <Button
+                        android:id="@+id/refreshButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/light_green"
+                        android:textSize="25sp"
+                        android:text="Try again?"
+                        android:background="@color/transparent"
+                        android:layout_gravity="center_vertical" />
+
+                    <!-- Reload ImageButton -->
+                    <ImageView
+                        android:id="@+id/reload"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@color/transparent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/reload"
+                        app:tint="@color/light_green" />
+
+            </LinearLayout>
+
         </FrameLayout>
     </LinearLayout>
-
     <!-- Divider -->
     <View
         android:id="@+id/divider1"
@@ -492,10 +500,10 @@
     android:id="@+id/notificationsRecyclerView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="-10dp"
+    android:layout_marginTop="0dp"
     android:layout_gravity="center_horizontal"
     android:padding="8dp"
     tools:listitem="@layout/item_notification" />
-
     </LinearLayout>
+
 </ScrollView>
