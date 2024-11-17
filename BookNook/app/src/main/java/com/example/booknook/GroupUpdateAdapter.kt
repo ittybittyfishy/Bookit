@@ -9,12 +9,19 @@ import android.widget.LinearLayout
 import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.booknook.Comment
+import com.example.booknook.CommentsAdapter
+import com.example.booknook.GroupComment
+import com.example.booknook.GroupCommentsAdapter
 import com.example.booknook.GroupMemberUpdate
 import com.example.booknook.R
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import java.util.Date
 
 class GroupUpdateAdapter(
     private val memberUpdates: List<GroupMemberUpdate>,
@@ -81,6 +88,32 @@ class GroupUpdateAdapter(
 
     override fun getItemCount(): Int = memberUpdates.size
 
+    // Utility function to fetch comments from Firestore
+    private fun fetchComments(updateId: String, groupId: String, onSuccess: (List<GroupComment>) -> Unit) {
+        FirebaseFirestore.getInstance()
+            .collection("groups")
+            .document(groupId)
+            .collection("memberUpdates")
+            .document(updateId)
+            .collection("comments")
+            .get()
+            .addOnSuccessListener { documents ->
+                val comments = documents.map { doc ->
+                    GroupComment(
+                        userId = doc.getString("userId") ?: "",
+                        username = doc.getString("username") ?: "Anonymous",
+                        commentText = doc.getString("commentText") ?: "",
+                        timestamp = doc.getDate("timestamp") ?: Date(),
+                        commentId = doc.id
+                    )
+                }
+                onSuccess(comments)
+            }
+            .addOnFailureListener { exception ->
+                Log.e("GroupUpdateAdapter", "Error loading comments", exception)
+            }
+    }
+
     // BaseViewHolder with comment handling
     open class BaseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val commentInput: EditText = itemView.findViewById(R.id.commentInput)
@@ -136,8 +169,22 @@ class GroupUpdateAdapter(
     // Handles view for starting a book
     inner class StartBookViewHolder(itemView: View) : BaseViewHolder(itemView) {
         private val messageTextView: TextView = itemView.findViewById(R.id.messageTextView)
+        private val commentsRecyclerView: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
+        private lateinit var groupCommentsAdapter: GroupCommentsAdapter
+        private lateinit var commentsList: MutableList<GroupComment>
 
         fun bind(update: GroupMemberUpdate) {
+            commentsList = mutableListOf()
+            groupCommentsAdapter = GroupCommentsAdapter(listOf())
+            commentsRecyclerView.adapter = groupCommentsAdapter
+            commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
+
+            fetchComments(update.updateId, groupId) { comments ->
+                commentsList.clear()
+                commentsList.addAll(comments)
+                groupCommentsAdapter.loadComments(groupId, update.updateId)
+            }
+
             messageTextView.text = "${update.username} started a book: ${update.bookTitle}"
             setOnClickListener(update, groupId)
         }
@@ -146,8 +193,21 @@ class GroupUpdateAdapter(
     // Handles view for finishing a book
     inner class FinishBookViewHolder(itemView: View) : BaseViewHolder(itemView) {
         private val messageTextView: TextView = itemView.findViewById(R.id.messageTextView)
+        private val commentsRecyclerView: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
+        private lateinit var groupCommentsAdapter: GroupCommentsAdapter
+        private lateinit var commentsList: MutableList<GroupComment>
 
         fun bind(update: GroupMemberUpdate) {
+            commentsList = mutableListOf()
+            groupCommentsAdapter = GroupCommentsAdapter(listOf())
+            commentsRecyclerView.adapter = groupCommentsAdapter
+            commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
+
+            fetchComments(update.updateId, groupId) { comments ->
+                commentsList.clear()
+                commentsList.addAll(comments)
+                groupCommentsAdapter.loadComments(groupId, update.updateId)
+            }
             messageTextView.text = "${update.username} finished a book: ${update.bookTitle}"
             setOnClickListener(update, groupId)
         }
@@ -161,8 +221,22 @@ class GroupUpdateAdapter(
         private val authorsTextView: TextView = itemView.findViewById(R.id.bookAuthors)
         private val bookRatingBar: RatingBar = itemView.findViewById(R.id.bookRatingBar)
         private val ratingTextView: TextView = itemView.findViewById(R.id.ratingNumber)
+        private val commentsRecyclerView: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
+        private lateinit var groupCommentsAdapter: GroupCommentsAdapter
+        private lateinit var commentsList: MutableList<GroupComment>
 
         fun bind(update: GroupMemberUpdate) {
+            commentsList = mutableListOf()
+            groupCommentsAdapter = GroupCommentsAdapter(listOf())
+            commentsRecyclerView.adapter = groupCommentsAdapter
+            commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
+
+            fetchComments(update.updateId, groupId) { comments ->
+                commentsList.clear()
+                commentsList.addAll(comments)
+                groupCommentsAdapter.loadComments(groupId, update.updateId)
+            }
+
             messageTextView.text = "${update.username} recommended book: ${update.bookTitle}"
             titleTextView.text = update.bookTitle
             authorsTextView.text = update.bookAuthors
@@ -187,8 +261,22 @@ class GroupUpdateAdapter(
         private val reviewText: TextView = itemView.findViewById(R.id.reviewText)
         private val spoilerText: TextView = itemView.findViewById(R.id.spoilerText)
         private val sensitiveTopicsText: TextView = itemView.findViewById(R.id.sensitiveTopicsText)
+        private val commentsRecyclerView: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
+        private lateinit var groupCommentsAdapter: GroupCommentsAdapter
+        private lateinit var commentsList: MutableList<GroupComment>
 
         fun bind(update: GroupMemberUpdate) {
+            commentsList = mutableListOf()
+            groupCommentsAdapter = GroupCommentsAdapter(listOf())
+            commentsRecyclerView.adapter = groupCommentsAdapter
+            commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
+
+            fetchComments(update.updateId, groupId) { comments ->
+                commentsList.clear()
+                commentsList.addAll(comments)
+                groupCommentsAdapter.loadComments(groupId, update.updateId)
+            }
+
             reviewTextView.text = "${update.username} left a review for: ${update.bookTitle}"
             ratingBar.rating = update.rating!!
             ratingNumber.text = update.rating.toString()
@@ -254,8 +342,22 @@ class GroupUpdateAdapter(
         private val weaknessesRating: TextView = itemView.findViewById(R.id.weaknessesRating)
         private val weaknessesReview: TextView = itemView.findViewById(R.id.weaknessesText)
 
+        private val commentsRecyclerView: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
+        private lateinit var groupCommentsAdapter: GroupCommentsAdapter
+        private lateinit var commentsList: MutableList<GroupComment>
+
 
         fun bind(update: GroupMemberUpdate) {
+            commentsList = mutableListOf()
+            groupCommentsAdapter = GroupCommentsAdapter(listOf())
+            commentsRecyclerView.adapter = groupCommentsAdapter
+            commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
+
+            fetchComments(update.updateId, groupId) { comments ->
+                commentsList.clear()
+                commentsList.addAll(comments)
+                groupCommentsAdapter.loadComments(groupId, update.updateId)
+            }
             // Configure main review text
             reviewTextView.text = "${update.username} left a review for: ${update.bookTitle}"
             ratingBar.rating = update.rating ?: 0f

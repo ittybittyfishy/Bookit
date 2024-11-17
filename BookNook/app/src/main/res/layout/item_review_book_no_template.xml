@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:padding="10dp"
     android:layout_margin="8dp"
-    android:background="@drawable/friend_req_border"
+    android:background="@color/white"
     android:elevation="4dp">
 
     <!-- Member's profile and message -->
