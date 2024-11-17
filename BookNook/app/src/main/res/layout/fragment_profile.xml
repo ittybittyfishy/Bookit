@@ -211,7 +211,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
             android:columnCount="5"
-            android:padding="35dp">
+            android:padding="25dp">
 
 
         <!-- First row -->
@@ -243,7 +243,7 @@
                 <TextView
                     android:id="@+id/topGenresTextView"
                     android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="50dp"
                 android:gravity="center"
                 android:text="N/A"
                 android:textColor="@color/sub_text_brown"
