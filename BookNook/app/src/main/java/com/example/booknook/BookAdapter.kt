@@ -245,6 +245,7 @@ class BookAdapter(
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(userDocRef)
                 val username = snapshot.getString("username") ?: "Unknown User"  // Gets username
+                val profileImageUrl = snapshot.getString("profileImageUrl")
 
                 // Remove the book from old collections if it exists
                 for (collection in standardCollections) {
@@ -290,6 +291,7 @@ class BookAdapter(
                             "updateId" to updateId, // Include the ID in the data
                             "userId" to userId,
                             "username" to username,
+                            "profileImageUrl" to profileImageUrl,
                             "type" to "finishBook",
                             "timestamp" to FieldValue.serverTimestamp(),
                             "bookTitle" to title
@@ -314,6 +316,7 @@ class BookAdapter(
                             "updateId" to updateId, // Include the ID in the data
                             "userId" to userId,
                             "username" to username,
+                            "profileImageUrl" to profileImageUrl,
                             "type" to "startBook",
                             "timestamp" to FieldValue.serverTimestamp(),
                             "bookTitle" to title

@@ -79,6 +79,7 @@ class ConfirmRecommendationFragment : Fragment() {
                 db.collection("users").document(userId).get().addOnSuccessListener { userDoc ->
                     if (userDoc.exists()) {
                         val username = userDoc.getString("username")
+                        val profileImageUrl = userDoc.getString("profileImageUrl")
                         // Book recommendation information
                         val recommendation = hashMapOf(
                             "image" to bookImage,
@@ -112,6 +113,7 @@ class ConfirmRecommendationFragment : Fragment() {
                                                         val updateData = hashMapOf(
                                                             "userId" to userId,
                                                             "username" to username,
+                                                            "profileImageUrl" to profileImageUrl,
                                                             "type" to "recommendation",
                                                             "timestamp" to FieldValue.serverTimestamp(),
                                                             "bookTitle" to bookTitle,

@@ -359,6 +359,7 @@ class ReviewActivity : Fragment() {
             db.collection("users").document(userId).get().addOnSuccessListener { document ->
                 if (document.exists()) {
                     val username = document.getString("username") // Get username if exists
+                    val profileImageUrl = document.getString("profileImageUrl")
 
                     if (bookIsbn != null) {
                         // Create a map for the review data to save into Firebase
@@ -398,7 +399,8 @@ class ReviewActivity : Fragment() {
                                             // Increment the number of reviews field for the user
                                             incrementUserReviewNum(userId)
                                             updateUserAverageRating(userId)
-                                            updateMemberUpdates(userId, username, bookTitle, reviewText, rating, hasSpoilers, hasSensitiveTopics)
+                                            updateMemberUpdates(userId, username, profileImageUrl,
+                                                bookTitle, reviewText, rating, hasSpoilers, hasSensitiveTopics)
                                             // Yunjong Noh
                                             // updates review and add notification (on 11/5)
                                             bookTitle?.let {
@@ -619,6 +621,7 @@ class ReviewActivity : Fragment() {
     private fun updateMemberUpdates(
         userId: String,
         username: String?,
+        profileImageUrl: String?,
         bookTitle: String?,
         reviewText: String,
         rating: Float,
@@ -644,6 +647,7 @@ class ReviewActivity : Fragment() {
                         "updateId" to updateId, // Include the ID in the data
                         "userId" to userId,
                         "username" to username,
+                        "profileImageUrl" to profileImageUrl,
                         "type" to "reviewBookNoTemplate",
                         "timestamp" to FieldValue.serverTimestamp(),
                         "bookTitle" to bookTitle,

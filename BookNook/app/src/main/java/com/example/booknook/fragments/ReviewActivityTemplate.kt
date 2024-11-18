@@ -524,6 +524,7 @@ class ReviewActivityTemplate : Fragment() {
             db.collection("users").document(userId).get().addOnSuccessListener { document ->
                 if (document.exists()) {
                     val username = document.getString("username") // Get username if exists
+                    val profileImageUrl = document.getString("profileImageUrl")
 
                     // Create a mutable map for review data to save into Firebase
                     val reviewData = mutableMapOf<String, Any?>(
@@ -582,7 +583,7 @@ class ReviewActivityTemplate : Fragment() {
                                         incrementUserReviewNum(userId) // Increments the number of reviews field
                                         updateUserAverageRating(userId)
                                         updateMemberUpdates(
-                                            userId, username, bookTitle, reviewText, rating, charactersChecked,
+                                            userId, username, profileImageUrl, bookTitle, reviewText, rating, charactersChecked,
                                             charactersRating, charactersReview, writingChecked, writingRating,
                                             writingReview, plotChecked, plotRating, plotReview, themesChecked,
                                             themesRating, themesReview, strengthsChecked, strengthsRating,
@@ -816,6 +817,7 @@ class ReviewActivityTemplate : Fragment() {
     private fun updateMemberUpdates(
         userId: String,
         username: String?,
+        profileImageUrl: String?,
         bookTitle: String?,
         reviewText: String,
         rating: Float,
@@ -856,6 +858,7 @@ class ReviewActivityTemplate : Fragment() {
                         "updateId" to updateId,
                         "userId" to userId,
                         "username" to username,
+                        "profileImageUrl" to profileImageUrl,
                         "type" to "reviewBookTemplate",
                         "timestamp" to FieldValue.serverTimestamp(),
                         "bookTitle" to bookTitle,

@@ -5,6 +5,7 @@ data class GroupMemberUpdate(
     val updateId : String = "",
     val userId: String = "",
     val username: String = "",
+    val profileImageUrl: String = "",
     val type: String = "",
     val bookTitle: String? = null,
     val bookAuthors: String? = null,

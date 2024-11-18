@@ -19,6 +19,7 @@ import com.example.booknook.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import de.hdodenhof.circleimageview.CircleImageView
 import java.util.Date
 
 class GroupUpdateAdapter(
@@ -114,6 +115,7 @@ class GroupUpdateAdapter(
 
     // Handles view for starting a book
     inner class StartBookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val profileImage: CircleImageView = itemView.findViewById(R.id.profileImage)
         private val messageTextView: TextView = itemView.findViewById(R.id.messageTextView)
         private val commentsRecyclerView: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
         private lateinit var groupCommentsAdapter: GroupCommentsAdapter
@@ -132,6 +134,14 @@ class GroupUpdateAdapter(
                 commentsList.addAll(comments)
                 groupCommentsAdapter.loadComments(groupId, update.updateId)
                 Log.d("CommentsList", "Size after fetching: ${commentsList.size}") // Log the size here
+            }
+
+            val profileImageUrl = update.profileImageUrl
+            if (profileImageUrl.isNotEmpty()) {
+                Glide.with(itemView.context)
+                    .load(profileImageUrl) // Load the image from the URL
+                    .circleCrop() // Optionally crop it to a circle
+                    .into(profileImage) // Set the image into the CircleImageView
             }
 
             postCommentButton.setOnClickListener {
@@ -176,6 +186,7 @@ class GroupUpdateAdapter(
                 }
             }
             messageTextView.text = "${update.username} started a book: ${update.bookTitle}"
+
         }
 
         // Utility function for saving comments to the database
@@ -222,6 +233,7 @@ class GroupUpdateAdapter(
 
     // Handles view for finishing a book
     inner class FinishBookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val profileImage: CircleImageView = itemView.findViewById(R.id.profileImage)
         private val messageTextView: TextView = itemView.findViewById(R.id.messageTextView)
         private val commentsRecyclerView: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
         private lateinit var groupCommentsAdapter: GroupCommentsAdapter
@@ -240,6 +252,14 @@ class GroupUpdateAdapter(
                 commentsList.addAll(comments)
                 groupCommentsAdapter.loadComments(groupId, update.updateId)
                 Log.d("CommentsList", "Size after fetching: ${commentsList.size}") // Log the size here
+            }
+
+            val profileImageUrl = update.profileImageUrl
+            if (profileImageUrl.isNotEmpty()) {
+                Glide.with(itemView.context)
+                    .load(profileImageUrl) // Load the image from the URL
+                    .circleCrop() // Optionally crop it to a circle
+                    .into(profileImage) // Set the image into the CircleImageView
             }
 
             postCommentButton.setOnClickListener {
@@ -330,6 +350,7 @@ class GroupUpdateAdapter(
 
     // Handles view for recommending a book
     inner class RecommendBookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val profileImage: CircleImageView = itemView.findViewById(R.id.profileImage)
         private val messageTextView: TextView = itemView.findViewById(R.id.messageText)
         private val bookImageView: ImageView = itemView.findViewById(R.id.bookImage)
         private val titleTextView: TextView = itemView.findViewById(R.id.bookTitle)
@@ -353,6 +374,14 @@ class GroupUpdateAdapter(
                 commentsList.addAll(comments)
                 groupCommentsAdapter.loadComments(groupId, update.updateId)
                 Log.d("CommentsList", "Size after fetching: ${commentsList.size}") // Log the size here
+            }
+
+            val profileImageUrl = update.profileImageUrl
+            if (profileImageUrl.isNotEmpty()) {
+                Glide.with(itemView.context)
+                    .load(profileImageUrl) // Load the image from the URL
+                    .circleCrop() // Optionally crop it to a circle
+                    .into(profileImage) // Set the image into the CircleImageView
             }
 
             postCommentButton.setOnClickListener {
@@ -453,6 +482,7 @@ class GroupUpdateAdapter(
 
     // Handles view for writing a review without a template
     inner class ReviewBookNoTemplateViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val profileImage: CircleImageView = itemView.findViewById(R.id.profileImage)
         private val reviewTextView: TextView = itemView.findViewById(R.id.messageText)
         private val reviewTitle: TextView = itemView.findViewById(R.id.reviewTitle)
         private val ratingBar: RatingBar = itemView.findViewById(R.id.ratingBar)
@@ -477,6 +507,14 @@ class GroupUpdateAdapter(
                 commentsList.addAll(comments)
                 groupCommentsAdapter.loadComments(groupId, update.updateId)
                 Log.d("CommentsList", "Size after fetching: ${commentsList.size}") // Log the size here
+            }
+
+            val profileImageUrl = update.profileImageUrl
+            if (profileImageUrl.isNotEmpty()) {
+                Glide.with(itemView.context)
+                    .load(profileImageUrl) // Load the image from the URL
+                    .circleCrop() // Optionally crop it to a circle
+                    .into(profileImage) // Set the image into the CircleImageView
             }
 
             postCommentButton.setOnClickListener {
@@ -583,6 +621,7 @@ class GroupUpdateAdapter(
 
     // Sets up view for writing a review with a template update
     inner class ReviewBookTemplateViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val profileImage: CircleImageView = itemView.findViewById(R.id.profileImage)
         private val reviewTextView: TextView = itemView.findViewById(R.id.messageText)
         private val reviewTitle: TextView = itemView.findViewById(R.id.reviewTitle)
         private val ratingBar: RatingBar = itemView.findViewById(R.id.ratingBar)
@@ -643,6 +682,14 @@ class GroupUpdateAdapter(
                 commentsList.addAll(comments)
                 groupCommentsAdapter.loadComments(groupId, update.updateId)
                 Log.d("CommentsList", "Size after fetching: ${commentsList.size}") // Log the size here
+            }
+
+            val profileImageUrl = update.profileImageUrl
+            if (profileImageUrl.isNotEmpty()) {
+                Glide.with(itemView.context)
+                    .load(profileImageUrl) // Load the image from the URL
+                    .circleCrop() // Optionally crop it to a circle
+                    .into(profileImage) // Set the image into the CircleImageView
             }
 
             postCommentButton.setOnClickListener {
