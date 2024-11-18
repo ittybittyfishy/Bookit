@@ -14,8 +14,19 @@ import com.example.booknook.fragments.NotificationType
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import de.hdodenhof.circleimageview.CircleImageView
+import java.util.Date
 
-class GroupCommentsAdapter(private var comments: List<GroupComment>) : RecyclerView.Adapter<GroupCommentsAdapter.GroupCommentViewHolder>() {
+class GroupCommentsAdapter(
+    private var comments: MutableList<GroupComment>,
+    private val groupId: String,
+    private val updateId: String
+    ) : RecyclerView.Adapter<GroupCommentsAdapter.GroupCommentViewHolder>() {
+
+    fun addComment(newComment: GroupComment) {
+        comments.add(newComment) // Add the new comment to the list
+        notifyItemInserted(comments.size - 1) // Notify adapter about the new item
+    }
+
     // ViewHolder class to hold the views for each comment item
     class GroupCommentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val username: TextView = itemView.findViewById(R.id.commentUsername) // Username of the commenter
@@ -30,7 +41,7 @@ class GroupCommentsAdapter(private var comments: List<GroupComment>) : RecyclerV
         private var isPostingReply = false
 
         // Bind the comment data to the views
-        fun bind(comment: GroupComment) {
+        fun bind(comment: GroupComment, groupId: String, updateId: String) {
             // Set the comment's username, text, and timestamp
             username.text = comment.username
             commentText.text = comment.commentText
@@ -38,29 +49,27 @@ class GroupCommentsAdapter(private var comments: List<GroupComment>) : RecyclerV
             timestamp.text = comment.timestamp.toString()
 
             // Initialize RepliesAdapter to manage replies to this comment
-            val groupRepliesAdapter = GroupRepliesAdapter(listOf(), comment) // Pass the comment to the RepliesAdapter
+            val groupRepliesAdapter = GroupRepliesAdapter(listOf(), comment, groupId, updateId) // Pass the comment to the RepliesAdapter
             repliesRecyclerView.adapter = groupRepliesAdapter // Set the adapter for the replies RecyclerView
             repliesRecyclerView.layoutManager = LinearLayoutManager(itemView.context) // Use LinearLayoutManager for the RecyclerView
 
             // Load replies from Firestore when the comment is bound
-//            groupRepliesAdapter.loadReplies()
+            groupRepliesAdapter.loadReplies()
             // Yunjong Noh
             // Set up the post reply button's click listener
-//            postReplyButton.setOnClickListener {
-//                if (isPostingReply) return@setOnClickListener // Prevent multiple clicks
-//
-//                val replyText = replyInput.text.toString() // Get the text from the reply input
-//                if (replyText.isNotBlank()) { // Check if the reply text is not empty
-//                    isPostingReply = true // Prevent further clicks until the process is done
-//                    groupRepliesAdapter.postReply(replyText, replyInput) // Post the reply
-//
-//                    // Add notification functionality: Only send notification to the comment author
-//                    val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
-//
-//                    // Re-enable posting after a short delay to prevent accidental multiple clicks
-//                    isPostingReply = false
-//                }
-//            }
+            postReplyButton.setOnClickListener {
+                if (isPostingReply) {
+                    return@setOnClickListener
+                }
+                val replyText = replyInput.text.toString()
+
+                if (replyText.isNotBlank()) {
+                    isPostingReply = true
+                    groupRepliesAdapter.postReply(replyText, replyInput)
+                } else {
+                    Log.d("RepliesAdapter", "Reply text is blank, not posting")
+                }
+            }
         }
     }
 
@@ -72,14 +81,14 @@ class GroupCommentsAdapter(private var comments: List<GroupComment>) : RecyclerV
 
     // Bind the comment data to the ViewHolder
     override fun onBindViewHolder(holder: GroupCommentViewHolder, position: Int) {
-        holder.bind(comments[position])
+        holder.bind(comments[position], groupId, updateId)
     }
 
     // Return the total number of comments
     override fun getItemCount(): Int = comments.size
 
     // Update the list of comments and notify the RecyclerView to refresh
-    fun updateComments(newComments: List<GroupComment>) {
+    fun updateComments(newComments: MutableList<GroupComment>) {
         comments = newComments
         notifyDataSetChanged()
     }
@@ -96,9 +105,7 @@ class GroupCommentsAdapter(private var comments: List<GroupComment>) : RecyclerV
             .addOnSuccessListener { documents ->
                 val commentsList = mutableListOf<GroupComment>()
                 for (document in documents) {
-                    val comment = document.toObject(GroupComment::class.java)
-                    val commentId = document.id
-                    Log.d("CommentsAdapter", "Loaded comment with ID: $commentId")
+                    val comment = document.toObject(GroupComment::class.java).copy(commentId = document.id)
                     commentsList.add(comment)
                 }
                 updateComments(commentsList)

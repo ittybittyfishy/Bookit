@@ -15,7 +15,12 @@ import java.util.Date
 
 // Yunjong Noh
 // RepliesAdapter class to manage replies to comments in the app
-class GroupRepliesAdapter(private var replies: List<Reply>, private val groupComment: GroupComment) : RecyclerView.Adapter<GroupRepliesAdapter.ReplyViewHolder>() {
+class GroupRepliesAdapter(
+    private var replies: List<GroupReply>,
+    private val groupComment: GroupComment,
+    private val groupId: String,
+    private val updateId: String
+) : RecyclerView.Adapter<GroupRepliesAdapter.ReplyViewHolder>() {
 
     // ViewHolder for each reply item
     class ReplyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -24,9 +29,9 @@ class GroupRepliesAdapter(private var replies: List<Reply>, private val groupCom
         private val timestamp: TextView = itemView.findViewById(R.id.replyTimestamp) // Timestamp of the reply
 
         // Bind reply data to the views
-        fun bind(reply: Reply) {
+        fun bind(reply: GroupReply) {
             username.text = reply.username // Set the username
-            replyText.text = reply.text // Set the reply text
+            replyText.text = reply.replyText // Set the reply text
             timestamp.text = reply.timestamp.toString() // Set the timestamp
         }
     }
@@ -46,73 +51,89 @@ class GroupRepliesAdapter(private var replies: List<Reply>, private val groupCom
     override fun getItemCount(): Int = replies.size
 
     // Update the list of replies and refresh the RecyclerView
-    fun updateReplies(newReplies: List<Reply>) {
+    fun updateReplies(newReplies: List<GroupReply>) {
         replies = newReplies // Update replies with new data
         notifyDataSetChanged() // Notify the RecyclerView to refresh
     }
 
+    // Function to post a reply to Firestore
+    fun postReply(replyText: String, replyInput: EditText) {
+        val user = FirebaseAuth.getInstance().currentUser
+        val userId = user?.uid ?: ""
 
-    // Yunjong Noh
-    // Function to send a notification to Firestore
-    private fun sendNotification(senderId: String, receiverId: String, replyText: String) {
-        if (receiverId.isEmpty()) {
-            Log.e("RepliesAdapter", "Receiver ID is empty, notification not sent")
-            return
-        }
-
-        // Create the notification item
-        val notification = NotificationItem(
-            notificationId = FirebaseFirestore.getInstance().collection("notifications").document().id,
-            userId = receiverId, // The user who will receive the notification
-            senderId = senderId, // The user who sent the reply
-            message = "You have a new reply: $replyText",
-            timestamp = System.currentTimeMillis(),
-            type = NotificationType.REVIEW_REPLY, // Type of the notification
-            dismissed = false
-        )
-
-        // Save the notification to Firestore
+        // Fetch user information to get the username
         FirebaseFirestore.getInstance()
-            .collection("notifications")
-            .document(notification.notificationId)
-            .set(notification)
-            .addOnSuccessListener {
-                Log.d("RepliesAdapter", "Notification sent successfully")
+            .collection("users")
+            .document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                val username = document.getString("username") ?: "Anonymous"
+
+                // Create a GroupReply object
+                val reply = GroupReply(
+                    userId = userId,
+                    username = username,
+                    replyText = replyText,
+                    timestamp = Date()
+                )
+
+                val commentId = groupComment.commentId // Get the comment ID from the comment
+
+                // Ensure valid IDs before adding reply to Firestore
+                if (groupId.isNotEmpty() && updateId.isNotEmpty() && commentId.isNotEmpty()) {
+                    val replyRef = FirebaseFirestore.getInstance()
+                        .collection("groups")
+                        .document(groupId)
+                        .collection("memberUpdates")
+                        .document(updateId)
+                        .collection("comments")
+                        .document(commentId)
+                        .collection("replies")
+                        .document() // Auto-generate the reply ID
+
+                    replyRef.set(reply) // Add reply to Firestore
+                        .addOnSuccessListener {
+                            Log.d("RepliesAdapter", "Reply added successfully")
+                            replyInput.text.clear() // Clear the input field
+                            loadReplies() // Reload replies to update the display
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.e("RepliesAdapter", "Error adding reply", exception)
+                        }
+                }
             }
             .addOnFailureListener { exception ->
-                Log.e("RepliesAdapter", "Error sending notification", exception)
+                Log.e("RepliesAdapter", "Error fetching user info", exception)
             }
     }
 
-//    // Load replies from Firestore for the specific comment
-//    fun loadReplies() {
-//        val isbn = groupComment.isbn // Get the ISBN from the comment
-//        val reviewId = groupComment.reviewId // Get the review ID from the comment
-//        val commentId = groupComment.commentId // Get the comment ID from the comment
-//
-//        // Ensure valid IDs before querying Firestore
-//        if (isbn.isNotEmpty() && reviewId.isNotEmpty() && commentId.isNotEmpty()) {
-//            FirebaseFirestore.getInstance()
-//                .collection("books")
-//                .document(isbn)
-//                .collection("reviews")
-//                .document(reviewId)
-//                .collection("comments")
-//                .document(commentId)
-//                .collection("replies")
-//                .get() // Get replies from Firestore
-//                .addOnSuccessListener { documents ->
-//                    val repliesList = mutableListOf<Reply>() // Initialize list for replies
-//                    for (document in documents) {
-//                        // Convert each document to a Reply object
-//                        val reply = document.toObject(Reply::class.java)
-//                        repliesList.add(reply) // Add to replies list
-//                    }
-//                    updateReplies(repliesList) // Update adapter with new replies
-//                }
-//                .addOnFailureListener { exception ->
-//                    Log.e("RepliesAdapter", "Error loading replies", exception) // Log any errors
-//                }
-//        }
-//    }
+    // Load replies from Firestore for the specific comment
+    fun loadReplies() {
+        val commentId = groupComment.commentId // Get the comment ID from the comment
+
+        // Ensure valid IDs before querying Firestore
+        if (groupId.isNotEmpty() && updateId.isNotEmpty() && commentId.isNotEmpty()) {
+            FirebaseFirestore.getInstance()
+                .collection("groups")
+                .document(groupId)
+                .collection("memberUpdates")
+                .document(updateId)
+                .collection("comments")
+                .document(commentId)
+                .collection("replies")
+                .get() // Get replies from Firestore
+                .addOnSuccessListener { documents ->
+                    val repliesList = mutableListOf<GroupReply>() // Initialize list for replies
+                    for (document in documents) {
+                        // Convert each document to a GroupReply object
+                        val reply = document.toObject(GroupReply::class.java)
+                        repliesList.add(reply) // Add to replies list
+                    }
+                    updateReplies(repliesList) // Update adapter with new replies
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("RepliesAdapter", "Error loading replies", exception) // Log any errors
+                }
+        }
+    }
 }
