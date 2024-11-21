@@ -35,6 +35,7 @@ import android.widget.ImageButton
 import androidx.core.content.ContextCompat
 import android.widget.LinearLayout // If not already imported
 import android.widget.Toast
+import com.example.booknook.MainActivity
 
 
 class HomeFragment : Fragment() {
@@ -181,6 +182,37 @@ class HomeFragment : Fragment() {
             updateExpandButtonIcon(newExpandedState)
             // Save the new state
             getSharedPreferences().edit().putBoolean("isBooksContainerExpanded", newExpandedState).apply()
+        }
+
+        //books clickable
+        // Set click listeners for Book 1 ImageView
+        bookCoverImageView1.setOnClickListener {
+            val book = getBookItem(1) // Method to retrieve BookItem for Book 1
+            book?.let {
+                navigateToBookDetails(it)
+            }
+        }
+
+// Repeat for Book 2, Book 3, and Book 4
+        bookCoverImageView2.setOnClickListener {
+            val book = getBookItem(2)
+            book?.let {
+                navigateToBookDetails(it)
+            }
+        }
+
+        bookCoverImageView3.setOnClickListener {
+            val book = getBookItem(3)
+            book?.let {
+                navigateToBookDetails(it)
+            }
+        }
+
+        bookCoverImageView4.setOnClickListener {
+            val book = getBookItem(4)
+            book?.let {
+                navigateToBookDetails(it)
+            }
         }
 
 
@@ -1443,7 +1475,46 @@ class HomeFragment : Fragment() {
             }
     }
 
+    //books clickable itzel medina
+    private fun getBookItem(position: Int): BookItem? {
+        // Assuming you have a list of recommended books stored, for example:
+        val recommendations = loadRecommendationsFromPreferences(auth.currentUser?.uid ?: "") ?: return null
+        return recommendations.getOrNull(position - 1) // positions 1-4 correspond to indices 0-3
+    }
 
+
+    //books clickable itzel medina
+    private fun navigateToBookDetails(book: BookItem) {
+        // Create a new instance of BookDetailsFragment
+        val bookDetailsFragment = BookDetailsFragment()
+
+        // Create a Bundle to pass data
+        val bundle = Bundle().apply {
+            putString("bookId", book.id)
+            putString("bookTitle", book.volumeInfo?.title)
+            putString("bookAuthor", book.volumeInfo?.authors?.joinToString(", "))
+            putStringArrayList("bookAuthorsList", ArrayList(book.volumeInfo?.authors))
+            putString("bookImage", book.volumeInfo?.imageLinks?.thumbnail)
+            putFloat("bookRating", book.volumeInfo?.averageRating?.toFloat() ?: 0f)
+            putString("bookIsbn", getIsbnFromBook(book))
+            putString("bookDescription", book.volumeInfo?.description)
+            putStringArrayList("bookGenres", ArrayList(book.volumeInfo?.categories))
+            // Add any other necessary data
+        }
+
+        // Set the arguments on the fragment
+        bookDetailsFragment.arguments = bundle
+
+        // Replace the current fragment with BookDetailsFragment
+        (activity as MainActivity).replaceFragment(bookDetailsFragment, "Book Details", showBackButton = true)
+    }
+
+    //books clickable itzel medina
+    private fun getIsbnFromBook(book: BookItem): String? {
+        val industryIdentifiers = book.volumeInfo?.industryIdentifiers
+        return industryIdentifiers?.firstOrNull { it.type == "ISBN_13" }?.identifier
+            ?: industryIdentifiers?.firstOrNull { it.type == "ISBN_10" }?.identifier
+    }
 
 
 }
