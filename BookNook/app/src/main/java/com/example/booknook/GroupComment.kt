@@ -9,5 +9,7 @@ data class GroupComment(
     val username: String = "",
     val commentText: String = "",
     val timestamp: Date? = null,
+    var numLikes: Int = 0,
+    var numDislikes: Int = 0,
     var commentId: String = ""
 )

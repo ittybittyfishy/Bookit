@@ -38,7 +38,7 @@ class GroupRepliesAdapter(
 
     // Create a new ViewHolder for replies
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReplyViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.reply_item, parent, false) // Inflate reply layout
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_group_reply, parent, false) // Inflate reply layout
         return ReplyViewHolder(view) // Return the ViewHolder
     }
 

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Yunjong Noh -->
+<!-- Comment item section to show comments -->
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="8dp"
+    android:background="?android:attr/selectableItemBackground"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
+
+    <!-- Container for the comment content -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Row for displaying the username and timestamp -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="4dp">
+
+            <!-- TextView to display the commenter's username -->
+            <TextView
+                android:id="@+id/commentUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Username"
+                android:textColor="@color/banner_green"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_weight="1" />
+
+            <!-- TextView to display the timestamp of the comment -->
+            <TextView
+                android:id="@+id/commentTimestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2 days ago"
+                android:layout_gravity="center_vertical"
+                android:textSize="10sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+
+        <!-- TextView to display the actual comment text -->
+        <TextView
+            android:id="@+id/commentText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="This is the comment text."
+            android:textColor="@android:color/black"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="bottom|right">
+
+            <!-- Dismiss button -->
+            <ImageButton
+                android:id="@+id/like_button"
+                android:background="@color/transparent"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:padding="0dp"
+                android:src="@drawable/thumbs_up"
+                android:scaleType="centerInside"
+                android:layout_marginRight="10dp"/>
+
+            <!-- Dismiss button -->
+            <ImageButton
+                android:id="@+id/dislike_button"
+                android:background="@color/transparent"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:padding="0dp"
+                android:src="@drawable/thumbs_down"
+                android:scaleType="centerInside" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="263dp"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+
+            <!-- Number of likes button -->
+            <TextView
+                android:id="@+id/num_likes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="11dp"
+                android:padding="0dp"
+                android:text="0" />
+
+            <!-- Dismiss button -->
+            <TextView
+                android:id="@+id/num_dislikes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:padding="0dp"
+                android:text="0" />
+        </LinearLayout>
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#ddd5c6"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_gravity="center_horizontal"/>
+
+        <!-- RecyclerView for displaying replies to this comment -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/repliesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Input field for adding a reply to the comment -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:layout_marginStart="32dp">
+
+            <!-- EditText for the user to type their reply -->
+            <EditText
+                android:id="@+id/replyInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Write a reply..." />
+
+            <!-- Button to post the reply -->
+            <Button
+                android:id="@+id/postReplyButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:textColor="@color/banner_green"
+                android:text="Reply"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
