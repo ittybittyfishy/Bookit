@@ -39,8 +39,10 @@ import android.widget.Toast
 
 class HomeFragment : Fragment() {
 
-    //testing
+    //itzel medina
     private lateinit var refreshButton: Button
+    private lateinit var reloadimage: ImageView
+
 
     // declare UI componets
     private lateinit var loggedInTextView: TextView
@@ -82,7 +84,7 @@ class HomeFragment : Fragment() {
     private lateinit var bookTitleTextView4: TextView
     private lateinit var bookAuthorsTextView4: TextView
     private lateinit var messageTextView4: TextView
-    private lateinit var buttonContainer4: View
+
 
     // Add this variable inside the HomeFragment class to track the number of rated books
     private var ratedBooksCount = 0
@@ -158,7 +160,7 @@ class HomeFragment : Fragment() {
         bookTitleTextView4 = view.findViewById(R.id.bookTitleTextView4)
         bookAuthorsTextView4 = view.findViewById(R.id.bookAuthorsTextView4)
         messageTextView4 = view.findViewById(R.id.messageTextView4)
-        buttonContainer4 = view.findViewById(R.id.buttonContainer4)
+
 
         //itzel medina
         // Initialize Expand Button and Books Container
@@ -219,9 +221,11 @@ class HomeFragment : Fragment() {
         }
         notificationsRecyclerView.adapter = updatesAdapter
 
-        //testing
+        //itzel medina
         // Initialize Refresh Button
         refreshButton = view.findViewById(R.id.refreshButton)
+
+        reloadimage = view.findViewById(R.id.reload)
 
         // Set up click listener for Refresh Button
         refreshButton.setOnClickListener {
@@ -454,7 +458,7 @@ class HomeFragment : Fragment() {
         // Fetch new recommendations from Google Books API
         fetchRecommendedBooksFromGoogle(userId)
 
-        // Update the last fetch date to current time to prevent immediate refetching (optional)
+        // Update the last fetch date to current time to prevent immediate refetching
         saveLastFetchDate(userId)
 
         // Reset UI elements for Books 1-3
@@ -476,10 +480,11 @@ class HomeFragment : Fragment() {
         // Hide the fourth book layout and related views
         view?.findViewById<LinearLayout>(R.id.bookItem4)?.visibility = View.GONE
         view?.findViewById<TextView>(R.id.basedOnYourInputTextView)?.visibility = View.GONE
+
+        // Hide the refresh button after it is used
+        refreshButton.visibility = View.GONE
+        reloadimage.visibility = View.GONE
     }
-
-
-
 
     // Yunjong Noh
     // Check if 24 hours have passed since the last fetch
@@ -634,89 +639,132 @@ class HomeFragment : Fragment() {
         }
     }
 
-    //"AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM"
+
     // Yunjong Noh
     // Function to perform a Google Books API search based on the user's top genres
     private fun performGoogleBooksSearch(genres: List<String>, avgRating: Double) {
-        val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM" // Google Books API key
-        val genreBooksMap = mutableMapOf<String, MutableList<BookItem>>() // Map to store books by genre
-        val recommendedBookIds = mutableSetOf<String>() // Set to track book IDs to avoid duplicates
-        var apiCallsCompleted = 0 // Counter to track how many API calls have been completed
+        //itzel medina
+        val userId = auth.currentUser?.uid ?: return
+        fetchDismissedBookIds(userId) { dismissedIds ->
+            val apiKey = "AIzaSyAo2eoLcmBI9kYmd-MRCF8gqMY44gDK0uM" // Google Books API key
+            val genreBooksMap =
+                mutableMapOf<String, MutableList<BookItem>>() // Map to store books by genre
+            val recommendedBookIds =
+                mutableSetOf<String>() // Set to track book IDs to avoid duplicates
+            var apiCallsCompleted = 0 // Counter to track how many API calls have been completed
 
-        Log.d("HomeFragment", "Combined recommendation for the user (genrePreferences + topGenres): $genres")
+            Log.d(
+                "HomeFragment",
+                "Combined recommendation for the user (genrePreferences + topGenres): $genres"
+            )
 
-        // For each genre, make a single Google Books API request
-        genres.forEach { genre ->
-            genreBooksMap[genre] = mutableListOf() // Initialize a list for each genre in the map
+            // For each genre, make a single Google Books API request
+            genres.forEach { genre ->
+                genreBooksMap[genre] =
+                    mutableListOf() // Initialize a list for each genre in the map
 
-            // Generate a random starting index between 0 and 30 to get varied search results
-            val randomStartIndex = Random.nextInt(0, 30)
+                // Generate a random starting index between 0 and 30 to get varied search results
+                val randomStartIndex = Random.nextInt(0, 30)
 
-            // Nested function to fetch books for a specific genre with an attempt counter for retries
-            fun fetchBooksForGenre(attempt: Int) {
-                val query = "subject:$genre" // Google Books API query parameter for subject/genre
-                val call = GoogleBooksApiService.create().searchBooks(query, randomStartIndex, 20, apiKey) // API call to search books
+                // Nested function to fetch books for a specific genre with an attempt counter for retries
+                fun fetchBooksForGenre(attempt: Int) {
+                    val query =
+                        "subject:$genre" // Google Books API query parameter for subject/genre
+                    val call = GoogleBooksApiService.create().searchBooks(
+                        query,
+                        randomStartIndex,
+                        20,
+                        apiKey
+                    ) // API call to search books
 
-                // Handle the API response
-                call.enqueue(object : Callback<BookResponse> {
-                    override fun onResponse(call: Call<BookResponse>, response: Response<BookResponse>) {
-                        if (response.isSuccessful) {
-                            // Retrieve the list of books from the response
-                            val books = response.body()?.items ?: emptyList()
-                            Log.d("HomeFragment", "Books retrieved for genre '$genre': ${books.size}")
+                    // Handle the API response
+                    call.enqueue(object : Callback<BookResponse> {
+                        override fun onResponse(
+                            call: Call<BookResponse>,
+                            response: Response<BookResponse>
+                        ) {
+                            if (response.isSuccessful) {
+                                // Retrieve the list of books from the response
+                                val books = response.body()?.items ?: emptyList()
+                                Log.d(
+                                    "HomeFragment",
+                                    "Books retrieved for genre '$genre': ${books.size}"
+                                )
 
-                            // Add unique books to the genreBooksMap, limiting to 1 book per genre
-                            books.firstOrNull { !recommendedBookIds.contains(it.id) }?.let { book ->
-                                genreBooksMap[genre]?.add(book) // Add book to the map for the genre
-                                recommendedBookIds.add(book.id) // Track book ID to avoid duplicates
-                            }
+                                // Add unique books to the genreBooksMap, limiting to 1 book per genre
+                                books.firstOrNull { !recommendedBookIds.contains(it.id) }
+                                    ?.let { book ->
+                                        genreBooksMap[genre]?.add(book) // Add book to the map for the genre
+                                        recommendedBookIds.add(book.id) // Track book ID to avoid duplicates
+                                    }
 
-                            apiCallsCompleted++ // Increment the API call completion counter
-                            if (apiCallsCompleted == genres.size) { // Check if all genre searches are completed
-                                val finalBooks = genreBooksMap.values.flatten().take(3) // Take up to 3 books total
-                                if (finalBooks.isNotEmpty()) {
-                                    displayRecommendedBooks(finalBooks) // Display the final book recommendations
-                                } else {
-                                    Log.d("HomeFragment", "No books found across all genres.")
+                                apiCallsCompleted++ // Increment the API call completion counter
+                                if (apiCallsCompleted == genres.size) { // Check if all genre searches are completed
+                                    val finalBooks = genreBooksMap.values.flatten()
+                                        .take(3) // Take up to 3 books total
+                                    if (finalBooks.isNotEmpty()) {
+                                        displayRecommendedBooks(finalBooks) // Display the final book recommendations
+                                    } else {
+                                        Log.d("HomeFragment", "No books found across all genres.")
+                                    }
                                 }
+                            } else {
+                                // Handle API error response and retry if necessary
+                                Log.d(
+                                    "HomeFragment",
+                                    "Google Books API Error for genre '$genre': ${
+                                        response.errorBody()?.string()
+                                    }"
+                                )
+                                handleApiRetryOrFailure(attempt)
                             }
-                        } else {
-                            // Handle API error response and retry if necessary
-                            Log.d("HomeFragment", "Google Books API Error for genre '$genre': ${response.errorBody()?.string()}")
+                        }
+
+                        override fun onFailure(call: Call<BookResponse>, t: Throwable) {
+                            // Log failure and retry if needed
+                            Log.d(
+                                "HomeFragment",
+                                "Google Books API Failure for genre '$genre': ${t.message}"
+                            )
                             handleApiRetryOrFailure(attempt)
                         }
-                    }
 
-                    override fun onFailure(call: Call<BookResponse>, t: Throwable) {
-                        // Log failure and retry if needed
-                        Log.d("HomeFragment", "Google Books API Failure for genre '$genre': ${t.message}")
-                        handleApiRetryOrFailure(attempt)
-                    }
-
-                    // Nested function to handle retry or failure logic
-                    private fun handleApiRetryOrFailure(attempt: Int) {
-                        if (attempt < 5) { // Limit to 5 retry attempts
-                            val delay = (1000 * Math.pow(2.0, attempt.toDouble())).toLong() // Exponential backoff (1s, 2s, 4s, 8s, etc.)
-                            Log.d("HomeFragment", "Retrying in ${delay / 1000}s for genre '$genre' (attempt $attempt)")
-                            Handler(Looper.getMainLooper()).postDelayed({ fetchBooksForGenre(attempt + 1) }, delay)
-                        } else {
-                            // Final attempt failed; increment completed counter
-                            apiCallsCompleted++
-                            if (apiCallsCompleted == genres.size) { // Check if all genre searches are completed
-                                val finalBooks = genreBooksMap.values.flatten().take(3) // Take up to 3 books total
-                                if (finalBooks.isNotEmpty()) {
-                                    displayRecommendedBooks(finalBooks) // Display the final book recommendations
-                                } else {
-                                    Log.d("HomeFragment", "No books found across all genres.")
+                        // Nested function to handle retry or failure logic
+                        private fun handleApiRetryOrFailure(attempt: Int) {
+                            if (attempt < 5) { // Limit to 5 retry attempts
+                                val delay = (1000 * Math.pow(
+                                    2.0,
+                                    attempt.toDouble()
+                                )).toLong() // Exponential backoff (1s, 2s, 4s, 8s, etc.)
+                                Log.d(
+                                    "HomeFragment",
+                                    "Retrying in ${delay / 1000}s for genre '$genre' (attempt $attempt)"
+                                )
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    fetchBooksForGenre(
+                                        attempt + 1
+                                    )
+                                }, delay)
+                            } else {
+                                // Final attempt failed; increment completed counter
+                                apiCallsCompleted++
+                                if (apiCallsCompleted == genres.size) { // Check if all genre searches are completed
+                                    val finalBooks = genreBooksMap.values.flatten()
+                                        .take(3) // Take up to 3 books total
+                                    if (finalBooks.isNotEmpty()) {
+                                        displayRecommendedBooks(finalBooks) // Display the final book recommendations
+                                    } else {
+                                        Log.d("HomeFragment", "No books found across all genres.")
+                                    }
                                 }
                             }
                         }
-                    }
-                })
-            }
+                    })
+                }
 
-            // Start the first attempt to fetch books for the current genre
-            fetchBooksForGenre(0)
+                // Start the first attempt to fetch books for the current genre
+                fetchBooksForGenre(0)
+            }
         }
     }
 
@@ -1244,8 +1292,6 @@ class HomeFragment : Fragment() {
         messageTextView4.visibility = View.GONE
         messageTextView4.text = "Message will appear here"
 
-        // Reset buttonContainer4 to visible if applicable
-        buttonContainer4.visibility = View.VISIBLE
 
         val thumbnail4 = book.volumeInfo?.imageLinks?.thumbnail?.replace("http://", "https://")
         Log.d("HomeFragment", "Book 4 Image URL: $thumbnail4")
@@ -1381,6 +1427,20 @@ class HomeFragment : Fragment() {
         } else {
             expandButton.setImageResource(R.drawable.expand_button) // Down arrow
         }
+    }
+
+    //itzel medina
+    private fun fetchDismissedBookIds(userId: String, callback: (Set<String>) -> Unit) {
+        db.collection("users").document(userId).collection("dismissedBooks")
+            .get()
+            .addOnSuccessListener { documents ->
+                val dismissedIds = documents.map { it.id }.toSet()
+                callback(dismissedIds)
+            }
+            .addOnFailureListener { e ->
+                Log.e("fetchDismissedBookIds", "Error fetching dismissed books: ${e.message}", e)
+                callback(emptySet())
+            }
     }
 
 
