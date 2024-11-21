@@ -103,7 +103,7 @@ class GroupCommentsAdapter(
             }
 
             // Initialize RepliesAdapter to manage replies to this comment
-            val groupRepliesAdapter = GroupRepliesAdapter(listOf(), comment, groupId, updateId) // Pass the comment to the RepliesAdapter
+            val groupRepliesAdapter = GroupRepliesAdapter(mutableListOf(), comment, groupId, updateId, comment.commentId) // Pass the comment to the RepliesAdapter
             repliesRecyclerView.adapter = groupRepliesAdapter // Set the adapter for the replies RecyclerView
             repliesRecyclerView.layoutManager = LinearLayoutManager(itemView.context) // Use LinearLayoutManager for the RecyclerView
 

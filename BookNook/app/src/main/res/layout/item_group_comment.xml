@@ -90,7 +90,7 @@
             android:layout_marginTop="5dp"
             android:orientation="horizontal">
 
-            <!-- Number of likes button -->
+            <!-- Number of likes -->
             <TextView
                 android:id="@+id/num_likes"
                 android:layout_width="wrap_content"
@@ -99,7 +99,7 @@
                 android:padding="0dp"
                 android:text="0" />
 
-            <!-- Dismiss button -->
+            <!-- Number of dislikes -->
             <TextView
                 android:id="@+id/num_dislikes"
                 android:layout_width="wrap_content"
