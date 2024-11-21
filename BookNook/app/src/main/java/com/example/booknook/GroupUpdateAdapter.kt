@@ -295,7 +295,7 @@ class GroupUpdateAdapter(
             }
 
             val profileImageUrl = update.profileImageUrl
-            if (profileImageUrl.isNotEmpty()) {
+            if (!profileImageUrl.isNullOrEmpty()) {
                 Glide.with(itemView.context)
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
@@ -431,7 +431,7 @@ class GroupUpdateAdapter(
             }
 
             val profileImageUrl = update.profileImageUrl
-            if (profileImageUrl.isNotEmpty()) {
+            if (!profileImageUrl.isNullOrEmpty()) {
                 Glide.with(itemView.context)
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
@@ -578,7 +578,7 @@ class GroupUpdateAdapter(
             }
 
             val profileImageUrl = update.profileImageUrl
-            if (profileImageUrl.isNotEmpty()) {
+            if (!profileImageUrl.isNullOrEmpty()) {
                 Glide.with(itemView.context)
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
@@ -767,7 +767,7 @@ class GroupUpdateAdapter(
             }
 
             val profileImageUrl = update.profileImageUrl
-            if (profileImageUrl.isNotEmpty()) {
+            if (!profileImageUrl.isNullOrEmpty()) {
                 Glide.with(itemView.context)
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
