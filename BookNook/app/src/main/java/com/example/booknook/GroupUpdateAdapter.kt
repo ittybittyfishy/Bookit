@@ -17,6 +17,8 @@ import com.example.booknook.GroupComment
 import com.example.booknook.GroupCommentsAdapter
 import com.example.booknook.GroupMemberUpdate
 import com.example.booknook.R
+import com.example.booknook.fragments.NotificationItem
+import com.example.booknook.fragments.NotificationType
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -74,15 +76,37 @@ class GroupUpdateAdapter(
             else -> throw IllegalArgumentException("Invalid view type")
         }
     }
-
+    // yunjong Noh (edit)
+    // bind and shows notification for updates
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val update = memberUpdates[position]
+
         when (holder) {
-            is StartBookViewHolder -> holder.bind(update)
-            is FinishBookViewHolder -> holder.bind(update)
-            is RecommendBookViewHolder -> holder.bind(update)
-            is ReviewBookNoTemplateViewHolder -> holder.bind(update)
-            is ReviewBookTemplateViewHolder -> holder.bind(update)
+            is StartBookViewHolder -> {
+                holder.bind(update)
+                sendGroupUpdateNotification(groupId) // Notify on StartBook update
+            }
+            is FinishBookViewHolder -> {
+                holder.bind(update)
+                sendGroupUpdateNotification(groupId) // Notify on FinishBook update
+            }
+            is RecommendBookViewHolder -> {
+                holder.bind(update)
+                sendGroupUpdateNotification(groupId) // Notify on RecommendBook update
+            }
+            is ReviewBookNoTemplateViewHolder -> {
+                holder.bind(update)
+                sendGroupUpdateNotification(groupId) // Notify on Review without Template update
+            }
+            is ReviewBookTemplateViewHolder -> {
+                holder.bind(update)
+                sendGroupUpdateNotification(groupId) // Notify on Review with Template update
+            }
+        }
+
+    // Call the notification function when all updates are bound
+        if (position == memberUpdates.size - 1) {
+            sendGroupUpdateNotification(groupId)
         }
     }
 
@@ -954,4 +978,127 @@ class GroupUpdateAdapter(
                 }
         }
     }
+    // Yunjong Noh
+    // Function to send a simple notification for any group update
+    private fun sendGroupUpdateNotification(groupId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val currentTime = System.currentTimeMillis()
+        val expirationTime = currentTime + 10 * 24 * 60 * 60 * 1000 // 10 days expiration time
+
+        // Simple notification message
+        val notificationMessage = "There is a new update in your group."
+
+        // Get the current user ID (sender)
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        // Fetch current user's profile details
+        val currentUserDocRef = db.collection("users").document(currentUserId)
+        currentUserDocRef.get().addOnSuccessListener { currentUserDoc ->
+            if (currentUserDoc.exists()) {
+                val senderProfileImageUrl = currentUserDoc.getString("profileImageUrl") ?: ""
+                val senderUsername = currentUserDoc.getString("username") ?: "Unknown User"
+
+                // Send notification to all group members (excluding sender)
+                sendNotificationToGroupMembers(
+                    groupId,
+                    notificationMessage,
+                    NotificationType.GROUP_MESSAGES,
+                    expirationTime,
+                    currentUserId,
+                    senderProfileImageUrl,
+                    senderUsername
+                )
+            }
+        }.addOnFailureListener {
+            Log.e("GroupUpdateNotification", "Failed to retrieve current user data for notification.")
+        }
+    }
+
+
+    // Yunjong Noh
+    // Function to send notification (with sender's details like profile image and username)
+    private fun sendNotification(userId: String, message: String, notificationType: NotificationType, expirationTime: Long, senderId: String, receiverId: String, senderProfileImageUrl: String, senderUsername: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Skip sending notification if the current user is the sender (userId is the same as currentUserId)
+        if (userId == FirebaseAuth.getInstance().currentUser?.uid) {
+            Log.d("ReviewNotification", "Notification not sent to the sender (userId = currentUserId).")
+            return
+        }
+
+        val notification = NotificationItem(
+            userId = userId,  // Receiver's ID
+            senderId = senderId,  // Sender's ID
+            receiverId = receiverId,  // Receiver's ID
+            message = message,
+            timestamp = System.currentTimeMillis(),
+            type = notificationType,
+            dismissed = false,
+            expirationTime = expirationTime,
+            profileImageUrl = senderProfileImageUrl, // Use sender's profile image
+            username = senderUsername // Use sender's username
+        )
+
+        // Add the notification to the "notifications" collection in Firestore
+        db.collection("notifications").add(notification)
+            .addOnSuccessListener { documentReference ->
+                val notificationId = documentReference.id
+                db.collection("notifications").document(notificationId)
+                    .update("notificationId", notificationId)
+                    .addOnSuccessListener {
+                        Log.d("ReviewNotification", "Notification added with ID: $notificationId") // Log success
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("ReviewNotification", "Error updating notificationId: ${e.message}", e) // Log any errors
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("ReviewNotification", "Error adding notification: ${e.message}", e) // Log any errors adding the notification
+            }
+    }
+    // Yunjong Noh
+    // Existing function modified to handle sending notifications to group members
+    private fun sendNotificationToGroupMembers(
+        groupId: String,
+        message: String,
+        notificationType: NotificationType,
+        expirationTime: Long,
+        senderId: String,
+        senderProfileImageUrl: String,
+        senderUsername: String
+    ) {
+        val db = FirebaseFirestore.getInstance() // Get an instance of the Firestore database
+
+        // Fetch the group document from Firestore using the groupId
+        db.collection("groups").document(groupId).get()
+            .addOnSuccessListener { groupDoc ->
+                if (groupDoc.exists()) { // Check if the group document exists
+                    // Get the list of group member IDs from the document
+                    val groupMembers = groupDoc.get("members") as? List<String> ?: emptyList()
+
+                    // Iterate over each member in the group
+                    groupMembers.forEach { memberId ->
+                        // Only send the notification if the member is not the sender
+                        if (memberId != FirebaseAuth.getInstance().currentUser?.uid) {
+                            // Call the sendNotification function to send the notification to the member
+                            sendNotification(
+                                memberId,
+                                message,
+                                notificationType,
+                                expirationTime,
+                                senderId,
+                                memberId,
+                                senderProfileImageUrl,
+                                senderUsername
+                            )
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                // Log an error if there is a problem fetching the group document
+                Log.e("GroupUpdateNotification", "Error fetching group members: ${e.message}", e)
+            }
+    }
+
 }
