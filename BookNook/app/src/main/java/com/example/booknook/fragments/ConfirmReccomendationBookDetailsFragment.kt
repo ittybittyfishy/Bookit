@@ -32,9 +32,13 @@ class ConfirmRecommendationBookDetailsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_confirm_recommendation, container, false)
 
         val isbn = arguments?.getString("isbn")
+        val recIsbn = arguments?.getString("recIsbn")
         val bookImage = arguments?.getString("bookImage")
         val bookTitle = arguments?.getString("bookTitle")
         val bookAuthor = arguments?.getString("bookAuthor")
+        val bookAuthorList= arguments?.getStringArrayList("bookAuthorsList")
+        val bookdesc = arguments?.getString("bookDescription")
+        val bookGenres= arguments?.getStringArrayList("bookGenres")
 
         val imageView: ImageView = view.findViewById(R.id.bookImage)
         val titleTextView: TextView = view.findViewById(R.id.bookTitleText)
@@ -87,9 +91,13 @@ class ConfirmRecommendationBookDetailsFragment : Fragment() {
                                 if (documents.isEmpty) {
                                     // Recommendation does not exist; add new recommendation
                                     val newRecommendation = hashMapOf(
+                                        "recIsbn" to recIsbn,
                                         "image" to bookImage,
                                         "title" to bookTitle,
                                         "authors" to bookAuthor,
+                                        "authorsList" to bookAuthorList,
+                                        "description" to bookdesc,
+                                        "genres" to bookGenres,
                                         "numUpvotes" to 1 // Initialize upvotes to 1
                                     )
                                     recommendationsRef.add(newRecommendation)

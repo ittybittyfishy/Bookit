@@ -63,11 +63,19 @@ class BookRecommendationBookDetailsAdapter(
         holder.selectBookButton.setOnClickListener {
             // Takes user to the confirm page to confirm their book for recommendation
             val ConfirmRecommendationBookDetailsFragment = ConfirmRecommendationBookDetailsFragment()
+            val description = book.volumeInfo.description
+            val recIsbn = book.volumeInfo.industryIdentifiers
+                ?.find { it.type == "ISBN_13" || it.type == "ISBN_10" }
+                ?.identifier ?: "No ISBN"
             val bundle = Bundle().apply {
-                putString("isbn", isbn) // Use isbn instead of groupId
+                putString("isbn", isbn) // Use isbn of parent book
+                putString("recIsbn", recIsbn)
                 putString("bookImage", book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://"))
                 putString("bookTitle", book.volumeInfo.title)
                 putString("bookAuthor", book.volumeInfo.authors?.joinToString(", ") ?: "Unknown Author")
+                putStringArrayList("bookAuthorsList", ArrayList(book.volumeInfo.authors ?: listOf("Unknown Author")))
+                putString("bookDescription", description)
+                putStringArrayList("bookGenres", ArrayList(book.volumeInfo.categories ?: listOf("Unknown Genre")))
             }
             ConfirmRecommendationBookDetailsFragment.arguments = bundle
             (holder.itemView.context as MainActivity).replaceFragment(ConfirmRecommendationBookDetailsFragment, "Add Recommendation", showBackButton = true)
