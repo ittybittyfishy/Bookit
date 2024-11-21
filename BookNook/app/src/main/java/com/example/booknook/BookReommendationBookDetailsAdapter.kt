@@ -76,6 +76,7 @@ class BookRecommendationBookDetailsAdapter(
                 putStringArrayList("bookAuthorsList", ArrayList(book.volumeInfo.authors ?: listOf("Unknown Author")))
                 putString("bookDescription", description)
                 putStringArrayList("bookGenres", ArrayList(book.volumeInfo.categories ?: listOf("Unknown Genre")))
+                putFloat("bookRating", book.volumeInfo.averageRating ?: 0f)
             }
             ConfirmRecommendationBookDetailsFragment.arguments = bundle
             (holder.itemView.context as MainActivity).replaceFragment(ConfirmRecommendationBookDetailsFragment, "Add Recommendation", showBackButton = true)

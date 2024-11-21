@@ -38,7 +38,8 @@ class ConfirmRecommendationBookDetailsFragment : Fragment() {
         val bookAuthor = arguments?.getString("bookAuthor")
         val bookAuthorList= arguments?.getStringArrayList("bookAuthorsList")
         val bookdesc = arguments?.getString("bookDescription")
-        val bookGenres= arguments?.getStringArrayList("bookGenres")
+        val bookGenres = arguments?.getStringArrayList("bookGenres")
+        val bookAvgRating = arguments?.getFloat("bookRating")
 
         val imageView: ImageView = view.findViewById(R.id.bookImage)
         val titleTextView: TextView = view.findViewById(R.id.bookTitleText)
@@ -98,6 +99,7 @@ class ConfirmRecommendationBookDetailsFragment : Fragment() {
                                         "authorsList" to bookAuthorList,
                                         "description" to bookdesc,
                                         "genres" to bookGenres,
+                                        "bookRating" to bookAvgRating,
                                         "numUpvotes" to 1 // Initialize upvotes to 1
                                     )
                                     recommendationsRef.add(newRecommendation)

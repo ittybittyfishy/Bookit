@@ -13,7 +13,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 class RecommendationAdapterBookDetails (
     private val recommendationsList: List<Map<String, Any>>,
     private val isbn: String, // Using ISBN instead of groupId
-    private val userId: String
+    private val userId: String,
+    private val onRecommendationClick: (Map<String, Any>) -> Unit
 ) : RecyclerView.Adapter<RecommendationAdapterBookDetails.RecommendationBookDetailsViewHolder>() {
 
     // ViewHolder class that represents each recommendation item
@@ -86,6 +87,11 @@ class RecommendationAdapterBookDetails (
                     holder.numberUpvotes.text = currentUpvotes.toString()
                 }
             }
+        }
+
+        // Set click listener for each item
+        holder.itemView.setOnClickListener {
+            onRecommendationClick(recommendation)
         }
     }
 
