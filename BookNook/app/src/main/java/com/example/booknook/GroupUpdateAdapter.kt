@@ -4,6 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RatingBar
@@ -122,6 +123,7 @@ class GroupUpdateAdapter(
         private lateinit var commentsList: MutableList<GroupComment>
         private val commentInput: EditText = itemView.findViewById(R.id.commentInput)
         private val postCommentButton: Button = itemView.findViewById(R.id.postCommentButton)
+        private val dismissButton: ImageButton = itemView.findViewById(R.id.dismiss_button)
 
         fun bind(update: GroupMemberUpdate) {
             commentsList = mutableListOf()
@@ -137,7 +139,7 @@ class GroupUpdateAdapter(
             }
 
             val profileImageUrl = update.profileImageUrl
-            if (profileImageUrl.isNotEmpty()) {
+            if (!profileImageUrl.isNullOrEmpty()) {
                 Glide.with(itemView.context)
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
@@ -183,6 +185,19 @@ class GroupUpdateAdapter(
                     }
                 } else {
                     Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            dismissButton.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) { // Ensure the position is valid
+                    // Remove the update from the list for this user
+                    (memberUpdates as MutableList).removeAt(position)
+
+                    // Notify the adapter about the item removal
+                    notifyItemRemoved(position)
+
+                    Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
                 }
             }
             messageTextView.text = "${update.username} started a book: ${update.bookTitle}"
@@ -240,6 +255,7 @@ class GroupUpdateAdapter(
         private lateinit var commentsList: MutableList<GroupComment>
         private val commentInput: EditText = itemView.findViewById(R.id.commentInput)
         private val postCommentButton: Button = itemView.findViewById(R.id.postCommentButton)
+        private val dismissButton: ImageButton = itemView.findViewById(R.id.dismiss_button)
 
         fun bind(update: GroupMemberUpdate) {
             commentsList = mutableListOf()
@@ -301,6 +317,19 @@ class GroupUpdateAdapter(
                     }
                 } else {
                     Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            dismissButton.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) { // Ensure the position is valid
+                    // Remove the update from the list for this user
+                    (memberUpdates as MutableList).removeAt(position)
+
+                    // Notify the adapter about the item removal
+                    notifyItemRemoved(position)
+
+                    Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
                 }
             }
             messageTextView.text = "${update.username} finished a book: ${update.bookTitle}"
@@ -362,6 +391,7 @@ class GroupUpdateAdapter(
         private lateinit var commentsList: MutableList<GroupComment>
         private val commentInput: EditText = itemView.findViewById(R.id.commentInput)
         private val postCommentButton: Button = itemView.findViewById(R.id.postCommentButton)
+        private val dismissButton: ImageButton = itemView.findViewById(R.id.dismiss_button)
 
         fun bind(update: GroupMemberUpdate) {
             commentsList = mutableListOf()
@@ -423,6 +453,19 @@ class GroupUpdateAdapter(
                     }
                 } else {
                     Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            dismissButton.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) { // Ensure the position is valid
+                    // Remove the update from the list for this user
+                    (memberUpdates as MutableList).removeAt(position)
+
+                    // Notify the adapter about the item removal
+                    notifyItemRemoved(position)
+
+                    Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -495,6 +538,7 @@ class GroupUpdateAdapter(
         private lateinit var commentsList: MutableList<GroupComment>
         private val commentInput: EditText = itemView.findViewById(R.id.commentInput)
         private val postCommentButton: Button = itemView.findViewById(R.id.postCommentButton)
+        private val dismissButton: ImageButton = itemView.findViewById(R.id.dismiss_button)
 
         fun bind(update: GroupMemberUpdate) {
             commentsList = mutableListOf()
@@ -556,6 +600,19 @@ class GroupUpdateAdapter(
                     }
                 } else {
                     Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            dismissButton.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) { // Ensure the position is valid
+                    // Remove the update from the list for this user
+                    (memberUpdates as MutableList).removeAt(position)
+
+                    // Notify the adapter about the item removal
+                    notifyItemRemoved(position)
+
+                    Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -669,6 +726,7 @@ class GroupUpdateAdapter(
         private lateinit var commentsList: MutableList<GroupComment>
         private val commentInput: EditText = itemView.findViewById(R.id.commentInput)
         private val postCommentButton: Button = itemView.findViewById(R.id.postCommentButton)
+        private val dismissButton: ImageButton = itemView.findViewById(R.id.dismiss_button)
 
 
         fun bind(update: GroupMemberUpdate) {
@@ -733,6 +791,20 @@ class GroupUpdateAdapter(
                     Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
                 }
             }
+
+            dismissButton.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) { // Ensure the position is valid
+                    // Remove the update from the list for this user
+                    (memberUpdates as MutableList).removeAt(position)
+
+                    // Notify the adapter about the item removal
+                    notifyItemRemoved(position)
+
+                    Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
+                }
+            }
+
             // Configure main review text
             reviewTextView.text = "${update.username} left a review for: ${update.bookTitle}"
             ratingBar.rating = update.rating ?: 0f
