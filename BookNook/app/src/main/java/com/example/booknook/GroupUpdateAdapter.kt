@@ -161,7 +161,7 @@ class GroupUpdateAdapter(
             }
 
             val profileImageUrl = update.profileImageUrl
-            if (profileImageUrl.isNotEmpty()) {
+            if (!profileImageUrl.isNullOrEmpty()) {
                 Glide.with(itemView.context)
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
@@ -279,7 +279,7 @@ class GroupUpdateAdapter(
             }
 
             val profileImageUrl = update.profileImageUrl
-            if (profileImageUrl.isNotEmpty()) {
+            if (!profileImageUrl.isNullOrEmpty()) {
                 Glide.with(itemView.context)
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
@@ -401,7 +401,7 @@ class GroupUpdateAdapter(
             }
 
             val profileImageUrl = update.profileImageUrl
-            if (profileImageUrl.isNotEmpty()) {
+            if (!profileImageUrl.isNullOrEmpty()) {
                 Glide.with(itemView.context)
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
@@ -534,7 +534,7 @@ class GroupUpdateAdapter(
             }
 
             val profileImageUrl = update.profileImageUrl
-            if (profileImageUrl.isNotEmpty()) {
+            if (!profileImageUrl.isNullOrEmpty()) {
                 Glide.with(itemView.context)
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
@@ -709,7 +709,7 @@ class GroupUpdateAdapter(
             }
 
             val profileImageUrl = update.profileImageUrl
-            if (profileImageUrl.isNotEmpty()) {
+            if (!profileImageUrl.isNullOrEmpty()) {
                 Glide.with(itemView.context)
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
@@ -920,6 +920,7 @@ class GroupUpdateAdapter(
         val groupDocRef = db.collection("groups").document(groupId)
         groupDocRef.get().addOnSuccessListener { groupDoc ->
             if (groupDoc.exists()) {
+                //retrieve each group name to show in notification bar
                 val groupName = groupDoc.getString("groupName") ?: "your group"
                 Log.d("GroupUpdateNotification", "Fetched groupName: $groupName")
 
@@ -935,6 +936,7 @@ class GroupUpdateAdapter(
                         // Send notification to all group members (excluding sender)
                         sendNotificationToGroupMembers(
                             groupId,
+                            groupName,
                             notificationMessage,
                             NotificationType.GROUP_MESSAGES,
                             expirationTime,
@@ -957,7 +959,7 @@ class GroupUpdateAdapter(
 
     // Yunjong Noh
     // Function to send notification (with sender's details like profile image and username)
-    private fun sendNotification(userId: String, message: String, notificationType: NotificationType, expirationTime: Long, senderId: String, receiverId: String, senderProfileImageUrl: String, senderUsername: String) {
+    private fun sendNotification(userId: String, message: String, notificationType: NotificationType, expirationTime: Long, senderId: String, receiverId: String, senderProfileImageUrl: String, senderUsername: String, groupName: String) {
         val db = FirebaseFirestore.getInstance()
 
         // Skip sending notification if the current user is the sender (userId is the same as currentUserId)
@@ -976,7 +978,7 @@ class GroupUpdateAdapter(
             dismissed = false,
             expirationTime = expirationTime,
             profileImageUrl = senderProfileImageUrl, // Use sender's profile image
-            username = senderUsername // Use sender's username
+            username = senderUsername, // Use sender's username
         )
 
         // Add the notification to the "notifications" collection in Firestore
@@ -1000,6 +1002,7 @@ class GroupUpdateAdapter(
     // Existing function modified to handle sending notifications to group members
     private fun sendNotificationToGroupMembers(
         groupId: String,
+        groupName: String,
         message: String,
         notificationType: NotificationType,
         expirationTime: Long,
@@ -1029,7 +1032,8 @@ class GroupUpdateAdapter(
                                 senderId,
                                 memberId,
                                 senderProfileImageUrl,
-                                senderUsername
+                                senderUsername,
+                                groupName
                             )
                         }
                     }

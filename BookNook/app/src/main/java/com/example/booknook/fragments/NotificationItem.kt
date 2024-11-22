@@ -13,8 +13,7 @@ data class NotificationItem(
     val dismissed: Boolean = false, // Indicates if the notification has been dismissed
     val expirationTime: Long = 0L, // Expiration time for the notification
     var profileImageUrl: String = "",
-    var username: String = "",
-    val groupName: String = ""
+    var username: String = ""
 )
 
 // Enum class representing different types of notifications
