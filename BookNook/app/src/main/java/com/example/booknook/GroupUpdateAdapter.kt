@@ -913,32 +913,44 @@ class GroupUpdateAdapter(
         val currentTime = System.currentTimeMillis()
         val expirationTime = currentTime + 10 * 24 * 60 * 60 * 1000 // 10 days expiration time
 
-        // Simple notification message
-        val notificationMessage = "There is a new update in your group."
-
         // Get the current user ID (sender)
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-        // Fetch current user's profile details
-        val currentUserDocRef = db.collection("users").document(currentUserId)
-        currentUserDocRef.get().addOnSuccessListener { currentUserDoc ->
-            if (currentUserDoc.exists()) {
-                val senderProfileImageUrl = currentUserDoc.getString("profileImageUrl") ?: ""
-                val senderUsername = currentUserDoc.getString("username") ?: "Unknown User"
+        // Fetch the group name and current user's profile details
+        val groupDocRef = db.collection("groups").document(groupId)
+        groupDocRef.get().addOnSuccessListener { groupDoc ->
+            if (groupDoc.exists()) {
+                val groupName = groupDoc.getString("groupName") ?: "your group"
+                Log.d("GroupUpdateNotification", "Fetched groupName: $groupName")
 
-                // Send notification to all group members (excluding sender)
-                sendNotificationToGroupMembers(
-                    groupId,
-                    notificationMessage,
-                    NotificationType.GROUP_MESSAGES,
-                    expirationTime,
-                    currentUserId,
-                    senderProfileImageUrl,
-                    senderUsername
-                )
+                val notificationMessage = "There is a new update in $groupName."
+
+                // Fetch current user's profile details
+                val currentUserDocRef = db.collection("users").document(currentUserId)
+                currentUserDocRef.get().addOnSuccessListener { currentUserDoc ->
+                    if (currentUserDoc.exists()) {
+                        val senderProfileImageUrl = currentUserDoc.getString("profileImageUrl") ?: ""
+                        val senderUsername = currentUserDoc.getString("username") ?: "Unknown User"
+
+                        // Send notification to all group members (excluding sender)
+                        sendNotificationToGroupMembers(
+                            groupId,
+                            notificationMessage,
+                            NotificationType.GROUP_MESSAGES,
+                            expirationTime,
+                            currentUserId,
+                            senderProfileImageUrl,
+                            senderUsername
+                        )
+                    }
+                }.addOnFailureListener {
+                    Log.e("GroupUpdateNotification", "Failed to retrieve current user data for notification.")
+                }
+            } else {
+                Log.e("GroupUpdateNotification", "Group document not found.")
             }
         }.addOnFailureListener {
-            Log.e("GroupUpdateNotification", "Failed to retrieve current user data for notification.")
+            Log.e("GroupUpdateNotification", "Failed to retrieve group details: ${it.message}")
         }
     }
 
