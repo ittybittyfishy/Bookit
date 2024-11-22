@@ -45,6 +45,7 @@ import java.util.Locale
 
 class RecommendationBookDetailsFragment : Fragment() {
 
+    // Declare UI elements for book details
     private lateinit var bookImage: ImageView
     private lateinit var bookTitle: TextView
     private lateinit var bookAuthor: TextView
@@ -52,6 +53,7 @@ class RecommendationBookDetailsFragment : Fragment() {
     private lateinit var readMoreButton: Button
     private lateinit var bookRatingBar: RatingBar
     private lateinit var ratingNumber: TextView
+    // Predefined collections for user organization of books
     private val standardCollections = listOf("Select Collection", "Reading", "Finished", "Want to Read", "Dropped", "Remove")
 
     override fun onCreateView(
@@ -65,7 +67,7 @@ class RecommendationBookDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize views
+        // Bind views to corresponding layout element
         bookImage = view.findViewById(R.id.bookImage)
         bookTitle = view.findViewById(R.id.bookTitle)
         bookAuthor = view.findViewById(R.id.bookAuthor)
@@ -76,7 +78,7 @@ class RecommendationBookDetailsFragment : Fragment() {
 
         val wantToReadButton: Button = view.findViewById(R.id.wantToRead)
 
-        // Retrieve data from the bundle
+        // Retrieve book details passed to the fragment through a bundl
         val bundle = arguments
         val imageUrl = bundle?.getString("bookImage")
         val title = bundle?.getString("bookTitle")
@@ -87,7 +89,7 @@ class RecommendationBookDetailsFragment : Fragment() {
         val bookAuthorsList = bundle?.getStringArrayList("bookAuthorsList")
         val bookIsbn = bundle?.getString("bookIsbn")
 
-        // Populate views
+        // Populate UI elements with book data
         Glide.with(requireContext()).load(imageUrl).placeholder(R.drawable.placeholder_image).into(bookImage)
         bookTitle.text = title ?: "Unknown Title"
         bookAuthor.text = author ?: "Unknown Author"
@@ -101,7 +103,7 @@ class RecommendationBookDetailsFragment : Fragment() {
             readMoreButton.text = if (bookDescription.maxLines == 6) "Read More" else "Show Less"
         }
 
-        // Button to add the book to "Want to Read" collection
+        // Handle "Want to Read" button click to save the book in the user's collection
         wantToReadButton.setOnClickListener {
             // Call the saveBookToCollection method to save the book to "Want to Read"
             saveBookToCollection(
@@ -119,6 +121,7 @@ class RecommendationBookDetailsFragment : Fragment() {
         }
     }
 
+    // Saves a book to a specified collection for the user
     private fun saveBookToCollection(
         context: Context,
         title: String,
@@ -131,6 +134,7 @@ class RecommendationBookDetailsFragment : Fragment() {
         isbn: String?,
         bookAuthorsList: List<String>?
     ) {
+        // Get the current user's ID
         val userId = FirebaseAuth.getInstance().currentUser?.uid // Get current user ID
         if (userId != null) {
             val db = FirebaseFirestore.getInstance() // Reference to Firestore
@@ -149,6 +153,7 @@ class RecommendationBookDetailsFragment : Fragment() {
 
             val userDocRef = db.collection("users").document(userId)
 
+            // Firestore transaction to move the book between collections
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(userDocRef)
 

@@ -79,7 +79,7 @@ class BookRecommendationBookDetailsAdapter(
                 putFloat("bookRating", book.volumeInfo.averageRating ?: 0f)
             }
             ConfirmRecommendationBookDetailsFragment.arguments = bundle
-            (holder.itemView.context as MainActivity).replaceFragment(ConfirmRecommendationBookDetailsFragment, "Add Recommendation", showBackButton = true)
+            (holder.itemView.context as MainActivity).replaceFragment(ConfirmRecommendationBookDetailsFragment, "Add Recommendation", showBackButton = false)
         }
     }
 
