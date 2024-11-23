@@ -29,6 +29,7 @@ class AddRecommendationBookDetailsFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Retrieve ISBN argument passed to this fragment
         val isbn = arguments?.getString("isbn")
         Log.d("AddRecommendationFragment", "isbn: $isbn")
 
@@ -39,9 +40,10 @@ class AddRecommendationBookDetailsFragment: Fragment() {
         searchBookButton.setOnClickListener {
             val SearchBookRecommendationBookDetailsFragment = SearchBookRecommendationBookDetailsFragment()
             val bundle = Bundle()
-            bundle.putString("isbn", isbn)
+            bundle.putString("isbn", isbn) // Passing the ISBN to the next fragment.
             SearchBookRecommendationBookDetailsFragment.arguments = bundle
-            (activity as MainActivity).replaceFragment(SearchBookRecommendationBookDetailsFragment, "Search", showBackButton = true)
+            // Replacing the current fragment with the search fragment allowing the next page to use a back button
+            (activity as MainActivity).replaceFragment(SearchBookRecommendationBookDetailsFragment, "Recommendation Search", showBackButton = true)
         }
     }
 }

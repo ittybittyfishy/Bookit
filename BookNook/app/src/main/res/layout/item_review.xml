@@ -86,6 +86,30 @@
                 android:progressTint="@color/star_green" />
         </LinearLayout>
 
+        <!-- Spoiler warning TextView, hidden by default -->
+        <TextView
+            android:id="@+id/SpoilerWarning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚠️ Contains Spoilers"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="12sp"
+            android:visibility="gone"
+            android:paddingTop="4dp"
+            tools:ignore="HardcodedText" />
+
+        <!-- Sensitive topics warning TextView, hidden by default -->
+        <TextView
+            android:id="@+id/SensitiveTopicsWarning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚠️ Contains Sensitive Topics"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="12sp"
+            android:visibility="gone"
+            android:paddingTop="2dp"
+            tools:ignore="HardcodedText" />
+
         <!-- Heading for Review, initially hidden -->
         <TextView
             android:layout_width="wrap_content"
@@ -197,29 +221,6 @@
             android:paddingTop="8dp"
             android:paddingRight="5dp" />
 
-        <!-- Spoiler warning TextView, hidden by default -->
-        <TextView
-            android:id="@+id/SpoilerWarning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="⚠️ Contains Spoilers"
-            android:textColor="@android:color/holo_red_dark"
-            android:textSize="12sp"
-            android:visibility="gone"
-            android:paddingTop="4dp"
-            tools:ignore="HardcodedText" />
-
-        <!-- Sensitive topics warning TextView, hidden by default -->
-        <TextView
-            android:id="@+id/SensitiveTopicsWarning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="⚠️ Contains Sensitive Topics"
-            android:textColor="@android:color/holo_red_dark"
-            android:textSize="12sp"
-            android:visibility="gone"
-            android:paddingTop="2dp"
-            tools:ignore="HardcodedText" />
 
         <!-- Comments Section -->
         <LinearLayout

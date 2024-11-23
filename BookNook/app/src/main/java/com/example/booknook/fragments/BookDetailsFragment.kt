@@ -105,11 +105,19 @@ class BookDetailsFragment : Fragment() {
         // Olivia Fishbough
         // Set up RecommendationsAdapter
         recHolder.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        // handles clicks on books in recommendations list
         recommendationsAdapter = RecommendationAdapterBookDetails(
             recommendationsList,
             isbn ?: "",
             userId ?: ""
-        )
+        ) { recommendation ->
+            val recommendationId = recommendation["id"] as? String
+            if (recommendationId != null) {
+                fetchRecommendationDetailsAndNavigate(recommendationId, isbn ?: "")
+            } else {
+                Toast.makeText(requireContext(), "Invalid recommendation!", Toast.LENGTH_SHORT).show()
+            }
+        }
         recHolder.adapter = recommendationsAdapter
 
         // Olivia Fishbough
@@ -437,6 +445,57 @@ class BookDetailsFragment : Fragment() {
     }
 
     // Olivia Fishbough
+    // Fetch recomendation details
+    private fun fetchRecommendationDetailsAndNavigate(recommendationId: String, bookId: String) {
+        val db = FirebaseFirestore.getInstance()
+        val recommendationRef = db.collection("books").document(bookId).collection("recommendations").document(recommendationId)
+
+        recommendationRef.get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // Retrieve all fields from the recommendation document
+                    val recommendationData = document.data
+
+                    if (recommendationData != null) {
+                        // Bundle up the recommendation data
+                        val bundle = Bundle().apply {
+                            putString("bookIsbn", recommendationData["recIsbn"] as? String)
+                            putString("bookImage", recommendationData["image"] as? String)
+                            putString("bookTitle", recommendationData["title"] as? String)
+                            putString("bookAuthor", recommendationData["authors"] as? String)
+                            putStringArrayList(
+                                "bookAuthorsList",
+                                (recommendationData["authorsList"] as? List<String>)?.let { ArrayList(it) }
+                            )
+                            putString("bookDescription", recommendationData["description"] as? String)
+                            putStringArrayList(
+                                "bookGenres",
+                                (recommendationData["genres"] as? List<String>)?.let { ArrayList(it) }
+                            )
+                            putInt("numUpvotes", (recommendationData["numUpvotes"] as? Long)?.toInt() ?: 0)
+                            putFloat("bookRating", (recommendationData["bookRating"] as? Float) ?: 0f)
+                        }
+
+                        // Create a new fragment instance and pass the bundle
+                        val bookDetailsFragment = RecommendationBookDetailsFragment().apply {
+                            arguments = bundle
+                        }
+
+                        // Navigate to the new fragment
+                        (activity as MainActivity).replaceFragment(bookDetailsFragment, "Book Details", showBackButton = true)
+                    } else {
+                        Toast.makeText(requireContext(), "Recommendation details are missing!", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Recommendation not found!", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("BookDetailsFragment", "Error fetching recommendation details: ${exception.message}")
+                Toast.makeText(requireContext(), "Error retrieving recommendation details.", Toast.LENGTH_SHORT).show()
+            }
+    }
+    // Olivia Fishbough
     // Function to Load recommendations
     private fun fetchRecommendations(bookId: String) {
         val db = FirebaseFirestore.getInstance()
@@ -448,7 +507,8 @@ class BookDetailsFragment : Fragment() {
             .addOnSuccessListener { documents ->
                 recommendationsList.clear() // Clear old data before adding new
                 for (document in documents) {
-                    val recommendationData = document.data
+                    val recommendationData = document.data.toMutableMap() // Convert to mutable map
+                    recommendationData["id"] = document.id // Add the Firestore document ID as "id"
                     recommendationsList.add(recommendationData)
                 }
                 recommendationsAdapter.notifyDataSetChanged() // Notify adapter of data change

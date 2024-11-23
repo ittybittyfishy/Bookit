@@ -31,15 +31,23 @@ class ConfirmRecommendationBookDetailsFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_confirm_recommendation, container, false)
 
+        // Get arguments passed through a bundle
         val isbn = arguments?.getString("isbn")
+        val recIsbn = arguments?.getString("recIsbn")
         val bookImage = arguments?.getString("bookImage")
         val bookTitle = arguments?.getString("bookTitle")
         val bookAuthor = arguments?.getString("bookAuthor")
+        val bookAuthorList= arguments?.getStringArrayList("bookAuthorsList")
+        val bookdesc = arguments?.getString("bookDescription")
+        val bookGenres = arguments?.getStringArrayList("bookGenres")
+        val bookAvgRating = arguments?.getFloat("bookRating")
 
+        // initialize XML elements
         val imageView: ImageView = view.findViewById(R.id.bookImage)
         val titleTextView: TextView = view.findViewById(R.id.bookTitleText)
         val authorsTextView: TextView = view.findViewById(R.id.bookAuthorsText)
 
+        // initialize buttons
         changeBookButton = view.findViewById(R.id.changeBookButton)
         confirmBookButton = view.findViewById(R.id.confirmBookButton)
 
@@ -58,8 +66,12 @@ class ConfirmRecommendationBookDetailsFragment : Fragment() {
         // Handles click of "Change Book" button
         changeBookButton.setOnClickListener {
             // Takes user back to search page
-//            val searchBookRecommendationFragment = SearchBookRecommendationFragment()
-//            (activity as MainActivity).replaceFragment(searchBookRecommendationFragment, "Search")
+            val SearchBookRecommendationBookDetailsFragment = SearchBookRecommendationBookDetailsFragment()
+            val bundle = Bundle()
+            bundle.putString("isbn", isbn) // Passing the ISBN to the next fragment.
+            SearchBookRecommendationBookDetailsFragment.arguments = bundle
+            // Replacing the current fragment with the search fragment allowing the next page to use a back button
+            (activity as MainActivity).replaceFragment(SearchBookRecommendationBookDetailsFragment, "Recommendation Search", showBackButton = false)
         }
 
         // Handles click of "Confirm Book" button
@@ -87,9 +99,14 @@ class ConfirmRecommendationBookDetailsFragment : Fragment() {
                                 if (documents.isEmpty) {
                                     // Recommendation does not exist; add new recommendation
                                     val newRecommendation = hashMapOf(
+                                        "recIsbn" to recIsbn,
                                         "image" to bookImage,
                                         "title" to bookTitle,
                                         "authors" to bookAuthor,
+                                        "authorsList" to bookAuthorList,
+                                        "description" to bookdesc,
+                                        "genres" to bookGenres,
+                                        "bookRating" to bookAvgRating,
                                         "numUpvotes" to 1 // Initialize upvotes to 1
                                     )
                                     recommendationsRef.add(newRecommendation)
