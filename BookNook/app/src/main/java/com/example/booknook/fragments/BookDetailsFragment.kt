@@ -640,7 +640,8 @@ class BookDetailsFragment : Fragment() {
 
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(userDocRef)
-
+                val username = snapshot.getString("username") ?: "Unknown User"  // Gets username
+                val profileImageUrl = snapshot.getString("profileImageUrl")
 
                 // Remove the book from old collections if it exists
                 for (collection in standardCollections) {
@@ -650,8 +651,6 @@ class BookDetailsFragment : Fragment() {
                             for (existingBook in it) {
                                 if (existingBook["title"] == title && existingBook["authors"] == authors.split(", ")) {
                                     transaction.update(userDocRef, "standardCollections.$collection", FieldValue.arrayRemove(existingBook))
-
-
                                     // Decrement numBooksRead if the book was in the "Finished" collection
                                     if (collection == "Finished") {
                                         transaction.update(userDocRef, "numBooksRead", FieldValue.increment(-1))
@@ -668,13 +667,59 @@ class BookDetailsFragment : Fragment() {
 
                 // Add the book to the new collection
                 transaction.update(userDocRef, "standardCollections.$newCollectionName", FieldValue.arrayUnion(book))
-
+                val groupIds = snapshot.get("joinedGroups") as? List<String> ?: emptyList()
                 // Yunjong Noh
                 // Increment numBooksRead if the new collection is "Finished", adds corresponding Notification
                 if (newCollectionName == "Finished") {
                     transaction.update(userDocRef, "numBooksRead", FieldValue.increment(1))
+                    // Veronica Nguyen
+                    // Loops through each group the user is a member of
+                    groupIds.forEach { groupId ->
+                        val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates")
+
+                        // Generate a document ID
+                        val updateId = groupUpdatesRef.document().id
+
+                        // Data to store for group updates in the group they're in
+                        val updateData = hashMapOf(
+                            "updateId" to updateId, // Include the ID in the data
+                            "userId" to userId,
+                            "username" to username,
+                            "profileImageUrl" to profileImageUrl,
+                            "type" to "finishBook",
+                            "timestamp" to FieldValue.serverTimestamp(),
+                            "bookTitle" to title
+                        )
+
+                        // Write the data with the predefined document ID
+                        val specificDocRef = groupUpdatesRef.document(updateId)
+                        transaction.set(specificDocRef, updateData)
+                    }
                     sendBookNotification(userId, title, NotificationType.FRIEND_FINISHED_BOOK)
                 } else if (newCollectionName == "Reading") {
+                    // Veronica Nguyen
+                    // Loops through each group the user is a member of
+                    groupIds.forEach { groupId ->
+                        val groupUpdatesRef = db.collection("groups").document(groupId).collection("memberUpdates")
+
+                        // Generate a document ID
+                        val updateId = groupUpdatesRef.document().id
+
+                        // Data to store for group updates in the group they're in
+                        val updateData = hashMapOf(
+                            "updateId" to updateId, // Include the ID in the data
+                            "userId" to userId,
+                            "username" to username,
+                            "profileImageUrl" to profileImageUrl,
+                            "type" to "startBook",
+                            "timestamp" to FieldValue.serverTimestamp(),
+                            "bookTitle" to title
+                        )
+
+                        // Write the data with the predefined document ID
+                        val specificDocRef = groupUpdatesRef.document(updateId)
+                        transaction.set(specificDocRef, updateData)
+                    }
                     sendBookNotification(userId, title, NotificationType.FRIEND_STARTED_BOOK)
                 }
                 null
