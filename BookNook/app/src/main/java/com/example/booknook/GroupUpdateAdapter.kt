@@ -246,15 +246,34 @@ class GroupUpdateAdapter(
             dismissButton.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) { // Ensure the position is valid
-                    // Remove the update from the list for this user
-                    (memberUpdates as MutableList).removeAt(position)
+                    val updateId = memberUpdates[position].updateId
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid
 
-                    // Notify the adapter about the item removal
-                    notifyItemRemoved(position)
+                    if (!userId.isNullOrEmpty()) {
+                        // Update the dismissedBy field in Firestore
+                        val db = FirebaseFirestore.getInstance()
+                        val updateRef = db.collection("groups")
+                            .document(groupId)
+                            .collection("memberUpdates")
+                            .document(updateId)
 
-                    Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
+                        updateRef.update("dismissedBy", FieldValue.arrayUnion(userId))
+                            .addOnSuccessListener {
+                                // Remove the update from the local list
+                                (memberUpdates as MutableList).removeAt(position)
+
+                                // Notify the adapter about the item removal
+                                notifyItemRemoved(position)
+
+                                Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(itemView.context, "Failed to dismiss update: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
                 }
             }
+
             messageTextView.text = "${update.username} started a book: ${update.bookTitle}"
 
         }
@@ -407,13 +426,31 @@ class GroupUpdateAdapter(
             dismissButton.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) { // Ensure the position is valid
-                    // Remove the update from the list for this user
-                    (memberUpdates as MutableList).removeAt(position)
+                    val updateId = memberUpdates[position].updateId
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid
 
-                    // Notify the adapter about the item removal
-                    notifyItemRemoved(position)
+                    if (!userId.isNullOrEmpty()) {
+                        // Update the dismissedBy field in Firestore
+                        val db = FirebaseFirestore.getInstance()
+                        val updateRef = db.collection("groups")
+                            .document(groupId)
+                            .collection("memberUpdates")
+                            .document(updateId)
 
-                    Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
+                        updateRef.update("dismissedBy", FieldValue.arrayUnion(userId))
+                            .addOnSuccessListener {
+                                // Remove the update from the local list
+                                (memberUpdates as MutableList).removeAt(position)
+
+                                // Notify the adapter about the item removal
+                                notifyItemRemoved(position)
+
+                                Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(itemView.context, "Failed to dismiss update: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
                 }
             }
             messageTextView.text = "${update.username} finished a book: ${update.bookTitle}"
@@ -573,15 +610,34 @@ class GroupUpdateAdapter(
             dismissButton.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) { // Ensure the position is valid
-                    // Remove the update from the list for this user
-                    (memberUpdates as MutableList).removeAt(position)
+                    val updateId = memberUpdates[position].updateId
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid
 
-                    // Notify the adapter about the item removal
-                    notifyItemRemoved(position)
+                    if (!userId.isNullOrEmpty()) {
+                        // Update the dismissedBy field in Firestore
+                        val db = FirebaseFirestore.getInstance()
+                        val updateRef = db.collection("groups")
+                            .document(groupId)
+                            .collection("memberUpdates")
+                            .document(updateId)
 
-                    Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
+                        updateRef.update("dismissedBy", FieldValue.arrayUnion(userId))
+                            .addOnSuccessListener {
+                                // Remove the update from the local list
+                                (memberUpdates as MutableList).removeAt(position)
+
+                                // Notify the adapter about the item removal
+                                notifyItemRemoved(position)
+
+                                Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(itemView.context, "Failed to dismiss update: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
                 }
             }
+
 
             messageTextView.text = "${update.username} recommended book: ${update.bookTitle}"
             titleTextView.text = update.bookTitle
@@ -750,15 +806,34 @@ class GroupUpdateAdapter(
             dismissButton.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) { // Ensure the position is valid
-                    // Remove the update from the list for this user
-                    (memberUpdates as MutableList).removeAt(position)
+                    val updateId = memberUpdates[position].updateId
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid
 
-                    // Notify the adapter about the item removal
-                    notifyItemRemoved(position)
+                    if (!userId.isNullOrEmpty()) {
+                        // Update the dismissedBy field in Firestore
+                        val db = FirebaseFirestore.getInstance()
+                        val updateRef = db.collection("groups")
+                            .document(groupId)
+                            .collection("memberUpdates")
+                            .document(updateId)
 
-                    Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
+                        updateRef.update("dismissedBy", FieldValue.arrayUnion(userId))
+                            .addOnSuccessListener {
+                                // Remove the update from the local list
+                                (memberUpdates as MutableList).removeAt(position)
+
+                                // Notify the adapter about the item removal
+                                notifyItemRemoved(position)
+
+                                Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(itemView.context, "Failed to dismiss update: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
                 }
             }
+
 
             reviewTextView.text = "${update.username} left a review for: ${update.bookTitle}"
             ratingBar.rating = update.rating!!
@@ -969,15 +1044,34 @@ class GroupUpdateAdapter(
             dismissButton.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) { // Ensure the position is valid
-                    // Remove the update from the list for this user
-                    (memberUpdates as MutableList).removeAt(position)
+                    val updateId = memberUpdates[position].updateId
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid
 
-                    // Notify the adapter about the item removal
-                    notifyItemRemoved(position)
+                    if (!userId.isNullOrEmpty()) {
+                        // Update the dismissedBy field in Firestore
+                        val db = FirebaseFirestore.getInstance()
+                        val updateRef = db.collection("groups")
+                            .document(groupId)
+                            .collection("memberUpdates")
+                            .document(updateId)
 
-                    Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
+                        updateRef.update("dismissedBy", FieldValue.arrayUnion(userId))
+                            .addOnSuccessListener {
+                                // Remove the update from the local list
+                                (memberUpdates as MutableList).removeAt(position)
+
+                                // Notify the adapter about the item removal
+                                notifyItemRemoved(position)
+
+                                Toast.makeText(itemView.context, "Update dismissed", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(itemView.context, "Failed to dismiss update: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
                 }
             }
+
 
             // Configure main review text
             reviewTextView.text = "${update.username} left a review for: ${update.bookTitle}"
