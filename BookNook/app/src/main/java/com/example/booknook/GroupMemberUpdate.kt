@@ -7,6 +7,7 @@ data class GroupMemberUpdate(
     val username: String = "",
     val profileImageUrl: String = "",
     val type: String = "",
+    val dismissedBy: List<String> = emptyList(),
     val bookTitle: String? = null,
     val bookAuthors: String? = null,
     val bookRating: Float? = null,
