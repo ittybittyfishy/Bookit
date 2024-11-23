@@ -668,8 +668,6 @@ class BookDetailsFragment : Fragment() {
                 // Add the book to the new collection
                 transaction.update(userDocRef, "standardCollections.$newCollectionName", FieldValue.arrayUnion(book))
                 val groupIds = snapshot.get("joinedGroups") as? List<String> ?: emptyList()
-                // Yunjong Noh
-                // Increment numBooksRead if the new collection is "Finished", adds corresponding Notification
                 if (newCollectionName == "Finished") {
                     transaction.update(userDocRef, "numBooksRead", FieldValue.increment(1))
                     // Veronica Nguyen
@@ -695,6 +693,8 @@ class BookDetailsFragment : Fragment() {
                         val specificDocRef = groupUpdatesRef.document(updateId)
                         transaction.set(specificDocRef, updateData)
                     }
+                    // Yunjong Noh
+                    // Increment numBooksRead if the new collection is "Finished", adds corresponding Notification
                     sendBookNotification(userId, title, NotificationType.FRIEND_FINISHED_BOOK)
                 } else if (newCollectionName == "Reading") {
                     // Veronica Nguyen
@@ -720,6 +720,8 @@ class BookDetailsFragment : Fragment() {
                         val specificDocRef = groupUpdatesRef.document(updateId)
                         transaction.set(specificDocRef, updateData)
                     }
+                    // Yunjong Noh
+                    // Increment numBooksRead if the new collection is "STARTED", adds corresponding Notification
                     sendBookNotification(userId, title, NotificationType.FRIEND_STARTED_BOOK)
                 }
                 null
@@ -781,7 +783,7 @@ class BookDetailsFragment : Fragment() {
                                 .addOnSuccessListener { documentReference ->
                                     val notificationId = documentReference.id
                                     db.collection("notifications").document(notificationId)
-                                        .update("notificationId", notificationId)
+                                        .update("notificationId", notificationId) // Updates notification
                                         .addOnSuccessListener {
                                             Log.d("BookDetailsFragment", "Notification sent successfully with ID: $notificationId")
                                         }

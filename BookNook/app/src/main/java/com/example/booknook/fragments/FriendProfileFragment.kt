@@ -157,10 +157,10 @@ class FriendProfileFragment : Fragment() {
     // Function to send a friend request
     private fun sendFriendRequest(receiverId: String) {
         val db = FirebaseFirestore.getInstance()
-        val currentUser = FirebaseAuth.getInstance().currentUser
+        val currentUser = FirebaseAuth.getInstance().currentUser // Yunjong Noh
 
         if (currentUser != null) {
-            val senderId = currentUser.uid
+            val senderId = currentUser.uid // Yunjong Noh
             val senderRef = db.collection("users").document(senderId)
 
             // Fetch sender's username

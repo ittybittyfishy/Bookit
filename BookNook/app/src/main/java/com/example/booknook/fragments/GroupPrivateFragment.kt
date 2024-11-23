@@ -109,7 +109,7 @@ class GroupPrivateFragment : DialogFragment() {
                                 Toast.makeText(requireContext(), "Failed to send join request: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
                         }
-
+                    // Yunjong Noh
                     // Notify the owner of the group request
                     sendGroupJoinNotification(groupCreatorId, senderId, senderUsername)
                 } else {
