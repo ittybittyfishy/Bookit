@@ -496,7 +496,7 @@ class SearchBookRecommendationFragment : Fragment(), BookRecommendationAdapter.R
         bundle.putStringArrayList("bookGenres", ArrayList(bookItem.volumeInfo.categories ?: listOf("Unknown Genre")))
 
         bookDetailsRecommendationFragment.arguments = bundle  // sets bookDetailsFragment's arguments to the data in bundle
-        (activity as MainActivity).replaceFragment(bookDetailsRecommendationFragment, "Book Details")  // Opens a new fragment
+        (activity as MainActivity).replaceFragment(bookDetailsRecommendationFragment, "Book Details", showBackButton = true)  // Opens a new fragment
     }
 
 }
