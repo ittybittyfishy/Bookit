@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.fragments.NotificationItem
@@ -70,36 +71,65 @@ class GroupCommentsAdapter(
                 .document(comment.commentId)
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-            // Track user's like/dislike status
-            var userAction: String? = null // Can be "like", "dislike", or null
+            // Fetch group membership
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val groupDocRef = db.collection("groups").document(groupId)
 
-            // Check user's like/dislike status
-            commentRef.collection("likes").document(userId).get()
-                .addOnSuccessListener { doc ->
-                    userAction = doc.getString("type")
-                    updateLikeDislikeUI(userAction)
+            groupDocRef.get().addOnSuccessListener { documentSnapshot ->
+                val members = documentSnapshot.get("members") as? List<String> ?: emptyList()
+
+                val isMember = currentUser?.uid in members
+
+                // Hide reply input and button if user is not a member
+                if (!isMember) {
+                    replyInput.visibility = View.GONE
+                    postReplyButton.visibility = View.GONE
+                } else {
+                    replyInput.visibility = View.VISIBLE
+                    postReplyButton.visibility = View.VISIBLE
                 }
 
-            likeButton.setOnClickListener {
-                handleLikeDislike(
-                    commentRef, userId, "like",
-                    currentAction = userAction,
-                    onComplete = { updatedAction ->
-                        userAction = updatedAction
-                        updateLikeDislikeUI(userAction)
-                    }
-                )
-            }
+                // Track user's like/dislike status
+                var userAction: String? = null // Can be "like", "dislike", or null
 
-            dislikeButton.setOnClickListener {
-                handleLikeDislike(
-                    commentRef, userId, "dislike",
-                    currentAction = userAction,
-                    onComplete = { updatedAction ->
-                        userAction = updatedAction
-                        updateLikeDislikeUI(userAction)
+                if (isMember) {
+                    // Check user's like/dislike status
+                    commentRef.collection("likes").document(userId).get()
+                        .addOnSuccessListener { doc ->
+                            userAction = doc.getString("type")
+                            updateLikeDislikeUI(userAction)
+                        }
+
+                    likeButton.setOnClickListener {
+                        handleLikeDislike(
+                            commentRef, userId, "like",
+                            currentAction = userAction,
+                            onComplete = { updatedAction ->
+                                userAction = updatedAction
+                                updateLikeDislikeUI(userAction)
+                            }
+                        )
                     }
-                )
+
+                    dislikeButton.setOnClickListener {
+                        handleLikeDislike(
+                            commentRef, userId, "dislike",
+                            currentAction = userAction,
+                            onComplete = { updatedAction ->
+                                userAction = updatedAction
+                                updateLikeDislikeUI(userAction)
+                            }
+                        )
+                    }
+                } else {
+                    // Show toast if non-member clicks like/dislike
+                    likeButton.setOnClickListener {
+                        Toast.makeText(itemView.context, "Join the group to like or dislike a comment", Toast.LENGTH_SHORT).show()
+                    }
+                    dislikeButton.setOnClickListener {
+                        Toast.makeText(itemView.context, "Join the group to like or dislike a comment", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
 
             // Initialize RepliesAdapter to manage replies to this comment

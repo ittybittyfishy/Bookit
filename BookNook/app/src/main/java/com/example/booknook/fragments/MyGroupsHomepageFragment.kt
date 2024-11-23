@@ -385,6 +385,7 @@ class MyGroupsHomepageFragment : Fragment() {
                         Log.d("LeaveGroup", "Successfully removed user $userId from group $groupId and updated user data.")
                         // Update button text based on current group status
                         checkJoinedGroupStatus(groupId)
+                        fetchMemberUpdates(groupId) // Reload member updates
                     }
                     .addOnFailureListener { e ->
                         Log.w("LeaveGroup", "Failed to update user data after removing from group: ${e.message}")
@@ -415,6 +416,7 @@ class MyGroupsHomepageFragment : Fragment() {
                 checkJoinedGroupStatus(groupId) // Update button text based on current group status
                 // Notify the user that the user has been added
                 Toast.makeText(requireContext(), "You have joined the group.", Toast.LENGTH_SHORT).show()
+                fetchMemberUpdates(groupId) // Reload member updates
             }
             .addOnFailureListener { e ->
                 Log.w("GroupHomepageFragment", "Error adding user to group: ${e.message}")

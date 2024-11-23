@@ -1,3 +1,4 @@
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -155,6 +156,78 @@ class GroupUpdateAdapter(
             commentsRecyclerView.adapter = groupCommentsAdapter
             commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
 
+            // Fetch group membership
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val db = FirebaseFirestore.getInstance()
+            val groupDocRef = db.collection("groups").document(groupId)
+
+            groupDocRef.get().addOnSuccessListener { documentSnapshot ->
+                val members = documentSnapshot.get("members") as? List<String> ?: emptyList()
+
+                val isMember = currentUser?.uid in members
+                // Set visibility of comment input and post button
+                commentInput.isEnabled = isMember
+                postCommentButton.isEnabled = isMember
+
+                if (!isMember) {
+                    commentInput.visibility = View.GONE
+                    postCommentButton.visibility = View.GONE
+                } else {
+                    commentInput.visibility = View.VISIBLE
+                    postCommentButton.visibility = View.VISIBLE
+                }
+
+                // Set visibility of dismiss button
+                dismissButton.visibility = if (isMember) View.VISIBLE else View.INVISIBLE
+
+                postCommentButton.setOnClickListener {
+                    if (isMember) {
+                        val commentText = commentInput.text.toString().trim()
+                        if (commentText.isNotEmpty()) {
+                            val userDocRef = db.collection("users").document(
+                                currentUser?.uid ?: ""
+                            ) // Retrieve the current user's document
+
+                            userDocRef.get().addOnSuccessListener { documentSnapshot ->
+                                val currentUsername =
+                                    documentSnapshot.getString("username") // Assuming username field is stored in Firestore
+
+                                if (currentUsername != null) {
+                                    val newComment = GroupComment(
+                                        commentText = commentText,
+                                        username = currentUsername, // Use the current user's username
+                                        userId = currentUser?.uid ?: "", // Use current user's UID
+                                        timestamp = Date(),
+                                        commentId = ""
+                                    )
+
+                                    saveCommentToDatabase(groupId, update.updateId, newComment) { success, commentId ->
+                                        if (success) {
+                                            // Once the comment is successfully saved, assign the commentId
+                                            newComment.commentId = commentId
+                                            commentsList.add(newComment)
+                                            // Add the new comment to the adapter and update RecyclerView
+                                            groupCommentsAdapter.addComment(newComment)
+                                            commentsRecyclerView.smoothScrollToPosition(commentsList.size - 1)
+                                        }
+                                    }
+                                    commentInput.text.clear()
+                                } else {
+                                    Toast.makeText(itemView.context, "Failed to get current username", Toast.LENGTH_SHORT).show()
+                                }
+                            }.addOnFailureListener { e ->
+                                Toast.makeText(itemView.context, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(itemView.context, "You must join first before writing a comment", Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+            }
+
             fetchComments(update.updateId, groupId) { comments ->
                 commentsList.clear()
                 commentsList.addAll(comments)
@@ -168,48 +241,6 @@ class GroupUpdateAdapter(
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
                     .into(profileImage) // Set the image into the CircleImageView
-            }
-
-            postCommentButton.setOnClickListener {
-                val commentText = commentInput.text.toString().trim()
-                if (commentText.isNotEmpty()) {
-                    // Get current user's username from FirebaseAuth or Firestore
-                    val currentUser = FirebaseAuth.getInstance().currentUser
-                    val db = FirebaseFirestore.getInstance()
-                    val userDocRef = db.collection("users").document(currentUser?.uid ?: "") // Retrieve the current user's document
-
-                    userDocRef.get().addOnSuccessListener { documentSnapshot ->
-                        val currentUsername = documentSnapshot.getString("username") // Assuming username field is stored in Firestore
-
-                        if (currentUsername != null) {
-                            val newComment = GroupComment(
-                                commentText = commentText,
-                                username = currentUsername, // Use the current user's username
-                                userId = currentUser?.uid ?: "", // Use current user's UID
-                                timestamp = Date(),
-                                commentId = ""
-                            )
-
-                            saveCommentToDatabase(groupId, update.updateId, newComment) { success, commentId ->
-                                if (success) {
-                                    // Once the comment is successfully saved, assign the commentId
-                                    newComment.commentId = commentId
-                                    commentsList.add(newComment)
-                                    // Add the new comment to the adapter and update RecyclerView
-                                    groupCommentsAdapter.addComment(newComment)
-                                    commentsRecyclerView.smoothScrollToPosition(commentsList.size - 1)
-                                }
-                            }
-                            commentInput.text.clear()
-                        } else {
-                            Toast.makeText(itemView.context, "Failed to get current username", Toast.LENGTH_SHORT).show()
-                        }
-                    }.addOnFailureListener { e ->
-                        Toast.makeText(itemView.context, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
-                }
             }
 
             dismissButton.setOnClickListener {
@@ -227,7 +258,6 @@ class GroupUpdateAdapter(
             messageTextView.text = "${update.username} started a book: ${update.bookTitle}"
 
         }
-
         // Utility function for saving comments to the database
         private fun saveCommentToDatabase(
             groupId: String,
@@ -287,6 +317,78 @@ class GroupUpdateAdapter(
             commentsRecyclerView.adapter = groupCommentsAdapter
             commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
 
+            // Fetch group membership
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val db = FirebaseFirestore.getInstance()
+            val groupDocRef = db.collection("groups").document(groupId)
+
+            groupDocRef.get().addOnSuccessListener { documentSnapshot ->
+                val members = documentSnapshot.get("members") as? List<String> ?: emptyList()
+
+                val isMember = currentUser?.uid in members
+                // Set visibility of comment input and post button
+                commentInput.isEnabled = isMember
+                postCommentButton.isEnabled = isMember
+
+                if (!isMember) {
+                    commentInput.visibility = View.GONE
+                    postCommentButton.visibility = View.GONE
+                } else {
+                    commentInput.visibility = View.VISIBLE
+                    postCommentButton.visibility = View.VISIBLE
+                }
+
+                // Set visibility of dismiss button
+                dismissButton.visibility = if (isMember) View.VISIBLE else View.INVISIBLE
+
+                postCommentButton.setOnClickListener {
+                    if (isMember) {
+                        val commentText = commentInput.text.toString().trim()
+                        if (commentText.isNotEmpty()) {
+                            val userDocRef = db.collection("users").document(
+                                currentUser?.uid ?: ""
+                            ) // Retrieve the current user's document
+
+                            userDocRef.get().addOnSuccessListener { documentSnapshot ->
+                                val currentUsername =
+                                    documentSnapshot.getString("username") // Assuming username field is stored in Firestore
+
+                                if (currentUsername != null) {
+                                    val newComment = GroupComment(
+                                        commentText = commentText,
+                                        username = currentUsername, // Use the current user's username
+                                        userId = currentUser?.uid ?: "", // Use current user's UID
+                                        timestamp = Date(),
+                                        commentId = ""
+                                    )
+
+                                    saveCommentToDatabase(groupId, update.updateId, newComment) { success, commentId ->
+                                        if (success) {
+                                            // Once the comment is successfully saved, assign the commentId
+                                            newComment.commentId = commentId
+                                            commentsList.add(newComment)
+                                            // Add the new comment to the adapter and update RecyclerView
+                                            groupCommentsAdapter.addComment(newComment)
+                                            commentsRecyclerView.smoothScrollToPosition(commentsList.size - 1)
+                                        }
+                                    }
+                                    commentInput.text.clear()
+                                } else {
+                                    Toast.makeText(itemView.context, "Failed to get current username", Toast.LENGTH_SHORT).show()
+                                }
+                            }.addOnFailureListener { e ->
+                                Toast.makeText(itemView.context, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(itemView.context, "You must join first before writing a comment", Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+            }
+
             fetchComments(update.updateId, groupId) { comments ->
                 commentsList.clear()
                 commentsList.addAll(comments)
@@ -300,48 +402,6 @@ class GroupUpdateAdapter(
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
                     .into(profileImage) // Set the image into the CircleImageView
-            }
-
-            postCommentButton.setOnClickListener {
-                val commentText = commentInput.text.toString().trim()
-                if (commentText.isNotEmpty()) {
-                    // Get current user's username from FirebaseAuth or Firestore
-                    val currentUser = FirebaseAuth.getInstance().currentUser
-                    val db = FirebaseFirestore.getInstance()
-                    val userDocRef = db.collection("users").document(currentUser?.uid ?: "") // Retrieve the current user's document
-
-                    userDocRef.get().addOnSuccessListener { documentSnapshot ->
-                        val currentUsername = documentSnapshot.getString("username") // Assuming username field is stored in Firestore
-
-                        if (currentUsername != null) {
-                            val newComment = GroupComment(
-                                commentText = commentText,
-                                username = currentUsername, // Use the current user's username
-                                userId = currentUser?.uid ?: "", // Use current user's UID
-                                timestamp = Date(),
-                                commentId = ""
-                            )
-
-                            saveCommentToDatabase(groupId, update.updateId, newComment) { success, commentId ->
-                                if (success) {
-                                    // Once the comment is successfully saved, assign the commentId
-                                    newComment.commentId = commentId
-                                    commentsList.add(newComment)
-                                    // Add the new comment to the adapter and update RecyclerView
-                                    groupCommentsAdapter.addComment(newComment)
-                                    commentsRecyclerView.smoothScrollToPosition(commentsList.size - 1)
-                                }
-                            }
-                            commentInput.text.clear()
-                        } else {
-                            Toast.makeText(itemView.context, "Failed to get current username", Toast.LENGTH_SHORT).show()
-                        }
-                    }.addOnFailureListener { e ->
-                        Toast.makeText(itemView.context, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
-                }
             }
 
             dismissButton.setOnClickListener {
@@ -423,6 +483,78 @@ class GroupUpdateAdapter(
             commentsRecyclerView.adapter = groupCommentsAdapter
             commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
 
+            // Fetch group membership
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val db = FirebaseFirestore.getInstance()
+            val groupDocRef = db.collection("groups").document(groupId)
+
+            groupDocRef.get().addOnSuccessListener { documentSnapshot ->
+                val members = documentSnapshot.get("members") as? List<String> ?: emptyList()
+
+                val isMember = currentUser?.uid in members
+                // Set visibility of comment input and post button
+                commentInput.isEnabled = isMember
+                postCommentButton.isEnabled = isMember
+
+                if (!isMember) {
+                    commentInput.visibility = View.GONE
+                    postCommentButton.visibility = View.GONE
+                } else {
+                    commentInput.visibility = View.VISIBLE
+                    postCommentButton.visibility = View.VISIBLE
+                }
+
+                // Set visibility of dismiss button
+                dismissButton.visibility = if (isMember) View.VISIBLE else View.INVISIBLE
+
+                postCommentButton.setOnClickListener {
+                    if (isMember) {
+                        val commentText = commentInput.text.toString().trim()
+                        if (commentText.isNotEmpty()) {
+                            val userDocRef = db.collection("users").document(
+                                currentUser?.uid ?: ""
+                            ) // Retrieve the current user's document
+
+                            userDocRef.get().addOnSuccessListener { documentSnapshot ->
+                                val currentUsername =
+                                    documentSnapshot.getString("username") // Assuming username field is stored in Firestore
+
+                                if (currentUsername != null) {
+                                    val newComment = GroupComment(
+                                        commentText = commentText,
+                                        username = currentUsername, // Use the current user's username
+                                        userId = currentUser?.uid ?: "", // Use current user's UID
+                                        timestamp = Date(),
+                                        commentId = ""
+                                    )
+
+                                    saveCommentToDatabase(groupId, update.updateId, newComment) { success, commentId ->
+                                        if (success) {
+                                            // Once the comment is successfully saved, assign the commentId
+                                            newComment.commentId = commentId
+                                            commentsList.add(newComment)
+                                            // Add the new comment to the adapter and update RecyclerView
+                                            groupCommentsAdapter.addComment(newComment)
+                                            commentsRecyclerView.smoothScrollToPosition(commentsList.size - 1)
+                                        }
+                                    }
+                                    commentInput.text.clear()
+                                } else {
+                                    Toast.makeText(itemView.context, "Failed to get current username", Toast.LENGTH_SHORT).show()
+                                }
+                            }.addOnFailureListener { e ->
+                                Toast.makeText(itemView.context, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(itemView.context, "You must join first before writing a comment", Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+            }
+
             fetchComments(update.updateId, groupId) { comments ->
                 commentsList.clear()
                 commentsList.addAll(comments)
@@ -436,48 +568,6 @@ class GroupUpdateAdapter(
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
                     .into(profileImage) // Set the image into the CircleImageView
-            }
-
-            postCommentButton.setOnClickListener {
-                val commentText = commentInput.text.toString().trim()
-                if (commentText.isNotEmpty()) {
-                    // Get current user's username from FirebaseAuth or Firestore
-                    val currentUser = FirebaseAuth.getInstance().currentUser
-                    val db = FirebaseFirestore.getInstance()
-                    val userDocRef = db.collection("users").document(currentUser?.uid ?: "") // Retrieve the current user's document
-
-                    userDocRef.get().addOnSuccessListener { documentSnapshot ->
-                        val currentUsername = documentSnapshot.getString("username") // Assuming username field is stored in Firestore
-
-                        if (currentUsername != null) {
-                            val newComment = GroupComment(
-                                commentText = commentText,
-                                username = currentUsername, // Use the current user's username
-                                userId = currentUser?.uid ?: "", // Use current user's UID
-                                timestamp = Date(),
-                                commentId = ""
-                            )
-
-                            saveCommentToDatabase(groupId, update.updateId, newComment) { success, commentId ->
-                                if (success) {
-                                    // Once the comment is successfully saved, assign the commentId
-                                    newComment.commentId = commentId
-                                    commentsList.add(newComment)
-                                    // Add the new comment to the adapter and update RecyclerView
-                                    groupCommentsAdapter.addComment(newComment)
-                                    commentsRecyclerView.smoothScrollToPosition(commentsList.size - 1)
-                                }
-                            }
-                            commentInput.text.clear()
-                        } else {
-                            Toast.makeText(itemView.context, "Failed to get current username", Toast.LENGTH_SHORT).show()
-                        }
-                    }.addOnFailureListener { e ->
-                        Toast.makeText(itemView.context, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
-                }
             }
 
             dismissButton.setOnClickListener {
@@ -570,6 +660,78 @@ class GroupUpdateAdapter(
             commentsRecyclerView.adapter = groupCommentsAdapter
             commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
 
+            // Fetch group membership
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val db = FirebaseFirestore.getInstance()
+            val groupDocRef = db.collection("groups").document(groupId)
+
+            groupDocRef.get().addOnSuccessListener { documentSnapshot ->
+                val members = documentSnapshot.get("members") as? List<String> ?: emptyList()
+
+                val isMember = currentUser?.uid in members
+                // Set visibility of comment input and post button
+                commentInput.isEnabled = isMember
+                postCommentButton.isEnabled = isMember
+
+                if (!isMember) {
+                    commentInput.visibility = View.GONE
+                    postCommentButton.visibility = View.GONE
+                } else {
+                    commentInput.visibility = View.VISIBLE
+                    postCommentButton.visibility = View.VISIBLE
+                }
+
+                // Set visibility of dismiss button
+                dismissButton.visibility = if (isMember) View.VISIBLE else View.INVISIBLE
+
+                postCommentButton.setOnClickListener {
+                    if (isMember) {
+                        val commentText = commentInput.text.toString().trim()
+                        if (commentText.isNotEmpty()) {
+                            val userDocRef = db.collection("users").document(
+                                currentUser?.uid ?: ""
+                            ) // Retrieve the current user's document
+
+                            userDocRef.get().addOnSuccessListener { documentSnapshot ->
+                                val currentUsername =
+                                    documentSnapshot.getString("username") // Assuming username field is stored in Firestore
+
+                                if (currentUsername != null) {
+                                    val newComment = GroupComment(
+                                        commentText = commentText,
+                                        username = currentUsername, // Use the current user's username
+                                        userId = currentUser?.uid ?: "", // Use current user's UID
+                                        timestamp = Date(),
+                                        commentId = ""
+                                    )
+
+                                    saveCommentToDatabase(groupId, update.updateId, newComment) { success, commentId ->
+                                        if (success) {
+                                            // Once the comment is successfully saved, assign the commentId
+                                            newComment.commentId = commentId
+                                            commentsList.add(newComment)
+                                            // Add the new comment to the adapter and update RecyclerView
+                                            groupCommentsAdapter.addComment(newComment)
+                                            commentsRecyclerView.smoothScrollToPosition(commentsList.size - 1)
+                                        }
+                                    }
+                                    commentInput.text.clear()
+                                } else {
+                                    Toast.makeText(itemView.context, "Failed to get current username", Toast.LENGTH_SHORT).show()
+                                }
+                            }.addOnFailureListener { e ->
+                                Toast.makeText(itemView.context, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(itemView.context, "You must join first before writing a comment", Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+            }
+
             fetchComments(update.updateId, groupId) { comments ->
                 commentsList.clear()
                 commentsList.addAll(comments)
@@ -583,48 +745,6 @@ class GroupUpdateAdapter(
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
                     .into(profileImage) // Set the image into the CircleImageView
-            }
-
-            postCommentButton.setOnClickListener {
-                val commentText = commentInput.text.toString().trim()
-                if (commentText.isNotEmpty()) {
-                    // Get current user's username from FirebaseAuth or Firestore
-                    val currentUser = FirebaseAuth.getInstance().currentUser
-                    val db = FirebaseFirestore.getInstance()
-                    val userDocRef = db.collection("users").document(currentUser?.uid ?: "") // Retrieve the current user's document
-
-                    userDocRef.get().addOnSuccessListener { documentSnapshot ->
-                        val currentUsername = documentSnapshot.getString("username") // Assuming username field is stored in Firestore
-
-                        if (currentUsername != null) {
-                            val newComment = GroupComment(
-                                commentText = commentText,
-                                username = currentUsername, // Use the current user's username
-                                userId = currentUser?.uid ?: "", // Use current user's UID
-                                timestamp = Date(),
-                                commentId = ""
-                            )
-
-                            saveCommentToDatabase(groupId, update.updateId, newComment) { success, commentId ->
-                                if (success) {
-                                    // Once the comment is successfully saved, assign the commentId
-                                    newComment.commentId = commentId
-                                    commentsList.add(newComment)
-                                    // Add the new comment to the adapter and update RecyclerView
-                                    groupCommentsAdapter.addComment(newComment)
-                                    commentsRecyclerView.smoothScrollToPosition(commentsList.size - 1)
-                                }
-                            }
-                            commentInput.text.clear()
-                        } else {
-                            Toast.makeText(itemView.context, "Failed to get current username", Toast.LENGTH_SHORT).show()
-                        }
-                    }.addOnFailureListener { e ->
-                        Toast.makeText(itemView.context, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
-                }
             }
 
             dismissButton.setOnClickListener {
@@ -759,6 +879,78 @@ class GroupUpdateAdapter(
             commentsRecyclerView.adapter = groupCommentsAdapter
             commentsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
 
+            // Fetch group membership
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val db = FirebaseFirestore.getInstance()
+            val groupDocRef = db.collection("groups").document(groupId)
+
+            groupDocRef.get().addOnSuccessListener { documentSnapshot ->
+                val members = documentSnapshot.get("members") as? List<String> ?: emptyList()
+
+                val isMember = currentUser?.uid in members
+                // Set visibility of comment input and post button
+                commentInput.isEnabled = isMember
+                postCommentButton.isEnabled = isMember
+
+                if (!isMember) {
+                    commentInput.visibility = View.GONE
+                    postCommentButton.visibility = View.GONE
+                } else {
+                    commentInput.visibility = View.VISIBLE
+                    postCommentButton.visibility = View.VISIBLE
+                }
+
+                // Set visibility of dismiss button
+                dismissButton.visibility = if (isMember) View.VISIBLE else View.INVISIBLE
+
+                postCommentButton.setOnClickListener {
+                    if (isMember) {
+                        val commentText = commentInput.text.toString().trim()
+                        if (commentText.isNotEmpty()) {
+                            val userDocRef = db.collection("users").document(
+                                currentUser?.uid ?: ""
+                            ) // Retrieve the current user's document
+
+                            userDocRef.get().addOnSuccessListener { documentSnapshot ->
+                                val currentUsername =
+                                    documentSnapshot.getString("username") // Assuming username field is stored in Firestore
+
+                                if (currentUsername != null) {
+                                    val newComment = GroupComment(
+                                        commentText = commentText,
+                                        username = currentUsername, // Use the current user's username
+                                        userId = currentUser?.uid ?: "", // Use current user's UID
+                                        timestamp = Date(),
+                                        commentId = ""
+                                    )
+
+                                    saveCommentToDatabase(groupId, update.updateId, newComment) { success, commentId ->
+                                        if (success) {
+                                            // Once the comment is successfully saved, assign the commentId
+                                            newComment.commentId = commentId
+                                            commentsList.add(newComment)
+                                            // Add the new comment to the adapter and update RecyclerView
+                                            groupCommentsAdapter.addComment(newComment)
+                                            commentsRecyclerView.smoothScrollToPosition(commentsList.size - 1)
+                                        }
+                                    }
+                                    commentInput.text.clear()
+                                } else {
+                                    Toast.makeText(itemView.context, "Failed to get current username", Toast.LENGTH_SHORT).show()
+                                }
+                            }.addOnFailureListener { e ->
+                                Toast.makeText(itemView.context, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(itemView.context, "You must join first before writing a comment", Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+            }
+
             fetchComments(update.updateId, groupId) { comments ->
                 commentsList.clear()
                 commentsList.addAll(comments)
@@ -772,48 +964,6 @@ class GroupUpdateAdapter(
                     .load(profileImageUrl) // Load the image from the URL
                     .circleCrop() // Optionally crop it to a circle
                     .into(profileImage) // Set the image into the CircleImageView
-            }
-
-            postCommentButton.setOnClickListener {
-                val commentText = commentInput.text.toString().trim()
-                if (commentText.isNotEmpty()) {
-                    // Get current user's username from FirebaseAuth or Firestore
-                    val currentUser = FirebaseAuth.getInstance().currentUser
-                    val db = FirebaseFirestore.getInstance()
-                    val userDocRef = db.collection("users").document(currentUser?.uid ?: "") // Retrieve the current user's document
-
-                    userDocRef.get().addOnSuccessListener { documentSnapshot ->
-                        val currentUsername = documentSnapshot.getString("username") // Assuming username field is stored in Firestore
-
-                        if (currentUsername != null) {
-                            val newComment = GroupComment(
-                                commentText = commentText,
-                                username = currentUsername, // Use the current user's username
-                                userId = currentUser?.uid ?: "", // Use current user's UID
-                                timestamp = Date(),
-                                commentId = ""
-                            )
-
-                            saveCommentToDatabase(groupId, update.updateId, newComment) { success, commentId ->
-                                if (success) {
-                                    // Once the comment is successfully saved, assign the commentId
-                                    newComment.commentId = commentId
-                                    commentsList.add(newComment)
-                                    // Add the new comment to the adapter and update RecyclerView
-                                    groupCommentsAdapter.addComment(newComment)
-                                    commentsRecyclerView.smoothScrollToPosition(commentsList.size - 1)
-                                }
-                            }
-                            commentInput.text.clear()
-                        } else {
-                            Toast.makeText(itemView.context, "Failed to get current username", Toast.LENGTH_SHORT).show()
-                        }
-                    }.addOnFailureListener { e ->
-                        Toast.makeText(itemView.context, "Error fetching user data: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Toast.makeText(itemView.context, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
-                }
             }
 
             dismissButton.setOnClickListener {

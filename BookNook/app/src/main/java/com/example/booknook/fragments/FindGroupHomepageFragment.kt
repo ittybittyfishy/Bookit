@@ -194,6 +194,7 @@ class FindGroupHomepageFragment : Fragment() {
                 loadGroupData(groupId)
                 // Notify the owner that the user has been added
                 Toast.makeText(requireContext(), "You have joined the group.", Toast.LENGTH_SHORT).show()
+                fetchMemberUpdates(groupId) // Reload member updates
             }
             .addOnFailureListener { e ->
                 Log.w("GroupHomepageFragment", "Error adding user to group: ${e.message}")
@@ -459,6 +460,7 @@ class FindGroupHomepageFragment : Fragment() {
                             "You have left the group.",
                             Toast.LENGTH_SHORT
                         ).show()
+                        fetchMemberUpdates(groupId) // Reload member updates
                     }
                     .addOnFailureListener { e ->
                         Log.w("FindGroupHomepageFragment", "Error updating user data: ${e.message}")

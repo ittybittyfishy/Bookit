@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.Group
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booknook.fragments.NotificationItem
@@ -63,36 +64,56 @@ class GroupRepliesAdapter(
                 .document(reply.replyId)
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-            // Track user's like/dislike status
-            var userAction: String? = null // Can be "like", "dislike", or null
+            // Fetch group membership
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val groupDocRef = db.collection("groups").document(groupId)
 
-            // Check user's like/dislike status
-            replyRef.collection("likes").document(userId).get()
-                .addOnSuccessListener { doc ->
-                    userAction = doc.getString("type")
-                    updateLikeDislikeUI(userAction)
+            groupDocRef.get().addOnSuccessListener { documentSnapshot ->
+                val members = documentSnapshot.get("members") as? List<String> ?: emptyList()
+
+                val isMember = currentUser?.uid in members
+
+                // Track user's like/dislike status
+                var userAction: String? = null // Can be "like", "dislike", or null
+
+                if (isMember) {
+                    // Check user's like/dislike status
+                    replyRef.collection("likes").document(userId).get()
+                        .addOnSuccessListener { doc ->
+                            userAction = doc.getString("type")
+                            updateLikeDislikeUI(userAction)
+                        }
+
+                    likeButton.setOnClickListener {
+                        handleLikeDislike(
+                            replyRef, userId, "like",
+                            currentAction = userAction,
+                            onComplete = { updatedAction ->
+                                userAction = updatedAction
+                                updateLikeDislikeUI(userAction)
+                            }
+                        )
+                    }
+
+                    dislikeButton.setOnClickListener {
+                        handleLikeDislike(
+                            replyRef, userId, "dislike",
+                            currentAction = userAction,
+                            onComplete = { updatedAction ->
+                                userAction = updatedAction
+                                updateLikeDislikeUI(userAction)
+                            }
+                        )
+                    }
+                } else {
+                    // Show toast if non-member clicks like/dislike
+                    likeButton.setOnClickListener {
+                        Toast.makeText(itemView.context, "Join the group to like or dislike a comment", Toast.LENGTH_SHORT).show()
+                    }
+                    dislikeButton.setOnClickListener {
+                        Toast.makeText(itemView.context, "Join the group to like or dislike a comment", Toast.LENGTH_SHORT).show()
+                    }
                 }
-
-            likeButton.setOnClickListener {
-                handleLikeDislike(
-                    replyRef, userId, "like",
-                    currentAction = userAction,
-                    onComplete = { updatedAction ->
-                        userAction = updatedAction
-                        updateLikeDislikeUI(userAction)
-                    }
-                )
-            }
-
-            dislikeButton.setOnClickListener {
-                handleLikeDislike(
-                    replyRef, userId, "dislike",
-                    currentAction = userAction,
-                    onComplete = { updatedAction ->
-                        userAction = updatedAction
-                        updateLikeDislikeUI(userAction)
-                    }
-                )
             }
         }
 
