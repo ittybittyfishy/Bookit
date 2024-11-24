@@ -84,10 +84,21 @@ class RecommendationBookDetailsFragment : Fragment() {
         val title = bundle?.getString("bookTitle")
         val author = bundle?.getString("bookAuthor")
         val description = bundle?.getString("bookDescription")
-        val bookAvgRating = bundle?.getFloat("bookRating") ?: 0f
         val bookGenres = bundle?.getStringArrayList("bookGenres")
         val bookAuthorsList = bundle?.getStringArrayList("bookAuthorsList")
         val bookIsbn = bundle?.getString("bookIsbn")
+
+        var bookAvgRating = 3.5f
+
+        if (bookIsbn != null) {
+            retrieveRecommendationRating(bookIsbn) { rating ->
+                if (rating != null) {
+                    val updatedRating = rating.toFloat()
+                    bookRatingBar.rating = updatedRating
+                    ratingNumber.text = "(${updatedRating.toString()})"
+                }
+            }
+        }
 
         // Populate UI elements with book data
         Glide.with(requireContext()).load(imageUrl).placeholder(R.drawable.placeholder_image).into(bookImage)
@@ -185,5 +196,41 @@ class RecommendationBookDetailsFragment : Fragment() {
                 Toast.makeText(context, context.getString(R.string.failed_to_add_book, e.message), Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun retrieveRecommendationRating(recIsbn: String, onResult: (Double?) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        var matchFound = false // Flag to stop further querying once a match is found
+
+        db.collection("books").get()
+            .addOnSuccessListener { bookDocuments ->
+                for (bookDocument in bookDocuments.documents) {
+                    if (matchFound) break // Exit the loop if a match is found
+
+                    val recommendationsRef = bookDocument.reference.collection("recommendations")
+
+                    recommendationsRef.whereEqualTo("recIsbn", recIsbn).get()
+                        .addOnSuccessListener { recommendations ->
+                            for (recommendation in recommendations.documents) {
+                                val rating = recommendation.getDouble("bookRating")
+                                if (rating != null) {
+                                    matchFound = true
+                                    onResult(rating) // Return the result
+                                    return@addOnSuccessListener
+                                }
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("Firestore", "Error accessing recommendations for book ${bookDocument.id}", e)
+                        }
+                }
+
+                // If no match is found after querying all books
+                if (!matchFound) onResult(null)
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firestore", "Error querying books collection", e)
+                onResult(null)
+            }
     }
 }
