@@ -9,8 +9,20 @@
     android:background="@color/white"
     android:elevation="4dp">
 
+    <!-- Dismiss button -->
+    <ImageButton
+        android:id="@+id/dismiss_button"
+        android:background="@color/transparent"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:padding="0dp"
+        android:src="@drawable/ic_accept_button"
+        android:layout_gravity="top|right"
+        android:scaleType="centerInside" />
+
     <!-- Member's profile and message -->
     <LinearLayout
+        android:layout_marginTop="-5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -445,7 +457,7 @@
         android:id="@+id/repliesText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Replies: "
+        android:text="Comments: "
         android:textColor="@color/main_text_brown"
         android:textSize="14sp"
         android:textStyle="bold"

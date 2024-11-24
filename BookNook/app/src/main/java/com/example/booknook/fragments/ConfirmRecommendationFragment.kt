@@ -130,12 +130,6 @@ class ConfirmRecommendationFragment : Fragment() {
                                                                 // Update the memberUpdate with its ID
                                                                 updateRef.update("updateId", updateId)
                                                             }
-
-//                                                        val recommendationsFragment = GroupRecommendationsFragment()
-//                                                        val bundle = Bundle()
-//                                                        bundle.putString("groupId", groupId)
-//                                                        recommendationsFragment.arguments = bundle
-//                                                        (activity as MainActivity).replaceFragment(recommendationsFragment, "Recommendations", showBackButton = true)
                                                     }
                                             }
                                             .addOnFailureListener { e ->

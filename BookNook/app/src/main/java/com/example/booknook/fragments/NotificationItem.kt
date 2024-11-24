@@ -12,8 +12,8 @@ data class NotificationItem(
     val type: NotificationType = NotificationType.FRIEND_REQUEST, // Type of the notification (default)
     val dismissed: Boolean = false, // Indicates if the notification has been dismissed
     val expirationTime: Long = 0L, // Expiration time for the notification
-    var profileImageUrl: String = "",
-    var username: String = ""
+    var profileImageUrl: String = "", // Retrieve Profile image
+    var username: String = "" // to show user name
 )
 
 // Enum class representing different types of notifications

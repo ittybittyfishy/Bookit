@@ -48,11 +48,8 @@ import java.util.Locale
 
 // Veronica Nguyen
 class BookDetailsRecommendationFragment : Fragment() {
-    private lateinit var editButton: ImageButton
     private lateinit var personalSummary: EditText
     private lateinit var selectBookButton: Button
-    private lateinit var cancelButton: Button
-    private lateinit var saveChangesButton: Button
     private lateinit var readMoreButton: Button
     private var isDescriptionExpanded = false  // defaults the description to not be expanded
     // List of predefined collections that users can assign books to.
@@ -86,11 +83,8 @@ class BookDetailsRecommendationFragment : Fragment() {
         val descriptionTextView: TextView = view.findViewById(R.id.bookDescription)
 
         // Calls views
-        editButton = view.findViewById(R.id.edit_summary_button)
         personalSummary = view.findViewById(R.id.personal_summary)
         selectBookButton = view.findViewById(R.id.selectBookButton)
-        cancelButton = view.findViewById(R.id.cancel_button)
-        saveChangesButton = view.findViewById(R.id.save_changes_button)
         readMoreButton = view.findViewById(R.id.readMoreButton)
 
         titleTextView.text = bookTitle
@@ -107,8 +101,6 @@ class BookDetailsRecommendationFragment : Fragment() {
                 .error(drawable.placeholder_image)
                 .into(imageView)
         }
-
-
 
         // Create VolumeInfo object from the data
         val volumeInfo = bookTitle?.let {
@@ -163,39 +155,6 @@ class BookDetailsRecommendationFragment : Fragment() {
             isDescriptionExpanded = !isDescriptionExpanded  // Switches state of variable after it's been clicked
         }
 
-        // Handles click of edit personal summary button
-        editButton.setOnClickListener {
-            // Allows user to now type in box
-            personalSummary.isFocusable = true
-            personalSummary.isFocusableInTouchMode = true
-            personalSummary.requestFocus()
-            // Makes the keyboard pop up
-            val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(personalSummary, InputMethodManager.SHOW_IMPLICIT)
-
-            // Makes cancel and save changes button visible
-            cancelButton.visibility = View.VISIBLE
-            saveChangesButton.visibility = View.VISIBLE
-        }
-
-        // Handles click of cancel button
-        cancelButton.setOnClickListener {
-            personalSummary.isFocusable = false
-            personalSummary.isFocusableInTouchMode = false
-            cancelButton.visibility = View.GONE
-            saveChangesButton.visibility = View.GONE
-        }
-
-        // Handles click of save changes button
-        saveChangesButton.setOnClickListener {
-            val summaryText = personalSummary.text.toString()
-            saveSummary(summaryText)
-
-            // Hide the buttons
-            cancelButton.visibility = View.GONE
-            saveChangesButton.visibility = View.GONE
-        }
-
         // Fetch existing summary if the user has already submitted one for this book
         if (userId != null && isbn != null) {
             val db = FirebaseFirestore.getInstance()
@@ -234,89 +193,6 @@ class BookDetailsRecommendationFragment : Fragment() {
         }
 
         return view
-    }
-
-
-    // Function to save the personal summary into databases
-    private fun saveSummary(summaryText: String) {
-        val user = FirebaseAuth.getInstance().currentUser // Gets current user
-        val userId = user?.uid // Gets user id
-
-        if (userId != null) {
-            val db = FirebaseFirestore.getInstance()
-            var bookIsbn = arguments?.getString("bookIsbn") // Retrieve the book's ISBN from arguments
-            val bookTitle = arguments?.getString("bookTitle")
-            val bookAuthors = arguments?.getStringArrayList("bookAuthorsList")
-
-            // If the book has no ISBN, create a unique document ID using the title and authors of the book
-            if (bookIsbn.isNullOrEmpty() || bookIsbn == "No ISBN") {
-                // Creates title part by replacing all whitespaces with underscores, and making it lowercase
-                val titleId = bookTitle?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT) ?: "unknown_title"
-                // Creates authors part by combining authors, replacing all whitespaces with underscores, and making it lowercase
-                val authorsId = bookAuthors?.joinToString("_")?.replace("\\s+".toRegex(), "_")?.lowercase(Locale.ROOT)
-                bookIsbn = "$titleId-$authorsId" // Update bookIsbn with new Id
-            }
-
-            // Reference to the specific book's document
-            val bookRef = db.collection("books").document(bookIsbn)
-
-            // Get the user's username from database
-            db.collection("users").document(userId).get().addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val username = document.getString("username") // Get username if exists
-
-                    // Create a map for the summary data
-                    val summaryData = mapOf(
-                        "userId" to userId,
-                        "username" to username,
-                        "summaryText" to summaryText,
-                        "timestamp" to FieldValue.serverTimestamp() // Use Firestore timestamp
-                    )
-
-                    // Map to store book data
-                    val bookData = mapOf(
-                        "bookTitle" to bookTitle,
-                        "authors" to bookAuthors
-                    )
-
-                    bookRef.set(bookData, SetOptions.merge())  // Updates database with book details if not in database already
-
-                    // Check if the user has already submitted a summary
-                    bookRef.collection("summaries").whereEqualTo("userId", userId).get()
-                        .addOnSuccessListener { querySnapshot ->
-                            if (querySnapshot.isEmpty) {
-                                // Add a new summary if one doesn't exist
-                                bookRef.collection("summaries").add(summaryData)
-                                    .addOnSuccessListener {
-                                        Toast.makeText(activity, "Summary saved successfully", Toast.LENGTH_SHORT).show()
-                                    }
-                                    .addOnFailureListener {
-                                        Toast.makeText(activity, "Failed to save summary", Toast.LENGTH_SHORT).show()
-                                    }
-                            } else {
-                                // Updates the existing summary
-                                val existingSummaryId = querySnapshot.documents[0].id
-                                bookRef.collection("summaries").document(existingSummaryId)
-                                    .set(summaryData) // Update summary data
-                                    .addOnSuccessListener {
-                                        Toast.makeText(activity, "Summary updated successfully", Toast.LENGTH_SHORT).show()
-                                    }
-                                    .addOnFailureListener {
-                                        Toast.makeText(activity, "Failed to update summary", Toast.LENGTH_SHORT).show()
-                                    }
-                            }
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(activity, "Failed to check existing summaries", Toast.LENGTH_SHORT).show()
-                        }
-                } else {
-                    Toast.makeText(activity, "User not authenticated", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-        // Doesn't allow user to click on box after saving changes
-        personalSummary.isFocusable = false
-        personalSummary.isFocusableInTouchMode = false
     }
 
     // Yunjong Noh

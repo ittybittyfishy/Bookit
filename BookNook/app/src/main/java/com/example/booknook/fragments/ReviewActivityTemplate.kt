@@ -643,7 +643,7 @@ class ReviewActivityTemplate : Fragment() {
     }
 
 
-        // Yunjong Noh
+    // Yunjong Noh
     // Function to add a review notification to Firestore
     private fun addReviewNotification(userId: String, bookTitle: String, notificationType: NotificationType) {
         val db = FirebaseFirestore.getInstance()

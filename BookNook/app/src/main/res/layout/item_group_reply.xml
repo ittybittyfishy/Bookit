@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Yunjong Noh -->
+<!-- Reply fragment to reply for a comment -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:layout_marginStart="32dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <!-- Username of the reply author -->
+        <TextView
+            android:id="@+id/replyUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="Reply Username"
+            android:textColor="@color/reply_purple"
+            android:layout_weight="1"/> <!-- hightlight username -->
+
+        <!-- Reply timestamp -->
+        <TextView
+            android:id="@+id/replyTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Timestamp"
+            android:layout_gravity="center_vertical"
+            android:textSize="10sp"
+            android:textColor="@android:color/darker_gray" />
+
+    </LinearLayout>
+
+    <!-- Reply content -->
+    <TextView
+        android:id="@+id/replyText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reply text"
+        android:textColor="@android:color/black" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="bottom|right">
+
+        <!-- Dismiss button -->
+        <ImageButton
+            android:id="@+id/like_button"
+            android:background="@color/transparent"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:padding="0dp"
+            android:src="@drawable/thumbs_up"
+            android:scaleType="centerInside"
+            android:layout_marginRight="10dp"/>
+
+        <!-- Dismiss button -->
+        <ImageButton
+            android:id="@+id/dislike_button"
+            android:background="@color/transparent"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:padding="0dp"
+            android:src="@drawable/thumbs_down"
+            android:scaleType="centerInside" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="220dp"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
+
+        <!-- Number of likes -->
+        <TextView
+            android:id="@+id/num_likes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="11dp"
+            android:padding="0dp"
+            android:text="0" />
+
+        <!-- Number of dislikes -->
+        <TextView
+            android:id="@+id/num_dislikes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:padding="0dp"
+            android:text="0" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#ddd5c6"
+        android:layout_marginTop="2dp"
+        android:layout_gravity="center_horizontal"/>
+
+
+</LinearLayout>

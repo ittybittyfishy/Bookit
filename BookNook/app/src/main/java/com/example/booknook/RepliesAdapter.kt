@@ -94,7 +94,7 @@ class RepliesAdapter(private var replies: List<Reply>, private val comment: Comm
                             Log.d("RepliesAdapter", "Reply added successfully")
                             replyInput.text.clear() // Clear the input field
                             loadReplies() // Reload replies to update the display
-
+                            // Yunjong Noh
                             // Send notification to the original commenter
                             sendNotification(userId, comment.userId, replyText)
                         }

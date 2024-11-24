@@ -77,6 +77,7 @@ class CommentsAdapter(private var comments: List<Comment>) : RecyclerView.Adapte
             val currentUserDocRef = db.collection("users").document(senderId)
             currentUserDocRef.get().addOnSuccessListener { currentUserDoc ->
                 if (currentUserDoc.exists()) {
+                    // Retrieve sender's profile picture and its username
                     val senderProfileImageUrl = currentUserDoc.getString("profileImageUrl") ?: ""
                     val senderUsername = currentUserDoc.getString("username") ?: "Unknown User"
 
@@ -105,11 +106,12 @@ class CommentsAdapter(private var comments: List<Comment>) : RecyclerView.Adapte
                 profileImageUrl = senderProfileImageUrl,
                 username = senderUsername
             )
-
+            // iterates notification collection
             db.collection("notifications").add(notification)
                 .addOnSuccessListener { documentReference ->
                     val notificationId = documentReference.id
                     db.collection("notifications").document(notificationId)
+                        // updates notification ID
                         .update("notificationId", notificationId)
                         .addOnSuccessListener {
                             Log.d("CommentsAdapter", "Notification added with ID: $notificationId")
@@ -127,25 +129,27 @@ class CommentsAdapter(private var comments: List<Comment>) : RecyclerView.Adapte
     // Create a new ViewHolder for comment items
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.comment_item, parent, false)
-        return CommentViewHolder(view)
+        return CommentViewHolder(view) // Yunjong Noh
     }
 
     // Bind the comment data to the ViewHolder
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
-        holder.bind(comments[position])
+        holder.bind(comments[position]) // Yunjong Noh
     }
 
     // Return the total number of comments
     override fun getItemCount(): Int = comments.size
 
     // Update the list of comments and notify the RecyclerView to refresh
+    // Yunjong Noh
     fun updateComments(newComments: List<Comment>) {
         comments = newComments
         notifyDataSetChanged()
     }
-
+    // Yunjong Noh
     // Function to load comments from Firestore
     fun loadComments(isbn: String, reviewId: String) {
+        // Access the Firestore database instance
         FirebaseFirestore.getInstance()
             .collection("books")
             .document(isbn)
@@ -154,14 +158,14 @@ class CommentsAdapter(private var comments: List<Comment>) : RecyclerView.Adapte
             .collection("comments")
             .get()
             .addOnSuccessListener { documents ->
-                val commentsList = mutableListOf<Comment>()
+                val commentsList = mutableListOf<Comment>() // List to store comments
                 for (document in documents) {
-                    val comment = document.toObject(Comment::class.java)
+                    val comment = document.toObject(Comment::class.java) // Convert document to Comment object
                     val commentId = document.id
                     Log.d("CommentsAdapter", "Loaded comment with ID: $commentId")
                     commentsList.add(comment)
                 }
-                updateComments(commentsList)
+                updateComments(commentsList) // Update app with loaded comments
             }
             .addOnFailureListener { exception ->
                 Log.e("CommentsAdapter", "Error loading comments", exception)

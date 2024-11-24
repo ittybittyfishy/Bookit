@@ -194,6 +194,7 @@ class FindGroupHomepageFragment : Fragment() {
                 loadGroupData(groupId)
                 // Notify the owner that the user has been added
                 Toast.makeText(requireContext(), "You have joined the group.", Toast.LENGTH_SHORT).show()
+                fetchMemberUpdates(groupId) // Reload member updates
             }
             .addOnFailureListener { e ->
                 Log.w("GroupHomepageFragment", "Error adding user to group: ${e.message}")
@@ -304,6 +305,12 @@ class FindGroupHomepageFragment : Fragment() {
         // Get the current user's id
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
+        if (currentUserId.isNullOrEmpty()) {
+            // Handle the case when the user is not authenticated
+            Log.w("Firestore", "User is not authenticated.")
+            return
+        }
+
         // Fetch the memberUpdates collection for the given group
         db.collection("groups").document(groupId)
             .collection("memberUpdates")
@@ -317,11 +324,12 @@ class FindGroupHomepageFragment : Fragment() {
                     for (document in querySnapshot.documents) {
                         val memberUpdate = document.toObject(GroupMemberUpdate::class.java)
 
-                        // Only add the update if it is not from the current user
-                        if (memberUpdate?.userId != currentUserId) {
-                            memberUpdate?.let { memberUpdatesList.add(it) }
+                        // Only add the update if it is not dismissed by the current user
+                        if (memberUpdate != null && !memberUpdate.dismissedBy.contains(currentUserId)) {
+                            memberUpdatesList.add(memberUpdate)
                         }
                     }
+
                     // Notify the adapter that the data has been updated
                     memberUpdatesAdapter.notifyDataSetChanged()
                 }
@@ -459,6 +467,7 @@ class FindGroupHomepageFragment : Fragment() {
                             "You have left the group.",
                             Toast.LENGTH_SHORT
                         ).show()
+                        fetchMemberUpdates(groupId) // Reload member updates
                     }
                     .addOnFailureListener { e ->
                         Log.w("FindGroupHomepageFragment", "Error updating user data: ${e.message}")

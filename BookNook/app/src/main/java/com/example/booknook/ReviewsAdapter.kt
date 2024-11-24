@@ -741,6 +741,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                             commentId = doc.id
                         )
                     }
+                    // Yunjong Noh
                     // Load comments from Firestore
                     commentsAdapter.loadComments(isbn, reviewId)
                 }
