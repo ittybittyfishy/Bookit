@@ -231,7 +231,7 @@ class FriendsFragment : Fragment() {
                                     val bundle = Bundle()
                                     bundle.putString("receiverId", receiverId)
                                     friendProfileFragment.arguments = bundle  // Sends receiver id to the friend profile fragment
-                                    (activity as MainActivity).replaceFragment(friendProfileFragment, "Profile")
+                                    (activity as MainActivity).replaceFragment(friendProfileFragment, "Profile", showBackButton = true)
                                     Toast.makeText(activity, "User found: $userName", Toast.LENGTH_SHORT).show()
                                 }
                             } else {

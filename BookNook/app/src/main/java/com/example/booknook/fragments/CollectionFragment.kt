@@ -158,7 +158,7 @@ class  CollectionFragment : Fragment(){
                                         } else {
                                             null // Return null if not a valid Map
                                         }
-                                    }
+                                    }.reversed() // Reverse the order of the bookItems list
                                     collectionList.add(CollectionItem(name, bookItems)) // Add collection item to the list
                                 }
                             }
