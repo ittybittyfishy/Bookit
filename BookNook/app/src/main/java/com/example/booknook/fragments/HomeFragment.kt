@@ -477,7 +477,7 @@ class HomeFragment : Fragment() {
     }
 
 
-    //testing
+    //itzel medina work review 4
     /**
      * Handles the Refresh Recommendations button click.
      */
@@ -936,12 +936,6 @@ class HomeFragment : Fragment() {
     /**
      * Set up Like and Dislike button listeners for all three books.
      */
-    /**
-     * Set up Like and Dislike button listeners for all four books.
-     */
-    /**
-     * Set up Like and Dislike button listeners for all four books.
-     */
     private fun setupButtonListeners() {
         // Like Button 1 (Position 0)
         likeButton1.setOnClickListener {
@@ -1035,8 +1029,6 @@ class HomeFragment : Fragment() {
         return recommendations.getOrNull(position)?.id
     }
 
-
-
     //work review 4 itzel medina
     /**
      * Handles the Like button click.
@@ -1065,13 +1057,6 @@ class HomeFragment : Fragment() {
     }
 
     //work review 4 itzel medina
-    /**
-     * Handles user feedback for a book.
-     */
-    /**
-     * Modified function to handle user feedback for a book.
-     * Increments the ratedBooksCount and fetches the fourth recommendation when all three books are rated.
-     */
     /**
      * Handles user feedback for a book.
      *
@@ -1162,13 +1147,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    /**
-     * Updates the genre feedback counts in Firestore.
-     *
-     * @param userId The UID of the user.
-     * @param genre The genre to update.
-     * @param feedback The feedback type: "like" or "dislike".
-     */
     /**
      * Updates the genre feedback counts in Firestore.
      *
@@ -1296,12 +1274,6 @@ class HomeFragment : Fragment() {
         })
     }
 
-
-    /**
-     * Displays the fourth book in the UI with the "Based on your input" text.
-     *
-     * @param book The BookItem to display as the fourth recommendation.
-     */
     /**
      * Displays the fourth book in the UI with the "Based on your input" text.
      *
@@ -1338,19 +1310,16 @@ class HomeFragment : Fragment() {
 
         Log.d("HomeFragment", "Fourth book displayed successfully.")
 
+        // Save the fourth book to SharedPreferences
+        val userId = auth.currentUser?.uid ?: return
+        saveFourthRecommendationToPreferences(userId, book)
+
         // Set the flag after successful display
         markFourthBookAsShown()
     }
 
 
-
     //work review 4 itzel medina
-    /**
-     * Fetches a book from the preferred genre and updates the fourth recommendation.
-     *
-     * @param userId The UID of the user.
-     * @param preferredGenre The genre to fetch the book from.
-     */
     /**
      * Fetches a book from the preferred genre and updates the fourth recommendation.
      *
@@ -1477,9 +1446,25 @@ class HomeFragment : Fragment() {
 
     //books clickable itzel medina
     private fun getBookItem(position: Int): BookItem? {
-        // Assuming you have a list of recommended books stored, for example:
-        val recommendations = loadRecommendationsFromPreferences(auth.currentUser?.uid ?: "") ?: return null
-        return recommendations.getOrNull(position - 1) // positions 1-4 correspond to indices 0-3
+        val userId = auth.currentUser?.uid ?: return null
+        val recommendations = loadRecommendationsFromPreferences(userId) ?: listOf()
+
+        return when (position) {
+            1, 2, 3 -> recommendations.getOrNull(position - 1) // Books 1-3
+            4 -> loadFourthRecommendationFromPreferences(userId) // Book 4
+            else -> null
+        }
+    }
+
+    //make book clickable
+    private fun loadFourthRecommendationFromPreferences(userId: String): BookItem? {
+        val sharedPreferences = requireContext().getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE)
+        val json = sharedPreferences.getString("fourthRecommendation_$userId", null)
+        return if (json != null) {
+            Gson().fromJson(json, BookItem::class.java)
+        } else {
+            null
+        }
     }
 
 
@@ -1515,6 +1500,17 @@ class HomeFragment : Fragment() {
         return industryIdentifiers?.firstOrNull { it.type == "ISBN_13" }?.identifier
             ?: industryIdentifiers?.firstOrNull { it.type == "ISBN_10" }?.identifier
     }
+
+    //to make book clickable itzel medina
+    private fun saveFourthRecommendationToPreferences(userId: String, book: BookItem) {
+        val sharedPreferences = requireContext().getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+        val json = gson.toJson(book)
+        editor.putString("fourthRecommendation_$userId", json)
+        editor.apply()
+    }
+
 
 
 }
