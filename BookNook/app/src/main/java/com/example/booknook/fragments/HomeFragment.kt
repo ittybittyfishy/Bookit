@@ -170,7 +170,7 @@ class HomeFragment : Fragment() {
 
         //itzel medina
         // Retrieve the expanded/collapsed state from SharedPreferences
-        val isExpanded = getSharedPreferences().getBoolean("isBooksContainerExpanded", true)
+        val isExpanded = getSharedPreferences()?.getBoolean("isBooksContainerExpanded", true) ?: true
         setBooksContainerVisibility(isExpanded, animate = false)
         updateExpandButtonIcon(isExpanded)
 
@@ -181,7 +181,8 @@ class HomeFragment : Fragment() {
             setBooksContainerVisibility(newExpandedState, animate = true)
             updateExpandButtonIcon(newExpandedState)
             // Save the new state
-            getSharedPreferences().edit().putBoolean("isBooksContainerExpanded", newExpandedState).apply()
+            getSharedPreferences()?.edit()?.putBoolean("isBooksContainerExpanded", newExpandedState)?.apply()
+
         }
 
         //books clickable
@@ -279,10 +280,12 @@ class HomeFragment : Fragment() {
         setupButtonListeners()
 
         // Load the fourthBookShown flag
-        fourthBookShown = getSharedPreferences().getBoolean("fourthBookShown", false)
+        fourthBookShown = getSharedPreferences()?.getBoolean("fourthBookShown", false) ?: false
+
 
         // Initialize ratedBooksCount
-        ratedBooksCount = getSharedPreferences().getInt("ratedBooksCount", 0)
+        ratedBooksCount = getSharedPreferences()?.getInt("ratedBooksCount", 0) ?: 0
+
 
         // If user is logged in, fetch username from Firebase
         userId?.let { uid ->
@@ -816,9 +819,9 @@ class HomeFragment : Fragment() {
 
         // Reset ratedBooksCount and fourthBookShown
         ratedBooksCount = 0
-        getSharedPreferences().edit().putInt("ratedBooksCount", ratedBooksCount).apply()
+        getSharedPreferences()?.edit()?.putInt("ratedBooksCount", ratedBooksCount)?.apply()
         fourthBookShown = false
-        getSharedPreferences().edit().putBoolean("fourthBookShown", fourthBookShown).apply()
+        getSharedPreferences()?.edit()?.putBoolean("fourthBookShown", fourthBookShown)?.apply()
         Log.d("HomeFragment", "ratedBooksCount and fourthBookShown reset.")
 
         // Save recommended books to Firestore
@@ -930,6 +933,7 @@ class HomeFragment : Fragment() {
             view?.findViewById<TextView>(R.id.basedOnYourInputTextView)?.visibility = View.GONE
         }
     }
+
 
 
     //work review 4 itzel medina
@@ -1378,19 +1382,21 @@ class HomeFragment : Fragment() {
     }
 
     //itzel medina
-    private fun getSharedPreferences(): SharedPreferences {
-        return requireContext().getSharedPreferences("booknook_prefs", Context.MODE_PRIVATE)
+    private fun getSharedPreferences(): SharedPreferences? {
+        return context?.getSharedPreferences("booknook_prefs", Context.MODE_PRIVATE)
     }
+
 
     //itzel medina
     private fun markFourthBookAsShown() {
-        getSharedPreferences().edit().putBoolean("fourthBookShown", true).apply()
+        getSharedPreferences()?.edit()?.putBoolean("fourthBookShown", true)?.apply()
+
     }
 
     //itzel medina
     private fun incrementRatedBooksCount() {
         ratedBooksCount += 1
-        getSharedPreferences().edit().putInt("ratedBooksCount", ratedBooksCount).apply()
+        getSharedPreferences()?.edit()?.putInt("ratedBooksCount", ratedBooksCount)?.apply()
     }
 
     //itzel medina
@@ -1458,7 +1464,7 @@ class HomeFragment : Fragment() {
 
     //make book clickable
     private fun loadFourthRecommendationFromPreferences(userId: String): BookItem? {
-        val sharedPreferences = requireContext().getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE)
+        val sharedPreferences = context?.getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE) ?: return null
         val json = sharedPreferences.getString("fourthRecommendation_$userId", null)
         return if (json != null) {
             Gson().fromJson(json, BookItem::class.java)
@@ -1466,6 +1472,7 @@ class HomeFragment : Fragment() {
             null
         }
     }
+
 
 
     //books clickable itzel medina
@@ -1503,13 +1510,15 @@ class HomeFragment : Fragment() {
 
     //to make book clickable itzel medina
     private fun saveFourthRecommendationToPreferences(userId: String, book: BookItem) {
-        val sharedPreferences = requireContext().getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE)
+        val sharedPreferences = context?.getSharedPreferences("BookNookPreferences", Context.MODE_PRIVATE) ?: return
         val editor = sharedPreferences.edit()
         val gson = Gson()
         val json = gson.toJson(book)
         editor.putString("fourthRecommendation_$userId", json)
         editor.apply()
     }
+
+
 
 
 
