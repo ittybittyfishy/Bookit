@@ -52,6 +52,7 @@
     </string-array>
 
     <string-array name="rating_ranges">
+
         <item>All ratings</item>
         <item>Below 1 star</item>
         <item>1.0 to 1.9</item>

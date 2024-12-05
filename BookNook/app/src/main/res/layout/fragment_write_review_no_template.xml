@@ -187,24 +187,24 @@
 
 
             <!-- Review Input -->
+
             <EditText
                 android:id="@+id/reviewInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/rounded_rectangle_1"
+                android:background="@color/review_card"
                 android:backgroundTint="@color/review_card"
                 android:gravity="top"
                 android:hint="Write a review...."
                 android:textColorHint="@color/review_button_text"
-                android:padding="12dp"
-                android:textColor="@color/review_button_text"
-                android:textSize="14sp"
-                android:minLines="5"
-                android:maxLines="30"
-                android:scrollbars="vertical"
                 android:inputType="textMultiLine"
-                android:overScrollMode="ifContentScrolls" />
+                android:maxLines="30"
+                android:minLines="5"
+                android:overScrollMode="ifContentScrolls"
+                android:padding="12dp"
+                android:scrollbars="vertical"
+                android:textSize="14sp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"

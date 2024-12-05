@@ -23,6 +23,13 @@
     <color name="username_rectangle">#D9D9D9</color>
     <color name="red">#bd5533</color>
     <color name="reply_purple">#a88da4</color>
+    <color name="search_filter_button">#99ba91</color>
+    <color name="search_filter_hint_name">#000000</color>
+    <color name="search_filter_background">#e5e0cc</color>
+    <color name="search_filter_rectangle_border">#DADFD8</color>
+    <color name="search_filter_rectangle_search">#FFFFFFFF</color>
+    <color name="image_outline">#9dd182</color>
+    <color name="friend_string_color">#666666</color>
 
     <!-- Itzel Medina -->
     <color name="grey">#9E9E9E</color>

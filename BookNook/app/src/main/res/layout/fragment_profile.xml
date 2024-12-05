@@ -135,6 +135,7 @@
                     android:enabled="false"
                     android:focusable="false"
                     android:textColor="@color/main_text_brown"
+                    android:textColorHint="@color/main_text_brown"
                     android:cursorVisible="false"
                     android:imeOptions="actionDone" />
 
@@ -180,6 +181,7 @@
                     android:layout_weight="1"
                     android:background="@drawable/rounded_rectangle_2"
                     android:hint="Enter your favorite book character"
+                    android:textColorHint="@color/main_text_brown"
                     android:padding="10dp"
                     android:enabled="false"
                     android:focusable="false"
