@@ -35,4 +35,6 @@
     <color name="search_filter_hint_name">#000000</color>
     <color name="image_outline">#5A6ABF</color>
     <color name="friend_string_color">#666666</color>
+    <color name="group_title_name">#FFFFFFFF</color>
+    <color name="group_subtitle_name">#CCCCCC</color>
 </resources>

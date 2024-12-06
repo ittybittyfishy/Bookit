@@ -30,6 +30,8 @@
     <color name="search_filter_rectangle_search">#FFFFFFFF</color>
     <color name="image_outline">#9dd182</color>
     <color name="friend_string_color">#666666</color>
+    <color name="group_title_name">#000000</color>
+    <color name="group_subtitle_name">#AAAAAA</color>
 
     <!-- Itzel Medina -->
     <color name="grey">#9E9E9E</color>
