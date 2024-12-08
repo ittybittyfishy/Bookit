@@ -1,6 +1,7 @@
 package com.example.booknook
 import com.google.firebase.Timestamp
 
+// Data class to store information for a group member's update
 data class GroupMemberUpdate(
     val updateId : String = "",
     val userId: String = "",

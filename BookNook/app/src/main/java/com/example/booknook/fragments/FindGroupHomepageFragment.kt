@@ -279,12 +279,10 @@ class FindGroupHomepageFragment : Fragment() {
                         } else if (alreadyJoined) {
                             // Already joined group, change button to "Leave Group"
                             joinGroupButton.text = "Leave Group"
-                            Toast.makeText(activity, "Already joined", Toast.LENGTH_SHORT).show()
                         // User is not a creator or member of group
                         } else {
                             // Not joined, button displays "Join Group"
                             joinGroupButton.text = "Join Group"
-                            Toast.makeText(activity, "Not joined", Toast.LENGTH_SHORT).show()
                         }
                     } else {
                         joinGroupButton.text = "Join Group"
