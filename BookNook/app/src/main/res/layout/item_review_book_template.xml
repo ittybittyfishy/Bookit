@@ -74,6 +74,7 @@
             android:isIndicator="true"
             android:numStars="5"
             android:stepSize="0.5"
+            android:progressTint="@color/star_green"
             android:layout_marginTop="3dp"/>
 
         <TextView
@@ -138,6 +139,7 @@
             android:isIndicator="true"
             android:numStars="5"
             android:stepSize="0.5"
+            android:progressTint="@color/star_green"
             android:layout_marginTop="3dp"/>
 
         <TextView
@@ -190,6 +192,7 @@
             android:isIndicator="true"
             android:numStars="5"
             android:stepSize="0.5"
+            android:progressTint="@color/star_green"
             android:layout_marginTop="3dp"/>
 
         <TextView
@@ -242,6 +245,7 @@
             android:isIndicator="true"
             android:numStars="5"
             android:stepSize="0.5"
+            android:progressTint="@color/star_green"
             android:layout_marginTop="3dp"/>
 
         <TextView
@@ -294,6 +298,7 @@
             android:isIndicator="true"
             android:numStars="5"
             android:stepSize="0.5"
+            android:progressTint="@color/star_green"
             android:layout_marginTop="3dp"/>
 
         <TextView
@@ -345,6 +350,7 @@
             android:isIndicator="true"
             android:numStars="5"
             android:stepSize="0.5"
+            android:progressTint="@color/star_green"
             android:layout_marginTop="3dp"/>
 
         <TextView
@@ -396,6 +402,7 @@
             android:isIndicator="true"
             android:numStars="5"
             android:stepSize="0.5"
+            android:progressTint="@color/star_green"
             android:layout_marginTop="3dp"/>
 
         <TextView

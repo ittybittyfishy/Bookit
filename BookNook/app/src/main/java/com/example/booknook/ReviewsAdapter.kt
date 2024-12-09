@@ -460,7 +460,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 charactersReview.visibility = View.VISIBLE
 
                 charactersReview.text = templateReview.charactersReview
-                charactersRatingBar.rating = templateReview.charactersRating.toFloat()
+                charactersRatingBar.rating = templateReview.charactersRating?.toFloat() ?: 0.0f
             } else {
                 charactersHeading.visibility = View.GONE
                 charactersRatingBar.visibility = View.GONE
@@ -474,7 +474,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 writingReview.visibility = View.VISIBLE
 
                 writingReview.text = templateReview.writingReview
-                writingRatingBar.rating = templateReview.writingRating.toFloat()
+                writingRatingBar.rating = templateReview.writingRating?.toFloat() ?: 0.0f
             } else {
                 writingHeading.visibility = View.GONE
                 writingRatingBar.visibility = View.GONE
@@ -488,7 +488,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 plotReview.visibility = View.VISIBLE
 
                 plotReview.text = templateReview.plotReview
-                plotRatingBar.rating = templateReview.plotRating.toFloat()
+                plotRatingBar.rating = templateReview.plotRating?.toFloat() ?: 0.0f
             } else {
                 plotHeading.visibility = View.GONE
                 plotRatingBar.visibility = View.GONE
@@ -502,7 +502,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 themesReview.visibility = View.VISIBLE
 
                 themesReview.text = templateReview.themesReview
-                themesRatingBar.rating = templateReview.themesRating.toFloat()
+                themesRatingBar.rating = templateReview.themesRating?.toFloat() ?: 0.0f
             } else {
                 themesHeading.visibility = View.GONE
                 themesRatingBar.visibility = View.GONE
@@ -516,7 +516,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 strengthsReview.visibility = View.VISIBLE
 
                 strengthsReview.text = templateReview.strengthsReview
-                strengthsRatingBar.rating = templateReview.strengthsRating.toFloat()
+                strengthsRatingBar.rating = templateReview.strengthsRating?.toFloat() ?: 0.0f
             } else {
                 strengthsHeading.visibility = View.GONE
                 strengthsRatingBar.visibility = View.GONE
@@ -530,7 +530,7 @@ class ReviewsAdapter(private val reviews: List<Any>) : RecyclerView.Adapter<Recy
                 weaknessesReview.visibility = View.VISIBLE
 
                 weaknessesReview.text = templateReview.weaknessesReview
-                weaknessesRatingBar.rating = templateReview.weaknessesRating.toFloat()
+                weaknessesRatingBar.rating = templateReview.weaknessesRating?.toFloat() ?: 0.0f
             } else {
                 weaknessesHeading.visibility = View.GONE
                 weaknessesRatingBar.visibility = View.GONE
