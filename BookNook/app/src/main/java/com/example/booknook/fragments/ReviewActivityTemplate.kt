@@ -587,7 +587,9 @@ class ReviewActivityTemplate : Fragment() {
                                             charactersRating, charactersReview, writingChecked, writingRating,
                                             writingReview, plotChecked, plotRating, plotReview, themesChecked,
                                             themesRating, themesReview, strengthsChecked, strengthsRating,
-                                            strengthsReview, weaknessesChecked, weaknessesRating, weaknessesReview
+                                            strengthsReview, weaknessesChecked, weaknessesRating, weaknessesReview,
+                                            charactersRatingTouched, writingRatingTouched, plotRatingTouched, themesRatingTouched,
+                                            strengthsRatingTouched, weaknessesRatingTouched
                                         )
                                         // Yunjong Noh
                                         // Add a notification for the new review (11/10)
@@ -839,6 +841,12 @@ class ReviewActivityTemplate : Fragment() {
         weaknessesChecked: Boolean,
         weaknessesRating: Float,
         weaknessesReview: String,
+        charactersRatingTouched: Boolean,
+        writingRatingTouched: Boolean,
+        plotRatingTouched: Boolean,
+        themesRatingTouched: Boolean,
+        strengthsRatingTouched: Boolean,
+        weaknessesRatingTouched: Boolean
     ) {
         val db = FirebaseFirestore.getInstance()
         db.collection("users").document(userId).get().addOnSuccessListener { document ->
@@ -865,24 +873,31 @@ class ReviewActivityTemplate : Fragment() {
                         "reviewText" to reviewText,
                         "rating" to rating,
                         "charactersChecked" to charactersChecked,
-                        "charactersRating" to charactersRating,
-                        "charactersReview" to charactersReview,
                         "writingChecked" to writingChecked,
-                        "writingRating" to writingRating,
-                        "writingReview" to writingReview,
                         "plotChecked" to plotChecked,
-                        "plotRating" to plotRating,
-                        "plotReview" to plotReview,
                         "themesChecked" to themesChecked,
-                        "themesRating" to themesRating,
-                        "themesReview" to themesReview,
                         "strengthsChecked" to strengthsChecked,
-                        "strengthsRating" to strengthsRating,
-                        "strengthsReview" to strengthsReview,
                         "weaknessesChecked" to weaknessesChecked,
-                        "weaknessesRating" to weaknessesRating,
-                        "weaknessesReview" to weaknessesReview,
                     )
+
+                    // Assign nullable ratings based on user interaction
+                    updateData["charactersRating"] = if (charactersRatingTouched) charactersRating.toDouble() else null
+                    updateData["charactersReview"] = charactersReview
+
+                    updateData["writingRating"] = if (writingRatingTouched) writingRating.toDouble() else null
+                    updateData["writingReview"] = writingReview
+
+                    updateData["plotRating"] = if (plotRatingTouched) plotRating.toDouble() else null
+                    updateData["plotReview"] = plotReview
+
+                    updateData["themesRating"] = if (themesRatingTouched) themesRating.toDouble() else null
+                    updateData["themesReview"] = themesReview
+
+                    updateData["strengthsRating"] = if (strengthsRatingTouched) strengthsRating.toDouble() else null
+                    updateData["strengthsReview"] = strengthsReview
+
+                    updateData["weaknessesRating"] = if (weaknessesRatingTouched) weaknessesRating.toDouble() else null
+                    updateData["weaknessesReview"] = weaknessesReview
 
                     // Write the data with the predefined document ID
                     groupUpdatesRef.document(updateId).set(updateData)

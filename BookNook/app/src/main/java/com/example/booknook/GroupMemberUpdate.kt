@@ -35,5 +35,11 @@ data class GroupMemberUpdate(
     val weaknessesChecked: Boolean = false,
     val weaknessesRating: Float? = null,
     val weaknessesReview: String = "",
-    val timestamp: Timestamp? = null
+    val timestamp: Timestamp? = null,
+    val charactersRatingTouched: Boolean = false,
+    val writingRatingTouched: Boolean = false,
+    val plotRatingTouched: Boolean = false,
+    val themesRatingTouched: Boolean = false,
+    val strengthsRatingTouched: Boolean = false,
+    val weaknessesRatingTouched: Boolean = false
 )
