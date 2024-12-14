@@ -175,7 +175,7 @@ class FriendsFragment : Fragment() {
         bundle.putString("receiverId", selectedFriend.friendId)
         bundle.putString("receiverUsername", selectedFriend.friendUsername)
         friendProfileFragment.arguments = bundle
-        (activity as MainActivity).replaceFragment(friendProfileFragment, "Profile")
+        (activity as MainActivity).replaceFragment(friendProfileFragment, "Profile", showBackButton=true)
     }
 
     // Function to search for a user with their username
