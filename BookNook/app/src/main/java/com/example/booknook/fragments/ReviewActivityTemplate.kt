@@ -675,7 +675,7 @@ class ReviewActivityTemplate : Fragment() {
 
                         // Loop through friends and send notifications to eligible friends
                         friends.forEach { friend ->
-                            if (friend["friendId"] == currentUserId) {
+                            if (friend["friendId"] != currentUserId) {
                                 // Send notification to friend with receiverId as the friend
                                 sendNotification(friend["friendId"]!!, notificationMessage, notificationType, expirationTime, currentUserId, friend["friendId"]!!, senderProfileImageUrl, senderUsername)
                             }
