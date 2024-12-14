@@ -27,7 +27,7 @@ import de.hdodenhof.circleimageview.CircleImageView
 import java.util.Date
 
 class GroupUpdateAdapter(
-    private val memberUpdates: List<GroupMemberUpdate>,
+    private val memberUpdates: MutableList<GroupMemberUpdate>, // MutableList로 변경하여 아이템 제거 가능
     private val groupId: String
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -38,6 +38,8 @@ class GroupUpdateAdapter(
         const val TYPE_REVIEW_BOOK_NO_TEMPLATE = 4
         const val TYPE_REVIEW_BOOK_TEMPLATE = 5
     }
+
+    private var notificationSent = false // 알림 전송 여부 플래그 추가
 
     override fun getItemViewType(position: Int): Int {
         val type = memberUpdates[position].type
@@ -83,35 +85,22 @@ class GroupUpdateAdapter(
         val update = memberUpdates[position]
 
         when (holder) {
-            is StartBookViewHolder -> {
-                holder.bind(update)
-                sendGroupUpdateNotification(groupId) // Notify on StartBook update
-            }
-            is FinishBookViewHolder -> {
-                holder.bind(update)
-                sendGroupUpdateNotification(groupId) // Notify on FinishBook update
-            }
-            is RecommendBookViewHolder -> {
-                holder.bind(update)
-                sendGroupUpdateNotification(groupId) // Notify on RecommendBook update
-            }
-            is ReviewBookNoTemplateViewHolder -> {
-                holder.bind(update)
-                sendGroupUpdateNotification(groupId) // Notify on Review without Template update
-            }
-            is ReviewBookTemplateViewHolder -> {
-                holder.bind(update)
-                sendGroupUpdateNotification(groupId) // Notify on Review with Template update
-            }
-        }
-
-    // Call the notification function when all updates are bound
-        if (position == memberUpdates.size - 1) {
-            sendGroupUpdateNotification(groupId)
+            is StartBookViewHolder -> holder.bind(update)
+            is FinishBookViewHolder -> holder.bind(update)
+            is RecommendBookViewHolder -> holder.bind(update)
+            is ReviewBookNoTemplateViewHolder -> holder.bind(update)
+            is ReviewBookTemplateViewHolder -> holder.bind(update)
         }
     }
 
     override fun getItemCount(): Int = memberUpdates.size
+
+    // 새로운 업데이트를 추가하고 알림을 전송하는 함수
+    fun addUpdate(update: GroupMemberUpdate) {
+        memberUpdates.add(update)
+        notifyItemInserted(memberUpdates.size - 1)
+        sendGroupUpdateNotification(groupId)
+    }
 
     // Utility function to fetch comments from Firestore
     private fun fetchComments(updateId: String, groupId: String, onSuccess: (List<GroupComment>) -> Unit) {
@@ -260,7 +249,7 @@ class GroupUpdateAdapter(
                         updateRef.update("dismissedBy", FieldValue.arrayUnion(userId))
                             .addOnSuccessListener {
                                 // Remove the update from the local list
-                                (memberUpdates as MutableList).removeAt(position)
+                                memberUpdates.removeAt(position)
 
                                 // Notify the adapter about the item removal
                                 notifyItemRemoved(position)
@@ -275,8 +264,8 @@ class GroupUpdateAdapter(
             }
 
             messageTextView.text = "${update.username} started a book: ${update.bookTitle}"
-
         }
+
         // Utility function for saving comments to the database
         private fun saveCommentToDatabase(
             groupId: String,
@@ -440,7 +429,7 @@ class GroupUpdateAdapter(
                         updateRef.update("dismissedBy", FieldValue.arrayUnion(userId))
                             .addOnSuccessListener {
                                 // Remove the update from the local list
-                                (memberUpdates as MutableList).removeAt(position)
+                                memberUpdates.removeAt(position)
 
                                 // Notify the adapter about the item removal
                                 notifyItemRemoved(position)
@@ -453,6 +442,7 @@ class GroupUpdateAdapter(
                     }
                 }
             }
+
             messageTextView.text = "${update.username} finished a book: ${update.bookTitle}"
         }
 
@@ -624,7 +614,7 @@ class GroupUpdateAdapter(
                         updateRef.update("dismissedBy", FieldValue.arrayUnion(userId))
                             .addOnSuccessListener {
                                 // Remove the update from the local list
-                                (memberUpdates as MutableList).removeAt(position)
+                                memberUpdates.removeAt(position)
 
                                 // Notify the adapter about the item removal
                                 notifyItemRemoved(position)
@@ -637,7 +627,6 @@ class GroupUpdateAdapter(
                     }
                 }
             }
-
 
             messageTextView.text = "${update.username} recommended book: ${update.bookTitle}"
             titleTextView.text = update.bookTitle
