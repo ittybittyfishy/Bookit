@@ -103,4 +103,5 @@ Book Nook is an Android application designed for book enthusiasts to enhance the
         Re-sync Gradle in Android Studio.
 
     App Crashes:
-        Check logcat in Android Studio for error details
+        Check logcat in Android Studio for error details.
+        A common crash is leaving the home page before the reccomendations finish loading upon login!
